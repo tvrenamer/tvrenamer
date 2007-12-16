@@ -62,7 +62,7 @@ public class UIStarter {
     tblResults.setLinesVisible(true);
     gridData = new GridData(GridData.FILL_BOTH);
     gridData.widthHint = 780;
-    gridData.heightHint = 80;
+    gridData.heightHint = 160;
     gridData.horizontalSpan = 3;
     tblResults.setLayoutData(gridData);
 
