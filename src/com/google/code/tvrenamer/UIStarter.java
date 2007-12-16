@@ -9,18 +9,24 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 public class UIStarter {
   private static final int RENAME = 1;
@@ -77,6 +83,12 @@ public class UIStarter {
     final TableColumn col3 = new TableColumn(tblResults, SWT.LEFT);
     col3.setText("New Name");
     col3.setWidth(350);
+
+    // editable table
+    final TableEditor editor = new TableEditor(tblResults);
+    editor.horizontalAlignment = SWT.CENTER;
+    editor.grabHorizontal = true;
+    final int EDITABLECOLUMN = 2;
 
     final Button btnRenameAll = new Button(shell, SWT.PUSH);
     btnRenameAll.setText("Rename All");
@@ -183,6 +195,64 @@ public class UIStarter {
         display.dispose();
       }
     });
+
+    Listener tblEditListener = new Listener() {
+      @Override
+      public void handleEvent(Event event) {
+        Rectangle clientArea = tblResults.getClientArea();
+        Point pt = new Point(event.x, event.y);
+        int index = tblResults.getTopIndex();
+        while (index < tblResults.getItemCount()) {
+          boolean visible = false;
+          final TableItem item = tblResults.getItem(index);
+          for (int i = 0; i < tblResults.getColumnCount(); i++) {
+            Rectangle rect = item.getBounds(i);
+            if (rect.contains(pt)) {
+              final int column = i;
+              final Text text = new Text(tblResults, SWT.NONE);
+              Listener textListener = new Listener() {
+                public void handleEvent(final Event e) {
+                  switch (e.type) {
+                    case SWT.FocusOut:
+                      item.setText(column, text.getText());
+                      logger.debug("item height"
+                          + item.getFont().getFontData()[0].getHeight());
+                      text.dispose();
+                      break;
+                    case SWT.Traverse:
+                      switch (e.detail) {
+                        case SWT.TRAVERSE_RETURN:
+                          item.setText(column, text.getText());
+                          // fall through
+                        case SWT.TRAVERSE_ESCAPE:
+                          text.dispose();
+                          e.doit = false;
+                      }
+                      break;
+                  }
+                }
+              };
+              text.addListener(SWT.FocusOut, textListener);
+              text.addListener(SWT.FocusIn, textListener);
+              editor.setEditor(text, item, i);
+              text.setText(item.getText(i));
+              text.selectAll();
+              text.setFocus();
+              logger.debug("text height"
+                  + text.getFont().getFontData()[0].getHeight());
+              return;
+            }
+            if (!visible && rect.intersects(clientArea)) {
+              visible = true;
+            }
+          }
+          if (!visible)
+            return;
+          index++;
+        }
+      }
+    };
+    tblResults.addListener(SWT.MouseDown, tblEditListener);
 
     return shell;
   }
