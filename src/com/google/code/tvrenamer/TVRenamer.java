@@ -77,7 +77,7 @@ public class TVRenamer {
       } else {
         logger.debug("Reading episode details from " + showURL);
         ioStream = url.openStream();
-        reader = new BufferedReader(new InputStreamReader(ioStream));
+        reader = new BufferedReader(new InputStreamReader(ioStream, "UTF8"));
       }
 
       String line = reader.readLine();
@@ -98,8 +98,10 @@ public class TVRenamer {
             if (matcher.matches()) {
               String epNum = matcher.group(1);
               if (epNum.equals(webEpNum)) {
+                String title = sanitiseTitle(webMatcher.group(2));
+
                 Episode ep = new Episode(file.getAbsolutePath(), webEpNum,
-                    webMatcher.group(2), season, showName);
+                    title, season, showName);
                 logger.debug("Found episode " + fileName
                     + "; episode number is " + ep.getNumber()
                     + " with title \'" + ep.getTitle() + "\'");
@@ -130,6 +132,13 @@ public class TVRenamer {
         logger.warn("Caught IO Exception while closing " + showURL + " stream");
       }
     }
+  }
+
+  private String sanitiseTitle(String title) {
+    // need to add more mappings, such as ':'
+    title = title.replace(":", " -");
+    title = title.replace('/', '-');
+    return title;
   }
 
   public Map<Integer, Episode> getEpisodeListing() {
