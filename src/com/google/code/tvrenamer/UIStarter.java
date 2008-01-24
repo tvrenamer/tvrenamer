@@ -45,7 +45,7 @@ public class UIStarter {
     ui.launch();
   }
 
-  private Shell init() {
+  private void init() {
     // Set up environment
     GridLayout gridLayout = new GridLayout();
     gridLayout.numColumns = 3;
@@ -253,8 +253,6 @@ public class UIStarter {
       }
     };
     tblResults.addListener(SWT.MouseDown, tblEditListener);
-
-    return shell;
   }
 
   private void launch() {

@@ -47,10 +47,16 @@ public class TVRenamer {
     showName = parentFile.getName();
     // String regex = ".*(\\d).*\\d\\d.*$"; // previous one
 
+		// grabs the show's name out of the filename, for shows with numeric titles
+    String seasonInput = files.get(0).getName();
+    logger.debug("seasonInput = " + seasonInput);
+    seasonInput = seasonInput.replaceFirst(showName, "");
+    logger.debug("seasonInput = " + seasonInput);
+
     // if we keep the episode matching stuff, it will be non-greedy ^_^
-    String regex = "[^\\d]*?(\\d\\d?).*[^\\d]*?(\\d\\d).*";
-    Matcher matcher = Pattern.compile(regex).matcher(files.get(0).getName());
-    logger.debug("season input -> " + files.get(0).getName());
+    String regex = "[^\\d]*?(\\d\\d?)[^\\d]*?(\\d\\d).*";
+    Matcher matcher = Pattern.compile(regex).matcher(seasonInput);
+    logger.debug("season input -> " + seasonInput);
     if (matcher.matches()) {
       season = matcher.group(1);
       // remove leading zero
@@ -67,6 +73,13 @@ public class TVRenamer {
     try {
       showURL = "http://www.tvrage.com/" + showName.replace(" ", "_")
           + "/episode_list/" + season;
+
+      // Hogan's Heroes
+      // showURL = "http://www.tvrage.com/shows/id-3874/eplist/" + season;
+
+      // JAG
+      // showURL = "http://www.tvrage.com/shows/id-4032/episode_list/" + season;
+
       URL url = new URL(showURL);
 
       if (READ_FROM_FILE) {
@@ -91,6 +104,10 @@ public class TVRenamer {
 
           for (File file : files) {
             String fileName = file.getName();
+
+						// remove the show's name from the filename, handles numeric titles
+            fileName = fileName.replaceFirst(showName, "");
+
             // String regex = ".*(\\d\\d).*$"; // previous one
             String regex = "[^\\d]*?\\d\\d?[^\\d]*?(\\d\\d).*";
             Pattern pattern = Pattern.compile(regex);
@@ -138,6 +155,7 @@ public class TVRenamer {
     // need to add more mappings, such as ':'
     title = title.replace(":", " -");
     title = title.replace('/', '-');
+    title = title.replace("?", "");
     return title;
   }
 
