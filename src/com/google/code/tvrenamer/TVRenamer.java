@@ -47,7 +47,7 @@ public class TVRenamer {
     showName = parentFile.getName();
     // String regex = ".*(\\d).*\\d\\d.*$"; // previous one
 
-		// grabs the show's name out of the filename, for shows with numeric titles
+    // grabs the show's name out of the filename, for shows with numeric titles
     String seasonInput = files.get(0).getName();
     logger.debug("seasonInput = " + seasonInput);
     seasonInput = seasonInput.replaceFirst(showName, "");
@@ -105,7 +105,7 @@ public class TVRenamer {
           for (File file : files) {
             String fileName = file.getName();
 
-						// remove the show's name from the filename, handles numeric titles
+            // remove the show's name from the filename, handles numeric titles
             fileName = fileName.replaceFirst(showName, "");
 
             // String regex = ".*(\\d\\d).*$"; // previous one
@@ -155,6 +155,7 @@ public class TVRenamer {
     // need to add more mappings, such as ':'
     title = title.replace(":", " -");
     title = title.replace('/', '-');
+    title = title.replace('\\', '-');
     title = title.replace("?", "");
     return title;
   }
