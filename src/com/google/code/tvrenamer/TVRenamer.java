@@ -18,17 +18,15 @@ public class TVRenamer {
     this.show = show;
   }
 
-  public ArrayList<Show> downloadOptions(File file) {
-    return TVRageProvider.getShowOptions(getShowName(file));
+  public ArrayList<Show> downloadOptions(String showName) {
+    return TVRageProvider.getShowOptions(showName);
   }
 
   public void downloadListing() {
     TVRageProvider.getShowListing(show);
   }
 
-  public String parseFileName(File file, String format) {
-    String showName = getShowName(file);
-
+  public String parseFileName(File file, String showName, String format) {
     // grabs the show's name out of the filename, for shows with numeric titles
     String seasonNum = file.getName();
     seasonNum = seasonNum.replaceFirst(showName, "");
@@ -47,10 +45,14 @@ public class TVRenamer {
 
     Season s = this.show.getSeason(seasonNum);
     if (s == null) {
-      logger.debug("fail");
+      logger.error("season not found!");
       return file.getName();
     }
     String title = s.getTitle(episodeNum);
+    if (title == null) {
+      logger.error("title not found!");
+      return file.getName();
+    }
     title = sanitiseTitle(title);
     String extension = getExtension(file.getName());
 
@@ -62,7 +64,7 @@ public class TVRenamer {
     return format + "." + extension;
   }
 
-  private String getShowName(File file) {
+  public String getShowName(File file) {
     String showName = file.getParentFile().getName();
 
     // If the showname is 'Season x' the go up another directory

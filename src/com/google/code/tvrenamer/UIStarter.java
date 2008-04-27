@@ -46,6 +46,7 @@ public class UIStarter {
   private Table tblResults;
 
   private Text textFormat;
+  private Text textShowName;
 
   private ArrayList<Show> showList;
   private ArrayList<String> files;
@@ -71,16 +72,23 @@ public class UIStarter {
 
     final Composite formatParent = new Composite(shell, SWT.NONE);
     GridData formatData = new GridData(GridData.HORIZONTAL_ALIGN_END);
-    formatData.widthHint = 300;
-    formatParent.setLayout(new GridLayout(3, false));
+    formatData.widthHint = 450;
+    formatParent.setLayout(new GridLayout(6, false));
     formatParent.setLayoutData(formatData);
 
     final Label lblFormat = new Label(formatParent, SWT.NONE);
-    lblFormat.setText("Format String: ");
+    lblFormat.setText("Format:");
 
-    textFormat = new Text(formatParent, SWT.LEFT | SWT.SINGLE);
+    textFormat = new Text(formatParent, SWT.LEFT | SWT.SINGLE | SWT.BORDER);
     textFormat.setText("%S [%sx%e] %t");
     textFormat.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+    final Label lblShowName = new Label(formatParent, SWT.None);
+    lblShowName.setText("Show:");
+
+    textShowName = new Text(formatParent, SWT.LEFT | SWT.SINGLE | SWT.BORDER);
+    textShowName.setEnabled(false);
+    textShowName.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
     final Button btnFormat = new Button(formatParent, SWT.PUSH);
     btnFormat.setText("Apply");
@@ -93,27 +101,45 @@ public class UIStarter {
       }
     });
 
+    final Button btnReset = new Button(formatParent, SWT.PUSH);
+    btnReset.setText("Reset");
+    btnReset.setEnabled(true);
+
+    btnReset.addSelectionListener(new SelectionAdapter() {
+      @Override
+      public void widgetSelected(SelectionEvent e) {
+        textFormat.setText("%S [%sx%e] %t");
+        if (tv != null)
+          textShowName.setText(tv.getShowName(new File(files.get(0))));
+        else
+          textShowName.setText("");
+
+        if (tv != null)
+          populateTable();
+      }
+    });
+
     // Results table
     tblResults = new Table(shell, SWT.CHECK);
     tblResults.setHeaderVisible(true);
     tblResults.setLinesVisible(true);
     GridData gridData = new GridData(GridData.FILL_BOTH);
     // gridData.widthHint = 780;
-    gridData.heightHint = 160;
+    gridData.heightHint = 200;
     gridData.horizontalSpan = 3;
     tblResults.setLayoutData(gridData);
 
     final TableColumn col1 = new TableColumn(tblResults, SWT.LEFT);
     col1.setText("Index");
-    col1.setWidth(80);
+    col1.setWidth(40);
 
     final TableColumn col2 = new TableColumn(tblResults, SWT.LEFT);
     col2.setText("Current Name");
-    col2.setWidth(350);
+    col2.setWidth(380);
 
     final TableColumn col3 = new TableColumn(tblResults, SWT.LEFT);
     col3.setText("Proposed Name");
-    col3.setWidth(350);
+    col3.setWidth(380);
 
     // editable table
     final TableEditor editor = new TableEditor(tblResults);
@@ -149,7 +175,12 @@ public class UIStarter {
           // Call tvRenamer which actually finds the ep names ...
           tv = new TVRenamer();
 
-          showList = tv.downloadOptions(new File(fileNames[0]));
+          String showName = tv.getShowName(new File(fileNames[0]));
+
+          textShowName.setText(showName);
+          textShowName.setEnabled(true);
+
+          showList = tv.downloadOptions(showName);
 
           if (showList.isEmpty())
             return;
@@ -248,7 +279,6 @@ public class UIStarter {
     });
 
     Listener tblEditListener = new Listener() {
-      @Override
       public void handleEvent(Event event) {
         Rectangle clientArea = tblResults.getClientArea();
         Point pt = new Point(event.x, event.y);
@@ -357,8 +387,8 @@ public class UIStarter {
     for (int i = 0; i < files.size(); i++) {
       String fileName = files.get(i);
       String oldFilename = new File(fileName).getName();
-      String newFilename = tv.parseFileName(new File(fileName), textFormat
-          .getText());
+      String newFilename = tv.parseFileName(new File(fileName), textShowName
+          .getText(), textFormat.getText());
       TableItem item = new TableItem(tblResults, SWT.NONE);
       item.setText(new String[] { (i + 1) + "", oldFilename, newFilename });
       item.setChecked(true);
