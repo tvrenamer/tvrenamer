@@ -1,6 +1,11 @@
 package com.google.code.tvrenamer;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.net.URL;
 import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -16,6 +21,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 public class TVRageProvider {
@@ -33,8 +39,17 @@ public class TVRageProvider {
 
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
     try {
+      // following code replaces '&' with the entity '&amp;'
+      URL u = new URL(searchURL);
+      InputStream is = u.openStream();
+      BufferedReader r = new BufferedReader(new InputStreamReader(is));
+      String s;
+      String xml = "";
+      while ((s = r.readLine()) != null)
+        xml += s.replaceAll("& ", "&amp; ");
+
       DocumentBuilder db = dbf.newDocumentBuilder();
-      Document doc = db.parse(searchURL);
+      Document doc = db.parse(new InputSource(new StringReader(xml)));
 
       XPathFactory factory = XPathFactory.newInstance();
       XPath xpath = factory.newXPath();
