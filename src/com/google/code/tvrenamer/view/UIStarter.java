@@ -1,4 +1,4 @@
-package com.google.code.tvrenamer;
+package com.google.code.tvrenamer.view;
 
 import java.io.File;
 import java.text.Collator;
@@ -30,6 +30,9 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
+
+import com.google.code.tvrenamer.controller.TVRenamer;
+import com.google.code.tvrenamer.model.Show;
 
 public class UIStarter {
   private static final String pathSeparator = System

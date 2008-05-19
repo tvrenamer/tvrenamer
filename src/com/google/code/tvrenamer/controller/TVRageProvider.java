@@ -1,4 +1,4 @@
-package com.google.code.tvrenamer;
+package com.google.code.tvrenamer.controller;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -23,6 +23,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import com.google.code.tvrenamer.model.Season;
+import com.google.code.tvrenamer.model.Show;
 
 public class TVRageProvider {
   private static Logger logger = Logger.getLogger(TVRenamer.class);

@@ -1,4 +1,4 @@
-package com.google.code.tvrenamer;
+package com.google.code.tvrenamer.controller;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -6,6 +6,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+
+import com.google.code.tvrenamer.model.Season;
+import com.google.code.tvrenamer.model.Show;
 
 public class TVRenamer {
   private static Logger logger = Logger.getLogger(TVRenamer.class);

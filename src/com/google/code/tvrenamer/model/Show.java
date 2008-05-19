@@ -1,4 +1,4 @@
-package com.google.code.tvrenamer;
+package com.google.code.tvrenamer.model;
 
 import java.util.HashMap;
 

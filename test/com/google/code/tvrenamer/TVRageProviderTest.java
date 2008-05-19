@@ -1,6 +1,10 @@
 package com.google.code.tvrenamer;
 
+
 import org.junit.Test;
+
+import com.google.code.tvrenamer.controller.TVRageProvider;
+import com.google.code.tvrenamer.model.Show;
 
 public class TVRageProviderTest {
 
