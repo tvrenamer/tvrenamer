@@ -31,137 +31,143 @@ import com.google.code.tvrenamer.model.util.Constants;
 import com.google.code.tvrenamer.view.UIStarter;
 
 public class TVRageProvider {
-	private static Logger logger = Logger.getLogger(TVRenamer.class);
-	private static final String BASE_SEARCH_URL = "http://www.tvrage.com/feeds/search.php?show=";
-	private static final String XPATH_SHOW = "//show";
-	private static final String XPATH_SHOWID = "showid";
-	private static final String XPATH_NAME = "name";
-	private static final String XPATH_LINK = "link";
+  private static Logger logger = Logger.getLogger(TVRenamer.class);
+  private static final String BASE_SEARCH_URL = "http://www.tvrage.com/feeds/search.php?show=";
+  private static final String XPATH_SHOW = "//show";
+  private static final String XPATH_SHOWID = "showid";
+  private static final String XPATH_NAME = "name";
+  private static final String XPATH_LINK = "link";
 
-	private static final String BASE_LIST_URL = "http://www.tvrage.com/feeds/episode_list.php?sid=";
-	private static final String XPATH_ALL = "*";
-	private static final String XPATH_EPISODE_LIST = "//Episodelist/*[starts-with(name(), 'Season')]";
-	private static final String XPATH_SEASON_NUM = "seasonnum";
-	private static final String XPATH_TITLE = "title";
+  private static final String BASE_LIST_URL = "http://www.tvrage.com/feeds/episode_list.php?sid=";
+  private static final String XPATH_ALL = "*";
+  private static final String XPATH_EPISODE_LIST = "//Episodelist/*[starts-with(name(), 'Season')]";
+  private static final String XPATH_SEASON_NUM = "seasonnum";
+  private static final String XPATH_TITLE = "title";
 
-	public static ArrayList<Show> getShowOptions(String showName) {
-		ArrayList<Show> options = new ArrayList<Show>();
+  public static ArrayList<Show> getShowOptions(String showName) {
+    ArrayList<Show> options = new ArrayList<Show>();
 
-		logger.debug(BASE_SEARCH_URL + showName);
-		String searchURL = BASE_SEARCH_URL + encodeSpecialCharacters(showName);
+    logger.debug(BASE_SEARCH_URL + showName);
+    String searchURL = BASE_SEARCH_URL + showName;
 
-		try {
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+    try {
+      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
-			URL url = new URL(searchURL);
-			logger.debug("The show URL is: " + url.toString());
-			InputStream inputStream = url.openStream();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+      URL url = new URL(searchURL);
 
-			String s;
-			String xml = "";
-			while ((s = reader.readLine()) != null) {
-				xml += s;
-			}
-			logger.debug("Before encoding XML");
-			s = encodeSpecialCharacters(s);
+      logger.info("Retrieving search results from " + url.toString());
+      InputStream inputStream = url.openStream();
+      BufferedReader reader = new BufferedReader(new InputStreamReader(
+          inputStream));
 
-			DocumentBuilder db = dbf.newDocumentBuilder();
-			Document doc = db.parse(new InputSource(new StringReader(xml)));
+      logger.debug("Before encoding XML");
 
-			XPathFactory factory = XPathFactory.newInstance();
-			XPath xpath = factory.newXPath();
+      String s;
+      String xml = "";
+      while ((s = reader.readLine()) != null) {
+        xml += encodeSpecialCharacters(s);
+      }
 
-			XPathExpression expr = xpath.compile(XPATH_SHOW);
+      DocumentBuilder db = dbf.newDocumentBuilder();
+      Document doc = db.parse(new InputSource(new StringReader(xml)));
 
-			NodeList shows = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
+      XPathFactory factory = XPathFactory.newInstance();
+      XPath xpath = factory.newXPath();
 
-			for (int i = 0; i < shows.getLength(); i++) {
-				Node eNode = shows.item(i);
-				expr = xpath.compile(XPATH_SHOWID);
-				String optionId = ((Node) expr.evaluate(eNode, XPathConstants.NODE)).getTextContent();
-				expr = xpath.compile(XPATH_NAME);
-				String optionName = ((Node) expr.evaluate(eNode, XPathConstants.NODE)).getTextContent();
-				expr = xpath.compile(XPATH_LINK);
-				String optionUrl = ((Node) expr.evaluate(eNode, XPathConstants.NODE)).getTextContent();
-				options.add(new Show(optionId, optionName, optionUrl));
-			}
-			return options;
-		}
-		catch (UnknownHostException e) {
-			UIStarter.showMessageBox(Constants.ERROR,
-					"Unable to connect to http://www.tvrage.com, check your internet connection.");
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (XPathExpressionException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+      XPathExpression expr = xpath.compile(XPATH_SHOW);
 
-		return options;
-	}
+      NodeList shows = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
 
-	public static void getShowListing(Show show) {
+      for (int i = 0; i < shows.getLength(); i++) {
+        Node eNode = shows.item(i);
+        expr = xpath.compile(XPATH_SHOWID);
+        String optionId = ((Node) expr.evaluate(eNode, XPathConstants.NODE))
+            .getTextContent();
+        expr = xpath.compile(XPATH_NAME);
+        String optionName = ((Node) expr.evaluate(eNode, XPathConstants.NODE))
+            .getTextContent();
+        expr = xpath.compile(XPATH_LINK);
+        String optionUrl = ((Node) expr.evaluate(eNode, XPathConstants.NODE))
+            .getTextContent();
+        options.add(new Show(optionId, optionName, optionUrl));
+      }
+      return options;
+    } catch (UnknownHostException e) {
+      UIStarter
+          .showMessageBox(Constants.ERROR,
+              "Unable to connect to http://www.tvrage.com, check your internet connection.");
+    } catch (ParserConfigurationException e) {
+      e.printStackTrace();
+    } catch (SAXException e) {
+      e.printStackTrace();
+    } catch (XPathExpressionException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
 
-		String showURL = BASE_LIST_URL + show.getId();
+    return options;
+  }
 
-		// logger.debug(showURL);
+  public static void getShowListing(Show show) {
 
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		try {
-			DocumentBuilder db = dbf.newDocumentBuilder();
-			Document doc = db.parse(showURL);
-			XPathFactory factory = XPathFactory.newInstance();
-			XPath xpath = factory.newXPath();
+    String showURL = BASE_LIST_URL + show.getId();
 
-			XPathExpression expr = xpath.compile(XPATH_EPISODE_LIST);
+    logger.info("Retrieving episode listing from " + showURL);
 
-			NodeList seasons = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
+    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+    try {
+      DocumentBuilder db = dbf.newDocumentBuilder();
+      Document doc = db.parse(showURL);
+      XPathFactory factory = XPathFactory.newInstance();
+      XPath xpath = factory.newXPath();
 
-			for (int i = 0; i < seasons.getLength(); i++) {
-				Node sNode = seasons.item(i);
-				String nodeName = sNode.getNodeName().toLowerCase();
-				String sNum = nodeName.replace("season", "");
-				Season season = new Season(sNum);
-				show.setSeason(sNum, season);
+      XPathExpression expr = xpath.compile(XPATH_EPISODE_LIST);
 
-				expr = xpath.compile(XPATH_ALL);
-				NodeList episodes = (NodeList) expr.evaluate(sNode, XPathConstants.NODESET);
-				for (int j = 0; j < episodes.getLength(); j++) {
-					Node eNode = episodes.item(j);
-					expr = xpath.compile(XPATH_SEASON_NUM);
-					Node epNumNode = (Node) expr.evaluate(eNode, XPathConstants.NODE);
-					expr = xpath.compile(XPATH_TITLE);
-					Node epTitleNode = (Node) expr.evaluate(eNode, XPathConstants.NODE);
-					logger.debug("[" + sNum + "x" + epNumNode.getTextContent() + "] "
-					 + epTitleNode.getTextContent());
-					season.setEpisode(epNumNode.getTextContent(), epTitleNode.getTextContent());
-				}
-			}
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (XPathExpressionException e) {
-			e.printStackTrace();
-		}
-	}
+      NodeList seasons = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
 
-	private static String encodeSpecialCharacters(String input) {
-		if(input == null || input.length() == 0) {
-			return "";
-		}
+      for (int i = 0; i < seasons.getLength(); i++) {
+        Node sNode = seasons.item(i);
+        String nodeName = sNode.getNodeName().toLowerCase();
+        String sNum = nodeName.replace("season", "");
+        Season season = new Season(sNum);
+        show.setSeason(sNum, season);
 
-		// TODO: determine other characters that need to be replaced (eg "'", "-")
-		logger.debug("Input before encoding: [" +  input + "]");
-		input = input.replaceAll("& ", "&amp; ");
-		input = input.replaceAll(" ", "%20");
-		logger.debug("Input after encoding: [" +  input + "]");
-		return input;
-	}
+        expr = xpath.compile(XPATH_ALL);
+        NodeList episodes = (NodeList) expr.evaluate(sNode,
+            XPathConstants.NODESET);
+        for (int j = 0; j < episodes.getLength(); j++) {
+          Node eNode = episodes.item(j);
+          expr = xpath.compile(XPATH_SEASON_NUM);
+          Node epNumNode = (Node) expr.evaluate(eNode, XPathConstants.NODE);
+          expr = xpath.compile(XPATH_TITLE);
+          Node epTitleNode = (Node) expr.evaluate(eNode, XPathConstants.NODE);
+          logger.debug("[" + sNum + "x" + epNumNode.getTextContent() + "] "
+              + epTitleNode.getTextContent());
+          season.setEpisode(epNumNode.getTextContent(), epTitleNode
+              .getTextContent());
+        }
+      }
+    } catch (ParserConfigurationException e) {
+      e.printStackTrace();
+    } catch (SAXException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    } catch (XPathExpressionException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private static String encodeSpecialCharacters(String input) {
+    if (input == null || input.length() == 0) {
+      return "";
+    }
+
+    // TODO: determine other characters that need to be replaced (eg "'", "-")
+    // logger.debug("Input before encoding: [" + input + "]");
+    input = input.replaceAll("& ", "&amp; ");
+    // logger.debug("Input after encoding: [" + input + "]");
+    return input;
+  }
 }
