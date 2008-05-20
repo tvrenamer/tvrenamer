@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -26,156 +27,141 @@ import org.xml.sax.SAXException;
 
 import com.google.code.tvrenamer.model.Season;
 import com.google.code.tvrenamer.model.Show;
+import com.google.code.tvrenamer.model.util.Constants;
+import com.google.code.tvrenamer.view.UIStarter;
 
 public class TVRageProvider {
-  private static Logger logger = Logger.getLogger(TVRenamer.class);
+	private static Logger logger = Logger.getLogger(TVRenamer.class);
+	private static final String BASE_SEARCH_URL = "http://www.tvrage.com/feeds/search.php?show=";
+	private static final String XPATH_SHOW = "//show";
+	private static final String XPATH_SHOWID = "showid";
+	private static final String XPATH_NAME = "name";
+	private static final String XPATH_LINK = "link";
 
-  public static ArrayList<Show> getShowOptions(String showName) {
-    ArrayList<Show> options = new ArrayList<Show>();
+	private static final String BASE_LIST_URL = "http://www.tvrage.com/feeds/search.php?show=";
+	private static final String XPATH_ALL = "*";
+	private static final String XPATH_EPISODE_LIST = "//Episodelist/*[starts-with(name(), 'Season')]";
+	private static final String XPATH_SEASON_NUM = "seasonnum";
+	private static final String XPATH_TITLE = "title";
 
-    // convert spaces to %20s, not necessary but nicer
-    String searchURL = "http://www.tvrage.com/feeds/search.php?show="
-        + showName.replace(" ", "%20");
-    // TODO: determine other characters that need to be replaced (eg "'", "-")
+	public static ArrayList<Show> getShowOptions(String showName) {
+		ArrayList<Show> options = new ArrayList<Show>();
 
-    // logger.debug(searchURL);
+		logger.debug(BASE_SEARCH_URL + showName);
+		String searchURL = BASE_SEARCH_URL + encodeSpecialCharacters(showName);
 
-    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-    try {
-      // following code replaces '&' with the entity '&amp;'
-      URL u = new URL(searchURL);
-      InputStream is = u.openStream();
-      BufferedReader r = new BufferedReader(new InputStreamReader(is));
-      String s;
-      String xml = "";
-      while ((s = r.readLine()) != null)
-        xml += s.replaceAll("& ", "&amp; ");
+		try {
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
-      DocumentBuilder db = dbf.newDocumentBuilder();
-      Document doc = db.parse(new InputSource(new StringReader(xml)));
+			URL url = new URL(searchURL);
+			logger.debug("The show URL is: " + url.toString());
+			InputStream inputStream = url.openStream();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 
-      XPathFactory factory = XPathFactory.newInstance();
-      XPath xpath = factory.newXPath();
+			String s;
+			String xml = "";
+			while ((s = reader.readLine()) != null) {
+				xml += s;
+			}
+			logger.debug("Before encoding XML");
+			s = encodeSpecialCharacters(s);
 
-      XPathExpression expr = xpath.compile("//show");
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			Document doc = db.parse(new InputSource(new StringReader(xml)));
 
-      NodeList shows = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
+			XPathFactory factory = XPathFactory.newInstance();
+			XPath xpath = factory.newXPath();
 
-      for (int i = 0; i < shows.getLength(); i++) {
-        Node eNode = shows.item(i);
-        expr = xpath.compile("showid");
-        String optionId = ((Node) expr.evaluate(eNode, XPathConstants.NODE))
-            .getTextContent();
-        expr = xpath.compile("name");
-        String optionName = ((Node) expr.evaluate(eNode, XPathConstants.NODE))
-            .getTextContent();
-        expr = xpath.compile("link");
-        String optionUrl = ((Node) expr.evaluate(eNode, XPathConstants.NODE))
-            .getTextContent();
-        options.add(new Show(optionId, optionName, optionUrl));
-      }
+			XPathExpression expr = xpath.compile(XPATH_SHOW);
 
-      /*
-       * old code here:
-       * 
-       * NodeList shows = dom.getElementsByTagName("show"); for (int i = 0; i <
-       * shows.getLength(); i++) { Node show = shows.item(i); String optionId =
-       * show.getChildNodes().item(1).getTextContent(); String optionName =
-       * show.getChildNodes().item(3).getTextContent(); String optionUrl =
-       * show.getChildNodes().item(5).getTextContent(); options.add(new
-       * Show(optionId, optionName, optionUrl)); // logger.debug(optionId + " -> " +
-       * optionName); }
-       */
+			NodeList shows = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
 
-    } catch (ParserConfigurationException e) {
-      e.printStackTrace();
-    } catch (SAXException e) {
-      e.printStackTrace();
-    } catch (IOException e) {
-      e.printStackTrace();
-    } catch (XPathExpressionException e) {
-      e.printStackTrace();
-    }
+			for (int i = 0; i < shows.getLength(); i++) {
+				Node eNode = shows.item(i);
+				expr = xpath.compile(XPATH_SHOWID);
+				String optionId = ((Node) expr.evaluate(eNode, XPathConstants.NODE)).getTextContent();
+				expr = xpath.compile(XPATH_NAME);
+				String optionName = ((Node) expr.evaluate(eNode, XPathConstants.NODE)).getTextContent();
+				expr = xpath.compile(XPATH_LINK);
+				String optionUrl = ((Node) expr.evaluate(eNode, XPathConstants.NODE)).getTextContent();
+				options.add(new Show(optionId, optionName, optionUrl));
+			}
+			return options;
+		}
+		catch (UnknownHostException e) {
+			UIStarter.showMessageBox(Constants.ERROR,
+					"Unable to connect to http://www.tvrage.com, check your internet connection.");
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (XPathExpressionException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
-    return options;
-  }
+		return options;
+	}
 
-  public static void getShowListing(Show show) {
+	public static void getShowListing(Show show) {
 
-    String showURL = "http://www.tvrage.com/feeds/episode_list.php?sid="
-        + show.getId();
+		String showURL = BASE_LIST_URL + show.getId();
 
-    // logger.debug(showURL);
+		// logger.debug(showURL);
 
-    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-    try {
-      DocumentBuilder db = dbf.newDocumentBuilder();
-      Document doc = db.parse(showURL);
-      XPathFactory factory = XPathFactory.newInstance();
-      XPath xpath = factory.newXPath();
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		try {
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			Document doc = db.parse(showURL);
+			XPathFactory factory = XPathFactory.newInstance();
+			XPath xpath = factory.newXPath();
 
-      XPathExpression expr = xpath
-          .compile("//Episodelist/*[starts-with(name(), 'Season')]");
+			XPathExpression expr = xpath.compile(XPATH_EPISODE_LIST);
 
-      NodeList seasons = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
+			NodeList seasons = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
 
-      for (int i = 0; i < seasons.getLength(); i++) {
-        Node sNode = seasons.item(i);
-        String nodeName = sNode.getNodeName().toLowerCase();
-        String sNum = nodeName.replace("season", "");
-        Season season = new Season(sNum);
-        show.setSeason(sNum, season);
+			for (int i = 0; i < seasons.getLength(); i++) {
+				Node sNode = seasons.item(i);
+				String nodeName = sNode.getNodeName().toLowerCase();
+				String sNum = nodeName.replace("season", "");
+				Season season = new Season(sNum);
+				show.setSeason(sNum, season);
 
-        expr = xpath.compile("*");
-        NodeList episodes = (NodeList) expr.evaluate(sNode,
-            XPathConstants.NODESET);
-        for (int j = 0; j < episodes.getLength(); j++) {
-          Node eNode = episodes.item(j);
-          expr = xpath.compile("seasonnum");
-          Node epNumNode = (Node) expr.evaluate(eNode, XPathConstants.NODE);
-          expr = xpath.compile("title");
-          Node epTitleNode = (Node) expr.evaluate(eNode, XPathConstants.NODE);
-          // logger.debug("[" + sNum + "x" + epNumNode.getTextContent() + "] "
-          // + epTitleNode.getTextContent());
-          season.setEpisode(epNumNode.getTextContent(), epTitleNode
-              .getTextContent());
-        }
-      }
+				expr = xpath.compile(XPATH_ALL);
+				NodeList episodes = (NodeList) expr.evaluate(sNode, XPathConstants.NODESET);
+				for (int j = 0; j < episodes.getLength(); j++) {
+					Node eNode = episodes.item(j);
+					expr = xpath.compile(XPATH_SEASON_NUM);
+					Node epNumNode = (Node) expr.evaluate(eNode, XPathConstants.NODE);
+					expr = xpath.compile(XPATH_TITLE);
+					Node epTitleNode = (Node) expr.evaluate(eNode, XPathConstants.NODE);
+					logger.debug("[" + sNum + "x" + epNumNode.getTextContent() + "] "
+					 + epTitleNode.getTextContent());
+					season.setEpisode(epNumNode.getTextContent(), epTitleNode.getTextContent());
+				}
+			}
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (XPathExpressionException e) {
+			e.printStackTrace();
+		}
+	}
 
-      /*
-       * old code here:
-       * 
-       * NodeList seasons = dom.getChildNodes().item(0).getChildNodes().item(5)
-       * .getChildNodes();
-       * 
-       * for (int i = 0; i < seasons.getLength(); i++) {
-       * logger.debug(seasons.item(i).getNodeName()); }
-       * 
-       * for (int i = 1; i < seasons.getLength(); i += 2) { Node node =
-       * seasons.item(i); String nodeName = node.getNodeName(); if
-       * (nodeName.toLowerCase().startsWith("season")) {
-       * 
-       * String sNum = nodeName.substring(6); Season season = new Season(sNum);
-       * listing.put(sNum, season); logger.debug("" + i + " -> " + sNum);
-       * 
-       * NodeList children = node.getChildNodes();
-       * 
-       * for (int j = 1; j < children.getLength(); j += 2) { NodeList childs =
-       * children.item(j).getChildNodes(); logger.debug("\t" + j + " -> " +
-       * children.item(j).getNodeName()); String epNum =
-       * childs.item(2).getTextContent(); String title =
-       * childs.item(6).getTextContent(); logger.debug("\t\t" + epNum + " -> " +
-       * title); season.setEpisode(epNum, title); } } }
-       */
+	private static String encodeSpecialCharacters(String input) {
+		if(input == null || input.length() == 0) {
+			return "";
+		}
 
-    } catch (ParserConfigurationException e) {
-      e.printStackTrace();
-    } catch (SAXException e) {
-      e.printStackTrace();
-    } catch (IOException e) {
-      e.printStackTrace();
-    } catch (XPathExpressionException e) {
-      e.printStackTrace();
-    }
-  }
+		// TODO: determine other characters that need to be replaced (eg "'", "-")
+		logger.debug("Input before encoding: [" +  input + "]");
+		input = input.replaceAll("& ", "&amp; ");
+		input = input.replaceAll(" ", "%20");
+		logger.debug("Input after encoding: [" +  input + "]");
+		return input;
+	}
 }

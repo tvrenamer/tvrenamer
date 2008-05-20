@@ -12,14 +12,14 @@ public class Show {
   private final String name;
   private final String url;
 
-  private HashMap<String, Season> seasons;
+  private final HashMap<String, Season> seasons;
 
   public Show(String id, String name, String url) {
     this.id = id;
     this.name = name;
     this.url = url;
 
-    this.seasons = new HashMap<String, Season>();
+    seasons = new HashMap<String, Season>();
   }
 
   public String getId() {
@@ -35,10 +35,10 @@ public class Show {
   }
 
   public void setSeason(String sNum, Season season) {
-    this.seasons.put(sNum, season);
+    seasons.put(sNum, season);
   }
 
   public Season getSeason(String sNum) {
-    return this.seasons.get(sNum);
+    return seasons.get(sNum);
   }
 }
