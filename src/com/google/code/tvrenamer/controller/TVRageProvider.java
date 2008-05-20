@@ -38,7 +38,7 @@ public class TVRageProvider {
 	private static final String XPATH_NAME = "name";
 	private static final String XPATH_LINK = "link";
 
-	private static final String BASE_LIST_URL = "http://www.tvrage.com/feeds/search.php?show=";
+	private static final String BASE_LIST_URL = "http://www.tvrage.com/feeds/episode_list.php?sid=";
 	private static final String XPATH_ALL = "*";
 	private static final String XPATH_EPISODE_LIST = "//Episodelist/*[starts-with(name(), 'Season')]";
 	private static final String XPATH_SEASON_NUM = "seasonnum";
