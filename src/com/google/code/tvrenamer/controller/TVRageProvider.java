@@ -46,7 +46,7 @@ public class TVRageProvider {
 
   public static ArrayList<Show> getShowOptions(String showName) {
     ArrayList<Show> options = new ArrayList<Show>();
-
+    showName = showName.replaceAll(" ", "%20");
     logger.debug(BASE_SEARCH_URL + showName);
     String searchURL = BASE_SEARCH_URL + showName;
 
@@ -55,7 +55,7 @@ public class TVRageProvider {
 
       URL url = new URL(searchURL);
 
-      logger.info("Retrieving search results from " + url.toString());
+      logger.info("Retrieving search results from \"" + url.toString() + "\"");
       InputStream inputStream = url.openStream();
       BufferedReader reader = new BufferedReader(new InputStreamReader(
           inputStream));
@@ -65,8 +65,11 @@ public class TVRageProvider {
       String s;
       String xml = "";
       while ((s = reader.readLine()) != null) {
+        logger.debug(s);
         xml += encodeSpecialCharacters(s);
       }
+
+//      logger.debug("xml:\n" + xml);
 
       DocumentBuilder db = dbf.newDocumentBuilder();
       Document doc = db.parse(new InputSource(new StringReader(xml)));
