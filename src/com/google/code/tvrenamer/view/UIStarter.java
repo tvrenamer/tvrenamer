@@ -9,6 +9,12 @@ import java.util.Locale;
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TableEditor;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DropTarget;
+import org.eclipse.swt.dnd.DropTargetAdapter;
+import org.eclipse.swt.dnd.DropTargetEvent;
+import org.eclipse.swt.dnd.FileTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
@@ -42,6 +48,9 @@ public class UIStarter {
 	private static Shell shell;
 	private Table tblResults;
 
+	private Combo showCombo;
+	private Button btnFormat;
+
 	private Text textFormat;
 	private Text textShowName;
 
@@ -69,7 +78,7 @@ public class UIStarter {
 		Button btnBrowse = new Button(shell, SWT.PUSH);
 		btnBrowse.setText("Browse files...");
 		// Drop down to select show
-		final Combo showCombo = new Combo(shell, SWT.DROP_DOWN | SWT.READ_ONLY | SWT.SIMPLE);
+		showCombo = new Combo(shell, SWT.DROP_DOWN | SWT.READ_ONLY | SWT.SIMPLE);
 		showCombo.setEnabled(false);
 
 		final Composite formatParent = new Composite(shell, SWT.NONE);
@@ -92,7 +101,7 @@ public class UIStarter {
 		textShowName.setEnabled(false);
 		textShowName.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		final Button btnFormat = new Button(formatParent, SWT.PUSH);
+		btnFormat = new Button(formatParent, SWT.PUSH);
 		btnFormat.setText("Apply");
 		btnFormat.setEnabled(false);
 
@@ -174,47 +183,7 @@ public class UIStarter {
 						fileNames[i] = pathPrefix + pathSeparator + fileNames[i];
 					}
 
-					files = new ArrayList<String>(Arrays.asList(fileNames));
-
-					// Call tvRenamer which actually finds the ep names ...
-					tv = new TVRenamer();
-
-					String showName = tv.getShowName(new File(fileNames[0]));
-
-					textShowName.setText(showName);
-					textShowName.setEnabled(true);
-
-					showList = tv.downloadOptions(showName);
-
-					if (showList.isEmpty()) {
-						return;
-					}
-
-					if (showList.size() > 1) {
-						showCombo.setEnabled(true);
-					}
-
-					showCombo.removeAll();
-
-					for (Show show : showList) {
-						showCombo.add(show.getName());
-					}
-
-					showCombo.select(0);
-					showCombo.pack(true);
-
-					btnFormat.setEnabled(true);
-
-					tv.setShow(showList.get(showCombo.getSelectionIndex()));
-
-					tv.downloadListing();
-
-					populateTable();
-
-					// Sort the list descending by Episode
-					tblResults.setSortColumn(col1);
-					tblResults.setSortDirection(SWT.DOWN);
-					// sortTable(col1, 1);
+					initiateRenamer(fileNames);
 				}
 			}
 		});
@@ -337,6 +306,24 @@ public class UIStarter {
 			}
 		};
 		tblResults.addListener(SWT.MouseDown, tblEditListener);
+
+		DropTarget dt = new DropTarget(tblResults,  DND.DROP_DEFAULT | DND.DROP_MOVE);
+		dt.setTransfer(new Transfer[] { FileTransfer.getInstance() });
+		dt.addDropListener(new DropTargetAdapter() {
+		  @Override
+      public void drop(DropTargetEvent e) {
+		    String fileList[] = null;
+		    FileTransfer ft = FileTransfer.getInstance();
+		    if (ft.isSupportedType(e.currentDataType)) {
+		      fileList = (String[])e.data;
+		      for (String string : fileList) {
+            logger.debug("you dropped: " + string);
+
+          }
+		      initiateRenamer(fileList);
+		    }
+		  }
+		});
 	}
 
 	private void launch() {
@@ -359,6 +346,50 @@ public class UIStarter {
 			}
 		}
 		display.dispose();
+	}
+
+	private void initiateRenamer(String[] fileNames) {
+	  files = new ArrayList<String>(Arrays.asList(fileNames));
+
+    // Call tvRenamer which actually finds the ep names ...
+    tv = new TVRenamer();
+
+    String showName = tv.getShowName(new File(fileNames[0]));
+
+    textShowName.setText(showName);
+    textShowName.setEnabled(true);
+
+    showList = tv.downloadOptions(showName);
+
+    if (showList.isEmpty()) {
+      return;
+    }
+
+    if (showList.size() > 1) {
+      showCombo.setEnabled(true);
+    }
+
+    showCombo.removeAll();
+
+    for (Show show : showList) {
+      showCombo.add(show.getName());
+    }
+
+    showCombo.select(0);
+    showCombo.pack(true);
+
+    btnFormat.setEnabled(true);
+
+    tv.setShow(showList.get(showCombo.getSelectionIndex()));
+
+    tv.downloadListing();
+
+    populateTable();
+
+//    // Sort the list descending by Episode
+//    tblResults.setSortColumn(col1);
+//    tblResults.setSortDirection(SWT.DOWN);
+//    // sortTable(col1, 1);
 	}
 
 	private void renameFiles(boolean all) {
