@@ -31,18 +31,12 @@ import com.google.code.tvrenamer.model.util.Constants;
 import com.google.code.tvrenamer.view.UIStarter;
 
 public class TVRageProvider {
-  private static Logger logger = Logger.getLogger(TVRenamer.class);
+  private static Logger logger = Logger.getLogger(TVRageProvider.class);
   private static final String BASE_SEARCH_URL = "http://www.tvrage.com/feeds/search.php?show=";
   private static final String XPATH_SHOW = "//show";
   private static final String XPATH_SHOWID = "showid";
   private static final String XPATH_NAME = "name";
   private static final String XPATH_LINK = "link";
-
-  private static final String BASE_LIST_URL = "http://www.tvrage.com/feeds/episode_list.php?sid=";
-  private static final String XPATH_ALL = "*";
-  private static final String XPATH_EPISODE_LIST = "//Episodelist/*[starts-with(name(), 'Season')]";
-  private static final String XPATH_SEASON_NUM = "seasonnum";
-  private static final String XPATH_TITLE = "title";
 
   public static ArrayList<Show> getShowOptions(String showName) {
     ArrayList<Show> options = new ArrayList<Show>();
@@ -69,7 +63,7 @@ public class TVRageProvider {
         xml += encodeSpecialCharacters(s);
       }
 
-//      logger.debug("xml:\n" + xml);
+      // logger.debug("xml:\n" + xml);
 
       DocumentBuilder db = dbf.newDocumentBuilder();
       Document doc = db.parse(new InputSource(new StringReader(xml)));
@@ -112,6 +106,13 @@ public class TVRageProvider {
     return options;
   }
 
+  private static final String BASE_LIST_URL = "http://www.tvrage.com/feeds/episode_list.php?sid=";
+  private static final String XPATH_ALL = "*";
+  private static final String XPATH_EPISODE_LIST = "/Show/Episodelist/Season";
+  private static final String XPATH_SEASON_NUM = "seasonnum";
+  private static final String XPATH_SEASON_ATTR = "no";
+  private static final String XPATH_TITLE = "title";
+
   public static void getShowListing(Show show) {
 
     String showURL = BASE_LIST_URL + show.getId();
@@ -131,8 +132,8 @@ public class TVRageProvider {
 
       for (int i = 0; i < seasons.getLength(); i++) {
         Node sNode = seasons.item(i);
-        String nodeName = sNode.getNodeName().toLowerCase();
-        String sNum = nodeName.replace("season", "");
+        String sNum = sNode.getAttributes().getNamedItem(XPATH_SEASON_ATTR)
+            .getNodeValue();
         Season season = new Season(sNum);
         show.setSeason(sNum, season);
 
