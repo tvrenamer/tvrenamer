@@ -6,7 +6,8 @@ import org.apache.log4j.Logger;
 
 public class Show {
 
-  private static Logger logger = Logger.getLogger(Show.class);
+  @SuppressWarnings("unused")
+private static Logger logger = Logger.getLogger(Show.class);
 
   private final String id;
   private final String name;

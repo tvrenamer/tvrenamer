@@ -1,6 +1,7 @@
 package com.google.code.tvrenamer.view;
 
 import java.io.File;
+import java.io.InputStream;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,7 +44,8 @@ import com.google.code.tvrenamer.model.Show;
 import com.google.code.tvrenamer.model.util.Constants;
 
 public class UIStarter {
-	private static final String pathSeparator = System.getProperty("file.separator");
+	private static final String pathSeparator = System
+			.getProperty("file.separator");
 	private static Logger logger = Logger.getLogger(UIStarter.class);
 
 	private static Shell shell;
@@ -145,15 +147,15 @@ public class UIStarter {
 
 		final TableColumn col1 = new TableColumn(tblResults, SWT.LEFT);
 		col1.setText("Index");
-		col1.setWidth(40);
+		col1.setWidth(50);
 
 		final TableColumn col2 = new TableColumn(tblResults, SWT.LEFT);
 		col2.setText("Current Name");
-		col2.setWidth(380);
+		col2.setWidth(350);
 
 		final TableColumn col3 = new TableColumn(tblResults, SWT.LEFT);
 		col3.setText("Proposed Name");
-		col3.setWidth(380);
+		col3.setWidth(350);
 
 		// editable table
 		final TableEditor editor = new TableEditor(tblResults);
@@ -327,7 +329,16 @@ public class UIStarter {
 		});
 
 		// set the icon for the application
-		shell.setImage(new Image(display, "tvrenamer.png"));
+		try {
+			InputStream icon = getClass().getResourceAsStream("/tvrenamer.png");
+			if (icon != null) {
+				shell.setImage(new Image(display, icon));
+			} else {
+				shell.setImage(new Image(display, "tvrenamer.png"));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void launch() {
@@ -353,47 +364,47 @@ public class UIStarter {
 	}
 
 	private void initiateRenamer(String[] fileNames) {
-	  files = new ArrayList<String>(Arrays.asList(fileNames));
+		files = new ArrayList<String>(Arrays.asList(fileNames));
 
-    // Call tvRenamer which actually finds the ep names ...
-    tv = new TVRenamer();
+		// Call tvRenamer which actually finds the ep names ...
+		tv = new TVRenamer();
 
-    String showName = tv.getShowName(new File(fileNames[0]));
+		String showName = tv.getShowName(new File(fileNames[0]));
 
-    textShowName.setText(showName);
-    textShowName.setEnabled(true);
+		textShowName.setText(showName);
+		textShowName.setEnabled(true);
 
-    showList = tv.downloadOptions(showName);
+		showList = tv.downloadOptions(showName);
 
-    if (showList.isEmpty()) {
-      return;
-    }
+		if (showList.isEmpty()) {
+			return;
+		}
 
-    if (showList.size() > 1) {
-      showCombo.setEnabled(true);
-    }
+		if (showList.size() > 1) {
+			showCombo.setEnabled(true);
+		}
 
-    showCombo.removeAll();
+		showCombo.removeAll();
 
-    for (Show show : showList) {
-      showCombo.add(show.getName());
-    }
+		for (Show show : showList) {
+			showCombo.add(show.getName());
+		}
 
-    showCombo.select(0);
-    showCombo.pack(true);
+		showCombo.select(0);
+		showCombo.pack(true);
 
-    btnFormat.setEnabled(true);
+		btnFormat.setEnabled(true);
 
-    tv.setShow(showList.get(showCombo.getSelectionIndex()));
+		tv.setShow(showList.get(showCombo.getSelectionIndex()));
 
-    tv.downloadListing();
+		tv.downloadListing();
 
-    populateTable();
+		populateTable();
 
-//    // Sort the list descending by Episode
-//    tblResults.setSortColumn(col1);
-//    tblResults.setSortDirection(SWT.DOWN);
-//    // sortTable(col1, 1);
+		// // Sort the list descending by Episode
+		// tblResults.setSortColumn(col1);
+		// tblResults.setSortDirection(SWT.DOWN);
+		// // sortTable(col1, 1);
 	}
 
 	private void renameFiles(boolean all) {
@@ -416,7 +427,8 @@ public class UIStarter {
 		if (renamedFiles > 0) {
 			MessageBox msgSuccess = new MessageBox(shell, SWT.OK
 					| SWT.ICON_INFORMATION);
-			msgSuccess.setMessage(renamedFiles + " files successfully renamed!");
+			msgSuccess
+					.setMessage(renamedFiles + " files successfully renamed!");
 			msgSuccess.open();
 			populateTable();
 		}
@@ -429,8 +441,8 @@ public class UIStarter {
 		for (int i = 0; i < files.size(); i++) {
 			String fileName = files.get(i);
 			String oldFilename = new File(fileName).getName();
-			String newFilename = tv.parseFileName(new File(fileName), textShowName
-					.getText(), textFormat.getText());
+			String newFilename = tv.parseFileName(new File(fileName),
+					textShowName.getText(), textFormat.getText());
 			TableItem item = new TableItem(tblResults, SWT.NONE);
 			item.setText(new String[] { i + 1 + "", oldFilename, newFilename });
 			item.setChecked(true);
@@ -485,19 +497,15 @@ public class UIStarter {
 	public static void showMessageBox(int type, String message) {
 		int swtIconValue = -1;
 
-		if(type == Constants.ERROR) {
+		if (type == Constants.ERROR) {
 			swtIconValue = SWT.ICON_ERROR;
-		}
-		else if(type == Constants.WARNING) {
+		} else if (type == Constants.WARNING) {
 			swtIconValue = SWT.ICON_WARNING;
-		}
-		else if(type == Constants.MESSAGE) {
+		} else if (type == Constants.MESSAGE) {
 			swtIconValue = SWT.ICON_INFORMATION;
-		}
-		else if(type == Constants.QUESTION) {
+		} else if (type == Constants.QUESTION) {
 			swtIconValue = SWT.ICON_QUESTION;
-		}
-		else {
+		} else {
 			logger.error("Tried to show a box with an undefined message type");
 			return;
 		}
