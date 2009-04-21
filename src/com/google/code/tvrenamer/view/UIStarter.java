@@ -17,6 +17,7 @@ import org.eclipse.swt.dnd.FileTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
@@ -324,6 +325,9 @@ public class UIStarter {
 		    }
 		  }
 		});
+
+		// set the icon for the application
+		shell.setImage(new Image(display, "tvrenamer.png"));
 	}
 
 	private void launch() {
