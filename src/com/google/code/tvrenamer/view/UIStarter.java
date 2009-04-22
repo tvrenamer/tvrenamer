@@ -74,6 +74,7 @@ public class UIStarter {
     // Set up environment
     GridLayout gridLayout = new GridLayout(4, false);
     final Display display = new Display();
+    Display.setAppName("TVRenamer");
     shell = new Shell(display);
     shell.setText("TVRenamer");
     shell.setLayout(gridLayout);
