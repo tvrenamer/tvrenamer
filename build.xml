@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create.jar" name="TVRenamer bulid script">
+	<property file="build.properties"/>
+	
+	<property name="src.main" value="src/main"/>
+	<property name="bin" value="bin"/>
+	<property name="build" value="build"/>
+	<property name="lib" value="lib"/>
+	<property name="res" value="res"/>
+	<property name="run.scripts" value="res/run-scripts"/>
+	<property name="rel" value="rel"/>
+	<property name="rel.lib" value="${rel}/lib"/>
+	<property name="launch4j" value="launch4j"/>
+
+	<taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpath="${launch4j}/launch4j.jar:${launch4j}/lib/xstream.jar" />
+	
+	<target name="create.jar" description="Create Runnable Jar for Project TVRenamer">
+  	<jar destfile="${build}/tvrenamer.jar" filesetmanifest="mergewithoutmain">
+	    <manifest>
+				<attribute name="Built-By" value="Vipul Delwadia"/>
+				<attribute name="Main-Class" value="com.google.code.tvrenamer.view.UIStarter"/>
+			</manifest>
+			<fileset dir="${src.main}"/>
+			<fileset file="${res}/icons/tvrenamer.png"/>
+		</jar>
+	</target>
+  		
+ 	<target name="compile.win">
+ 		<javac srcdir="${src.main}" destdir="${build}" classpath="${lib}/swt-win32.jar:${lib}/log4j.jar"/>
+ 	</target>
+	
+	<target name="compile.mac">
+ 		<javac srcdir="${src.main}" destdir="${build}" classpath="${lib}/swt-macosx.jar:${lib}/log4j.jar"/>
+ 	</target>
+	
+	<target name="compile.linux">
+ 		<javac srcdir="${src.main}" destdir="${build}" classpath="${lib}/swt-gtk.jar:${lib}/log4j.jar"/>
+ 	</target>
+	
+	<target name="release.common">
+		<mkdir dir="${rel}"/>
+		<mkdir dir="${rel.lib}"/>
+		<copy todir="${rel.lib}" file="${lib}/log4j.jar"/>
+		<copy file="${build}/tvrenamer.jar" todir="${rel}"/>
+		
+		<copy file="${res}/LICENSE" todir="${rel}"/>
+	</target>
+	
+	<target depends="clean.build, compile.win, create.jar, release.common" name="release.win">
+		<copy todir="${rel.lib}" file="${lib}/swt-win32.jar"/>
+		
+		<!-- Create the .exe with launch4j -->
+		<launch4j configFile="${res}/launch4j-config.xml" />
+				
+		<zip destfile="tv-renamer-win32-${version}.zip">
+			<fileset dir="${rel}"/>
+		</zip>
+	</target>
+	
+	<target depends="clean.build, compile.mac, create.jar, release.common" name="release.mac">
+		<copy todir="${rel.lib}">
+	    <fileset dir="${lib}"/>
+	  </copy>
+		
+		<copy todir="${rel}" file="${run.scripts}/run-mac.sh"/>
+		<zip destfile="tv-renamer-macosx-${version}.zip">
+			<fileset dir="${rel}"/>
+		</zip>
+	</target>
+			
+	<target depends="clean.build, compile.linux, create.jar, release.common" name="release.linux">
+		<copy todir="${rel.lib}" file="${lib}/swt-gtk.jar"/>
+		
+		<copy todir="${rel}" file="${run.scripts}/run-linux.sh"/>
+		<zip destfile="tv-renamer-linux-${version}.zip">
+			<fileset dir="${rel}"/>
+		</zip>
+	</target>
+			
+	<target name="release">
+		<antcall target="release.win"/>
+		<antcall target="release.mac"/>
+		<antcall target="release.linux"/>
+	</target>
+	
+	<target name="clean.build">
+		<delete file="${build}/tvrenamer.jar"/>
+		<delete includeemptydirs="true">
+			<fileset dir="${rel}" includes="**/*"/>
+		</delete>
+	</target>
+	
+	<target name="clean" depends="clean.build">
+		<delete>
+			<fileset dir="." includes="tv-renamer-*-${version}.zip"/>
+		</delete>
+	</target>
+	
+</project>
