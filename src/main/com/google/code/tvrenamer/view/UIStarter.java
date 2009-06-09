@@ -341,11 +341,11 @@ public class UIStarter {
 
     // set the icon for the application
     try {
-      InputStream icon = getClass().getResourceAsStream("/tvrenamer.png");
+      InputStream icon = getClass().getResourceAsStream("res/icons/tvrenamer.png");
       if (icon != null) {
         shell.setImage(new Image(display, icon));
       } else {
-        shell.setImage(new Image(display, "tvrenamer.png"));
+        shell.setImage(new Image(display, "res/icons/tvrenamer.png"));
       }
     } catch (Exception e) {
       e.printStackTrace();
