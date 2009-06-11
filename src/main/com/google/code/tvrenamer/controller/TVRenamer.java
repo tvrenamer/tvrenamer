@@ -31,8 +31,8 @@ public class TVRenamer {
 
 	public String parseFileName(File file, String showName, String format) {
 		// grabs the show's name out of the filename, for shows with numeric titles
-		String seasonNum = file.getName();
-		seasonNum = seasonNum.replaceFirst(showName, "");
+		String seasonNum = file.getName().toLowerCase();
+		seasonNum = seasonNum.replaceFirst(showName.toLowerCase(), "");
 		String episodeNum = "";
 
 		// if we keep the episode matching stuff, it will be non-greedy ^_^
