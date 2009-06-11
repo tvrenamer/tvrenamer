@@ -30,6 +30,13 @@ import com.google.code.tvrenamer.model.Show;
 import com.google.code.tvrenamer.model.util.Constants;
 import com.google.code.tvrenamer.view.UIStarter;
 
+/**
+ * This class encapsulates the interactions between the application and the TVRage XML Feeds
+ *
+ * @author Vipul Delwadia
+ * @author Dave Harris
+ *
+ */
 public class TVRageProvider {
   private static Logger logger = Logger.getLogger(TVRageProvider.class);
   private static final String BASE_SEARCH_URL = "http://www.tvrage.com/feeds/search.php?show=";
@@ -38,6 +45,17 @@ public class TVRageProvider {
   private static final String XPATH_NAME = "name";
   private static final String XPATH_LINK = "link";
 
+  private TVRageProvider() {
+	// Prevents instantiation
+  }
+
+  /**
+   * Uses the TVRage search tool to retrieve a list of possible shows based on the show name.
+   * The list returned is in the order returned by the TVRage search.
+   *
+   * @param showName the show to search for
+   * @return a list of matching shows in the order returned by the TVRage search.
+   */
   public static ArrayList<Show> getShowOptions(String showName) {
     ArrayList<Show> options = new ArrayList<Show>();
     showName = showName.replaceAll(" ", "%20");
@@ -113,6 +131,11 @@ public class TVRageProvider {
   private static final String XPATH_SEASON_ATTR = "no";
   private static final String XPATH_TITLE = "title";
 
+  /**
+   * Uses the TVRage episode listings to populate the Show object with Season and Episode Data
+   *
+   * @param show the Show object to populate with season and episode data
+   */
   public static void getShowListing(Show show) {
 
     String showURL = BASE_LIST_URL + show.getId();
@@ -163,6 +186,11 @@ public class TVRageProvider {
     }
   }
 
+  /**
+   * Replaces unsafe HTML Characters with HTML Entities
+   * @param input string to encode 
+   * @return HTML safe representation of input
+   */
   private static String encodeSpecialCharacters(String input) {
     if (input == null || input.length() == 0) {
       return "";
