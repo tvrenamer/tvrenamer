@@ -46,6 +46,8 @@ import com.google.code.tvrenamer.model.util.Constants;
 public class UIStarter {
   private static final String pathSeparator = System
       .getProperty("file.separator");
+  public static final String DEFAULT_FORMAT_STRING = "%S [%sx%e] %t";
+
   private static Logger logger = Logger.getLogger(UIStarter.class);
 
   private static Shell shell;
@@ -130,7 +132,7 @@ public class UIStarter {
     btnReset.addSelectionListener(new SelectionAdapter() {
       @Override
       public void widgetSelected(SelectionEvent e) {
-        textFormat.setText("%S [%sx%e] %t");
+        textFormat.setText(DEFAULT_FORMAT_STRING);
         if (tv != null) {
           textShowName.setText(tv.getShowName(new File(files.get(0))));
         } else {
@@ -341,7 +343,8 @@ public class UIStarter {
 
     // set the icon for the application
     try {
-      InputStream icon = getClass().getResourceAsStream("res/icons/tvrenamer.png");
+      InputStream icon = getClass().getResourceAsStream(
+          "res/icons/tvrenamer.png");
       if (icon != null) {
         shell.setImage(new Image(display, icon));
       } else {
@@ -449,8 +452,8 @@ public class UIStarter {
     for (int i = 0; i < files.size(); i++) {
       String fileName = files.get(i);
       String oldFilename = new File(fileName).getName();
-      String newFilename = tv.parseFileName(new File(fileName), textShowName
-          .getText(), textFormat.getText());
+      String newFilename = tv.parseFileName(oldFilename, textShowName.getText(),
+          textFormat.getText());
       TableItem item = new TableItem(tblResults, SWT.NONE);
       item.setText(new String[] { i + 1 + "", oldFilename, newFilename });
       item.setChecked(true);
