@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
 
-import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.dnd.DND;
@@ -48,7 +47,7 @@ public class UIStarter {
       .getProperty("file.separator");
   public static final String DEFAULT_FORMAT_STRING = "%S [%sx%e] %t";
 
-  private static Logger logger = Logger.getLogger(UIStarter.class);
+//  private static Logger logger = Logger.getLogger(UIStarter.class);
 
   private static Shell shell;
   private Table tblResults;
@@ -332,10 +331,6 @@ public class UIStarter {
         FileTransfer ft = FileTransfer.getInstance();
         if (ft.isSupportedType(e.currentDataType)) {
           fileList = (String[]) e.data;
-          for (String string : fileList) {
-            logger.debug("you dropped: " + string);
-
-          }
           initiateRenamer(fileList);
         }
       }
@@ -344,7 +339,7 @@ public class UIStarter {
     // set the icon for the application
     try {
       InputStream icon = getClass().getResourceAsStream(
-          "res/icons/tvrenamer.png");
+          "/icons/tvrenamer.png");
       if (icon != null) {
         shell.setImage(new Image(display, icon));
       } else {
@@ -431,8 +426,8 @@ public class UIStarter {
         File newFile = new File(file.getParent() + pathSeparator
             + item.getText(2));
         file.renameTo(newFile);
-        logger.info("Renamed " + file.getAbsolutePath() + " to "
-            + newFile.getAbsolutePath());
+//        logger.info("Renamed " + file.getAbsolutePath() + " to "
+//            + newFile.getAbsolutePath());
         renamedFiles++;
         files.set(index, newFile.getAbsolutePath());
       }
@@ -517,7 +512,7 @@ public class UIStarter {
     } else if (type == Constants.QUESTION) {
       swtIconValue = SWT.ICON_QUESTION;
     } else {
-      logger.error("Tried to show a box with an undefined message type");
+//      logger.error("Tried to show a box with an undefined message type");
       return;
     }
 

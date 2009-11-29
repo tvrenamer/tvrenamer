@@ -18,7 +18,6 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -38,7 +37,7 @@ import com.google.code.tvrenamer.view.UIStarter;
  *
  */
 public class TVRageProvider {
-  private static Logger logger = Logger.getLogger(TVRageProvider.class);
+//  private static Logger logger = Logger.getLogger(TVRageProvider.class);
   private static final String BASE_SEARCH_URL = "http://www.tvrage.com/feeds/search.php?show=";
   private static final String XPATH_SHOW = "//show";
   private static final String XPATH_SHOWID = "showid";
@@ -59,7 +58,7 @@ public class TVRageProvider {
   public static ArrayList<Show> getShowOptions(String showName) {
     ArrayList<Show> options = new ArrayList<Show>();
     showName = showName.replaceAll(" ", "%20");
-    logger.debug(BASE_SEARCH_URL + showName);
+//    logger.debug(BASE_SEARCH_URL + showName);
     String searchURL = BASE_SEARCH_URL + showName;
 
     try {
@@ -67,17 +66,17 @@ public class TVRageProvider {
 
       URL url = new URL(searchURL);
 
-      logger.info("Retrieving search results from \"" + url.toString() + "\"");
+//      logger.info("Retrieving search results from \"" + url.toString() + "\"");
       InputStream inputStream = url.openStream();
       BufferedReader reader = new BufferedReader(new InputStreamReader(
           inputStream));
 
-      logger.debug("Before encoding XML");
+//      logger.debug("Before encoding XML");
 
       String s;
       String xml = "";
       while ((s = reader.readLine()) != null) {
-        logger.debug(s);
+//        logger.debug(s);
         xml += encodeSpecialCharacters(s);
       }
 
@@ -140,7 +139,7 @@ public class TVRageProvider {
 
     String showURL = BASE_LIST_URL + show.getId();
 
-    logger.info("Retrieving episode listing from " + showURL);
+//    logger.info("Retrieving episode listing from " + showURL);
 
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
     try {
@@ -169,8 +168,8 @@ public class TVRageProvider {
           Node epNumNode = (Node) expr.evaluate(eNode, XPathConstants.NODE);
           expr = xpath.compile(XPATH_TITLE);
           Node epTitleNode = (Node) expr.evaluate(eNode, XPathConstants.NODE);
-          logger.debug("[" + sNum + "x" + epNumNode.getTextContent() + "] "
-              + epTitleNode.getTextContent());
+//          logger.debug("[" + sNum + "x" + epNumNode.getTextContent() + "] "
+//              + epTitleNode.getTextContent());
           season.setEpisode(epNumNode.getTextContent(), epTitleNode
               .getTextContent());
         }
@@ -188,7 +187,7 @@ public class TVRageProvider {
 
   /**
    * Replaces unsafe HTML Characters with HTML Entities
-   * @param input string to encode 
+   * @param input string to encode
    * @return HTML safe representation of input
    */
   private static String encodeSpecialCharacters(String input) {
