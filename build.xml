@@ -1,67 +1,135 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project default="release" name="TVRenamer build script">
-	<property file="build.properties" />
+  <property file="build.properties" />
+  
+  <property name="src.main" value="src/main" />
+  <property name="bin" value="bin" />
+  <property name="build" value="build" />
+  <property name="lib" value="lib" />
+  <property name="res" value="res" />
+  <property name="rel" value="release" />
+	<property name="rel.name" value="TVRenamer-${version}" />
+  <property name="etc" value="etc" />
+  <property name="version" value="0.4" />
+  <property name="launch4j" value="C:/launch4j" />
+  
+  <!--taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpath="${launch4j}/launch4j.jar:${launch4j}/lib/xstream.jar" /-->
+  
+  <target name="compile.win">
+    <delete dir="${build}"  failonerror="false" />
+    <mkdir dir="${build}"/>
+    <javac srcdir="${src.main}" destdir="${build}" classpath="${lib}/swt-win32.jar" />
+  </target>
+  
+  <target name="compile.linux">
+    <delete dir="${build}"  failonerror="false" />
+    <mkdir dir="${build}"/>
+    <javac srcdir="${src.main}" destdir="${build}" classpath="${lib}/swt-gtk32.jar"/>
+  </target>
+  
+  <target depends="compile.win" name="jar.win32" description="Create 32-bit Windows runnable jar">
+    <jar destfile="${rel}/tvrenamer-win32.jar" filesetmanifest="mergewithoutmain">
+      <manifest>
+        <attribute name="Built-By" value="http://code.google.com/p/tv-renamer" />
+        <attribute name="Main-Class" value="com.google.code.tvrenamer.view.UIStarter" />
+      </manifest>
+      <fileset dir="${bin}" />
+      <fileset dir="${res}" />
+      <zipfileset src="${lib}/swt-win32.jar" />
+    </jar>
+  </target>
+  
+  <target depends="compile.win" name="jar.win64" description="Create 64-bit Windows runnable jar">
+    <jar destfile="${rel}/tvrenamer-win64.jar" filesetmanifest="mergewithoutmain">
+      <manifest>
+        <attribute name="Built-By" value="http://code.google.com/p/tv-renamer" />
+        <attribute name="Main-Class" value="com.google.code.tvrenamer.view.UIStarter" />
+      </manifest>
+      <fileset dir="${bin}" />
+      <fileset dir="${res}" />
+      <zipfileset src="${lib}/swt-win64.jar" />
+    </jar>
+  </target>
+  
+  <target depends="compile.linux" name="jar.gtk64" description="Create 64-bit Linux/GTK runnable jar">
+    <jar destfile="${rel}/${rel.name}/tvrenamer.jar" filesetmanifest="mergewithoutmain">
+      <manifest>
+        <attribute name="Built-By" value="http://code.google.com/p/tv-renamer"/>
+        <attribute name="Main-Class" value="com.google.code.tvrenamer.view.UIStarter"/>
+      </manifest>
+      <fileset dir="${build}" />
+      <fileset dir="${res}" />
+      <zipfileset src="${lib}/swt-gtk64.jar" />
+    </jar>
+  </target>
+  
+  <target depends="compile.linux" name="jar.gtk32" description="Create 32-bit Linux/GTK runnable jar">
+    <jar destfile="${rel}/${rel.name}/tvrenamer.jar" filesetmanifest="mergewithoutmain">
+      <manifest>
+        <attribute name="Built-By" value="http://code.google.com/p/tv-renamer"/>
+        <attribute name="Main-Class" value="com.google.code.tvrenamer.view.UIStarter"/>
+      </manifest>
+      <fileset dir="${build}" />
+      <fileset dir="${res}" />
+      <zipfileset src="${lib}/swt-gtk32.jar" />
+    </jar>
+  </target>
+        
+  <target name="package.linux">
+    <mkdir dir="${rel}" />
+  	<mkdir dir="${rel}/${rel.name}" />
+    <copy file="${etc}/run-scripts/run-linux.sh" todir="${rel}/${rel.name}" />
+    <copy file="${etc}/LICENSE" todir="${rel}/${rel.name}" />
+  </target>
 
-	<property name="src.main" value="src" />
-	<property name="bin" value="bin" />
-	<property name="lib" value="lib" />
-	<property name="res" value="res" />
-	<property name="rel" value="release" />
-	<property name="version" value="0.4" />
-	<property name="launch4j" value="C:/launch4j" />
-
-	<taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpath="${launch4j}/launch4j.jar:${launch4j}/lib/xstream.jar" />
-
-	<!--
-	<target name="compile">
-		<javac srcdir="${src.main}" destdir="${build}" classpath="${lib}/swt-win32.jar" />
-	</target>
-	-->
-
-	<target name="jar-win32" description="Create Runnable Jar for Project TVRenamer">
-		<jar destfile="${rel}/tvrenamer-win32.jar" filesetmanifest="mergewithoutmain">
-			<manifest>
-				<attribute name="Built-By" value="Vipul Delwadia" />
-				<attribute name="Main-Class" value="com.google.code.tvrenamer.view.UIStarter" />
-			</manifest>
-			<fileset dir="${bin}" />
-			<fileset dir="${res}" />
-			<zipfileset src="${lib}/swt-win32.jar" />
-		</jar>
-	</target>
-
-	<target name="jar-win64" description="Create Runnable Jar for Project TVRenamer">
-		<jar destfile="${rel}/tvrenamer-win64.jar" filesetmanifest="mergewithoutmain">
-			<manifest>
-				<attribute name="Built-By" value="Vipul Delwadia" />
-				<attribute name="Main-Class" value="com.google.code.tvrenamer.view.UIStarter" />
-			</manifest>
-			<fileset dir="${bin}" />
-			<fileset dir="${res}" />
-			<zipfileset src="${lib}/swt-win64.jar" />
-		</jar>
-	</target>
-
-	<target depends="clean, jar-win32, jar-win64" name="release">
-		<!-- Create the .exe with launch4j -->
-		<launch4j>
-			<config headerType="gui" outfile="${rel}/TVRenamer-${version}-x86.exe" dontWrapJar="false" jar="${rel}/tvrenamer-win32.jar" icon="${res}\icons\oldschool-tv-icon.ico" chdir=".">
-				<jre minVersion="1.5.0" />
-			</config>
-		</launch4j>
-
-		<launch4j>
-			<config headerType="gui" outfile="${rel}/TVRenamer-${version}-x64.exe" dontWrapJar="false" jar="${rel}/tvrenamer-win64.jar" icon="${res}\icons\oldschool-tv-icon.ico" chdir=".">
-				<jre minVersion="1.5.0" />
-			</config>
-		</launch4j>
-	</target>
-
-	<target name="clean">
-		<delete includeemptydirs="true">
-			<fileset dir="${rel}" includes="**/*" />
-		</delete>
-		<mkdir dir="${rel}" />
-	</target>
+	
+	<target depends="release.win, release.linux" name="release" />
+  
+  <target depends="clean, jar.win32, jar.win64" name="release.win">
+    <!-- Create the .exe with launch4j -->
+    <launch4j>
+      <config headerType="gui" outfile="${rel}/${rel.name}-x86.exe" dontWrapJar="false" 
+          jar="${rel}/tvrenamer-win32.jar" icon="${res}\icons\oldschool-tv-icon.ico" chdir=".">
+        <jre minVersion="1.5.0" />
+      </config>
+    </launch4j>
+    
+    <launch4j>
+      <config headerType="gui" outfile="${rel}/${rel.name}-x64.exe" dontWrapJar="false" 
+          jar="${rel}/tvrenamer-win64.jar" icon="${res}\icons\oldschool-tv-icon.ico" chdir=".">
+        <jre minVersion="1.5.0" />
+      </config>
+    </launch4j>
+  </target>
+        
+  <target depends="clean" name="release.linux">
+  	<antcall target="package.linux" />
+  	<antcall target="jar.gtk32" />
+    <zip destfile="${rel.name}-linux-x86.zip">
+      <fileset dir="${rel}" />
+    </zip>
+  	
+    <antcall target="clean" />
+               
+  	<antcall target="package.linux" />
+  	<antcall target="jar.gtk64" />
+    <zip destfile="${rel.name}-linux-x64.zip">
+      <fileset dir="${rel}" />
+    </zip>
+  </target>
+    
+  <target name="clean">
+    <delete includeemptydirs="true" failonerror="false">
+      <fileset dir="${rel}" includes="**/*" />
+    </delete>
+        
+    <delete includeemptydirs="true" failonerror="false">
+      <fileset dir="${build}" includes="**/*" />
+    </delete>
+  	
+  	<delete includeemptydirs="true" failonerror="false">
+      <fileset dir="${rel}" includes="**/*" />
+    </delete>
+  </target>
 
 </project>
