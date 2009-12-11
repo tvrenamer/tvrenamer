@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project default="release" name="TVRenamer build script">
+<project name="TVRenamer build script">
   <property file="build.properties" />
   
   <property name="src.main" value="src/main" />
@@ -26,8 +26,14 @@
     <mkdir dir="${build}"/>
     <javac srcdir="${src.main}" destdir="${build}" classpath="${lib}/swt-gtk32.jar"/>
   </target>
+	
+	<target name="compile.osx">
+    <delete dir="${build}"  failonerror="false" />
+    <mkdir dir="${build}"/>
+    <javac srcdir="${src.main}" destdir="${build}" classpath="${lib}/swt-osx32.jar"/>
+  </target>
   
-  <target depends="compile.win" name="jar.win32" description="Create 32-bit Windows runnable jar">
+  <target name="jar.win32" depends="compile.win">
     <jar destfile="${rel}/tvrenamer-win32.jar" filesetmanifest="mergewithoutmain">
       <manifest>
         <attribute name="Built-By" value="http://code.google.com/p/tv-renamer" />
@@ -39,7 +45,7 @@
     </jar>
   </target>
   
-  <target depends="compile.win" name="jar.win64" description="Create 64-bit Windows runnable jar">
+  <target name="jar.win64" depends="compile.win">
     <jar destfile="${rel}/tvrenamer-win64.jar" filesetmanifest="mergewithoutmain">
       <manifest>
         <attribute name="Built-By" value="http://code.google.com/p/tv-renamer" />
@@ -51,7 +57,7 @@
     </jar>
   </target>
   
-  <target depends="compile.linux" name="jar.gtk64" description="Create 64-bit Linux/GTK runnable jar">
+  <target name="jar.gtk64" depends="compile.linux">
     <jar destfile="${rel}/${rel.name}/tvrenamer.jar" filesetmanifest="mergewithoutmain">
       <manifest>
         <attribute name="Built-By" value="http://code.google.com/p/tv-renamer"/>
@@ -63,7 +69,7 @@
     </jar>
   </target>
   
-  <target depends="compile.linux" name="jar.gtk32" description="Create 32-bit Linux/GTK runnable jar">
+  <target name="jar.gtk32" depends="compile.linux">
     <jar destfile="${rel}/${rel.name}/tvrenamer.jar" filesetmanifest="mergewithoutmain">
       <manifest>
         <attribute name="Built-By" value="http://code.google.com/p/tv-renamer"/>
@@ -74,6 +80,30 @@
       <zipfileset src="${lib}/swt-gtk32.jar" />
     </jar>
   </target>
+	
+	<target name="jar.osx32" depends="compile.osx">
+    <jar destfile="${rel}/${rel.name}.app/Contents/MacOS/tvrenamer.jar" filesetmanifest="mergewithoutmain">
+      <manifest>
+        <attribute name="Built-By" value="http://code.google.com/p/tv-renamer"/>
+        <attribute name="Main-Class" value="com.google.code.tvrenamer.view.UIStarter"/>
+      </manifest>
+      <fileset dir="${build}" />
+      <fileset dir="${res}" />
+      <zipfileset src="${lib}/swt-osx32.jar" />
+    </jar>
+  </target>
+	
+	<target name="jar.osx64" depends="compile.osx">
+    <jar destfile="${rel}/${rel.name}.app/Contents/MacOS/tvrenamer.jar" filesetmanifest="mergewithoutmain">
+      <manifest>
+        <attribute name="Built-By" value="http://code.google.com/p/tv-renamer"/>
+        <attribute name="Main-Class" value="com.google.code.tvrenamer.view.UIStarter"/>
+      </manifest>
+      <fileset dir="${build}" />
+      <fileset dir="${res}" />
+      <zipfileset src="${lib}/swt-osx64.jar" />
+    </jar>
+  </target>
         
   <target name="package.linux">
     <mkdir dir="${rel}" />
@@ -82,11 +112,21 @@
     <copy file="${etc}/LICENSE" todir="${rel}/${rel.name}" />
   </target>
 
-	
-	<target depends="release.win, release.linux" name="release" />
+	<target name="package.osx">
+    <mkdir dir="${rel}" />
+    <mkdir dir="${rel}/${rel.name}.app" />
+		<mkdir dir="${rel}/${rel.name}.app/Contents" />
+		<mkdir dir="${rel}/${rel.name}.app/Contents/MacOS" />
+		<mkdir dir="${rel}/${rel.name}.app/Contents/Resources" />
+		
+		<copy file="${etc}/Info.plist" todir="${rel}/${rel.name}.app/Contents/" />
+    <copy file="${etc}/run-scripts/run-mac.sh" todir="${rel}/${rel.name}.app/Contents/MacOS" />
+		<copy file="${res}/icons/tvrenamer.icns" todir="${rel}/${rel.name}.app/Contents/Resources" />
+    <copy file="${etc}/LICENSE" todir="${rel}/${rel.name}.app" />
+  </target>
   
-  <target depends="clean, jar.win32, jar.win64" name="release.win">
-    <!-- Create the .exe with launch4j -->
+  <target name="release.win" depends="clean, jar.win32, jar.win64">
+    <!-- Create the .exe with launch4j, but first you must uncomment the ant task import above -->
     <launch4j>
       <config headerType="gui" outfile="${rel}/${rel.name}-x86.exe" dontWrapJar="false" 
           jar="${rel}/tvrenamer-win32.jar" icon="${res}\icons\oldschool-tv-icon.ico" chdir=".">
@@ -102,7 +142,7 @@
     </launch4j>
   </target>
         
-  <target depends="clean" name="release.linux">
+  <target name="release.linux" depends="clean">
   	<antcall target="package.linux" />
   	<antcall target="jar.gtk32" />
     <zip destfile="${rel.name}-linux-x86.zip">
@@ -117,6 +157,21 @@
       <fileset dir="${rel}" />
     </zip>
   </target>
+	
+	<target name="release.osx" depends="clean">
+    <!--antcall target="package.osx" />
+    <antcall target="jar.osx32" />
+    <zip destfile="${rel.name}-osx-x86.zip">
+      <fileset dir="${rel}" />
+    </zip>
+    
+    <antcall target="clean" /-->
+               
+    <antcall target="package.osx" />
+    <antcall target="jar.osx64" />
+		
+  </target>
+	
     
   <target name="clean">
     <delete includeemptydirs="true" failonerror="false">

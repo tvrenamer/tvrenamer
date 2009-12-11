@@ -351,25 +351,41 @@ public class UIStarter {
   }
 
   private void launch() {
-    // place the window in the centre of the primary monitor
-    Monitor primary = Display.getCurrent().getPrimaryMonitor();
-    Rectangle bounds = primary.getBounds();
-    Rectangle rect = shell.getBounds();
-    int x = bounds.x + (bounds.width - rect.width) / 2;
-    int y = bounds.y + (bounds.height - rect.height) / 2;
-    shell.setLocation(x, y);
+	Display display = null;
+	try {
+	    // place the window in the centre of the primary monitor
+	    Monitor primary = Display.getCurrent().getPrimaryMonitor();
+	    Rectangle bounds = primary.getBounds();
+	    Rectangle rect = shell.getBounds();
+	    int x = bounds.x + (bounds.width - rect.width) / 2;
+	    int y = bounds.y + (bounds.height - rect.height) / 2;
+	    shell.setLocation(x, y);
 
-    // Start the shell
-    shell.pack();
-    shell.open();
+	    // Start the shell
+	    shell.pack();
+	    shell.open();
 
-    Display display = shell.getDisplay();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
-    display.dispose();
+	    display = shell.getDisplay();
+	    while (!shell.isDisposed()) {
+	      if (!display.readAndDispatch()) {
+	        display.sleep();
+	      }
+	    }
+	    display.dispose();
+	}
+	catch(IllegalArgumentException argumentException) {
+		String message = "Drag and Drop is not currently supported on your operating system, please use the 'Browse Files' option above";
+		showMessageBox(Constants.ERROR, message);
+		display.dispose();
+		System.out.println(argumentException.getMessage() + " exception: " + message);
+		launch();
+
+	}
+	catch(Exception exception) {
+		String message = "An error occoured, please check your internet connection, java version or run from the command line to show errors";
+		showMessageBox(Constants.ERROR, message);
+		exception.printStackTrace();
+	}
   }
 
   private void initiateRenamer(String[] fileNames) {
