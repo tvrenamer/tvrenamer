@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project name="TVRenamer build script">
   <property file="build.properties" />
-  
+
   <property name="src.main" value="src/main" />
   <property name="build" value="build" />
   <property name="lib" value="lib" />
@@ -10,10 +10,10 @@
   <property name="rel.name" value="TVRenamer-${version}" />
   <property name="dist" value="dist" />
   <property name="etc" value="etc" />
-  
-  <property name="launch4j" value="C:/launch4j" />  
+
+  <property name="launch4j" value="C:/launch4j" />
   <!--taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpath="${launch4j}/launch4j.jar:${launch4j}/lib/xstream.jar" /-->
-  
+
   <path id="swt.classpath">
     <fileset dir="${lib}">
       <!-- We can compile against any swt version-->
@@ -23,29 +23,29 @@
   
   <macrodef name="compile">
     <sequential>
-     <delete dir="${build}"  failonerror="false" />
+      <delete dir="${build}"  failonerror="false" />
       <mkdir dir="${build}"/>
       <javac srcdir="${src.main}" destdir="${build}" classpathref="swt.classpath" source="1.5" />
     </sequential>
   </macrodef>
-  
+
   <macrodef name="build.jar">
-     <attribute name="platform"/>
-     <sequential>
-       <compile />
-       <jar destfile="${dist}/tvrenamer-@{platform}.jar" filesetmanifest="mergewithoutmain">
-         <manifest>
-           <attribute name="Built-By" value="http://code.google.com/p/tv-renamer" />
-           <attribute name="Main-Class" value="com.google.code.tvrenamer.view.UIStarter" />
-         </manifest>
-         <fileset dir="${build}" />
-         <fileset dir="${res}" />
-         <zipgroupfileset dir="${lib}" includes="swt-@{platform}*.jar"/>
+    <attribute name="platform"/>
+    <sequential>
+      <compile />
+      <jar destfile="${dist}/tvrenamer-@{platform}.jar" filesetmanifest="mergewithoutmain">
+        <manifest>
+          <attribute name="Built-By" value="http://code.google.com/p/tv-renamer" />
+          <attribute name="Main-Class" value="com.google.code.tvrenamer.view.UIStarter" />
+        </manifest>
+        <fileset dir="${build}" />
+        <fileset dir="${res}" />
+        <zipgroupfileset dir="${lib}" includes="swt-@{platform}*.jar"/>
       </jar>
     </sequential>
   </macrodef>
-  
-        
+
+
   <target name="dist.linux">
     <mkdir dir="${dist}/${rel.name}" />
     <copy file="${etc}/run-scripts/run-linux.sh" todir="${dist}/${rel.name}" />
@@ -55,15 +55,15 @@
   <target name="dist.osx">
     <mkdir dir="${dist}/${rel.name}.app/Contents/MacOS" />
     <mkdir dir="${dist}/${rel.name}.app/Contents/Resources" />
-    
+
     <copy file="${etc}/Info.plist" todir="${dist}/${rel.name}.app/Contents/" />
     <copy file="${etc}/run-scripts/run-mac.sh" todir="${dist}/${rel.name}.app/Contents/MacOS" />
     <chmod file="${dist}/${rel.name}.app/Contents/MacOS/run-mac.sh" perm="+x" osfamily="mac" />
     <copy file="${res}/icons/tvrenamer.icns" todir="${dist}/${rel.name}.app/Contents/Resources" />
     <copy file="${etc}/LICENSE" todir="${dist}/${rel.name}.app" />
   </target>
-  
-  
+
+
   <target name="rel.win" depends="clean, jar.win32, jar.win64">
     <build.jar platform="win32"/>
     <mkdir dir="${rel}" />
@@ -74,7 +74,7 @@
         <jre minVersion="1.5.0" />
       </config>
     </launch4j>
-    
+
     <launch4j>
       <config headerType="gui" outfile="${rel}/${rel.name}-x64.exe" dontWrapJar="false" 
           jar="${rel}/tvrenamer-win64.jar" icon="${res}\icons\oldschool-tv-icon.ico" chdir=".">
@@ -82,18 +82,18 @@
       </config>
     </launch4j>
   </target>
-  
+
   <target name="rel.linux" depends="clean">
-    
+
     <antcall target="release.linux" />
     <antcall target="jar.gtk32" />
     <zip destfile="${rel.name}-linux-x86.zip">
       <zipfileset dir="${rel}" filemode="755" />
     </zip>
     <copy file="{rel.name}-linux-x86.zip" todir="${dist}" />
-    
+
     <antcall target="clean" />
-    
+
     <antcall target="release.linux" />
     <antcall target="jar.gtk64" />
     <zip destfile="${rel.name}-linux-x64.zip">
@@ -101,7 +101,7 @@
     </zip>
     <copy file="{rel.name}-linux-x64.zip" todir="${dist}" />
   </target>
-  
+
   <target name="rel.osx" depends="clean">
     <antcall target="release.osx" />
     <antcall target="jar.osx32" />
@@ -109,21 +109,21 @@
       <zipfileset dir="${rel}" filemode="755" />
     </zip>
     <copy file="${rel.name}-osx-x86.zip" todir="${rel}" />
-    
+
     <delete dir="${dist}"/>
-    
+
     <antcall target="jar.osx32" />
     <zip destfile="${rel.name}-osx-x86.zip">
       <zipfileset dir="${rel}" filemode="755" />
     </zip>
     <copy file="${rel.name}-osx-x86.zip" todir="${rel}" />
   </target>
-  
+
   <target name="clean">
     <delete includeemptydirs="true" failonerror="false">
       <fileset dir="${rel}" includes="**/*" />
     </delete>
-        
+
     <delete includeemptydirs="true" failonerror="false">
       <fileset dir="${build}" includes="**/*" />
     </delete>
