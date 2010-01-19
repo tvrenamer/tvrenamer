@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
 
+import javax.swing.JOptionPane;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.dnd.DND;
@@ -375,11 +377,13 @@ public class UIStarter {
 	}
 	catch(IllegalArgumentException argumentException) {
 		String message = "Drag and Drop is not currently supported on your operating system, please use the 'Browse Files' option above";
-		showMessageBox(Constants.ERROR, message);
-		display.dispose();
+//		showMessageBox(Constants.ERROR, message);
+//		display.dispose();
 		System.out.println(argumentException.getMessage() + " exception: " + message);
-		launch();
-
+		argumentException.printStackTrace();
+		JOptionPane.showMessageDialog(null, message);
+//		launch();
+		System.exit(1);
 	}
 	catch(Exception exception) {
 		String message = "An error occoured, please check your internet connection, java version or run from the command line to show errors";

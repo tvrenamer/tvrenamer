@@ -3,129 +3,70 @@
   <property file="build.properties" />
   
   <property name="src.main" value="src/main" />
-  <property name="bin" value="bin" />
   <property name="build" value="build" />
   <property name="lib" value="lib" />
   <property name="res" value="res" />
   <property name="rel" value="release" />
-	<property name="rel.name" value="TVRenamer-${version}" />
+  <property name="rel.name" value="TVRenamer-${version}" />
+	<property name="dist" value="dist" />
   <property name="etc" value="etc" />
-  <property name="version" value="0.4" />
-  <property name="launch4j" value="C:/launch4j" />
   
+	<property name="launch4j" value="C:/launch4j" />  
   <!--taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpath="${launch4j}/launch4j.jar:${launch4j}/lib/xstream.jar" /-->
   
-  <target name="compile.win">
-    <delete dir="${build}"  failonerror="false" />
-    <mkdir dir="${build}"/>
-    <javac srcdir="${src.main}" destdir="${build}" classpath="${lib}/swt-win32.jar" />
-  </target>
-  
-  <target name="compile.linux">
-    <delete dir="${build}"  failonerror="false" />
-    <mkdir dir="${build}"/>
-    <javac srcdir="${src.main}" destdir="${build}" classpath="${lib}/swt-gtk32.jar"/>
-  </target>
+	<path id="swt.classpath">
+		<fileset dir="${lib}">
+			<!-- We can compile against any swt version-->
+		  <include name="**/swt-win32*.jar" />
+		</fileset>
+	</path>
 	
-	<target name="compile.osx">
-    <delete dir="${build}"  failonerror="false" />
-    <mkdir dir="${build}"/>
-    <javac srcdir="${src.main}" destdir="${build}" classpath="${lib}/swt-osx32.jar"/>
-  </target>
-  
-  <target name="jar.win32" depends="compile.win">
-    <jar destfile="${rel}/tvrenamer-win32.jar" filesetmanifest="mergewithoutmain">
-      <manifest>
-        <attribute name="Built-By" value="http://code.google.com/p/tv-renamer" />
-        <attribute name="Main-Class" value="com.google.code.tvrenamer.view.UIStarter" />
-      </manifest>
-      <fileset dir="${bin}" />
-      <fileset dir="${res}" />
-      <zipfileset src="${lib}/swt-win32.jar" />
-    </jar>
-  </target>
-  
-  <target name="jar.win64" depends="compile.win">
-    <jar destfile="${rel}/tvrenamer-win64.jar" filesetmanifest="mergewithoutmain">
-      <manifest>
-        <attribute name="Built-By" value="http://code.google.com/p/tv-renamer" />
-        <attribute name="Main-Class" value="com.google.code.tvrenamer.view.UIStarter" />
-      </manifest>
-      <fileset dir="${bin}" />
-      <fileset dir="${res}" />
-      <zipfileset src="${lib}/swt-win64.jar" />
-    </jar>
-  </target>
-  
-  <target name="jar.gtk64" depends="compile.linux">
-    <jar destfile="${rel}/${rel.name}/tvrenamer.jar" filesetmanifest="mergewithoutmain">
-      <manifest>
-        <attribute name="Built-By" value="http://code.google.com/p/tv-renamer"/>
-        <attribute name="Main-Class" value="com.google.code.tvrenamer.view.UIStarter"/>
-      </manifest>
-      <fileset dir="${build}" />
-      <fileset dir="${res}" />
-      <zipfileset src="${lib}/swt-gtk64.jar" />
-    </jar>
-  </target>
-  
-  <target name="jar.gtk32" depends="compile.linux">
-    <jar destfile="${rel}/${rel.name}/tvrenamer.jar" filesetmanifest="mergewithoutmain">
-      <manifest>
-        <attribute name="Built-By" value="http://code.google.com/p/tv-renamer"/>
-        <attribute name="Main-Class" value="com.google.code.tvrenamer.view.UIStarter"/>
-      </manifest>
-      <fileset dir="${build}" />
-      <fileset dir="${res}" />
-      <zipfileset src="${lib}/swt-gtk32.jar" />
-    </jar>
-  </target>
+	<macrodef name="compile">
+	  <sequential>
+  	 <delete dir="${build}"  failonerror="false" />
+	    <mkdir dir="${build}"/>
+  	  <javac srcdir="${src.main}" destdir="${build}" classpathref="swt.classpath" source="1.5" />
+	  </sequential>
+  </macrodef>
 	
-	<target name="jar.osx32" depends="compile.osx">
-    <jar destfile="${rel}/${rel.name}.app/Contents/MacOS/tvrenamer.jar" filesetmanifest="mergewithoutmain">
-      <manifest>
-        <attribute name="Built-By" value="http://code.google.com/p/tv-renamer"/>
-        <attribute name="Main-Class" value="com.google.code.tvrenamer.view.UIStarter"/>
-      </manifest>
-      <fileset dir="${build}" />
-      <fileset dir="${res}" />
-      <zipfileset src="${lib}/swt-osx32.jar" />
-    </jar>
-  </target>
+	<macrodef name="build.jar">
+	   <attribute name="platform"/>
+	   <sequential>
+	   	<compile />
+	   	<jar destfile="${dist}/tvrenamer-@{platform}.jar" filesetmanifest="mergewithoutmain">
+ 	      <manifest>
+ 	        <attribute name="Built-By" value="http://code.google.com/p/tv-renamer" />
+ 	        <attribute name="Main-Class" value="com.google.code.tvrenamer.view.UIStarter" />
+ 	      </manifest>
+ 	      <fileset dir="${build}" />
+ 	      <fileset dir="${res}" />
+ 	      <zipgroupfileset dir="${lib}" includes="swt-@{platform}*.jar"/>
+      </jar>
+    </sequential>
+	</macrodef>
 	
-	<target name="jar.osx64" depends="compile.osx">
-    <jar destfile="${rel}/${rel.name}.app/Contents/MacOS/tvrenamer.jar" filesetmanifest="mergewithoutmain">
-      <manifest>
-        <attribute name="Built-By" value="http://code.google.com/p/tv-renamer"/>
-        <attribute name="Main-Class" value="com.google.code.tvrenamer.view.UIStarter"/>
-      </manifest>
-      <fileset dir="${build}" />
-      <fileset dir="${res}" />
-      <zipfileset src="${lib}/swt-osx64.jar" />
-    </jar>
-  </target>
         
-  <target name="package.linux">
-    <mkdir dir="${rel}" />
-  	<mkdir dir="${rel}/${rel.name}" />
-    <copy file="${etc}/run-scripts/run-linux.sh" todir="${rel}/${rel.name}" />
-    <copy file="${etc}/LICENSE" todir="${rel}/${rel.name}" />
+  <target name="dist.linux">
+  	<mkdir dir="${dist}/${rel.name}" />
+    <copy file="${etc}/run-scripts/run-linux.sh" todir="${dist}/${rel.name}" />
+    <copy file="${etc}/LICENSE" todir="${dist}/${rel.name}" />
   </target>
 
-	<target name="package.osx">
-    <mkdir dir="${rel}" />
-    <mkdir dir="${rel}/${rel.name}.app" />
-		<mkdir dir="${rel}/${rel.name}.app/Contents" />
-		<mkdir dir="${rel}/${rel.name}.app/Contents/MacOS" />
-		<mkdir dir="${rel}/${rel.name}.app/Contents/Resources" />
+  <target name="dist.osx">
+    <mkdir dir="${dist}/${rel.name}.app/Contents/MacOS" />
+    <mkdir dir="${dist}/${rel.name}.app/Contents/Resources" />
 		
-		<copy file="${etc}/Info.plist" todir="${rel}/${rel.name}.app/Contents/" />
-    <copy file="${etc}/run-scripts/run-mac.sh" todir="${rel}/${rel.name}.app/Contents/MacOS" />
-		<copy file="${res}/icons/tvrenamer.icns" todir="${rel}/${rel.name}.app/Contents/Resources" />
-    <copy file="${etc}/LICENSE" todir="${rel}/${rel.name}.app" />
+    <copy file="${etc}/Info.plist" todir="${dist}/${rel.name}.app/Contents/" />
+    <copy file="${etc}/run-scripts/run-mac.sh" todir="${dist}/${rel.name}.app/Contents/MacOS" />
+  	<chmod file="${dist}/${rel.name}.app/Contents/MacOS/run-mac.sh" perm="+x" osfamily="mac" />
+    <copy file="${res}/icons/tvrenamer.icns" todir="${dist}/${rel.name}.app/Contents/Resources" />
+    <copy file="${etc}/LICENSE" todir="${dist}/${rel.name}.app" />
   </target>
+	
   
-  <target name="release.win" depends="clean, jar.win32, jar.win64">
+  <target name="rel.win" depends="clean, jar.win32, jar.win64">
+  	<build.jar platform="win32"/>
+  	<mkdir dir="${rel}" />
     <!-- Create the .exe with launch4j, but first you must uncomment the ant task import above -->
     <launch4j>
       <config headerType="gui" outfile="${rel}/${rel.name}-x86.exe" dontWrapJar="false" 
@@ -141,38 +82,43 @@
       </config>
     </launch4j>
   </target>
-        
-  <target name="release.linux" depends="clean">
-  	<antcall target="package.linux" />
-  	<antcall target="jar.gtk32" />
+	
+  <target name="rel.linux" depends="clean">
+  	
+    <antcall target="release.linux" />
+    <antcall target="jar.gtk32" />
     <zip destfile="${rel.name}-linux-x86.zip">
-      <fileset dir="${rel}" />
+    	<zipfileset dir="${rel}" filemode="755" />
     </zip>
+  	<copy file="{rel.name}-linux-x86.zip" todir="${dist}" />
   	
     <antcall target="clean" />
-               
-  	<antcall target="package.linux" />
-  	<antcall target="jar.gtk64" />
+  	
+    <antcall target="release.linux" />
+    <antcall target="jar.gtk64" />
     <zip destfile="${rel.name}-linux-x64.zip">
-      <fileset dir="${rel}" />
+    	<zipfileset dir="${rel}" filemode="755" />
     </zip>
+  	<copy file="{rel.name}-linux-x64.zip" todir="${dist}" />
   </target>
 	
-	<target name="release.osx" depends="clean">
-    <!--antcall target="package.osx" />
+  <target name="rel.osx" depends="clean">
+    <antcall target="release.osx" />
     <antcall target="jar.osx32" />
     <zip destfile="${rel.name}-osx-x86.zip">
-      <fileset dir="${rel}" />
+    	<zipfileset dir="${rel}" filemode="755" />
     </zip>
-    
-    <antcall target="clean" /-->
-               
-    <antcall target="package.osx" />
-    <antcall target="jar.osx64" />
-		
+  	<copy file="${rel.name}-osx-x86.zip" todir="${rel}" />
+  	
+  	<delete dir="${dist}"/>
+  	
+  	<antcall target="jar.osx32" />
+    <zip destfile="${rel.name}-osx-x86.zip">
+      <zipfileset dir="${rel}" filemode="755" />
+    </zip>
+    <copy file="${rel.name}-osx-x86.zip" todir="${rel}" />
   </target>
 	
-    
   <target name="clean">
     <delete includeemptydirs="true" failonerror="false">
       <fileset dir="${rel}" includes="**/*" />
@@ -180,10 +126,6 @@
         
     <delete includeemptydirs="true" failonerror="false">
       <fileset dir="${build}" includes="**/*" />
-    </delete>
-  	
-  	<delete includeemptydirs="true" failonerror="false">
-      <fileset dir="${rel}" includes="**/*" />
     </delete>
   </target>
 
