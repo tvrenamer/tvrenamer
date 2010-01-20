@@ -17,7 +17,7 @@
   <!--property name="launch4j" value="C:\launch4j" />
   <taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpath="${launch4j}/launch4j.jar:${launch4j}/lib/xstream.jar" /-->
 
-  <taskdef name="gcupload" classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" classpath="{lib}/ant-googlecode-0.0.2.jar" />
+  <taskdef name="gcupload" classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" classpath="${lib}/ant-googlecode-0.0.2.jar" />
 
   <macrodef name="upload">
     <attribute name="platform" />
@@ -26,15 +26,15 @@
     <attribute name="label.os" />
     <sequential>
       <gcupload username="USERNAME" password="PASSWORD" 
-          projectname="tv-renamer" filename="${rel}/${rel.name}-@{platform}.zip" targetfilename="${rel.name}-@{platform}.zip"
+          projectname="tv-renamer" filename="${dist}/${rel.name}-@{platform}.zip" targetfilename="${rel.name}-@{platform}.zip"
           summary="TVRenamer version ${version} for @{summary.platform}"
           labels="${label.type}, ${label.os}" />
     </sequential>
   </macrodef>
 
   <target name="init">
+    <mkdir dir="${build}" />
     <mkdir dir="${dist}" />
-    <mkdir dir="${rel}" />
   </target>
 
   <path id="swt.classpath">
@@ -44,19 +44,14 @@
     </fileset>
   </path>
 
-  <macrodef name="compile">
-    <sequential>
-      <mkdir dir="${build}" />
-      <javac srcdir="${src.main}" destdir="${build}" classpathref="swt.classpath" source="1.5" />
-    </sequential>
-  </macrodef>
-
   <macrodef name="build.jar" description="Compiles the source then creates an executable jar for the given platform">
     <attribute name="platform" />
     <sequential>
-      <compile />
+      <mkdir dir="${build}/@{platform}" />
+      
+      <javac srcdir="${src.main}" destdir="${build}" classpathref="swt.classpath" source="1.5" />
 
-      <jar destfile="${dist}/tvrenamer.jar" filesetmanifest="mergewithoutmain">
+      <jar destfile="${build}/@{platform}/tvrenamer.jar" filesetmanifest="mergewithoutmain">
         <manifest>
           <attribute name="Built-By" value="${jar.builtBy}" />
           <attribute name="Main-Class" value="${jar.mainClass}" />
@@ -68,87 +63,89 @@
     </sequential>
   </macrodef>
 
-  <macrodef name="dist.linux">
+  <macrodef name="build.linux">
     <attribute name="platform" />
     <sequential>
-      <clean />
-
       <build.jar platform="@{platform}" />
+      
+      <mkdir dir="${build}/@{platform}/${rel.name}" />
 
-      <mkdir dir="${dist}/${rel.name}" />
-      <move file="${dist}/tvrenamer.jar" todir="${dist}/${rel.name}"/>
-      <copy file="${etc}/run-scripts/run-linux.sh" todir="${dist}/${rel.name}" />
-      <copy file="${etc}/LICENSE" todir="${dist}/${rel.name}" />
+      <mkdir dir="${build}/@{platform}/${rel.name}" />
+      <move file="${build}/@{platform}/tvrenamer.jar" todir="${build}/@{platform}/${rel.name}"/>
+      <copy file="${etc}/run-scripts/run-linux.sh" todir="${build}/@{platform}/${rel.name}" />
+      <copy file="${etc}/LICENSE" todir="${build}/@{platform}/${rel.name}" />
 
-      <zip destfile="${dist}/${rel.name}/${rel.name}-@{platform}.zip">
-        <zipfileset dir="${dist}" filemode="755" />
+      <zip destfile="${build}/@{platform}/${rel.name}/${rel.name}-@{platform}.zip">
+        <zipfileset dir="${build}/@{platform}" filemode="755" />
       </zip>
-      <copy file="${dist}/${rel.name}/${rel.name}-@{platform}.zip" todir="${rel}" />
+      <copy file="${build}/@{platform}/${rel.name}/${rel.name}-@{platform}.zip" todir="${dist}" />
+      
+      <delete dir="${build}/@{platform}/" failonerror="false" />
     </sequential>
   </macrodef>
 
-  <macrodef name="dist.osx">
+  <macrodef name="build.osx">
     <attribute name="platform" />
     <sequential>
-      <clean />
-
       <build.jar platform="@{platform}" />
 
-      <mkdir dir="${dist}/${rel.name}.app/Contents/MacOS" />
-      <mkdir dir="${dist}/${rel.name}.app/Contents/Resources" />
+      <mkdir dir="${build}/@{platform}/${rel.name}.app/Contents/MacOS" />
+      <mkdir dir="${build}/@{platform}/${rel.name}.app/Contents/Resources" />
 
-      <copy file="${etc}/Info.plist" todir="${dist}/${rel.name}.app/Contents/" />
-      <copy file="${etc}/run-scripts/run-mac.sh" todir="${dist}/${rel.name}.app/Contents/MacOS" />
-      <move file="${dist}/tvrenamer.jar" todir="${dist}/${rel.name}.app/Contents/MacOS"/>
-      <chmod file="${dist}/${rel.name}.app/Contents/MacOS/run-mac.sh" perm="+x" />
-      <copy file="${res}/icons/tvrenamer.icns" todir="${dist}/${rel.name}.app/Contents/Resources" />
-      <copy file="${etc}/LICENSE" todir="${dist}/${rel.name}.app" />
+      <copy file="${etc}/Info.plist" todir="${build}/@{platform}/${rel.name}.app/Contents/" />
+      <copy file="${etc}/run-scripts/run-mac.sh" todir="${build}/@{platform}/${rel.name}.app/Contents/MacOS" />
+      <move file="${build}/@{platform}/tvrenamer.jar" todir="${build}/@{platform}/${rel.name}.app/Contents/MacOS"/>
+      <chmod file="${build}/@{platform}/${rel.name}.app/Contents/MacOS/run-mac.sh" perm="+x" />
+      <copy file="${res}/icons/tvrenamer.icns" todir="${build}/@{platform}/${rel.name}.app/Contents/Resources" />
+      <copy file="${etc}/LICENSE" todir="${build}/@{platform}/${rel.name}.app" />
 
-      <zip destfile="${dist}/${rel.name}-@{platform}.zip">
-        <zipfileset dir="${dist}" filemode="755" />
+      <zip destfile="${build}/@{platform}/${rel.name}-@{platform}.zip">
+        <zipfileset dir="${build}/@{platform}" filemode="755" />
       </zip>
-      <copy file="${dist}/${rel.name}-@{platform}.zip" todir="${rel}" />
+      <copy file="${build}/@{platform}/${rel.name}-@{platform}.zip" todir="${dist}" />
+      
+      <delete dir="${build}/@{platform}/" failonerror="false" />
     </sequential>
   </macrodef>
 
-  <macrodef name="dist.win">
+  <macrodef name="build.win">
     <attribute name="platform" />
     <sequential>
-      <clean />
-
       <build.jar platform="@{platform}" />
       <!-- Create the .exe with launch4j, but first you must uncomment the ant task import above -->
       <launch4j>
-        <config headerType="gui" outfile="${rel}/${rel.name}-@{platform}.exe" dontWrapJar="false" 
-            jar="${dist}/tvrenamer.jar" icon="${res}\icons\oldschool-tv-icon.ico" chdir=".">
+        <config headerType="gui" outfile="${dist}/${rel.name}-@{platform}.exe" dontWrapJar="false" 
+            jar="${build}/@{platform}/tvrenamer.jar" icon="${res}\icons\oldschool-tv-icon.ico" chdir=".">
           <jre minVersion="1.5.0" />
         </config>
       </launch4j>
+      
+      <delete dir="${build}/@{platform}/" failonerror="false" />
     </sequential>
   </macrodef>
 
 
-  <target name="rel.win" depends="clean, init">
-    <dist.win platform="win32" />
-    <dist.win platform="win64" />
+  <target name="dist.win" depends="clean, init">
+    <build.win platform="win32" />
+    <build.win platform="win64" />
   </target>
 
-  <target name="rel.linux" depends="clean">
-    <dist.linux platform="gtk32" />
-    <dist.linux platform="gtk64" />
+  <target name="dist.linux" depends="clean, init">
+    <build.linux platform="gtk32" />
+    <build.linux platform="gtk64" />
   </target>
 
-  <target name="rel.osx" depends="clean, init">
-    <dist.osx platform="osx32" />
-    <dist.osx platform="osx64" />
+  <target name="dist.osx" depends="clean, init">
+    <build.osx platform="osx32" />
+    <build.osx platform="osx64" />
   </target>
-  
+
   <target name="upload.osx">
     <upload platform="osx64" summary.platform="64-bit OSX" label.type="Type-Archive" label.os="OpSys-OSX" />
     <upload platform="osx32" summary.platform="32-bit OSX" label.type="Type-Archive" label.os="OpSys-OSX" />
   </target>
 
-  <target name="rel.all" depends="clean, init, rel.win, rel.linux, rel.osx" />
+  <target name="dist.all" depends="clean, init, dist.win, dist.linux, dist.osx" />
 
   <target name="clean">
     <clean />
@@ -156,10 +153,6 @@
 
   <macrodef name="clean">
     <sequential>
-      <delete includeemptydirs="true" failonerror="false">
-        <fileset dir="${dist}" includes="**/*" />
-      </delete>
-
       <delete includeemptydirs="true" failonerror="false">
         <fileset dir="${build}" includes="**/*" />
       </delete>
