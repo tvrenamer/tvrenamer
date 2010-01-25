@@ -7,7 +7,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
 
-import org.apache.log4j.Logger;
+import javax.swing.JOptionPane;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.dnd.DND;
@@ -46,7 +47,9 @@ import com.google.code.tvrenamer.model.util.Constants;
 public class UIStarter {
   private static final String pathSeparator = System
       .getProperty("file.separator");
-  private static Logger logger = Logger.getLogger(UIStarter.class);
+  public static final String DEFAULT_FORMAT_STRING = "%S [%sx%e] %t";
+
+//  private static Logger logger = Logger.getLogger(UIStarter.class);
 
   private static Shell shell;
   private Table tblResults;
@@ -74,6 +77,7 @@ public class UIStarter {
     // Set up environment
     GridLayout gridLayout = new GridLayout(4, false);
     final Display display = new Display();
+    Display.setAppName("TVRenamer");
     shell = new Shell(display);
     shell.setText("TVRenamer");
     shell.setLayout(gridLayout);
@@ -129,7 +133,7 @@ public class UIStarter {
     btnReset.addSelectionListener(new SelectionAdapter() {
       @Override
       public void widgetSelected(SelectionEvent e) {
-        textFormat.setText("%S [%sx%e] %t");
+        textFormat.setText(DEFAULT_FORMAT_STRING);
         if (tv != null) {
           textShowName.setText(tv.getShowName(new File(files.get(0))));
         } else {
@@ -329,10 +333,6 @@ public class UIStarter {
         FileTransfer ft = FileTransfer.getInstance();
         if (ft.isSupportedType(e.currentDataType)) {
           fileList = (String[]) e.data;
-          for (String string : fileList) {
-            logger.debug("you dropped: " + string);
-
-          }
           initiateRenamer(fileList);
         }
       }
@@ -340,11 +340,12 @@ public class UIStarter {
 
     // set the icon for the application
     try {
-      InputStream icon = getClass().getResourceAsStream("/tvrenamer.png");
+      InputStream icon = getClass().getResourceAsStream(
+          "/icons/tvrenamer.png");
       if (icon != null) {
         shell.setImage(new Image(display, icon));
       } else {
-        shell.setImage(new Image(display, "tvrenamer.png"));
+        shell.setImage(new Image(display, "res/icons/tvrenamer.png"));
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -352,25 +353,43 @@ public class UIStarter {
   }
 
   private void launch() {
-    // place the window in the centre of the primary monitor
-    Monitor primary = Display.getCurrent().getPrimaryMonitor();
-    Rectangle bounds = primary.getBounds();
-    Rectangle rect = shell.getBounds();
-    int x = bounds.x + (bounds.width - rect.width) / 2;
-    int y = bounds.y + (bounds.height - rect.height) / 2;
-    shell.setLocation(x, y);
+	Display display = null;
+	try {
+	    // place the window in the centre of the primary monitor
+	    Monitor primary = Display.getCurrent().getPrimaryMonitor();
+	    Rectangle bounds = primary.getBounds();
+	    Rectangle rect = shell.getBounds();
+	    int x = bounds.x + (bounds.width - rect.width) / 2;
+	    int y = bounds.y + (bounds.height - rect.height) / 2;
+	    shell.setLocation(x, y);
 
-    // Start the shell
-    shell.pack();
-    shell.open();
+	    // Start the shell
+	    shell.pack();
+	    shell.open();
 
-    Display display = shell.getDisplay();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
-    display.dispose();
+	    display = shell.getDisplay();
+	    while (!shell.isDisposed()) {
+	      if (!display.readAndDispatch()) {
+	        display.sleep();
+	      }
+	    }
+	    display.dispose();
+	}
+	catch(IllegalArgumentException argumentException) {
+		String message = "Drag and Drop is not currently supported on your operating system, please use the 'Browse Files' option above";
+//		showMessageBox(Constants.ERROR, message);
+//		display.dispose();
+		System.out.println(argumentException.getMessage() + " exception: " + message);
+		argumentException.printStackTrace();
+		JOptionPane.showMessageDialog(null, message);
+//		launch();
+		System.exit(1);
+	}
+	catch(Exception exception) {
+		String message = "An error occoured, please check your internet connection, java version or run from the command line to show errors";
+		showMessageBox(Constants.ERROR, message);
+		exception.printStackTrace();
+	}
   }
 
   private void initiateRenamer(String[] fileNames) {
@@ -427,8 +446,8 @@ public class UIStarter {
         File newFile = new File(file.getParent() + pathSeparator
             + item.getText(2));
         file.renameTo(newFile);
-        logger.info("Renamed " + file.getAbsolutePath() + " to "
-            + newFile.getAbsolutePath());
+//        logger.info("Renamed " + file.getAbsolutePath() + " to "
+//            + newFile.getAbsolutePath());
         renamedFiles++;
         files.set(index, newFile.getAbsolutePath());
       }
@@ -448,8 +467,8 @@ public class UIStarter {
     for (int i = 0; i < files.size(); i++) {
       String fileName = files.get(i);
       String oldFilename = new File(fileName).getName();
-      String newFilename = tv.parseFileName(new File(fileName), textShowName
-          .getText(), textFormat.getText());
+      String newFilename = tv.parseFileName(oldFilename, textShowName.getText(),
+          textFormat.getText());
       TableItem item = new TableItem(tblResults, SWT.NONE);
       item.setText(new String[] { i + 1 + "", oldFilename, newFilename });
       item.setChecked(true);
@@ -513,7 +532,7 @@ public class UIStarter {
     } else if (type == Constants.QUESTION) {
       swtIconValue = SWT.ICON_QUESTION;
     } else {
-      logger.error("Tried to show a box with an undefined message type");
+//      logger.error("Tried to show a box with an undefined message type");
       return;
     }
 

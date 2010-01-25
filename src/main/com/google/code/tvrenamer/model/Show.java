@@ -2,13 +2,7 @@ package com.google.code.tvrenamer.model;
 
 import java.util.HashMap;
 
-import org.apache.log4j.Logger;
-
 public class Show {
-
-  @SuppressWarnings("unused")
-private static Logger logger = Logger.getLogger(Show.class);
-
   private final String id;
   private final String name;
   private final String url;

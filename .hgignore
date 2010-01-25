@@ -1,0 +1,8 @@
+bin
+build
+rel
+dist
+
+.project
+.classpath
+.DS_Store
