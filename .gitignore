@@ -1,0 +1,7 @@
+bin
+build
+dist
+
+.project
+.classpath
+.DS_Store
