@@ -17,21 +17,6 @@
   <!--property name="launch4j" value="C:\launch4j" />
   <taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpath="${launch4j}/launch4j.jar:${launch4j}/lib/xstream.jar" /-->
 
-  <taskdef name="gcupload" classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" classpath="${lib}/ant-googlecode-0.0.2.jar" />
-
-  <macrodef name="upload">
-    <attribute name="platform" />
-    <attribute name="summary.platform" />
-    <attribute name="label.type" />
-    <attribute name="label.os" />
-    <sequential>
-      <gcupload username="USERNAME" password="PASSWORD" 
-          projectname="tv-renamer" filename="${dist}/${rel.name}-@{platform}.zip" targetfilename="${rel.name}-@{platform}.zip"
-          summary="TVRenamer version ${version} for @{summary.platform}"
-          labels="${label.type}, ${label.os}" />
-    </sequential>
-  </macrodef>
-
   <target name="init">
     <mkdir dir="${build}" />
     <mkdir dir="${dist}" />
@@ -138,11 +123,6 @@
   <target name="dist.osx" depends="clean, init">
     <build.osx platform="osx32" />
     <build.osx platform="osx64" />
-  </target>
-
-  <target name="upload.osx">
-    <upload platform="osx64" summary.platform="64-bit OSX" label.type="Type-Archive" label.os="OpSys-OSX" />
-    <upload platform="osx32" summary.platform="32-bit OSX" label.type="Type-Archive" label.os="OpSys-OSX" />
   </target>
 
   <target name="dist.all" depends="clean, init, dist.win, dist.linux, dist.osx" />
