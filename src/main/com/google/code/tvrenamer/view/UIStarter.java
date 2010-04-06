@@ -49,8 +49,6 @@ public class UIStarter {
       .getProperty("file.separator");
   public static final String DEFAULT_FORMAT_STRING = "%S [%sx%e] %t";
 
-//  private static Logger logger = Logger.getLogger(UIStarter.class);
-
   private static Shell shell;
   private Table tblResults;
 
@@ -82,15 +80,91 @@ public class UIStarter {
     shell.setText("TVRenamer");
     shell.setLayout(gridLayout);
 
-    // File browsing
+    setupBrowseDialog();
+    setupShowCombo();
+    setupFormatBox();
+    setupResultsTable();
+    setupTableDragDrop();
+
+    final Button btnRenameAll = new Button(shell, SWT.PUSH);
+    btnRenameAll.setText("Rename All");
+
+    final Button btnRenameSelected = new Button(shell, SWT.PUSH);
+    btnRenameSelected.setText("Rename Selected");
+
+    lblStatus = new Label(shell, SWT.NONE);
+    lblStatus.setText("");
+
+    final Button btnQuit = new Button(shell, SWT.PUSH);
+    btnQuit.setText("Quit");
+    btnQuit.setLayoutData(new GridData(SWT.RIGHT, SWT.FILL, false, false));
+
+    btnRenameAll.addSelectionListener(new SelectionAdapter() {
+      @Override
+      public void widgetSelected(SelectionEvent e) {
+        renameFiles(true);
+      }
+    });
+
+    btnRenameSelected.addSelectionListener(new SelectionAdapter() {
+      @Override
+      public void widgetSelected(SelectionEvent e) {
+        renameFiles(false);
+      }
+    });
+
+    btnQuit.addSelectionListener(new SelectionAdapter() {
+      @Override
+      public void widgetSelected(SelectionEvent e) {
+        display.dispose();
+      }
+    });
+
+    setApplicationIcon(display);
+  }
+
+  private void setupBrowseDialog() {
     final FileDialog fd = new FileDialog(shell, SWT.MULTI);
     Button btnBrowse = new Button(shell, SWT.PUSH);
     btnBrowse.setText("Browse files...");
-    // Drop down to select show
+
+    btnBrowse.addSelectionListener(new SelectionAdapter() {
+      @Override
+      public void widgetSelected(SelectionEvent e) {
+
+        String pathPrefix = fd.open();
+        if (pathPrefix != null) {
+          File file = new File(pathPrefix);
+          pathPrefix = file.getParent();
+
+          String[] fileNames = fd.getFileNames();
+          for (int i = 0; i < fileNames.length; i++) {
+            fileNames[i] = pathPrefix + pathSeparator + fileNames[i];
+          }
+
+          // eep!
+          initiateRenamer(fileNames);
+        }
+      }
+    });
+  }
+
+  private void setupShowCombo() {
     showCombo = new Combo(shell, SWT.DROP_DOWN | SWT.READ_ONLY | SWT.SIMPLE);
     showCombo.setEnabled(false);
     showCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+    showCombo.addSelectionListener(new SelectionAdapter() {
+      @Override
+      public void widgetSelected(SelectionEvent e) {
+        int showNum = ((Combo) e.getSource()).getSelectionIndex();
+        tv.setShow(showList.get(showNum));
+        tv.downloadListing();
+        populateTable();
+      }
+    });
+  }
 
+  private void setupFormatBox() {
     final Composite formatParent = new Composite(shell, SWT.NONE);
     GridData formatData = new GridData(GridData.HORIZONTAL_ALIGN_END);
     formatData.horizontalSpan = 2;
@@ -145,8 +219,9 @@ public class UIStarter {
         }
       }
     });
+  }
 
-    // Results table
+  private void setupResultsTable() {
     tblResults = new Table(shell, SWT.CHECK);
     tblResults.setHeaderVisible(true);
     tblResults.setLinesVisible(true);
@@ -172,62 +247,6 @@ public class UIStarter {
     final TableEditor editor = new TableEditor(tblResults);
     editor.horizontalAlignment = SWT.CENTER;
     editor.grabHorizontal = true;
-
-    final Button btnRenameAll = new Button(shell, SWT.PUSH);
-    btnRenameAll.setText("Rename All");
-
-    final Button btnRenameSelected = new Button(shell, SWT.PUSH);
-    btnRenameSelected.setText("Rename Selected");
-
-    lblStatus = new Label(shell, SWT.NONE);
-    lblStatus.setText("");
-
-    final Button btnQuit = new Button(shell, SWT.PUSH);
-    btnQuit.setText("Quit");
-    btnQuit.setLayoutData(new GridData(SWT.RIGHT, SWT.FILL, false, false));
-
-    btnBrowse.addSelectionListener(new SelectionAdapter() {
-      @Override
-      public void widgetSelected(SelectionEvent e) {
-
-        String pathPrefix = fd.open();
-        if (pathPrefix != null) {
-          File file = new File(pathPrefix);
-          pathPrefix = file.getParent();
-
-          String[] fileNames = fd.getFileNames();
-          for (int i = 0; i < fileNames.length; i++) {
-            fileNames[i] = pathPrefix + pathSeparator + fileNames[i];
-          }
-
-          initiateRenamer(fileNames);
-        }
-      }
-    });
-
-    showCombo.addSelectionListener(new SelectionAdapter() {
-      @Override
-      public void widgetSelected(SelectionEvent e) {
-        int showNum = ((Combo) e.getSource()).getSelectionIndex();
-        tv.setShow(showList.get(showNum));
-        tv.downloadListing();
-        populateTable();
-      }
-    });
-
-    btnRenameAll.addSelectionListener(new SelectionAdapter() {
-      @Override
-      public void widgetSelected(SelectionEvent e) {
-        renameFiles(true);
-      }
-    });
-
-    btnRenameSelected.addSelectionListener(new SelectionAdapter() {
-      @Override
-      public void widgetSelected(SelectionEvent e) {
-        renameFiles(false);
-      }
-    });
 
     col1.addSelectionListener(new SelectionAdapter() {
       @Override
@@ -259,13 +278,6 @@ public class UIStarter {
                 : SWT.DOWN);
         sortTable(col3, 1);
         tblResults.setSortColumn(col3);
-      }
-    });
-
-    btnQuit.addSelectionListener(new SelectionAdapter() {
-      @Override
-      public void widgetSelected(SelectionEvent e) {
-        display.dispose();
       }
     });
 
@@ -323,7 +335,9 @@ public class UIStarter {
       }
     };
     tblResults.addListener(SWT.MouseDown, tblEditListener);
+  }
 
+  private void setupTableDragDrop() {
     DropTarget dt = new DropTarget(tblResults, DND.DROP_DEFAULT | DND.DROP_MOVE);
     dt.setTransfer(new Transfer[] { FileTransfer.getInstance() });
     dt.addDropListener(new DropTargetAdapter() {
@@ -337,11 +351,11 @@ public class UIStarter {
         }
       }
     });
+  }
 
-    // set the icon for the application
+  private void setApplicationIcon(Display display) {
     try {
-      InputStream icon = getClass().getResourceAsStream(
-          "/icons/tvrenamer.png");
+      InputStream icon = getClass().getResourceAsStream("/icons/tvrenamer.png");
       if (icon != null) {
         shell.setImage(new Image(display, icon));
       } else {
@@ -353,43 +367,42 @@ public class UIStarter {
   }
 
   private void launch() {
-	Display display = null;
-	try {
-	    // place the window in the centre of the primary monitor
-	    Monitor primary = Display.getCurrent().getPrimaryMonitor();
-	    Rectangle bounds = primary.getBounds();
-	    Rectangle rect = shell.getBounds();
-	    int x = bounds.x + (bounds.width - rect.width) / 2;
-	    int y = bounds.y + (bounds.height - rect.height) / 2;
-	    shell.setLocation(x, y);
+    Display display = null;
+    try {
+      // place the window in the centre of the primary monitor
+      Monitor primary = Display.getCurrent().getPrimaryMonitor();
+      Rectangle bounds = primary.getBounds();
+      Rectangle rect = shell.getBounds();
+      int x = bounds.x + (bounds.width - rect.width) / 2;
+      int y = bounds.y + (bounds.height - rect.height) / 2;
+      shell.setLocation(x, y);
 
-	    // Start the shell
-	    shell.pack();
-	    shell.open();
+      // Start the shell
+      shell.pack();
+      shell.open();
 
-	    display = shell.getDisplay();
-	    while (!shell.isDisposed()) {
-	      if (!display.readAndDispatch()) {
-	        display.sleep();
-	      }
-	    }
-	    display.dispose();
-	}
-	catch(IllegalArgumentException argumentException) {
-		String message = "Drag and Drop is not currently supported on your operating system, please use the 'Browse Files' option above";
-//		showMessageBox(Constants.ERROR, message);
-//		display.dispose();
-		System.out.println(argumentException.getMessage() + " exception: " + message);
-		argumentException.printStackTrace();
-		JOptionPane.showMessageDialog(null, message);
-//		launch();
-		System.exit(1);
-	}
-	catch(Exception exception) {
-		String message = "An error occoured, please check your internet connection, java version or run from the command line to show errors";
-		showMessageBox(Constants.ERROR, message);
-		exception.printStackTrace();
-	}
+      display = shell.getDisplay();
+      while (!shell.isDisposed()) {
+        if (!display.readAndDispatch()) {
+          display.sleep();
+        }
+      }
+      display.dispose();
+    } catch (IllegalArgumentException argumentException) {
+      String message = "Drag and Drop is not currently supported on your operating system, please use the 'Browse Files' option above";
+      // showMessageBox(Constants.ERROR, message);
+      // display.dispose();
+      System.out.println(argumentException.getMessage() + " exception: "
+          + message);
+      argumentException.printStackTrace();
+      JOptionPane.showMessageDialog(null, message);
+      // launch();
+      System.exit(1);
+    } catch (Exception exception) {
+      String message = "An error occoured, please check your internet connection, java version or run from the command line to show errors";
+      showMessageBox(Constants.ERROR, message);
+      exception.printStackTrace();
+    }
   }
 
   private void initiateRenamer(String[] fileNames) {
@@ -446,8 +459,6 @@ public class UIStarter {
         File newFile = new File(file.getParent() + pathSeparator
             + item.getText(2));
         file.renameTo(newFile);
-//        logger.info("Renamed " + file.getAbsolutePath() + " to "
-//            + newFile.getAbsolutePath());
         renamedFiles++;
         files.set(index, newFile.getAbsolutePath());
       }
@@ -467,8 +478,8 @@ public class UIStarter {
     for (int i = 0; i < files.size(); i++) {
       String fileName = files.get(i);
       String oldFilename = new File(fileName).getName();
-      String newFilename = tv.parseFileName(oldFilename, textShowName.getText(),
-          textFormat.getText());
+      String newFilename = tv.parseFileName(oldFilename,
+          textShowName.getText(), textFormat.getText());
       TableItem item = new TableItem(tblResults, SWT.NONE);
       item.setText(new String[] { i + 1 + "", oldFilename, newFilename });
       item.setChecked(true);
@@ -532,7 +543,6 @@ public class UIStarter {
     } else if (type == Constants.QUESTION) {
       swtIconValue = SWT.ICON_QUESTION;
     } else {
-//      logger.error("Tried to show a box with an undefined message type");
       return;
     }
 
