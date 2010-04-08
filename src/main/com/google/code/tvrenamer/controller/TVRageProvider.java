@@ -26,8 +26,7 @@ import org.xml.sax.SAXException;
 
 import com.google.code.tvrenamer.model.Season;
 import com.google.code.tvrenamer.model.Show;
-import com.google.code.tvrenamer.model.util.TVRenamerLogger;
-import com.google.code.tvrenamer.model.util.Constants.SWTMessageBoxType;
+import com.google.code.tvrenamer.model.util.Constants;
 import com.google.code.tvrenamer.view.UIStarter;
 
 /**
@@ -38,8 +37,7 @@ import com.google.code.tvrenamer.view.UIStarter;
  *
  */
 public class TVRageProvider {
-  private static TVRenamerLogger logger = new TVRenamerLogger(TVRageProvider.class);
-
+//  private static Logger logger = Logger.getLogger(TVRageProvider.class);
   private static final String BASE_SEARCH_URL = "http://www.tvrage.com/feeds/search.php?show=";
   private static final String XPATH_SHOW = "//show";
   private static final String XPATH_SHOWID = "showid";
@@ -47,7 +45,7 @@ public class TVRageProvider {
   private static final String XPATH_LINK = "link";
 
   private TVRageProvider() {
-    // Prevents instantiation
+	// Prevents instantiation
   }
 
   /**
@@ -60,28 +58,29 @@ public class TVRageProvider {
   public static ArrayList<Show> getShowOptions(String showName) {
     ArrayList<Show> options = new ArrayList<Show>();
     showName = showName.replaceAll(" ", "%20");
+//    logger.debug(BASE_SEARCH_URL + showName);
     String searchURL = BASE_SEARCH_URL + showName;
-    logger.trace("Show URL: " + BASE_SEARCH_URL + showName);
 
     try {
       DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
       URL url = new URL(searchURL);
 
+//      logger.info("Retrieving search results from \"" + url.toString() + "\"");
       InputStream inputStream = url.openStream();
       BufferedReader reader = new BufferedReader(new InputStreamReader(
           inputStream));
 
-      logger.trace("Before encoding XML");
+//      logger.debug("Before encoding XML");
 
       String s;
       String xml = "";
       while ((s = reader.readLine()) != null) {
-        logger.debug(s);
+//        logger.debug(s);
         xml += encodeSpecialCharacters(s);
       }
 
-      logger.trace("XML:\n" + xml);
+      // logger.debug("xml:\n" + xml);
 
       DocumentBuilder db = dbf.newDocumentBuilder();
       Document doc = db.parse(new InputSource(new StringReader(xml)));
@@ -97,20 +96,20 @@ public class TVRageProvider {
         Node eNode = shows.item(i);
         expr = xpath.compile(XPATH_SHOWID);
         String optionId = ((Node) expr.evaluate(eNode, XPathConstants.NODE))
-        .getTextContent();
+            .getTextContent();
         expr = xpath.compile(XPATH_NAME);
         String optionName = ((Node) expr.evaluate(eNode, XPathConstants.NODE))
-        .getTextContent();
+            .getTextContent();
         expr = xpath.compile(XPATH_LINK);
         String optionUrl = ((Node) expr.evaluate(eNode, XPathConstants.NODE))
-        .getTextContent();
+            .getTextContent();
         options.add(new Show(optionId, optionName, optionUrl));
       }
       return options;
     } catch (UnknownHostException e) {
       UIStarter
-      .showMessageBox(SWTMessageBoxType.ERROR,
-          "Unable to connect to http://www.tvrage.com, check your internet connection.");
+          .showMessageBox(Constants.SWTMessageBoxType.ERROR,
+              "Unable to connect to http://www.tvrage.com, check your internet connection.");
     } catch (ParserConfigurationException e) {
       e.printStackTrace();
     } catch (SAXException e) {
@@ -140,7 +139,7 @@ public class TVRageProvider {
 
     String showURL = BASE_LIST_URL + show.getId();
 
-    logger.trace("Retrieving episode listing from " + showURL);
+//    logger.info("Retrieving episode listing from " + showURL);
 
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
     try {
@@ -155,8 +154,8 @@ public class TVRageProvider {
 
       for (int i = 0; i < seasons.getLength(); i++) {
         Node sNode = seasons.item(i);
-        String sNum = sNode.getAttributes().getNamedItem(XPATH_SEASON_ATTR)
-        .getNodeValue();
+        int sNum = Integer.parseInt(sNode.getAttributes().getNamedItem(XPATH_SEASON_ATTR)
+            .getNodeValue());
         Season season = new Season(sNum);
         show.setSeason(sNum, season);
 
@@ -169,9 +168,10 @@ public class TVRageProvider {
           Node epNumNode = (Node) expr.evaluate(eNode, XPathConstants.NODE);
           expr = xpath.compile(XPATH_TITLE);
           Node epTitleNode = (Node) expr.evaluate(eNode, XPathConstants.NODE);
-
-          logger.trace("[" + sNum + "x" + epNumNode.getTextContent() + "] " + epTitleNode.getTextContent());
-          season.setEpisode(epNumNode.getTextContent(), epTitleNode.getTextContent());
+//          logger.debug("[" + sNum + "x" + epNumNode.getTextContent() + "] "
+//              + epTitleNode.getTextContent());
+          season.setEpisode(Integer.parseInt(epNumNode.getTextContent()), epTitleNode
+              .getTextContent());
         }
       }
     } catch (ParserConfigurationException e) {
@@ -196,9 +196,9 @@ public class TVRageProvider {
     }
 
     // TODO: determine other characters that need to be replaced (eg "'", "-")
-    logger.trace("Input before encoding: [" + input + "]");
+    // logger.debug("Input before encoding: [" + input + "]");
     input = input.replaceAll("& ", "&amp; ");
-    logger.trace("Input after encoding: [" + input + "]");
+    // logger.debug("Input after encoding: [" + input + "]");
     return input;
   }
 }

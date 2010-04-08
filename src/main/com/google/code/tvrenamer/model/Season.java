@@ -1,25 +1,27 @@
 package com.google.code.tvrenamer.model;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class Season {
-  private final String num;
-  private final HashMap<String, String> episodes;
+  private final int num;
+  private final Map<Integer, String> episodes;
 
-  public Season(String num) {
+  public Season(int num) {
     this.num = num;
-    episodes = new HashMap<String, String>();
+    episodes = new HashMap<Integer, String>();
   }
 
-  public String getNumber() {
+  public int getNumber() {
     return num;
   }
 
-  public String getTitle(String epNum) {
+  public void setEpisode(int epNum, String title) {
+    episodes.put(epNum, title);
+  }
+
+  public String getTitle(int epNum) {
     return episodes.get(epNum);
   }
 
-  public void setEpisode(String epNum, String title) {
-    episodes.put(epNum, title);
-  }
 }
