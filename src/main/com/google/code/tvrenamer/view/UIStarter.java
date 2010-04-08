@@ -3,9 +3,12 @@ package com.google.code.tvrenamer.view;
 import java.io.File;
 import java.io.InputStream;
 import java.text.Collator;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import javax.swing.JOptionPane;
 
@@ -25,7 +28,6 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
@@ -41,7 +43,10 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 import com.google.code.tvrenamer.controller.TVRenamer;
+import com.google.code.tvrenamer.model.FileEpisode;
+import com.google.code.tvrenamer.model.Season;
 import com.google.code.tvrenamer.model.Show;
+import com.google.code.tvrenamer.model.ShowStore;
 import com.google.code.tvrenamer.model.util.Constants;
 
 public class UIStarter {
@@ -52,18 +57,13 @@ public class UIStarter {
   private static Shell shell;
   private Table tblResults;
 
-  private Combo showCombo;
   private Button btnFormat;
 
   private Text textFormat;
-  private Text textShowName;
 
   private Label lblStatus;
 
-  private ArrayList<Show> showList;
-  private ArrayList<String> files;
-
-  private TVRenamer tv;
+  private List<FileEpisode> files;
 
   public static void main(String[] args) {
     UIStarter ui = new UIStarter();
@@ -81,8 +81,7 @@ public class UIStarter {
     shell.setLayout(gridLayout);
 
     setupBrowseDialog();
-    setupShowCombo();
-    setupFormatBox();
+    // setupFormatBox();
     setupResultsTable();
     setupTableDragDrop();
 
@@ -142,24 +141,8 @@ public class UIStarter {
             fileNames[i] = pathPrefix + pathSeparator + fileNames[i];
           }
 
-          // eep!
           initiateRenamer(fileNames);
         }
-      }
-    });
-  }
-
-  private void setupShowCombo() {
-    showCombo = new Combo(shell, SWT.DROP_DOWN | SWT.READ_ONLY | SWT.SIMPLE);
-    showCombo.setEnabled(false);
-    showCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-    showCombo.addSelectionListener(new SelectionAdapter() {
-      @Override
-      public void widgetSelected(SelectionEvent e) {
-        int showNum = ((Combo) e.getSource()).getSelectionIndex();
-        tv.setShow(showList.get(showNum));
-        tv.downloadListing();
-        populateTable();
       }
     });
   }
@@ -179,15 +162,6 @@ public class UIStarter {
     textFormat.setText("%S [%sx%e] %t");
     textFormat.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-    final Label lblShowName = new Label(formatParent, SWT.None);
-    lblShowName.setText("Show:");
-
-    textShowName = new Text(formatParent, SWT.LEFT | SWT.SINGLE | SWT.BORDER);
-    textShowName.setEnabled(false);
-    GridData sncData = new GridData(GridData.FILL_HORIZONTAL);
-    sncData.widthHint = 200;
-    textShowName.setLayoutData(sncData);
-
     btnFormat = new Button(formatParent, SWT.PUSH);
     btnFormat.setText("Apply");
     btnFormat.setEnabled(false);
@@ -197,26 +171,6 @@ public class UIStarter {
       @Override
       public void widgetSelected(SelectionEvent e) {
         populateTable();
-      }
-    });
-
-    final Button btnReset = new Button(formatParent, SWT.PUSH);
-    btnReset.setText("Reset");
-    btnReset.setEnabled(true);
-
-    btnReset.addSelectionListener(new SelectionAdapter() {
-      @Override
-      public void widgetSelected(SelectionEvent e) {
-        textFormat.setText(DEFAULT_FORMAT_STRING);
-        if (tv != null) {
-          textShowName.setText(tv.getShowName(new File(files.get(0))));
-        } else {
-          textShowName.setText("");
-        }
-
-        if (tv != null) {
-          populateTable();
-        }
       }
     });
   }
@@ -406,66 +360,71 @@ public class UIStarter {
   }
 
   private void initiateRenamer(String[] fileNames) {
-    files = new ArrayList<String>(Arrays.asList(fileNames));
+    List<Thread> threads = new ArrayList<Thread>();
+    // files should be an abstraction of the filename (show/season/episode)
+    files = new ArrayList<FileEpisode>();
 
-    // Call tvRenamer which actually finds the ep names ...
-    tv = new TVRenamer();
+    Set<String> showNames = new HashSet<String>();
+    for (String fileName : fileNames) {
+      final FileEpisode episode = TVRenamer.parseFilename(fileName);
+      if (episode == null) {
+        System.err.println("Couldn't parse file: " + fileName);
+      } else {
+        final String showName = episode.getShowName();
+        if (!showNames.contains(showName)) {
+          showNames.add(showName);
 
-    String showName = tv.getShowName(new File(fileNames[0]));
-
-    textShowName.setText(showName);
-    textShowName.setEnabled(true);
-
-    showList = tv.downloadOptions(showName);
-
-    if (showList.isEmpty()) {
-      return;
+          Thread t = new Thread(new Runnable() {
+            public void run() {
+              ShowStore.addShow(showName);
+            }
+          });
+          threads.add(t);
+          t.start();
+        }
+        files.add(episode);
+      }
     }
 
-    if (showList.size() > 1) {
-      showCombo.setEnabled(true);
+    // don't really like this, would prefer to do the shows as they get
+    // downloaded, but will do for now
+
+    for (Thread t : threads) {
+      try {
+        t.join();
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
     }
 
-    showCombo.removeAll();
-
-    for (Show show : showList) {
-      showCombo.add(show.getName());
-    }
-
-    showCombo.select(0);
-    showCombo.pack(true);
-
-    btnFormat.setEnabled(true);
-
-    tv.setShow(showList.get(showCombo.getSelectionIndex()));
-
-    tv.downloadListing();
+    // all threads should have finished by now
 
     populateTable();
-
-    // // Sort the list descending by Episode
-    // tblResults.setSortColumn(col1);
-    // tblResults.setSortDirection(SWT.DOWN);
-    // // sortTable(col1, 1);
   }
 
   private void renameFiles(boolean all) {
+
     int renamedFiles = 0;
     for (TableItem item : tblResults.getItems()) {
       if (all || item.getChecked()) {
         int index = Integer.parseInt(item.getText(0)) - 1;
-        String currentName = files.get(index);
-        File file = new File(currentName);
+        FileEpisode episode = files.get(index);
+        File file = episode.getFile();
         File newFile = new File(file.getParent() + pathSeparator
             + item.getText(2));
         file.renameTo(newFile);
         renamedFiles++;
-        files.set(index, newFile.getAbsolutePath());
+        episode.setFile(newFile);
       }
     }
 
     if (renamedFiles > 0) {
-      lblStatus.setText(renamedFiles + " files successfully renamed.");
+      if (renamedFiles == 1) {
+        lblStatus.setText(renamedFiles + " file successfully renamed.");
+      } else {
+        lblStatus.setText(renamedFiles + " files successfully renamed.");
+      }
+
       lblStatus.pack(true);
       populateTable();
     }
@@ -476,14 +435,44 @@ public class UIStarter {
     // Clear the table for new use
     tblResults.removeAll();
     for (int i = 0; i < files.size(); i++) {
-      String fileName = files.get(i);
-      String oldFilename = new File(fileName).getName();
-      String newFilename = tv.parseFileName(oldFilename,
-          textShowName.getText(), textFormat.getText());
+      FileEpisode episode = files.get(i);
+      String newFilename = getNewFilename(episode);
       TableItem item = new TableItem(tblResults, SWT.NONE);
-      item.setText(new String[] { i + 1 + "", oldFilename, newFilename });
+      item.setText(new String[] { String.valueOf(i + 1),
+          episode.getFile().getName(), newFilename });
       item.setChecked(true);
     }
+  }
+
+  private String getNewFilename(FileEpisode episode) {
+    String newFilename = "";
+    Show show = ShowStore.getShow(episode.getShowName().toLowerCase());
+    if (show != null) {
+      newFilename += show.getName();
+      Season season = show.getSeason(episode.getSeasonNumber());
+      if (season != null) {
+        newFilename += " [" + season.getNumber() + "x";
+        newFilename += new DecimalFormat("00").format(episode
+            .getEpisodeNumber())
+            + "] ";
+        String title = season.getTitle(episode.getEpisodeNumber());
+        if (title != null) {
+          newFilename += TVRenamer.sanitiseTitle(title);
+        } else {
+          newFilename = episode.getShowName() + " ["
+              + episode.getSeasonNumber() + "x" + episode.getEpisodeNumber()
+              + "] episode missing";
+        }
+      } else {
+        newFilename = episode.getShowName() + " [" + episode.getSeasonNumber()
+            + "x" + episode.getEpisodeNumber() + "] season missing";
+      }
+    } else {
+      newFilename = episode.getShowName() + " [" + episode.getSeasonNumber()
+          + "x" + episode.getEpisodeNumber() + "] show missing";
+    }
+    newFilename += "." + TVRenamer.getExtension(episode.getFile().getName());
+    return newFilename;
   }
 
   private void setSortedItem(int i, int j) {

@@ -154,8 +154,8 @@ public class TVRageProvider {
 
       for (int i = 0; i < seasons.getLength(); i++) {
         Node sNode = seasons.item(i);
-        String sNum = sNode.getAttributes().getNamedItem(XPATH_SEASON_ATTR)
-            .getNodeValue();
+        int sNum = Integer.parseInt(sNode.getAttributes().getNamedItem(XPATH_SEASON_ATTR)
+            .getNodeValue());
         Season season = new Season(sNum);
         show.setSeason(sNum, season);
 
@@ -170,7 +170,7 @@ public class TVRageProvider {
           Node epTitleNode = (Node) expr.evaluate(eNode, XPathConstants.NODE);
 //          logger.debug("[" + sNum + "x" + epNumNode.getTextContent() + "] "
 //              + epTitleNode.getTextContent());
-          season.setEpisode(epNumNode.getTextContent(), epTitleNode
+          season.setEpisode(Integer.parseInt(epNumNode.getTextContent()), epTitleNode
               .getTextContent());
         }
       }

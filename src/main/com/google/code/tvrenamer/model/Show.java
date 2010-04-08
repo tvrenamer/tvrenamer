@@ -1,20 +1,21 @@
 package com.google.code.tvrenamer.model;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class Show {
   private final String id;
   private final String name;
   private final String url;
 
-  private final HashMap<String, Season> seasons;
+  private final Map<Integer, Season> seasons;
 
   public Show(String id, String name, String url) {
     this.id = id;
     this.name = name;
     this.url = url;
 
-    seasons = new HashMap<String, Season>();
+    seasons = new HashMap<Integer, Season>();
   }
 
   public String getId() {
@@ -29,11 +30,11 @@ public class Show {
     return url;
   }
 
-  public void setSeason(String sNum, Season season) {
+  public void setSeason(int sNum, Season season) {
     seasons.put(sNum, season);
   }
 
-  public Season getSeason(String sNum) {
+  public Season getSeason(int sNum) {
     return seasons.get(sNum);
   }
 }
