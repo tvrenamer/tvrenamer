@@ -10,6 +10,10 @@ public class TVRenamer {
   public static final String REGEX = "(.+?\\W\\D*?)[sS]?(\\d\\d?)\\D*?(\\d\\d).*";
   public static final Pattern COMPILED_REGEX = Pattern.compile(REGEX);
 
+  private TVRenamer() {
+    // singleton
+  }
+
   public static FileEpisode parseFilename(String fileName) {
     File f = new File(fileName);
     Matcher matcher = COMPILED_REGEX.matcher(f.getName());

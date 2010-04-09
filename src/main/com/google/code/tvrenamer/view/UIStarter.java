@@ -57,11 +57,20 @@ public class UIStarter {
   private static TVRenamerLogger logger = new TVRenamerLogger(UIStarter.class);
 
   private static Shell shell;
+
+  private Button btnBrowse;
+
+  private Button btnReset;
+
   private Table tblResults;
 
   private Button btnFormat;
-
   private Text textFormat;
+
+  private Button btnRenameAll;
+  private Button btnRenameSelected;
+
+  private Button btnCancel;
 
   private Label lblStatus;
 
@@ -75,7 +84,7 @@ public class UIStarter {
 
   private void init() {
     // Set up environment
-    GridLayout gridLayout = new GridLayout(4, false);
+    GridLayout gridLayout = new GridLayout(5, false);
     final Display display = new Display();
     Display.setAppName("TVRenamer");
     shell = new Shell(display);
@@ -83,22 +92,29 @@ public class UIStarter {
     shell.setLayout(gridLayout);
 
     setupBrowseDialog();
-    // setupFormatBox();
+    setupFormatBox();
     setupResultsTable();
     setupTableDragDrop();
 
-    final Button btnRenameAll = new Button(shell, SWT.PUSH);
+    btnRenameAll = new Button(shell, SWT.PUSH);
     btnRenameAll.setText("Rename All");
 
-    final Button btnRenameSelected = new Button(shell, SWT.PUSH);
+    btnRenameSelected = new Button(shell, SWT.PUSH);
     btnRenameSelected.setText("Rename Selected");
 
     lblStatus = new Label(shell, SWT.NONE);
     lblStatus.setText("");
+    lblStatus.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+
+
+    btnCancel = new Button(shell, SWT.PUSH);
+    btnCancel.setText("Cancel");
+    btnCancel.setEnabled(false);
+    btnCancel.setLayoutData(new GridData(SWT.END, SWT.FILL, false, false));
 
     final Button btnQuit = new Button(shell, SWT.PUSH);
     btnQuit.setText("Quit");
-    btnQuit.setLayoutData(new GridData(SWT.RIGHT, SWT.FILL, false, false));
+    btnQuit.setLayoutData(new GridData(SWT.END, SWT.FILL, false, false));
 
     btnRenameAll.addSelectionListener(new SelectionAdapter() {
       @Override
@@ -126,7 +142,7 @@ public class UIStarter {
 
   private void setupBrowseDialog() {
     final FileDialog fd = new FileDialog(shell, SWT.MULTI);
-    Button btnBrowse = new Button(shell, SWT.PUSH);
+    btnBrowse = new Button(shell, SWT.PUSH);
     btnBrowse.setText("Browse files...");
 
     btnBrowse.addSelectionListener(new SelectionAdapter() {
@@ -151,10 +167,10 @@ public class UIStarter {
 
   private void setupFormatBox() {
     final Composite formatParent = new Composite(shell, SWT.NONE);
-    GridData formatData = new GridData(GridData.HORIZONTAL_ALIGN_END);
-    formatData.horizontalSpan = 2;
-    // formatData.widthHint = 450;
-    formatParent.setLayout(new GridLayout(6, false));
+    GridData formatData = new GridData(SWT.END, SWT.CENTER, false, false);
+    formatData.horizontalSpan = 4;
+    formatData.widthHint = 250;
+    formatParent.setLayout(new GridLayout(4, false));
     formatParent.setLayoutData(formatData);
 
     final Label lblFormat = new Label(formatParent, SWT.NONE);
@@ -166,12 +182,23 @@ public class UIStarter {
 
     btnFormat = new Button(formatParent, SWT.PUSH);
     btnFormat.setText("Apply");
-    btnFormat.setEnabled(false);
     shell.setDefaultButton(btnFormat);
 
     btnFormat.addSelectionListener(new SelectionAdapter() {
       @Override
       public void widgetSelected(SelectionEvent e) {
+        populateTable();
+      }
+    });
+
+    btnReset = new Button(formatParent, SWT.PUSH);
+    btnReset.setText("Reset");
+    btnReset.setEnabled(true);
+
+    btnReset.addSelectionListener(new SelectionAdapter() {
+      @Override
+      public void widgetSelected(SelectionEvent e) {
+        textFormat.setText(DEFAULT_FORMAT_STRING);
         populateTable();
       }
     });
@@ -184,7 +211,7 @@ public class UIStarter {
     GridData gridData = new GridData(GridData.FILL_BOTH);
     // gridData.widthHint = 780;
     gridData.heightHint = 200;
-    gridData.horizontalSpan = 4;
+    gridData.horizontalSpan = 5;
     tblResults.setLayoutData(gridData);
 
     final TableColumn col1 = new TableColumn(tblResults, SWT.LEFT);
@@ -364,8 +391,8 @@ public class UIStarter {
   }
 
   private void initiateRenamer(String[] fileNames) {
+    toggleEnabledStatus();
     List<Thread> threads = new ArrayList<Thread>();
-    // files should be an abstraction of the filename (show/season/episode)
     files = new ArrayList<FileEpisode>();
 
     Set<String> showNames = new HashSet<String>();
@@ -402,12 +429,17 @@ public class UIStarter {
     }
 
     // all threads should have finished by now
-
     populateTable();
+    toggleEnabledStatus();
+  }
+
+  private void toggleEnabledStatus() {
+    btnFormat.setEnabled(!btnFormat.getEnabled());
+    textFormat.setEnabled(!textFormat.getEnabled());
+
   }
 
   private void renameFiles(boolean all) {
-
     int renamedFiles = 0;
     for (TableItem item : tblResults.getItems()) {
       if (all || item.getChecked()) {
@@ -445,6 +477,9 @@ public class UIStarter {
   }
 
   private void populateTable() {
+    if (files == null) {
+      return;
+    }
     // Clear the table for new use
     tblResults.removeAll();
     for (int i = 0; i < files.size(); i++) {
@@ -458,34 +493,37 @@ public class UIStarter {
   }
 
   private String getNewFilename(FileEpisode episode) {
-    String newFilename = "";
+    String showName = "Show not found";
+    String seasonNum = "Season not found";
+    String titleString = "Episode not found";
+
     Show show = ShowStore.getShow(episode.getShowName().toLowerCase());
     if (show != null) {
-      newFilename += show.getName();
+      showName = show.getName();
+
       Season season = show.getSeason(episode.getSeasonNumber());
       if (season != null) {
-        newFilename += " [" + season.getNumber() + "x";
-        newFilename += new DecimalFormat("00").format(episode
-            .getEpisodeNumber())
-            + "] ";
+        seasonNum = String.valueOf(season.getNumber());
+
         String title = season.getTitle(episode.getEpisodeNumber());
         if (title != null) {
-          newFilename += TVRenamer.sanitiseTitle(title);
+          titleString = TVRenamer.sanitiseTitle(title);
         } else {
-          newFilename = episode.getShowName() + " ["
-              + episode.getSeasonNumber() + "x" + episode.getEpisodeNumber()
-              + "] episode missing";
+          titleString += " (" + episode.getEpisodeNumber() + ")";
         }
       } else {
-        newFilename = episode.getShowName() + " [" + episode.getSeasonNumber()
-            + "x" + episode.getEpisodeNumber() + "] season missing";
+        seasonNum += " (" + episode.getSeasonNumber() + ")";
       }
-    } else {
-      newFilename = episode.getShowName() + " [" + episode.getSeasonNumber()
-          + "x" + episode.getEpisodeNumber() + "] show missing";
     }
-    newFilename += "." + TVRenamer.getExtension(episode.getFile().getName());
-    return newFilename;
+    String newFilename = textFormat.getText();
+    newFilename = newFilename.replaceAll("%S", showName);
+    newFilename = newFilename.replaceAll("%s", seasonNum);
+    newFilename = newFilename.replaceAll("%e", new DecimalFormat("00")
+        .format(episode.getEpisodeNumber()));
+    newFilename = newFilename.replaceAll("%t", titleString);
+
+    return newFilename + "."
+        + TVRenamer.getExtension(episode.getFile().getName());
   }
 
   private void setSortedItem(int i, int j) {
