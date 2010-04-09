@@ -42,14 +42,14 @@ import org.eclipse.swt.widgets.Text;
 
 import com.google.code.tvrenamer.controller.TVRenamer;
 import com.google.code.tvrenamer.model.Show;
-import com.google.code.tvrenamer.model.util.Constants;
+import com.google.code.tvrenamer.model.util.TVRenamerLogger;
+import com.google.code.tvrenamer.model.util.Constants.SWTMessageBoxType;
 
 public class UIStarter {
-  private static final String pathSeparator = System
-      .getProperty("file.separator");
+  private static final String pathSeparator = System.getProperty("file.separator");
   public static final String DEFAULT_FORMAT_STRING = "%S [%sx%e] %t";
 
-//  private static Logger logger = Logger.getLogger(UIStarter.class);
+  private static TVRenamerLogger logger = new TVRenamerLogger(UIStarter.class);
 
   private static Shell shell;
   private Table tblResults;
@@ -233,8 +233,8 @@ public class UIStarter {
       @Override
       public void widgetSelected(SelectionEvent e) {
         tblResults
-            .setSortDirection(tblResults.getSortDirection() == SWT.DOWN ? SWT.UP
-                : SWT.DOWN);
+        .setSortDirection(tblResults.getSortDirection() == SWT.DOWN ? SWT.UP
+            : SWT.DOWN);
         sortTable(col1, 1);
         tblResults.setSortColumn(col1);
       }
@@ -244,8 +244,8 @@ public class UIStarter {
       @Override
       public void widgetSelected(SelectionEvent e) {
         tblResults
-            .setSortDirection(tblResults.getSortDirection() == SWT.DOWN ? SWT.UP
-                : SWT.DOWN);
+        .setSortDirection(tblResults.getSortDirection() == SWT.DOWN ? SWT.UP
+            : SWT.DOWN);
         sortTable(col2, 2);
         tblResults.setSortColumn(col2);
       }
@@ -255,8 +255,8 @@ public class UIStarter {
       @Override
       public void widgetSelected(SelectionEvent e) {
         tblResults
-            .setSortDirection(tblResults.getSortDirection() == SWT.DOWN ? SWT.UP
-                : SWT.DOWN);
+        .setSortDirection(tblResults.getSortDirection() == SWT.DOWN ? SWT.UP
+            : SWT.DOWN);
         sortTable(col3, 1);
         tblResults.setSortColumn(col3);
       }
@@ -286,20 +286,20 @@ public class UIStarter {
                 @SuppressWarnings("fallthrough")
                 public void handleEvent(final Event e) {
                   switch (e.type) {
-                    case SWT.FocusOut:
+                  case SWT.FocusOut:
+                    item.setText(column, text.getText());
+                    text.dispose();
+                    break;
+                  case SWT.Traverse:
+                    switch (e.detail) {
+                    case SWT.TRAVERSE_RETURN:
                       item.setText(column, text.getText());
+                      // fall through
+                    case SWT.TRAVERSE_ESCAPE:
                       text.dispose();
-                      break;
-                    case SWT.Traverse:
-                      switch (e.detail) {
-                        case SWT.TRAVERSE_RETURN:
-                          item.setText(column, text.getText());
-                          // fall through
-                        case SWT.TRAVERSE_ESCAPE:
-                          text.dispose();
-                          e.doit = false;
-                      }
-                      break;
+                      e.doit = false;
+                    }
+                    break;
                   }
                 }
               };
@@ -341,7 +341,7 @@ public class UIStarter {
     // set the icon for the application
     try {
       InputStream icon = getClass().getResourceAsStream(
-          "/icons/tvrenamer.png");
+      "/icons/tvrenamer.png");
       if (icon != null) {
         shell.setImage(new Image(display, icon));
       } else {
@@ -353,43 +353,43 @@ public class UIStarter {
   }
 
   private void launch() {
-	Display display = null;
-	try {
-	    // place the window in the centre of the primary monitor
-	    Monitor primary = Display.getCurrent().getPrimaryMonitor();
-	    Rectangle bounds = primary.getBounds();
-	    Rectangle rect = shell.getBounds();
-	    int x = bounds.x + (bounds.width - rect.width) / 2;
-	    int y = bounds.y + (bounds.height - rect.height) / 2;
-	    shell.setLocation(x, y);
+    Display display = null;
+    try {
+      // place the window in the centre of the primary monitor
+      Monitor primary = Display.getCurrent().getPrimaryMonitor();
+      Rectangle bounds = primary.getBounds();
+      Rectangle rect = shell.getBounds();
+      int x = bounds.x + (bounds.width - rect.width) / 2;
+      int y = bounds.y + (bounds.height - rect.height) / 2;
+      shell.setLocation(x, y);
 
-	    // Start the shell
-	    shell.pack();
-	    shell.open();
+      // Start the shell
+      shell.pack();
+      shell.open();
 
-	    display = shell.getDisplay();
-	    while (!shell.isDisposed()) {
-	      if (!display.readAndDispatch()) {
-	        display.sleep();
-	      }
-	    }
-	    display.dispose();
-	}
-	catch(IllegalArgumentException argumentException) {
-		String message = "Drag and Drop is not currently supported on your operating system, please use the 'Browse Files' option above";
-//		showMessageBox(Constants.ERROR, message);
-//		display.dispose();
-		System.out.println(argumentException.getMessage() + " exception: " + message);
-		argumentException.printStackTrace();
-		JOptionPane.showMessageDialog(null, message);
-//		launch();
-		System.exit(1);
-	}
-	catch(Exception exception) {
-		String message = "An error occoured, please check your internet connection, java version or run from the command line to show errors";
-		showMessageBox(Constants.ERROR, message);
-		exception.printStackTrace();
-	}
+      display = shell.getDisplay();
+      while (!shell.isDisposed()) {
+        if (!display.readAndDispatch()) {
+          display.sleep();
+        }
+      }
+      display.dispose();
+    }
+    catch(IllegalArgumentException argumentException) {
+      String message = "Drag and Drop is not currently supported on your operating system, please use the 'Browse Files' option above";
+      //		showMessageBox(Constants.ERROR, message);
+      //		display.dispose();
+      System.out.println(argumentException.getMessage() + " exception: " + message);
+      argumentException.printStackTrace();
+      JOptionPane.showMessageDialog(null, message);
+      //		launch();
+      System.exit(1);
+    }
+    catch(Exception exception) {
+      String message = "An error occoured, please check your internet connection, java version or run from the command line to show errors";
+      showMessageBox(SWTMessageBoxType.ERROR, message);
+      exception.printStackTrace();
+    }
   }
 
   private void initiateRenamer(String[] fileNames) {
@@ -443,13 +443,18 @@ public class UIStarter {
         int index = Integer.parseInt(item.getText(0)) - 1;
         String currentName = files.get(index);
         File file = new File(currentName);
-        File newFile = new File(file.getParent() + pathSeparator
-            + item.getText(2));
-        file.renameTo(newFile);
-//        logger.info("Renamed " + file.getAbsolutePath() + " to "
-//            + newFile.getAbsolutePath());
-        renamedFiles++;
-        files.set(index, newFile.getAbsolutePath());
+        File newFile = new File(file.getParent() + pathSeparator + item.getText(2));
+
+        if (newFile.exists()) {
+          String message = "File " + newFile + " already exists.\n" + file + " was not renamed!";
+          showMessageBox(SWTMessageBoxType.QUESTION, message);
+        }
+        else {
+          file.renameTo(newFile);
+          logger.info("Renamed " + file.getAbsolutePath() + " to " + newFile.getAbsolutePath());
+          renamedFiles++;
+          files.set(index, newFile.getAbsolutePath());
+        }
       }
     }
 
@@ -520,23 +525,30 @@ public class UIStarter {
     }
   }
 
-  public static void showMessageBox(int type, String message) {
+  public static void showMessageBox(SWTMessageBoxType type, String message) {
     int swtIconValue = -1;
 
-    if (type == Constants.ERROR) {
-      swtIconValue = SWT.ICON_ERROR;
-    } else if (type == Constants.WARNING) {
-      swtIconValue = SWT.ICON_WARNING;
-    } else if (type == Constants.MESSAGE) {
-      swtIconValue = SWT.ICON_INFORMATION;
-    } else if (type == Constants.QUESTION) {
+    switch(type) {
+    case QUESTION:
       swtIconValue = SWT.ICON_QUESTION;
-    } else {
-//      logger.error("Tried to show a box with an undefined message type");
-      return;
+      break;
+    case MESSAGE:
+      swtIconValue = SWT.ICON_INFORMATION;
+      break;
+    case WARNING:
+      swtIconValue = SWT.ICON_WARNING;
+      break;
+    case ERROR:
+      swtIconValue = SWT.ICON_ERROR;
+      break;
+    case OK:
+      // Intentional missing break
+    default:
+      swtIconValue = SWT.OK;
     }
 
-    MessageBox msgSuccess = new MessageBox(shell, SWT.OK | swtIconValue);
+    logger.info("swtIconValue: " + swtIconValue);
+    MessageBox msgSuccess = new MessageBox(shell, swtIconValue);
     msgSuccess.setMessage(message);
     msgSuccess.open();
   }

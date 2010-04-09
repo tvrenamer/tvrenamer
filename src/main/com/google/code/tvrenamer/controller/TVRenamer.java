@@ -7,9 +7,11 @@ import java.util.regex.Pattern;
 
 import com.google.code.tvrenamer.model.Season;
 import com.google.code.tvrenamer.model.Show;
+import com.google.code.tvrenamer.model.util.TVRenamerLogger;
 
 public class TVRenamer {
-//  private static Logger logger = Logger.getLogger(TVRenamer.class);
+  private static TVRenamerLogger logger = new TVRenamerLogger(TVRenamer.class);
+
   private Show show;
 
   public TVRenamer() {
@@ -46,8 +48,7 @@ public class TVRenamer {
     String cleanedFileName = replacePunctuation(fileName.toLowerCase());
 
     if (!cleanedFileName.startsWith(showTitle)) {
-//      logger.error("Show's name (" + showName + ") does not match file name: "
-//          + fileName);
+      logger.error("Show's name (" + showName + ") does not match file name: " + fileName);
       return fileName;
     }
 
@@ -72,12 +73,12 @@ public class TVRenamer {
 
     Season s = show.getSeason(seasonNum);
     if (s == null) {
-//      logger.error("season not found: " + seasonNum);
+      logger.error("Season not found: " + seasonNum);
       return fileName;
     }
     String title = s.getTitle(episodeNum);
     if (title == null) {
-//      logger.error("Title not found for episode: " + episodeNum);
+      logger.error("Title not found for episode: " + episodeNum);
       return fileName;
     }
     title = sanitiseTitle(title);
