@@ -46,9 +46,9 @@ import com.google.code.tvrenamer.controller.TVRenamer;
 import com.google.code.tvrenamer.model.FileEpisode;
 import com.google.code.tvrenamer.model.Season;
 import com.google.code.tvrenamer.model.Show;
+import com.google.code.tvrenamer.model.ShowStore;
 import com.google.code.tvrenamer.model.util.TVRenamerLogger;
 import com.google.code.tvrenamer.model.util.Constants.SWTMessageBoxType;
-import com.google.code.tvrenamer.model.ShowStore;
 
 public class UIStarter {
   private static final String pathSeparator = System.getProperty("file.separator");
@@ -68,7 +68,7 @@ public class UIStarter {
 
   private Button btnRenameAll;
   private Button btnRenameSelected;
-  private Button btnCancel;
+
   private Label lblStatus;
   private List<FileEpisode> files;
 
@@ -100,13 +100,7 @@ public class UIStarter {
 
     lblStatus = new Label(shell, SWT.NONE);
     lblStatus.setText("");
-    lblStatus.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-
-
-    btnCancel = new Button(shell, SWT.PUSH);
-    btnCancel.setText("Cancel");
-    btnCancel.setEnabled(false);
-    btnCancel.setLayoutData(new GridData(SWT.END, SWT.FILL, false, false));
+    lblStatus.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
     final Button btnQuit = new Button(shell, SWT.PUSH);
     btnQuit.setText("Quit");
@@ -230,9 +224,7 @@ public class UIStarter {
     col1.addSelectionListener(new SelectionAdapter() {
       @Override
       public void widgetSelected(SelectionEvent e) {
-        tblResults
-        .setSortDirection(tblResults.getSortDirection() == SWT.DOWN ? SWT.UP
-            : SWT.DOWN);
+        tblResults.setSortDirection(tblResults.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN);
         sortTable(col1, 1);
         tblResults.setSortColumn(col1);
       }
@@ -241,9 +233,7 @@ public class UIStarter {
     col2.addSelectionListener(new SelectionAdapter() {
       @Override
       public void widgetSelected(SelectionEvent e) {
-        tblResults
-        .setSortDirection(tblResults.getSortDirection() == SWT.DOWN ? SWT.UP
-            : SWT.DOWN);
+        tblResults.setSortDirection(tblResults.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN);
         sortTable(col2, 2);
         tblResults.setSortColumn(col2);
       }
@@ -252,9 +242,7 @@ public class UIStarter {
     col3.addSelectionListener(new SelectionAdapter() {
       @Override
       public void widgetSelected(SelectionEvent e) {
-        tblResults
-        .setSortDirection(tblResults.getSortDirection() == SWT.DOWN ? SWT.UP
-            : SWT.DOWN);
+        tblResults.setSortDirection(tblResults.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN);
         sortTable(col3, 1);
         tblResults.setSortColumn(col3);
       }
@@ -334,8 +322,7 @@ public class UIStarter {
 
   private void setApplicationIcon(Display display) {
     try {
-      InputStream icon = getClass().getResourceAsStream(
-      "/icons/tvrenamer.png");
+      InputStream icon = getClass().getResourceAsStream("/icons/tvrenamer.png");
       if (icon != null) {
         shell.setImage(new Image(display, icon));
       } else {
@@ -368,70 +355,68 @@ public class UIStarter {
         }
       }
       display.dispose();
-    }
-    catch(IllegalArgumentException argumentException) {
+    } catch (IllegalArgumentException argumentException) {
       String message = "Drag and Drop is not currently supported on your operating system, please use the 'Browse Files' option above";
-      //		showMessageBox(Constants.ERROR, message);
-      //		display.dispose();
+      // showMessageBox(Constants.ERROR, message);
+      // display.dispose();
       System.out.println(argumentException.getMessage() + " exception: " + message);
       argumentException.printStackTrace();
       JOptionPane.showMessageDialog(null, message);
-      //		launch();
+      // launch();
       System.exit(1);
-    }
-    catch(Exception exception) {
+    } catch (Exception exception) {
       String message = "An error occoured, please check your internet connection, java version or run from the command line to show errors";
       showMessageBox(SWTMessageBoxType.ERROR, message);
       exception.printStackTrace();
     }
   }
 
-  private void initiateRenamer(String[] fileNames) {
-    toggleEnabledStatus();
-    List<Thread> threads = new ArrayList<Thread>();
-    files = new ArrayList<FileEpisode>();
+  private void initiateRenamer(final String[] fileNames) {
+    Display.getCurrent().asyncExec(new Runnable() {
+      public void run() {
+        List<Thread> threads = new ArrayList<Thread>();
+        files = new ArrayList<FileEpisode>();
 
-    Set<String> showNames = new HashSet<String>();
-    for (String fileName : fileNames) {
-      final FileEpisode episode = TVRenamer.parseFilename(fileName);
-      if (episode == null) {
-        System.err.println("Couldn't parse file: " + fileName);
-      } else {
-        final String showName = episode.getShowName();
-        if (!showNames.contains(showName)) {
-          showNames.add(showName);
+        Set<String> showNames = new HashSet<String>();
+        for (String fileName : fileNames) {
+          final FileEpisode episode = TVRenamer.parseFilename(fileName);
+          if (episode == null) {
+            System.err.println("Couldn't parse file: " + fileName);
+          } else {
+            final String showName = episode.getShowName();
+            if (!showNames.contains(showName)) {
+              showNames.add(showName);
 
-          Thread t = new Thread(new Runnable() {
-            public void run() {
-              ShowStore.addShow(showName);
+              Thread t = new Thread(new Runnable() {
+                public void run() {
+                  ShowStore.addShow(showName);
+                }
+              });
+              threads.add(t);
+              t.start();
             }
-          });
-          threads.add(t);
-          t.start();
+            files.add(episode);
+          }
         }
-        files.add(episode);
+
+        // don't really like this, would prefer to do the shows as they get
+        // downloaded, but will do for now
+
+        for (Thread t : threads) {
+          try {
+            t.join();
+          } catch (InterruptedException e) {
+            e.printStackTrace();
+          }
+        }
+
+        // all threads should have finished by now
+        populateTable();
+        lblStatus.setText("");
       }
-    }
+    });
 
-    // don't really like this, would prefer to do the shows as they get
-    // downloaded, but will do for now
-
-    for (Thread t : threads) {
-      try {
-        t.join();
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
-    }
-
-    // all threads should have finished by now
-    populateTable();
-    toggleEnabledStatus();
-  }
-
-  private void toggleEnabledStatus() {
-    btnFormat.setEnabled(!btnFormat.getEnabled());
-    textFormat.setEnabled(!textFormat.getEnabled());
+    lblStatus.setText("Please wait ...");
 
   }
 
@@ -440,16 +425,15 @@ public class UIStarter {
     for (TableItem item : tblResults.getItems()) {
       if (all || item.getChecked()) {
         int index = Integer.parseInt(item.getText(0)) - 1;
+
         FileEpisode episode = files.get(index);
         File file = episode.getFile();
-        File newFile = new File(file.getParent() + pathSeparator
-            + item.getText(2));
+        File newFile = new File(file.getParent() + pathSeparator + item.getText(2));
 
         if (newFile.exists()) {
           String message = "File " + newFile + " already exists.\n" + file + " was not renamed!";
           showMessageBox(SWTMessageBoxType.QUESTION, message);
-        }
-        else {
+        } else {
           file.renameTo(newFile);
           logger.info("Renamed " + file.getAbsolutePath() + " to " + newFile.getAbsolutePath());
           renamedFiles++;
@@ -481,8 +465,7 @@ public class UIStarter {
       FileEpisode episode = files.get(i);
       String newFilename = getNewFilename(episode);
       TableItem item = new TableItem(tblResults, SWT.NONE);
-      item.setText(new String[] { String.valueOf(i + 1),
-          episode.getFile().getName(), newFilename });
+      item.setText(new String[] { String.valueOf(i + 1), episode.getFile().getName(), newFilename });
       item.setChecked(true);
     }
   }
@@ -513,20 +496,17 @@ public class UIStarter {
     String newFilename = textFormat.getText();
     newFilename = newFilename.replaceAll("%S", showName);
     newFilename = newFilename.replaceAll("%s", seasonNum);
-    newFilename = newFilename.replaceAll("%e", new DecimalFormat("00")
-        .format(episode.getEpisodeNumber()));
+    newFilename = newFilename.replaceAll("%e", new DecimalFormat("00").format(episode.getEpisodeNumber()));
     newFilename = newFilename.replaceAll("%t", titleString);
 
-    return newFilename + "."
-        + TVRenamer.getExtension(episode.getFile().getName());
+    return newFilename + "." + TVRenamer.getExtension(episode.getFile().getName());
   }
 
   private void setSortedItem(int i, int j) {
     TableItem oldItem = tblResults.getItem(i);
     boolean wasChecked = oldItem.getChecked();
     int oldStyle = oldItem.getStyle();
-    String[] values = { oldItem.getText(0), oldItem.getText(1),
-        oldItem.getText(2) };
+    String[] values = { oldItem.getText(0), oldItem.getText(1), oldItem.getText(2) };
     oldItem.dispose();
     TableItem item = new TableItem(tblResults, oldStyle, j);
     item.setText(values);
@@ -569,7 +549,7 @@ public class UIStarter {
   public static void showMessageBox(SWTMessageBoxType type, String message) {
     int swtIconValue = -1;
 
-    switch(type) {
+    switch (type) {
     case QUESTION:
       swtIconValue = SWT.ICON_QUESTION;
       break;

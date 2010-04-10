@@ -1,4 +1,5 @@
 package com.google.code.tvrenamer;
+
 import org.junit.Test;
 
 import com.google.code.tvrenamer.controller.TVRageProvider;
@@ -15,7 +16,6 @@ public class TVRageProviderTest {
 
   @Test
   public void testGetShowListing() {
-    TVRageProvider.getShowListing(new Show("15619", "Gossip Girl",
-        "http://www.tvrage.com/Battlestar_Galactica"));
+    TVRageProvider.getShowListing(new Show("15619", "Gossip Girl", "http://www.tvrage.com/Battlestar_Galactica"));
   }
 }

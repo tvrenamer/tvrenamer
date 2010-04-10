@@ -4,16 +4,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Simple wrapper around the JDK logging framework
- * to make it easier to work with
- *
+ * Simple wrapper around the JDK logging framework to make it easier to work
+ * with
+ * 
  * @author Dave Harris
- *
+ * 
  */
 public class TVRenamerLogger {
 
   private Logger logger;
-
 
   /** Private default constructor */
   private TVRenamerLogger() {
@@ -21,7 +20,9 @@ public class TVRenamerLogger {
 
   /**
    * Create a JDK {@link Logger} for the class
-   * @param clazz the class to create a logger for
+   * 
+   * @param clazz
+   *          the class to create a logger for
    * @return a {@link Logger} for the given class
    */
   @SuppressWarnings("unchecked")
