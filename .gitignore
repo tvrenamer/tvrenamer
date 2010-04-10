@@ -5,5 +5,5 @@ dist
 .project
 .classpath
 .DS_Store
-
 _site
+.settings
