@@ -55,7 +55,6 @@ public class UIStarter {
   public static final String DEFAULT_FORMAT_STRING = "%S [%sx%e] %t";
 
   private static TVRenamerLogger logger = new TVRenamerLogger(UIStarter.class);
-
   private static Shell shell;
 
   private Button btnBrowse;
@@ -69,11 +68,8 @@ public class UIStarter {
 
   private Button btnRenameAll;
   private Button btnRenameSelected;
-
   private Button btnCancel;
-
   private Label lblStatus;
-
   private List<FileEpisode> files;
 
   public static void main(String[] args) {
@@ -444,7 +440,6 @@ public class UIStarter {
     for (TableItem item : tblResults.getItems()) {
       if (all || item.getChecked()) {
         int index = Integer.parseInt(item.getText(0)) - 1;
-        
         FileEpisode episode = files.get(index);
         File file = episode.getFile();
         File newFile = new File(file.getParent() + pathSeparator

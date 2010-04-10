@@ -18,7 +18,6 @@ public class TVRenamer {
     File f = new File(fileName);
     Matcher matcher = COMPILED_REGEX.matcher(f.getName());
     if (matcher.matches()) {
-
       String show = matcher.group(1);
       show = replacePunctuation(show).trim().toLowerCase();
 
