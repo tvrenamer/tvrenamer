@@ -34,6 +34,8 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
@@ -47,6 +49,7 @@ import com.google.code.tvrenamer.model.FileEpisode;
 import com.google.code.tvrenamer.model.Season;
 import com.google.code.tvrenamer.model.Show;
 import com.google.code.tvrenamer.model.ShowStore;
+import com.google.code.tvrenamer.model.util.Constants;
 import com.google.code.tvrenamer.model.util.TVRenamerLogger;
 import com.google.code.tvrenamer.model.util.Constants.SWTMessageBoxType;
 
@@ -55,21 +58,22 @@ public class UIStarter {
   public static final String DEFAULT_FORMAT_STRING = "%S [%sx%e] %t";
 
   private static TVRenamerLogger logger = new TVRenamerLogger(UIStarter.class);
+
+  private Display display;
   private static Shell shell;
 
   private Button btnBrowse;
-
   private Button btnReset;
-
-  private Table tblResults;
-
   private Button btnFormat;
-  private Text textFormat;
-
   private Button btnRenameAll;
   private Button btnRenameSelected;
 
+  private Table tblResults;
+
+  private Text textFormat;
+
   private Label lblStatus;
+
   private List<FileEpisode> files;
 
   public static void main(String[] args) {
@@ -81,17 +85,24 @@ public class UIStarter {
   private void init() {
     // Set up environment
     GridLayout gridLayout = new GridLayout(5, false);
-    final Display display = new Display();
-    Display.setAppName("TVRenamer");
+    Display.setAppName(Constants.APP_NAME);
+    display = new Display();
+
     shell = new Shell(display);
-    shell.setText("TVRenamer");
+    shell.setText(Constants.APP_NAME);
     shell.setLayout(gridLayout);
 
     setupBrowseDialog();
     setupFormatBox();
     setupResultsTable();
     setupTableDragDrop();
+    setupMenuBar();
+    setupMainWindow();
 
+    setApplicationIcon();
+  }
+
+  private void setupMainWindow() {
     btnRenameAll = new Button(shell, SWT.PUSH);
     btnRenameAll.setText("Rename All");
 
@@ -126,8 +137,66 @@ public class UIStarter {
         display.dispose();
       }
     });
+  }
 
-    setApplicationIcon(display);
+  private void setupMenuBar() {
+    Menu menuBar = new Menu(shell, SWT.BAR);
+    MenuItem fileMenuHeader = new MenuItem(menuBar, SWT.CASCADE);
+    fileMenuHeader.setText("&File");
+
+    Menu fileMenu = new Menu(shell, SWT.DROP_DOWN);
+    fileMenuHeader.setMenu(fileMenu);
+
+    MenuItem filePerferencesItem = new MenuItem(fileMenu, SWT.PUSH);
+    filePerferencesItem.setText("&Perferences");
+
+    MenuItem fileExitItem = new MenuItem(fileMenu, SWT.PUSH);
+    fileExitItem.setText("E&xit");
+
+    MenuItem helpMenuHeader = new MenuItem(menuBar, SWT.CASCADE);
+    helpMenuHeader.setText("&Help");
+
+    Menu helpMenu = new Menu(shell, SWT.DROP_DOWN);
+    helpMenuHeader.setMenu(helpMenu);
+
+    MenuItem helpGetHelpItem = new MenuItem(helpMenu, SWT.PUSH);
+    helpGetHelpItem.setText("&Get Help");
+
+    MenuItem helpAboutItem = new MenuItem(helpMenu, SWT.PUSH);
+    helpAboutItem.setText("&About");
+
+    filePerferencesItem.addSelectionListener(new SelectionAdapter() {
+      @Override
+      public void widgetSelected(SelectionEvent event) {
+        showPreferencesPane();
+      }
+    });
+
+    fileExitItem.addSelectionListener(new SelectionAdapter() {
+      @Override
+      public void widgetSelected(SelectionEvent event) {
+        shell.close();
+        display.dispose();
+      }
+
+      @Override
+      public void widgetDefaultSelected(SelectionEvent event) {
+        shell.close();
+        display.dispose();
+      }
+    });
+
+    helpAboutItem.addSelectionListener(new SelectionAdapter() {
+      @Override
+      public void widgetSelected(SelectionEvent event) {
+        showAboutPane();
+      }
+    });
+
+    shell.setMenuBar(menuBar);
+
+    // fileSaveItem.addSelectionListener(new fileSaveItemListener());
+    // helpGetHelpItem.addSelectionListener(new helpGetHelpItemListener());
   }
 
   private void setupBrowseDialog() {
@@ -320,7 +389,7 @@ public class UIStarter {
     });
   }
 
-  private void setApplicationIcon(Display display) {
+  private void setApplicationIcon() {
     try {
       InputStream icon = getClass().getResourceAsStream("/icons/tvrenamer.png");
       if (icon != null) {
@@ -544,6 +613,18 @@ public class UIStarter {
         }
       }
     }
+  }
+
+  private void showPreferencesPane() {
+    MessageBox msgSuccess = new MessageBox(shell, SWT.OK);
+    msgSuccess.setMessage("Preferences Pane placeholder");
+    msgSuccess.open();
+  }
+
+  private void showAboutPane() {
+    MessageBox msgSuccess = new MessageBox(shell, SWT.OK);
+    msgSuccess.setMessage("TVRenamer is a Java GUI utility to rename tv episodes from tv listings");
+    msgSuccess.open();
   }
 
   public static void showMessageBox(SWTMessageBoxType type, String message) {
