@@ -21,7 +21,9 @@ public class Season {
   }
 
   public String getTitle(int epNum) {
-    return episodes.get(epNum);
+    String t = episodes.get(epNum);
+    if (t == null)
+      throw new EpisodeNotFoundException("Episode #" + epNum + " not found for season #" + this.num);
+    return t;
   }
-
 }

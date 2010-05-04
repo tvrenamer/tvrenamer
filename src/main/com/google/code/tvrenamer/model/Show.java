@@ -35,6 +35,9 @@ public class Show {
   }
 
   public Season getSeason(int sNum) {
-    return seasons.get(sNum);
+    Season s = seasons.get(sNum);
+    if (s == null)
+      throw new SeasonNotFoundException("Season #" + sNum + " not found for show '" + name + "'");
+    return s;
   }
 }

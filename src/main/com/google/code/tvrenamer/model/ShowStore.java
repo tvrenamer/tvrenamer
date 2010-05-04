@@ -22,8 +22,13 @@ public class ShowStore {
   }
 
   public static Show getShow(String showName) {
+    Show s = null;
     synchronized (_shows) {
-      return _shows.get(showName);
+      s = _shows.get(showName);
     }
+    if (s == null) {
+      throw new ShowNotFoundException("Show not found for show name: '" + showName + "'");
+    }
+    return s;
   }
 }

@@ -22,6 +22,7 @@ import org.eclipse.swt.dnd.FileTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -46,6 +47,7 @@ import org.eclipse.swt.widgets.Text;
 
 import com.google.code.tvrenamer.controller.TVRenamer;
 import com.google.code.tvrenamer.model.FileEpisode;
+import com.google.code.tvrenamer.model.NotFoundException;
 import com.google.code.tvrenamer.model.Season;
 import com.google.code.tvrenamer.model.Show;
 import com.google.code.tvrenamer.model.ShowStore;
@@ -532,10 +534,17 @@ public class UIStarter {
     tblResults.removeAll();
     for (int i = 0; i < files.size(); i++) {
       FileEpisode episode = files.get(i);
-      String newFilename = getNewFilename(episode);
       TableItem item = new TableItem(tblResults, SWT.NONE);
+      String newFilename = episode.getFile().getName();
+      try {
+        newFilename = getNewFilename(episode);
+        item.setChecked(true);
+      } catch (NotFoundException e) {
+        newFilename = e.getMessage();
+        item.setChecked(false);
+        item.setForeground(display.getSystemColor(SWT.COLOR_RED));
+      }
       item.setText(new String[] { String.valueOf(i + 1), episode.getFile().getName(), newFilename });
-      item.setChecked(true);
     }
   }
 
@@ -545,23 +554,14 @@ public class UIStarter {
     String titleString = "Episode not found";
 
     Show show = ShowStore.getShow(episode.getShowName().toLowerCase());
-    if (show != null) {
-      showName = show.getName();
+    showName = show.getName();
 
-      Season season = show.getSeason(episode.getSeasonNumber());
-      if (season != null) {
-        seasonNum = String.valueOf(season.getNumber());
+    Season season = show.getSeason(episode.getSeasonNumber());
+    seasonNum = String.valueOf(season.getNumber());
 
-        String title = season.getTitle(episode.getEpisodeNumber());
-        if (title != null) {
-          titleString = TVRenamer.sanitiseTitle(title);
-        } else {
-          titleString += " (" + episode.getEpisodeNumber() + ")";
-        }
-      } else {
-        seasonNum += " (" + episode.getSeasonNumber() + ")";
-      }
-    }
+    String title = season.getTitle(episode.getEpisodeNumber());
+    titleString = TVRenamer.sanitiseTitle(title);
+
     String newFilename = textFormat.getText();
     newFilename = newFilename.replaceAll("%S", showName);
     newFilename = newFilename.replaceAll("%s", seasonNum);
