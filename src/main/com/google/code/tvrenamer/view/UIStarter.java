@@ -442,10 +442,11 @@ public class UIStarter {
       if (all || item.getChecked()) {
         int index = Integer.parseInt(item.getText(0)) - 1;
         String currentName = files.get(index);
+        String newName = item.getText(2);
         File file = new File(currentName);
-        File newFile = new File(file.getParent() + pathSeparator + item.getText(2));
+        File newFile = new File(file.getParent() + pathSeparator + newName);
 
-        if (newFile.exists()) {
+        if (newFile.exists() && !newName.equals(currentName)) {
           String message = "File " + newFile + " already exists.\n" + file + " was not renamed!";
           showMessageBox(SWTMessageBoxType.QUESTION, message);
         }
