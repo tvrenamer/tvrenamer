@@ -496,17 +496,18 @@ public class UIStarter {
     for (TableItem item : tblResults.getItems()) {
       if (all || item.getChecked()) {
         int index = Integer.parseInt(item.getText(0)) - 1;
-        File currentFile = files.get(index).getFile();
+        FileEpisode episode = files.get(index);
+        File currentFile = episode.getFile();
         String currentName = currentFile.getName();
         String newName = item.getText(2);
-        File newFile = new File(file.getParent() + pathSeparator + newName);
+        File newFile = new File(currentFile.getParent() + pathSeparator + newName);
 
         if (newFile.exists() && !newName.equals(currentName)) {
-          String message = "File " + newFile + " already exists.\n" + file + " was not renamed!";
+          String message = "File " + newFile + " already exists.\n" + currentFile + " was not renamed!";
           showMessageBox(SWTMessageBoxType.QUESTION, message);
         } else {
-          file.renameTo(newFile);
-          logger.info("Renamed " + file.getAbsolutePath() + " to " + newFile.getAbsolutePath());
+          currentFile.renameTo(newFile);
+          logger.info("Renamed " + currentFile.getAbsolutePath() + " to " + newFile.getAbsolutePath());
           renamedFiles++;
           episode.setFile(newFile);
         }
