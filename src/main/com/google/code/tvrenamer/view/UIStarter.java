@@ -22,7 +22,6 @@ import org.eclipse.swt.dnd.FileTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -52,8 +51,8 @@ import com.google.code.tvrenamer.model.Season;
 import com.google.code.tvrenamer.model.Show;
 import com.google.code.tvrenamer.model.ShowStore;
 import com.google.code.tvrenamer.model.util.Constants;
-import com.google.code.tvrenamer.model.util.TVRenamerLogger;
 import com.google.code.tvrenamer.model.util.Constants.SWTMessageBoxType;
+import com.google.code.tvrenamer.model.util.TVRenamerLogger;
 
 public class UIStarter {
   private static final String pathSeparator = System.getProperty("file.separator");
@@ -443,36 +442,39 @@ public class UIStarter {
   }
 
   private void initiateRenamer(final String[] fileNames) {
-    Display.getCurrent().asyncExec(new Runnable() {
-      public void run() {
-        List<Thread> threads = new ArrayList<Thread>();
-        files = new ArrayList<FileEpisode>();
+    final List<Thread> threads = new ArrayList<Thread>();
+    files = new ArrayList<FileEpisode>();
 
-        Set<String> showNames = new HashSet<String>();
-        for (String fileName : fileNames) {
-          final FileEpisode episode = TVRenamer.parseFilename(fileName);
-          if (episode == null) {
-            System.err.println("Couldn't parse file: " + fileName);
-          } else {
-            final String showName = episode.getShowName();
-            if (!showNames.contains(showName)) {
-              showNames.add(showName);
+    Set<String> showNames = new HashSet<String>();
+    for (String fileName : fileNames) {
+      final FileEpisode episode = TVRenamer.parseFilename(fileName);
+      if (episode == null) {
+        System.err.println("Couldn't parse file: " + fileName);
+      } else {
+        final String showName = episode.getShowName();
+        if (!showNames.contains(showName)) {
+          showNames.add(showName);
 
-              Thread t = new Thread(new Runnable() {
-                public void run() {
-                  ShowStore.addShow(showName);
-                }
-              });
-              threads.add(t);
-              t.start();
+          Thread t = new Thread(new Runnable() {
+            public void run() {
+              ShowStore.addShow(showName);
             }
-            files.add(episode);
-          }
+          });
+          threads.add(t);
+          // t.start();
         }
+        files.add(episode);
+      }
+    }
 
-        // don't really like this, would prefer to do the shows as they get
-        // downloaded, but will do for now
+    lblStatus.setText("Please wait ...");
 
+    Thread thread = new Thread() {
+      @Override
+      public void run() {
+        for (Thread t : threads) {
+          t.start();
+        }
         for (Thread t : threads) {
           try {
             t.join();
@@ -482,13 +484,15 @@ public class UIStarter {
         }
 
         // all threads should have finished by now
-        populateTable();
-        lblStatus.setText("");
+        display.asyncExec(new Runnable() {
+          public void run() {
+            populateTable();
+            lblStatus.setText("");
+          }
+        });
       }
-    });
-
-    lblStatus.setText("Please wait ...");
-
+    };
+    thread.start();
   }
 
   private void renameFiles(boolean all) {
