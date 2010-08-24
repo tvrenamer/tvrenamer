@@ -7,8 +7,15 @@ import java.util.regex.Pattern;
 import com.google.code.tvrenamer.model.FileEpisode;
 
 public class TVRenamer {
-  public static final String REGEX = "(.+?\\W\\D*?)[sS]?(\\d\\d?)\\D*?(\\d\\d).*";
-  public static final Pattern COMPILED_REGEX = Pattern.compile(REGEX);
+  public static final String[] REGEX = {
+      "(.+?\\d{4}\\W\\D*?)[sS]?(\\d\\d?)\\D*?(\\d\\d).*",
+      "(.+?\\W\\D*?)[sS]?(\\d\\d?)\\D*?(\\d\\d).*" };
+  public static final Pattern[] COMPILED_REGEX = new Pattern[REGEX.length];
+  static {
+    for (int i = 0; i < REGEX.length; i++) {
+      COMPILED_REGEX[i] = Pattern.compile(REGEX[i]);
+    }
+  }
 
   private TVRenamer() {
     // singleton
@@ -16,16 +23,21 @@ public class TVRenamer {
 
   public static FileEpisode parseFilename(String fileName) {
     File f = new File(fileName);
-    Matcher matcher = COMPILED_REGEX.matcher(f.getName());
-    if (matcher.matches()) {
-      String show = matcher.group(1);
-      show = replacePunctuation(show).trim().toLowerCase();
+    String fName = f.getName();
+    int idx = 0;
+    Matcher matcher = null;
+    while (idx < COMPILED_REGEX.length) {
+      matcher = COMPILED_REGEX[idx++].matcher(fName);
+      if (matcher.matches()) {
+        String show = matcher.group(1);
+        show = replacePunctuation(show).trim().toLowerCase();
 
-      int season = Integer.parseInt(matcher.group(2));
-      int episode = Integer.parseInt(matcher.group(3));
+        int season = Integer.parseInt(matcher.group(2));
+        int episode = Integer.parseInt(matcher.group(3));
 
-      FileEpisode ep = new FileEpisode(show, season, episode, f);
-      return ep;
+        FileEpisode ep = new FileEpisode(show, season, episode, f);
+        return ep;
+      }
     }
 
     return null;
