@@ -1,6 +1,7 @@
 package com.google.code.tvrenamer.view;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.text.Collator;
 import java.text.DecimalFormat;
@@ -9,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 
@@ -45,20 +47,21 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 import com.google.code.tvrenamer.controller.TVRenamer;
+import com.google.code.tvrenamer.controller.XMLPersistence;
+import com.google.code.tvrenamer.controller.util.StringUtils;
 import com.google.code.tvrenamer.model.FileEpisode;
 import com.google.code.tvrenamer.model.NotFoundException;
 import com.google.code.tvrenamer.model.Season;
 import com.google.code.tvrenamer.model.Show;
 import com.google.code.tvrenamer.model.ShowStore;
+import com.google.code.tvrenamer.model.TVRenamerIOException;
+import com.google.code.tvrenamer.model.UserPreferences;
 import com.google.code.tvrenamer.model.util.Constants;
 import com.google.code.tvrenamer.model.util.Constants.SWTMessageBoxType;
-import com.google.code.tvrenamer.model.util.TVRenamerLogger;
 
 public class UIStarter {
-  private static final String pathSeparator = System.getProperty("file.separator");
-  public static final String DEFAULT_FORMAT_STRING = "%S [%sx%e] %t";
-
-  private static TVRenamerLogger logger = new TVRenamerLogger(UIStarter.class);
+  private static Logger logger = Logger.getLogger(UIStarter.class.getName());
+  private UserPreferences prefs = null;
 
   private Display display;
   private static Shell shell;
@@ -86,11 +89,11 @@ public class UIStarter {
   private void init() {
     // Set up environment
     GridLayout gridLayout = new GridLayout(5, false);
-    Display.setAppName(Constants.APP_NAME);
+    Display.setAppName(Constants.APPLICATION_NAME);
     display = new Display();
 
     shell = new Shell(display);
-    shell.setText(Constants.APP_NAME);
+    shell.setText(Constants.APPLICATION_NAME);
     shell.setLayout(gridLayout);
 
     setupBrowseDialog();
@@ -101,9 +104,11 @@ public class UIStarter {
     setupMainWindow();
 
     setApplicationIcon();
+    
+    loadPreferences();
   }
 
-  private void setupMainWindow() {
+	private void setupMainWindow() {
     btnRenameAll = new Button(shell, SWT.PUSH);
     btnRenameAll.setText("Rename All");
 
@@ -216,7 +221,7 @@ public class UIStarter {
 
           String[] fileNames = fd.getFileNames();
           for (int i = 0; i < fileNames.length; i++) {
-            fileNames[i] = pathPrefix + pathSeparator + fileNames[i];
+            fileNames[i] = pathPrefix + Constants.FILE_SEPARATOR + fileNames[i];
           }
 
           initiateRenamer(fileNames);
@@ -258,7 +263,7 @@ public class UIStarter {
     btnReset.addSelectionListener(new SelectionAdapter() {
       @Override
       public void widgetSelected(SelectionEvent e) {
-        textFormat.setText(DEFAULT_FORMAT_STRING);
+        textFormat.setText(Constants.DEFAULT_FORMAT_STRING);
         populateTable();
       }
     });
@@ -403,6 +408,24 @@ public class UIStarter {
     }
   }
 
+	private void loadPreferences() {
+		File prefsFile = new File(System.getProperty("user.dir") + Constants.FILE_SEPARATOR + Constants.PREFERENCES_FILE);
+		try {
+			prefs = XMLPersistence.retrieve(prefsFile);
+		} catch (IOException e) {
+			// failed to load, revert to in-memory
+			try {
+				prefs = new UserPreferences();
+				XMLPersistence.persist(prefs, prefsFile);
+			} catch (IOException e1) {
+				// either failed to create (no moving),
+				// or failed to save (in-memory prefs only)
+				e1.printStackTrace();
+			}
+			e.printStackTrace();
+		}
+	}
+
   private void launch() {
     Display display = null;
     try {
@@ -504,14 +527,26 @@ public class UIStarter {
         File currentFile = episode.getFile();
         String currentName = currentFile.getName();
         String newName = item.getText(2);
-        File newFile = new File(currentFile.getParent() + pathSeparator + newName);
+        String newFilePath = currentFile.getParent() + Constants.FILE_SEPARATOR + newName;
+
+        if (prefs != null) {
+        	try {
+        		newFilePath = episode.getDestinationDirectory(prefs) + Constants.FILE_SEPARATOR + newName;
+        	}
+        	catch (TVRenamerIOException e) {
+        		e.printStackTrace();
+        	}
+        }
+        
+      	File newFile = new File(newFilePath);
+        logger.info("Going to move '" + currentFile.getAbsolutePath() + "' to '" + newFile.getAbsolutePath() + "'");
 
         if (newFile.exists() && !newName.equals(currentName)) {
           String message = "File " + newFile + " already exists.\n" + currentFile + " was not renamed!";
           showMessageBox(SWTMessageBoxType.QUESTION, message);
         } else {
           currentFile.renameTo(newFile);
-          logger.info("Renamed " + currentFile.getAbsolutePath() + " to " + newFile.getAbsolutePath());
+          logger.info("Moved " + currentFile.getAbsolutePath() + " to " + newFile.getAbsolutePath());
           renamedFiles++;
           episode.setFile(newFile);
         }
@@ -565,7 +600,7 @@ public class UIStarter {
     seasonNum = String.valueOf(season.getNumber());
 
     String title = season.getTitle(episode.getEpisodeNumber());
-    titleString = TVRenamer.sanitiseTitle(title);
+    titleString = StringUtils.sanitiseTitle(title);
 
     String newFilename = textFormat.getText();
     newFilename = newFilename.replaceAll("%S", showName);
@@ -573,7 +608,7 @@ public class UIStarter {
     newFilename = newFilename.replaceAll("%e", new DecimalFormat("00").format(episode.getEpisodeNumber()));
     newFilename = newFilename.replaceAll("%t", titleString);
 
-    return newFilename + "." + TVRenamer.getExtension(episode.getFile().getName());
+    return newFilename + "." + StringUtils.getExtension(episode.getFile().getName());
   }
 
   private void setSortedItem(int i, int j) {

@@ -6,6 +6,7 @@ import java.util.regex.Matcher;
 import org.junit.Test;
 
 import com.google.code.tvrenamer.controller.TVRenamer;
+import com.google.code.tvrenamer.controller.util.StringUtils;
 
 public class FilenameRegexTest {
   private final String[] testFilenames = { "24.s08.e01.720p.hdtv.x264-immerse.mkv", "24.S07.E18.720p.BlueRay.x264-SiNNERS.mkv",
@@ -20,7 +21,7 @@ public class FilenameRegexTest {
       Matcher matcher = TVRenamer.COMPILED_REGEX[1].matcher(testFilenames[i]);
       System.out.print(testFilenames[i] + " -> ");
       if (matcher.matches()) {
-        System.out.println(TVRenamer.replacePunctuation(matcher.group(1)).trim() + " [" + Integer.parseInt(matcher.group(2)) + "x"
+        System.out.println(StringUtils.replacePunctuation(matcher.group(1)).trim() + " [" + Integer.parseInt(matcher.group(2)) + "x"
             + new DecimalFormat("00").format(Integer.parseInt(matcher.group(3))) + "]");
       } else {
         System.out.println("no match");
