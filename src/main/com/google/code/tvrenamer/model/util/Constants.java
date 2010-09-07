@@ -5,6 +5,10 @@ public class Constants {
 		OK, QUESTION, MESSAGE, WARNING, ERROR;
 	}
 
+	public enum FileCopyResult {
+		SUCCESS, FAILURE;
+	}
+
 	public static final String APPLICATION_NAME              = "TVRenamer";
 
 	public static final String PREFERENCES_FILE              = "settings.xml";

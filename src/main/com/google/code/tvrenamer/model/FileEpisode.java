@@ -38,16 +38,12 @@ public class FileEpisode {
 		file = f;
 	}
 
-	public File getDestinationDirectory(UserPreferences prefs) throws TVRenamerIOException {
+	public File getDestinationDirectory(UserPreferences prefs) {
 		String show = ShowStore.getShow(showName.toLowerCase()).getName();
 		String destPath = prefs.getDestinationDirectory().getAbsolutePath() + Constants.FILE_SEPARATOR;
 		destPath = destPath + StringUtils.sanitiseTitle(show) + Constants.FILE_SEPARATOR;
 		destPath = destPath + prefs.getSeasonPrefix() + this.seasonNumber + Constants.FILE_SEPARATOR;
-		File dir = new File(destPath);
-		if (!dir.mkdirs() && !dir.exists()) {
-			throw new TVRenamerIOException("Couldn't create path: '" + dir.getAbsolutePath() + "'");
-		}
-		return dir;
+		return new File(destPath);
 	}
 
 	@Override

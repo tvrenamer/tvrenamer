@@ -7,13 +7,21 @@ import java.text.Collator;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 
+import org.apache.commons.io.FileUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.dnd.DND;
@@ -40,6 +48,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Monitor;
+import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
@@ -54,14 +63,14 @@ import com.google.code.tvrenamer.model.NotFoundException;
 import com.google.code.tvrenamer.model.Season;
 import com.google.code.tvrenamer.model.Show;
 import com.google.code.tvrenamer.model.ShowStore;
-import com.google.code.tvrenamer.model.TVRenamerIOException;
 import com.google.code.tvrenamer.model.UserPreferences;
 import com.google.code.tvrenamer.model.util.Constants;
 import com.google.code.tvrenamer.model.util.Constants.SWTMessageBoxType;
 
 public class UIStarter {
-	private static Logger     logger = Logger.getLogger(UIStarter.class.getName());
-	private UserPreferences   prefs  = null;
+	private static Logger     logger   = Logger.getLogger(UIStarter.class.getName());
+	private UserPreferences   prefs    = null;
+	private ExecutorService   executor = Executors.newSingleThreadExecutor();
 
 	private Display           display;
 	private static Shell      shell;
@@ -77,6 +86,8 @@ public class UIStarter {
 	private Text              textFormat;
 
 	private Label             lblStatus;
+
+	private ProgressBar       progressBar;
 
 	private List<FileEpisode> files;
 
@@ -118,6 +129,10 @@ public class UIStarter {
 		lblStatus = new Label(shell, SWT.NONE);
 		lblStatus.setText("");
 		lblStatus.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+
+		progressBar = new ProgressBar(shell, SWT.SMOOTH);
+		// progressBar.setBounds(0, 0, 100, 32);
+		progressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
 		final Button btnQuit = new Button(shell, SWT.PUSH);
 		btnQuit.setText("Quit");
@@ -425,6 +440,9 @@ public class UIStarter {
 			}
 			e.printStackTrace();
 		}
+		if (prefs != null) {
+			logger.info("Initialised: " + prefs.toString());
+		}
 	}
 
 	private void launch() {
@@ -520,25 +538,23 @@ public class UIStarter {
 	}
 
 	private void renameFiles(boolean all) {
-		int renamedFiles = 0;
-		for (TableItem item : tblResults.getItems()) {
+		final Queue<Future<Boolean>> futures = new LinkedList<Future<Boolean>>();
+		int count = 0;
+		for (final TableItem item : tblResults.getItems()) {
 			if (all || item.getChecked()) {
+				count++;
 				int index = Integer.parseInt(item.getText(0)) - 1;
-				FileEpisode episode = files.get(index);
-				File currentFile = episode.getFile();
+				final FileEpisode episode = files.get(index);
+				final File currentFile = episode.getFile();
 				String currentName = currentFile.getName();
 				String newName = item.getText(2);
 				String newFilePath = currentFile.getParent() + Constants.FILE_SEPARATOR + newName;
 
 				if (prefs != null) {
-					try {
-						newFilePath = episode.getDestinationDirectory(prefs) + Constants.FILE_SEPARATOR + newName;
-					} catch (TVRenamerIOException e) {
-						e.printStackTrace();
-					}
+					newFilePath = episode.getDestinationDirectory(prefs) + Constants.FILE_SEPARATOR + newName;
 				}
 
-				File newFile = new File(newFilePath);
+				final File newFile = new File(newFilePath);
 				logger.info("Going to move '" + currentFile.getAbsolutePath() + "' to '" + newFile.getAbsolutePath()
 				    + "'");
 
@@ -546,24 +562,83 @@ public class UIStarter {
 					String message = "File " + newFile + " already exists.\n" + currentFile + " was not renamed!";
 					showMessageBox(SWTMessageBoxType.QUESTION, message);
 				} else {
-					currentFile.renameTo(newFile);
-					logger.info("Moved " + currentFile.getAbsolutePath() + " to " + newFile.getAbsolutePath());
-					renamedFiles++;
-					episode.setFile(newFile);
+					//					final long length = currentFile.length();
+					//
+					//					long newLength = newFile.length();
+					//					System.out.println("(" + newLength + " / " + length + ") = " + ((double) newLength)
+					//					    / length);
+
+					Callable<Boolean> moveCallable = new Callable<Boolean>() {
+						public Boolean call() {
+							try {
+								if (newFile.getParentFile().exists() || newFile.getParentFile().mkdirs()) {
+									FileUtils.moveFile(currentFile, newFile);
+									logger.info("Moved " + currentFile.getAbsolutePath() + " to "
+									    + newFile.getAbsolutePath());
+
+									episode.setFile(newFile);
+									return true;
+								}
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+							return false;
+						}
+					};
+
+					futures.add(executor.submit(moveCallable));
 				}
 			}
 		}
 
-		if (renamedFiles > 0) {
-			if (renamedFiles == 1) {
-				lblStatus.setText(renamedFiles + " file successfully renamed.");
-			} else {
-				lblStatus.setText(renamedFiles + " files successfully renamed.");
-			}
+		final int totalNumFiles = count;
 
-			lblStatus.pack(true);
-			populateTable();
-		}
+		Thread progressThread = new Thread(new Runnable() {
+			public void run() {
+				while (true) {
+					final int size = futures.size();
+					display.asyncExec(new Runnable() {
+						public void run() {
+							if (progressBar.isDisposed()) {
+								return;
+							}
+							progressBar.setSelection((int) Math
+							    .round(((((double) (totalNumFiles - size)) / totalNumFiles) * progressBar.getMaximum())));
+						}
+					});
+
+					if (size == 0) {
+						return;
+					}
+
+					try {
+						Future<Boolean> future = futures.remove();
+						logger.info("future returned: " + future.get());
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					} catch (ExecutionException e) {
+						e.printStackTrace();
+					}
+
+					if (display.isDisposed()) {
+						return;
+					}
+
+				}
+			}
+		});
+		progressThread.start();
+
+		//		if (renamedFiles > 0) {
+		//			if (renamedFiles == 1) {
+		//				lblStatus.setText(renamedFiles + " file successfully renamed.");
+		//			} else {
+		//				lblStatus.setText(renamedFiles + " files successfully renamed.");
+		//			}
+
+		//			lblStatus.pack(true);
+		populateTable();
+		//		}
 
 	}
 

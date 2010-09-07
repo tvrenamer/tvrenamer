@@ -18,8 +18,6 @@ public class UserPreferences {
 			throw new TVRenamerIOException("Couldn't create path: '" + this.destDir.getAbsolutePath() + "'");
 		}
 		this.seasonPrefix = Constants.DEFAULT_SEASON_PREFIX;
-		logger.info("Setup user preferences with default destination ('" + this.destDir.getAbsolutePath()
-		    + "') and default season prefix ('" + this.seasonPrefix + "')");
 	}
 
 	/**
@@ -72,5 +70,10 @@ public class UserPreferences {
 			return this.destDir.exists();
 		}
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "UserPreferences [destDir='" + destDir + "', seasonPrefix='" + seasonPrefix + "']";
 	}
 }

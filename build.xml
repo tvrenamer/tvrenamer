@@ -1,143 +1,150 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project name="TVRenamer build script">
-	<property file="build.properties" />
+    <property file="build.properties" />
 
-	<property name="src.main" value="src/main" />
-	<property name="build" value="build" />
-	<property name="lib" value="lib" />
-	<property name="res" value="res" />
-	<property name="rel" value="release" />
-	<property name="rel.name" value="TVRenamer-${version}" />
-	<property name="dist" value="dist" />
-	<property name="etc" value="etc" />
-	<property name="jar.builtBy" value="http://code.google.com/p/tv-renamer" />
-	<property name="jar.mainClass" value="com.google.code.tvrenamer.view.UIStarter" />
+    <property name="src.main" value="src/main" />
+    <property name="build" value="build" />
+    <property name="lib" value="lib" />
+    <property name="res" value="res" />
+    <property name="rel" value="release" />
+    <property name="rel.name" value="TVRenamer-${version}" />
+    <property name="dist" value="dist" />
+    <property name="etc" value="etc" />
+    <property name="jar.builtBy" value="http://code.google.com/p/tv-renamer" />
+    <property name="jar.mainClass" value="com.google.code.tvrenamer.view.UIStarter" />
 
-	<!-- To build, get launch4j, update the path and uncomment. Ensure they are commented before committing -->
-	<!--property name="launch4j" value="C:\launch4j" />
-  <taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpath="${launch4j}/launch4j.jar:${launch4j}/lib/xstream.jar" /-->
+    <!-- To build, get launch4j, update the path and uncomment. Ensure they are commented before committing -->
+    <!--property name="launch4j" value="/opt/local/share/launch4j" />
+    <taskdef name="launch4j"
+             classname="net.sf.launch4j.ant.Launch4jTask"
+             classpath="${launch4j}/launch4j.jar:${launch4j}/lib/xstream.jar" /-->
 
-	<target name="init">
-		<mkdir dir="${build}" />
-		<mkdir dir="${dist}" />
-	</target>
+    <target name="init">
+        <mkdir dir="${build}" />
+        <mkdir dir="${dist}" />
+    </target>
 
-	<path id="swt.classpath">
-		<fileset dir="${lib}">
-			<!-- We can compile against any swt version-->
-			<include name="**/swt-win32*.jar" />
-			<include name="xstream-1.3.1.jar" />
-		</fileset>
-	</path>
+    <path id="swt.classpath">
+        <fileset dir="${lib}">
+            <!-- We can compile against any swt version-->
+            <include name="**/swt-win32*.jar" />
+            <include name="xstream-1.3.1.jar" />
+        </fileset>
+    </path>
 
-	<macrodef name="build.jar" description="Compiles the source then creates an executable jar for the given platform">
-		<attribute name="platform" />
-		<sequential>
-			<mkdir dir="${build}/@{platform}" />
+    <macrodef name="build.jar" description="Compiles the source then creates an executable jar for the given platform">
+        <attribute name="platform" />
+        <sequential>
+            <mkdir dir="${build}/@{platform}" />
 
-			<javac srcdir="${src.main}" destdir="${build}" classpathref="swt.classpath" source="1.5" />
+            <javac srcdir="${src.main}" destdir="${build}" classpathref="swt.classpath" source="1.5" />
 
-			<jar destfile="${build}/@{platform}/tvrenamer.jar" filesetmanifest="mergewithoutmain">
-				<manifest>
-					<attribute name="Built-By" value="${jar.builtBy}" />
-					<attribute name="Main-Class" value="${jar.mainClass}" />
-				</manifest>
-				<fileset dir="${build}" />
-				<fileset dir="${res}" />
-				<zipgroupfileset dir="${lib}" includes="swt-@{platform}*.jar xstream*.jar" />
-			</jar>
-		</sequential>
-	</macrodef>
+            <jar destfile="${build}/@{platform}/tvrenamer.jar" filesetmanifest="mergewithoutmain">
+                <manifest>
+                    <attribute name="Built-By" value="${jar.builtBy}" />
+                    <attribute name="Main-Class" value="${jar.mainClass}" />
+                </manifest>
+                <fileset dir="${build}" />
+                <fileset dir="${res}" />
+                <zipgroupfileset dir="${lib}" includes="swt-@{platform}*.jar xstream*.jar" />
+            </jar>
+        </sequential>
+    </macrodef>
 
-	<macrodef name="build.linux">
-		<attribute name="platform" />
-		<sequential>
-			<build.jar platform="@{platform}" />
+    <macrodef name="build.linux">
+        <attribute name="platform" />
+        <sequential>
+            <build.jar platform="@{platform}" />
 
-			<mkdir dir="${build}/@{platform}/${rel.name}" />
+            <mkdir dir="${build}/@{platform}/${rel.name}" />
 
-			<mkdir dir="${build}/@{platform}/${rel.name}" />
-			<move file="${build}/@{platform}/tvrenamer.jar" todir="${build}/@{platform}/${rel.name}"/>
-			<copy file="${etc}/run-scripts/run-linux.sh" todir="${build}/@{platform}/${rel.name}" />
-			<copy file="${etc}/LICENSE" todir="${build}/@{platform}/${rel.name}" />
+            <mkdir dir="${build}/@{platform}/${rel.name}" />
+            <move file="${build}/@{platform}/tvrenamer.jar" todir="${build}/@{platform}/${rel.name}" />
+            <copy file="${etc}/run-scripts/run-linux.sh" todir="${build}/@{platform}/${rel.name}" />
+            <copy file="${etc}/LICENSE" todir="${build}/@{platform}/${rel.name}" />
 
-			<zip destfile="${build}/@{platform}/${rel.name}/${rel.name}-@{platform}.zip">
-				<zipfileset dir="${build}/@{platform}" filemode="755" />
-			</zip>
-			<copy file="${build}/@{platform}/${rel.name}/${rel.name}-@{platform}.zip" todir="${dist}" />
+            <zip destfile="${build}/@{platform}/${rel.name}/${rel.name}-@{platform}.zip">
+                <zipfileset dir="${build}/@{platform}" filemode="755" />
+            </zip>
+            <copy file="${build}/@{platform}/${rel.name}/${rel.name}-@{platform}.zip" todir="${dist}" />
 
-			<delete dir="${build}/@{platform}/" failonerror="false" />
-		</sequential>
-	</macrodef>
+            <delete dir="${build}/@{platform}/" failonerror="false" />
+        </sequential>
+    </macrodef>
 
-	<macrodef name="build.osx">
-		<attribute name="platform" />
-		<sequential>
-			<build.jar platform="@{platform}" />
+    <macrodef name="build.osx">
+        <attribute name="platform" />
+        <sequential>
+            <build.jar platform="@{platform}" />
 
-			<mkdir dir="${build}/@{platform}/${rel.name}.app/Contents/MacOS" />
-			<mkdir dir="${build}/@{platform}/${rel.name}.app/Contents/Resources" />
+            <mkdir dir="${build}/@{platform}/${rel.name}.app/Contents/MacOS" />
+            <mkdir dir="${build}/@{platform}/${rel.name}.app/Contents/Resources" />
 
-			<copy file="${etc}/Info.plist" todir="${build}/@{platform}/${rel.name}.app/Contents/" />
-			<copy file="${etc}/run-scripts/run-mac.sh" todir="${build}/@{platform}/${rel.name}.app/Contents/MacOS" />
-			<move file="${build}/@{platform}/tvrenamer.jar" todir="${build}/@{platform}/${rel.name}.app/Contents/MacOS"/>
-			<chmod file="${build}/@{platform}/${rel.name}.app/Contents/MacOS/run-mac.sh" perm="+x" />
-			<copy file="${res}/icons/tvrenamer.icns" todir="${build}/@{platform}/${rel.name}.app/Contents/Resources" />
-			<copy file="${etc}/LICENSE" todir="${build}/@{platform}/${rel.name}.app" />
+            <copy file="${etc}/Info.plist" todir="${build}/@{platform}/${rel.name}.app/Contents/" />
+            <copy file="${etc}/run-scripts/run-mac.sh" todir="${build}/@{platform}/${rel.name}.app/Contents/MacOS" />
+            <move file="${build}/@{platform}/tvrenamer.jar"
+                  todir="${build}/@{platform}/${rel.name}.app/Contents/MacOS" />
+            <chmod file="${build}/@{platform}/${rel.name}.app/Contents/MacOS/run-mac.sh" perm="+x" />
+            <copy file="${res}/icons/tvrenamer.icns" todir="${build}/@{platform}/${rel.name}.app/Contents/Resources" />
+            <copy file="${etc}/LICENSE" todir="${build}/@{platform}/${rel.name}.app" />
 
-			<zip destfile="${build}/@{platform}/${rel.name}-@{platform}.zip">
-				<zipfileset dir="${build}/@{platform}" filemode="755" />
-			</zip>
-			<copy file="${build}/@{platform}/${rel.name}-@{platform}.zip" todir="${dist}" />
+            <zip destfile="${build}/@{platform}/${rel.name}-@{platform}.zip">
+                <zipfileset dir="${build}/@{platform}" filemode="755" />
+            </zip>
+            <copy file="${build}/@{platform}/${rel.name}-@{platform}.zip" todir="${dist}" />
 
-			<delete dir="${build}/@{platform}/" failonerror="false" />
-		</sequential>
-	</macrodef>
+            <delete dir="${build}/@{platform}/" failonerror="false" />
+        </sequential>
+    </macrodef>
 
-	<macrodef name="build.win">
-		<attribute name="platform" />
-		<sequential>
-			<build.jar platform="@{platform}" />
-			<!-- Create the .exe with launch4j, but first you must uncomment the ant task import above -->
-			<launch4j>
-				<config headerType="gui" outfile="${dist}/${rel.name}-@{platform}.exe" dontWrapJar="false" 
-            jar="${build}/@{platform}/tvrenamer.jar" icon="${res}\icons\oldschool-tv-icon.ico" chdir=".">
-					<jre minVersion="1.5.0" />
-				</config>
-			</launch4j>
+    <macrodef name="build.win">
+        <attribute name="platform" />
+        <sequential>
+            <build.jar platform="@{platform}" />
+            <!-- Create the .exe with launch4j, but first you must uncomment the ant task import above -->
+            <launch4j>
+                <config headerType="gui"
+                        outfile="${dist}/${rel.name}-@{platform}.exe"
+                        dontWrapJar="false"
+                        jar="${build}/@{platform}/tvrenamer.jar"
+                        icon="${res}\icons\oldschool-tv-icon.ico"
+                        chdir=".">
+                    <jre minVersion="1.5.0" />
+                </config>
+            </launch4j>
 
-			<delete dir="${build}/@{platform}/" failonerror="false" />
-		</sequential>
-	</macrodef>
+            <delete dir="${build}/@{platform}/" failonerror="false" />
+        </sequential>
+    </macrodef>
 
 
-	<target name="dist.win" depends="clean, init">
-		<build.win platform="win32" />
-		<build.win platform="win64" />
-	</target>
+    <target name="dist.win" depends="clean, init">
+        <build.win platform="win32" />
+        <build.win platform="win64" />
+    </target>
 
-	<target name="dist.linux" depends="clean, init">
-		<build.linux platform="gtk32" />
-		<build.linux platform="gtk64" />
-	</target>
+    <target name="dist.linux" depends="clean, init">
+        <build.linux platform="gtk32" />
+        <build.linux platform="gtk64" />
+    </target>
 
-	<target name="dist.osx" depends="clean, init">
-		<build.osx platform="osx32" />
-		<build.osx platform="osx64" />
-	</target>
+    <target name="dist.osx" depends="clean, init">
+        <build.osx platform="osx32" />
+        <build.osx platform="osx64" />
+    </target>
 
-	<target name="dist.all" depends="clean, init, dist.win, dist.linux, dist.osx" />
+    <target name="dist.all" depends="clean, init, dist.win, dist.linux, dist.osx" />
 
-	<target name="clean">
-		<clean />
-	</target>
+    <target name="clean">
+        <clean />
+    </target>
 
-	<macrodef name="clean">
-		<sequential>
-			<delete includeemptydirs="true" failonerror="false">
-				<fileset dir="${build}" includes="**/*" />
-			</delete>
-		</sequential>
-	</macrodef>
+    <macrodef name="clean">
+        <sequential>
+            <delete includeemptydirs="true" failonerror="false">
+                <fileset dir="${build}" includes="**/*" />
+            </delete>
+        </sequential>
+    </macrodef>
 
 </project>
