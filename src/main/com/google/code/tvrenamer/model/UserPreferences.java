@@ -9,8 +9,8 @@ import com.google.code.tvrenamer.model.util.Constants;
 public class UserPreferences {
 	private static Logger logger = Logger.getLogger(UserPreferences.class.getName());
 
-	private File destDir;
-	private String seasonPrefix;
+	private File          destDir;
+	private String        seasonPrefix;
 
 	public UserPreferences() throws TVRenamerIOException {
 		this.destDir = new File(Constants.DEFAULT_DESTINATION_DIRECTORY);

@@ -8,8 +8,8 @@ import com.google.code.tvrenamer.controller.util.StringUtils;
 import com.google.code.tvrenamer.model.FileEpisode;
 
 public class TVRenamer {
-	public static final String[] REGEX = { "(.+?\\d{4}\\W\\D*?)[sS]?(\\d\\d?)\\D*?(\\d\\d).*",
-	                "(.+?\\W\\D*?)[sS]?(\\d\\d?)\\D*?(\\d\\d).*" };
+	public static final String[]  REGEX          = { "(.+?\\d{4}\\W\\D*?)[sS]?(\\d\\d?)\\D*?(\\d\\d).*",
+	    "(.+?\\W\\D*?)[sS]?(\\d\\d?)\\D*?(\\d\\d).*" };
 	public static final Pattern[] COMPILED_REGEX = new Pattern[REGEX.length];
 	static {
 		for (int i = 0; i < REGEX.length; i++) {
