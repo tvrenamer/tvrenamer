@@ -46,7 +46,7 @@
                 </manifest>
                 <fileset dir="${build}" />
                 <fileset dir="${res}" />
-                <zipgroupfileset dir="${lib}" includes="swt-@{platform}*.jar xstream*.jar commons-io-1.4.jar" />
+                <zipgroupfileset dir="${lib}" includes="swt-@{platform}*.jar xstream*.jar guava*.jar" />
             </jar>
         </sequential>
     </macrodef>

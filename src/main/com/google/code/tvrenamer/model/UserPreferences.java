@@ -11,10 +11,12 @@ public class UserPreferences {
 
 	private File          destDir;
 	private String        seasonPrefix;
+	private boolean       moveEnabled = true;
 
 	public UserPreferences() throws TVRenamerIOException {
 		this.destDir = new File(Constants.DEFAULT_DESTINATION_DIRECTORY);
 		if (!ensurePath()) {
+			this.moveEnabled = false;
 			throw new TVRenamerIOException("Couldn't create path: '" + this.destDir.getAbsolutePath() + "'");
 		}
 		this.seasonPrefix = Constants.DEFAULT_SEASON_PREFIX;
@@ -30,6 +32,7 @@ public class UserPreferences {
 	public void setDestinationDirectory(String dir) throws TVRenamerIOException {
 		this.destDir = new File(dir);
 		if (!ensurePath()) {
+			this.moveEnabled = false;
 			throw new TVRenamerIOException("Couldn't create path: '" + this.destDir.getAbsolutePath() + "'");
 		}
 	}
@@ -44,6 +47,7 @@ public class UserPreferences {
 	public void setDestinationDirectory(File dir) throws TVRenamerIOException {
 		this.destDir = dir;
 		if (!ensurePath()) {
+			this.moveEnabled = false;
 			throw new TVRenamerIOException("Couldn't create path: '" + this.destDir.getAbsolutePath() + "'");
 		}
 	}
@@ -55,6 +59,15 @@ public class UserPreferences {
 	 */
 	public File getDestinationDirectory() {
 		return this.destDir;
+	}
+
+	/**
+	 * Get the status of of move support
+	 * 
+	 * @return true if selected destination exists, false otherwise
+	 */
+	public boolean isMovedEnabled() {
+		return this.moveEnabled;
 	}
 
 	public void setSeasonPrefix(String prefix) {
