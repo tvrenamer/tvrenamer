@@ -7,7 +7,7 @@ import com.google.code.tvrenamer.controller.util.StringUtils;
 import com.google.code.tvrenamer.model.util.Constants;
 
 public class UserPreferences {
-	private static Logger logger = Logger.getLogger(UserPreferences.class.getName());
+	private static Logger logger      = Logger.getLogger(UserPreferences.class.getName());
 
 	private File          destDir;
 	private String        seasonPrefix;
@@ -15,11 +15,8 @@ public class UserPreferences {
 
 	public UserPreferences() throws TVRenamerIOException {
 		this.destDir = new File(Constants.DEFAULT_DESTINATION_DIRECTORY);
-		if (!ensurePath()) {
-			this.moveEnabled = false;
-			throw new TVRenamerIOException("Couldn't create path: '" + this.destDir.getAbsolutePath() + "'");
-		}
 		this.seasonPrefix = Constants.DEFAULT_SEASON_PREFIX;
+		ensurePath();
 	}
 
 	/**
@@ -31,10 +28,7 @@ public class UserPreferences {
 	 */
 	public void setDestinationDirectory(String dir) throws TVRenamerIOException {
 		this.destDir = new File(dir);
-		if (!ensurePath()) {
-			this.moveEnabled = false;
-			throw new TVRenamerIOException("Couldn't create path: '" + this.destDir.getAbsolutePath() + "'");
-		}
+		ensurePath();
 	}
 
 	/**
@@ -46,10 +40,7 @@ public class UserPreferences {
 	 */
 	public void setDestinationDirectory(File dir) throws TVRenamerIOException {
 		this.destDir = dir;
-		if (!ensurePath()) {
-			this.moveEnabled = false;
-			throw new TVRenamerIOException("Couldn't create path: '" + this.destDir.getAbsolutePath() + "'");
-		}
+		ensurePath();
 	}
 
 	/**
@@ -78,11 +69,13 @@ public class UserPreferences {
 		return this.seasonPrefix;
 	}
 
-	private boolean ensurePath() {
+	private void ensurePath() throws TVRenamerIOException {
 		if (!this.destDir.mkdirs()) {
-			return this.destDir.exists();
+			if (!this.destDir.exists()) {
+				this.moveEnabled = false;
+				throw new TVRenamerIOException("Couldn't create path: '" + this.destDir.getAbsolutePath() + "'");
+			}
 		}
-		return true;
 	}
 
 	@Override

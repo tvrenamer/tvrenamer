@@ -21,6 +21,7 @@ import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 
+import org.apache.commons.io.FileUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.dnd.DND;
@@ -65,12 +66,11 @@ import com.google.code.tvrenamer.model.ShowStore;
 import com.google.code.tvrenamer.model.UserPreferences;
 import com.google.code.tvrenamer.model.util.Constants;
 import com.google.code.tvrenamer.model.util.Constants.SWTMessageBoxType;
-import com.google.common.io.Files;
 
 public class UIStarter {
-	private static Logger     logger   = Logger.getLogger(UIStarter.class.getName());
-	private UserPreferences   prefs    = null;
-	private ExecutorService   executor = Executors.newSingleThreadExecutor();
+	private static Logger     logger     = Logger.getLogger(UIStarter.class.getName());
+	private UserPreferences   prefs      = null;
+	private ExecutorService   executor   = Executors.newSingleThreadExecutor();
 	private ExecutorService   threadPool = Executors.newCachedThreadPool();
 
 	private Display           display;
@@ -566,8 +566,8 @@ public class UIStarter {
 						public Boolean call() {
 							try {
 								if (newFile.getParentFile().exists() || newFile.getParentFile().mkdirs()) {
-									Files.copy(currentFile, newFile);
-									// FileUtils.moveFile(currentFile, newFile);
+									// FileUtils.copyFile(currentFile, newFile);
+									FileUtils.moveFile(currentFile, newFile);
 									logger.info("Moved " + currentFile.getAbsolutePath() + " to "
 									    + newFile.getAbsolutePath());
 
