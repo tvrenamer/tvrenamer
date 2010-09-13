@@ -29,7 +29,6 @@
             <!-- We can compile against any swt version-->
             <include name="swt-win32*.jar" />
             <include name="xstream-*.jar" />
-	    <include name="commons-io*.jar" />
         </fileset>
     </path>
 
@@ -47,7 +46,7 @@
                 </manifest>
                 <fileset dir="${build}" />
                 <fileset dir="${res}" />
-                <zipgroupfileset dir="${lib}" includes="swt-@{platform}*.jar xstream*.jar commons-io*.jar" />
+                <zipgroupfileset dir="${lib}" includes="swt-@{platform}*.jar xstream*.jar" />
             </jar>
         </sequential>
     </macrodef>

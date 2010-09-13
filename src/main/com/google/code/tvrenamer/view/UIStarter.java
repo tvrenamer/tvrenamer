@@ -21,7 +21,6 @@ import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 
-import org.apache.commons.io.FileUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.dnd.DND;
@@ -32,6 +31,7 @@ import org.eclipse.swt.dnd.FileTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -54,6 +54,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
+import org.gjt.sp.util.IOUtilities;
 
 import com.google.code.tvrenamer.controller.TVRenamer;
 import com.google.code.tvrenamer.controller.XMLPersistence;
@@ -129,6 +130,7 @@ public class UIStarter {
 		bars.setLayout(fillLayout);
 		progressBarIndividual = new ProgressBar(bars, SWT.SMOOTH);
 		progressBarTotal = new ProgressBar(bars, SWT.SMOOTH);
+		
 
 		bars.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
@@ -155,8 +157,8 @@ public class UIStarter {
 	}
 
 	private void doCleanup() {
-		executor.shutdown();
-		threadPool.shutdown();
+		executor.shutdownNow();
+		threadPool.shutdownNow();
 		shell.dispose();
 		display.dispose();
 	}
@@ -312,7 +314,8 @@ public class UIStarter {
 		});
 
 		Listener tblEditListener = new Listener() {
-			public void handleEvent(Event event) {
+			@Override
+            public void handleEvent(Event event) {
 				Rectangle clientArea = tblResults.getClientArea();
 				Point pt = new Point(event.x, event.y);
 				int index = tblResults.getTopIndex();
@@ -325,7 +328,8 @@ public class UIStarter {
 							final int column = i;
 							final Text text = new Text(tblResults, SWT.NONE);
 							Listener textListener = new Listener() {
-								@SuppressWarnings("fallthrough")
+								@Override
+                                @SuppressWarnings("fallthrough")
 								public void handleEvent(final Event e) {
 									switch (e.type) {
 										case SWT.FocusOut:
@@ -471,7 +475,8 @@ public class UIStarter {
 					showNames.add(showName);
 					
 					Callable<Boolean> showFetcher = new Callable<Boolean>() {
-						public Boolean call() throws Exception {
+						@Override
+                        public Boolean call() throws Exception {
 							ShowStore.addShow(showName);
 							return true;
 						}
@@ -495,7 +500,8 @@ public class UIStarter {
 
 					final int size = fetchers.size();
 					display.asyncExec(new Runnable() {
-						public void run() {
+						@Override
+                        public void run() {
 							if (progressBarTotal.isDisposed()) {
 								return;
 							}
@@ -521,7 +527,8 @@ public class UIStarter {
 
 				// all threads should have finished by now
 				display.asyncExec(new Runnable() {
-					public void run() {
+					@Override
+                    public void run() {
 						populateTable();
 //						lblStatus.setText("");
 					}
@@ -561,21 +568,22 @@ public class UIStarter {
 //					
 //					long newLength = newFile.length();
 //					System.out.println("(" + newLength + " / " + length + ") = " + ((double) newLength) / length);
+					final int progressBarInvidualMaximum = progressBarIndividual.getMaximum();
 
 					Callable<Boolean> moveCallable = new Callable<Boolean>() {
-						public Boolean call() {
-							try {
-								if (newFile.getParentFile().exists() || newFile.getParentFile().mkdirs()) {
-									// FileUtils.copyFile(currentFile, newFile);
-									FileUtils.moveFile(currentFile, newFile);
-									logger.info("Moved " + currentFile.getAbsolutePath() + " to "
-									    + newFile.getAbsolutePath());
+						@Override
+                        public Boolean call() {
+							if (newFile.getParentFile().exists() || newFile.getParentFile().mkdirs()) {
+								// FileUtils.copyFile(currentFile, newFile);
+								// FileUtils.moveFile(currentFile, newFile);
+								FileCopyMonitor monitor = new FileCopyMonitor(progressBarIndividual,
+								    currentFile.length(), progressBarInvidualMaximum);
+								boolean succeeded = IOUtilities.moveFile(currentFile, newFile, monitor, true);
+								logger.info("Moved " + currentFile.getAbsolutePath() + " to "
+								    + newFile.getAbsolutePath());
 
-									episode.setFile(newFile);
-									return true;
-								}
-							} catch (IOException e) {
-								e.printStackTrace();
+								episode.setFile(newFile);
+								return succeeded;
 							}
 							return false;
 						}
@@ -589,7 +597,8 @@ public class UIStarter {
 		final int totalNumFiles = count;
 
 		Thread progressThread = new Thread(new Runnable() {
-			public void run() {
+			@Override
+            public void run() {
 				while (true) {
 					if (display.isDisposed()) {
 						return;
@@ -597,7 +606,8 @@ public class UIStarter {
 
 					final int size = futures.size();
 					display.asyncExec(new Runnable() {
-						public void run() {
+						@Override
+                        public void run() {
 							if (progressBarTotal.isDisposed()) {
 								return;
 							}
