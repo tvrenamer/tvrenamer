@@ -27,7 +27,7 @@ public class TVRenamerTest {
 		values[i++] = new String[] { "smallville.s09e14.hdtv.xvid-xii.avi", "smallville", "9", "14" };
 		values[i++] = new String[] { "smallville.s09e15.hdtv.xvid-2hd.avi", "smallville", "9", "15" };
 		values[i++] = new String[] { "the.big.bang.theory.s03e18.720p.hdtv.x264-ctu.mkv", "the big bang theory", "3",
-		    "18" };
+			"18" };
 		values[i++] = new String[] { "castle.2009.s01e09.720p.hdtv.x264-ctu.mkv", "castle 2009", "1", "9" };
 	}
 
@@ -35,7 +35,7 @@ public class TVRenamerTest {
 	public void testParseFileName() {
 		for (int i = 0; i < values.length; i++) {
 			System.out.println("testing " + values[i][0] + " -> " + values[i][1] + " [" + values[i][2] + "x"
-			    + values[i][3] + "]");
+				+ values[i][3] + "]");
 			FileEpisode retval = TVRenamer.parseFilename(values[i][0]);
 			System.out.println(retval);
 			assertEquals(values[i][1], retval.getShowName());

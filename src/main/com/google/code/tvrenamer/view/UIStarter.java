@@ -31,7 +31,6 @@ import org.eclipse.swt.dnd.FileTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -69,23 +68,23 @@ import com.google.code.tvrenamer.model.util.Constants;
 import com.google.code.tvrenamer.model.util.Constants.SWTMessageBoxType;
 
 public class UIStarter {
-	private static Logger     logger     = Logger.getLogger(UIStarter.class.getName());
-	private UserPreferences   prefs      = null;
-	private ExecutorService   executor   = Executors.newSingleThreadExecutor();
-	private ExecutorService   threadPool = Executors.newCachedThreadPool();
+	private static Logger logger = Logger.getLogger(UIStarter.class.getName());
+	private UserPreferences prefs = null;
+	private ExecutorService executor = Executors.newSingleThreadExecutor();
+	private ExecutorService threadPool = Executors.newCachedThreadPool();
 
-	private Display           display;
-	private static Shell      shell;
+	private Display display;
+	private static Shell shell;
 
-	private Button            btnBrowse;
-	private Button            btnRenameSelected;
+	private Button btnBrowse;
+	private Button btnRenameSelected;
 
-	private Table             tblResults;
+	private Table tblResults;
 
-//	private Label             lblStatus;
+//	private Label lblStatus;
 
-	private ProgressBar       progressBarIndividual;
-	private ProgressBar       progressBarTotal;
+	private ProgressBar progressBarIndividual;
+	private ProgressBar progressBarTotal;
 
 	private List<FileEpisode> files;
 
@@ -130,7 +129,6 @@ public class UIStarter {
 		bars.setLayout(fillLayout);
 		progressBarIndividual = new ProgressBar(bars, SWT.SMOOTH);
 		progressBarTotal = new ProgressBar(bars, SWT.SMOOTH);
-		
 
 		bars.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
@@ -166,8 +164,8 @@ public class UIStarter {
 	private void setupMoveButton(Button button) {
 		button.setText("Move Selected");
 		button
-		    .setToolTipText("Clicking this button will rename and move the selected files to the directory set in preferences (currently "
-		        + prefs.getDestinationDirectory().getAbsolutePath() + ").");
+			.setToolTipText("Clicking this button will rename and move the selected files to the directory set in preferences (currently "
+				+ prefs.getDestinationDirectory().getAbsolutePath() + ").");
 	}
 
 	private void setupRenameButton(Button button) {
@@ -269,7 +267,7 @@ public class UIStarter {
 		tblResults.setLayoutData(gridData);
 
 		final TableColumn colIdx = new TableColumn(tblResults, SWT.LEFT);
-		//colIdx.setText("Index");
+		// colIdx.setText("Index");
 		colIdx.setWidth(0);
 		colIdx.setResizable(false);
 
@@ -315,7 +313,7 @@ public class UIStarter {
 
 		Listener tblEditListener = new Listener() {
 			@Override
-            public void handleEvent(Event event) {
+			public void handleEvent(Event event) {
 				Rectangle clientArea = tblResults.getClientArea();
 				Point pt = new Point(event.x, event.y);
 				int index = tblResults.getTopIndex();
@@ -329,7 +327,7 @@ public class UIStarter {
 							final Text text = new Text(tblResults, SWT.NONE);
 							Listener textListener = new Listener() {
 								@Override
-                                @SuppressWarnings("fallthrough")
+								@SuppressWarnings("fallthrough")
 								public void handleEvent(final Event e) {
 									switch (e.type) {
 										case SWT.FocusOut:
@@ -402,7 +400,7 @@ public class UIStarter {
 
 	private void loadPreferences() {
 		File prefsFile = new File(System.getProperty("user.dir") + Constants.FILE_SEPARATOR
-		    + Constants.PREFERENCES_FILE);
+			+ Constants.PREFERENCES_FILE);
 		try {
 			prefs = XMLPersistence.retrieve(prefsFile);
 		} catch (IOException e) {
@@ -473,10 +471,10 @@ public class UIStarter {
 				final String showName = episode.getShowName();
 				if (!showNames.contains(showName)) {
 					showNames.add(showName);
-					
+
 					Callable<Boolean> showFetcher = new Callable<Boolean>() {
 						@Override
-                        public Boolean call() throws Exception {
+						public Boolean call() throws Exception {
 							ShowStore.addShow(showName);
 							return true;
 						}
@@ -501,13 +499,13 @@ public class UIStarter {
 					final int size = fetchers.size();
 					display.asyncExec(new Runnable() {
 						@Override
-                        public void run() {
+						public void run() {
 							if (progressBarTotal.isDisposed()) {
 								return;
 							}
 							progressBarTotal.setSelection((int) Math
-							    .round(((((double) (totalNumShows - size)) / totalNumShows) * progressBarTotal
-							        .getMaximum())));
+								.round(((((double) (totalNumShows - size)) / totalNumShows) * progressBarTotal
+									.getMaximum())));
 						}
 					});
 
@@ -528,7 +526,7 @@ public class UIStarter {
 				// all threads should have finished by now
 				display.asyncExec(new Runnable() {
 					@Override
-                    public void run() {
+					public void run() {
 						populateTable();
 //						lblStatus.setText("");
 					}
@@ -558,7 +556,7 @@ public class UIStarter {
 
 				final File newFile = new File(newFilePath);
 				logger.info("Going to move '" + currentFile.getAbsolutePath() + "' to '" + newFile.getAbsolutePath()
-				    + "'");
+					+ "'");
 
 				if (newFile.exists() && !newName.equals(currentName)) {
 					String message = "File " + newFile + " already exists.\n" + currentFile + " was not renamed!";
@@ -572,15 +570,15 @@ public class UIStarter {
 
 					Callable<Boolean> moveCallable = new Callable<Boolean>() {
 						@Override
-                        public Boolean call() {
+						public Boolean call() {
 							if (newFile.getParentFile().exists() || newFile.getParentFile().mkdirs()) {
 								// FileUtils.copyFile(currentFile, newFile);
 								// FileUtils.moveFile(currentFile, newFile);
 								FileCopyMonitor monitor = new FileCopyMonitor(progressBarIndividual,
-								    currentFile.length(), progressBarInvidualMaximum);
+									currentFile.length(), progressBarInvidualMaximum);
 								boolean succeeded = IOUtilities.moveFile(currentFile, newFile, monitor, true);
 								logger.info("Moved " + currentFile.getAbsolutePath() + " to "
-								    + newFile.getAbsolutePath());
+									+ newFile.getAbsolutePath());
 
 								episode.setFile(newFile);
 								return succeeded;
@@ -598,7 +596,7 @@ public class UIStarter {
 
 		Thread progressThread = new Thread(new Runnable() {
 			@Override
-            public void run() {
+			public void run() {
 				while (true) {
 					if (display.isDisposed()) {
 						return;
@@ -607,12 +605,13 @@ public class UIStarter {
 					final int size = futures.size();
 					display.asyncExec(new Runnable() {
 						@Override
-                        public void run() {
+						public void run() {
 							if (progressBarTotal.isDisposed()) {
 								return;
 							}
 							progressBarTotal.setSelection((int) Math
-							    .round(((((double) (totalNumFiles - size)) / totalNumFiles) * progressBarTotal.getMaximum())));
+								.round(((((double) (totalNumFiles - size)) / totalNumFiles) * progressBarTotal
+									.getMaximum())));
 						}
 					});
 
@@ -641,7 +640,7 @@ public class UIStarter {
 //			}
 //
 //			lblStatus.pack(true);
-			populateTable();
+		populateTable();
 //		}
 
 	}

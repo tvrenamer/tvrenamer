@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Season {
-	private final int                  num;
+	private final int num;
 	private final Map<Integer, String> episodes;
 
 	public Season(int num) {

@@ -7,11 +7,11 @@ import com.google.code.tvrenamer.controller.util.StringUtils;
 import com.google.code.tvrenamer.model.util.Constants;
 
 public class UserPreferences {
-	private static Logger logger      = Logger.getLogger(UserPreferences.class.getName());
+	private static Logger logger = Logger.getLogger(UserPreferences.class.getName());
 
-	private File          destDir;
-	private String        seasonPrefix;
-	private boolean       moveEnabled = true;
+	private File destDir;
+	private String seasonPrefix;
+	private boolean moveEnabled = true;
 
 	public UserPreferences() throws TVRenamerIOException {
 		this.destDir = new File(Constants.DEFAULT_DESTINATION_DIRECTORY);

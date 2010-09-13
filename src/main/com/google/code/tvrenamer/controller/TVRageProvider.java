@@ -40,10 +40,10 @@ import com.google.code.tvrenamer.view.UIStarter;
 public class TVRageProvider {
 	// private static Logger logger = Logger.getLogger(TVRageProvider.class);
 	private static final String BASE_SEARCH_URL = "http://www.tvrage.com/feeds/search.php?show=";
-	private static final String XPATH_SHOW      = "//show";
-	private static final String XPATH_SHOWID    = "showid";
-	private static final String XPATH_NAME      = "name";
-	private static final String XPATH_LINK      = "link";
+	private static final String XPATH_SHOW = "//show";
+	private static final String XPATH_SHOWID = "showid";
+	private static final String XPATH_NAME = "name";
+	private static final String XPATH_LINK = "link";
 
 	private TVRageProvider() {
 		// Prevents instantiation
@@ -109,7 +109,7 @@ public class TVRageProvider {
 			return options;
 		} catch (UnknownHostException e) {
 			UIStarter.showMessageBox(Constants.SWTMessageBoxType.ERROR,
-			                         "Unable to connect to http://www.tvrage.com, check your internet connection.");
+									 "Unable to connect to http://www.tvrage.com, check your internet connection.");
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
 		} catch (SAXException e) {
@@ -123,12 +123,12 @@ public class TVRageProvider {
 		return options;
 	}
 
-	private static final String BASE_LIST_URL      = "http://www.tvrage.com/feeds/episode_list.php?sid=";
-	private static final String XPATH_ALL          = "*";
+	private static final String BASE_LIST_URL = "http://www.tvrage.com/feeds/episode_list.php?sid=";
+	private static final String XPATH_ALL = "*";
 	private static final String XPATH_EPISODE_LIST = "/Show/Episodelist/Season";
-	private static final String XPATH_SEASON_NUM   = "seasonnum";
-	private static final String XPATH_SEASON_ATTR  = "no";
-	private static final String XPATH_TITLE        = "title";
+	private static final String XPATH_SEASON_NUM = "seasonnum";
+	private static final String XPATH_SEASON_ATTR = "no";
+	private static final String XPATH_TITLE = "title";
 
 	/**
 	 * Uses the TVRage episode listings to populate the Show object with Season

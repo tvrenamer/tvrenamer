@@ -8,11 +8,11 @@ import org.eclipse.swt.widgets.ProgressBar;
 import org.gjt.sp.util.ProgressObserver;
 
 public class FileCopyMonitor implements ProgressObserver {
-	private long               maximum;
-	private final ProgressBar  progressBar;
-	private final long         progressBarMaximum;
-	private int                loopCount = 0;
-	private final NumberFormat format    = DecimalFormat.getPercentInstance();
+	private long maximum;
+	private final ProgressBar progressBar;
+	private final long progressBarMaximum;
+	private int loopCount = 0;
+	private final NumberFormat format = DecimalFormat.getPercentInstance();
 
 	public FileCopyMonitor(ProgressBar progressBar, long maximum, int progressBarMaximum) {
 		this.progressBar = progressBar;

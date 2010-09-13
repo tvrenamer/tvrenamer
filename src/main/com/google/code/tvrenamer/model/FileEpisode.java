@@ -7,9 +7,9 @@ import com.google.code.tvrenamer.model.util.Constants;
 
 public class FileEpisode {
 	private final String showName;
-	private final int    seasonNumber;
-	private final int    episodeNumber;
-	private File         file;
+	private final int seasonNumber;
+	private final int episodeNumber;
+	private File file;
 
 	public FileEpisode(String name, int season, int episode, File f) {
 		showName = name;
@@ -49,7 +49,7 @@ public class FileEpisode {
 	@Override
 	public String toString() {
 		return "FileEpisode { title:" + showName + ", season:" + seasonNumber + ", episode:" + episodeNumber
-		    + ", file:" + file.getName() + " }";
+			+ ", file:" + file.getName() + " }";
 	}
 
 }

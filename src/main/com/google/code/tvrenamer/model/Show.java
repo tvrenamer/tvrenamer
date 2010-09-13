@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Show {
-	private final String               id;
-	private final String               name;
-	private final String               url;
+	private final String id;
+	private final String name;
+	private final String url;
 
 	private final Map<Integer, Season> seasons;
 
