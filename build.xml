@@ -29,6 +29,7 @@
             <!-- We can compile against any swt version-->
             <include name="swt-win32*.jar" />
             <include name="xstream-*.jar" />
+            <include name="jedit-*-IOUtilities.jar" />
         </fileset>
     </path>
 
@@ -46,7 +47,7 @@
                 </manifest>
                 <fileset dir="${build}" />
                 <fileset dir="${res}" />
-                <zipgroupfileset dir="${lib}" includes="swt-@{platform}*.jar xstream*.jar" />
+                <zipgroupfileset dir="${lib}" includes="swt-@{platform}*.jar xstream*.jar jedit-*-IOUtilities.jar" />
             </jar>
         </sequential>
     </macrodef>
