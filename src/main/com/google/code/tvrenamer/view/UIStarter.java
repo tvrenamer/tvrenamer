@@ -57,6 +57,7 @@ import org.gjt.sp.util.IOUtilities;
 
 import com.google.code.tvrenamer.controller.TVRenamer;
 import com.google.code.tvrenamer.controller.XMLPersistence;
+import com.google.code.tvrenamer.controller.util.FileUtilities;
 import com.google.code.tvrenamer.controller.util.StringUtils;
 import com.google.code.tvrenamer.model.FileEpisode;
 import com.google.code.tvrenamer.model.NotFoundException;
@@ -576,7 +577,7 @@ public class UIStarter {
 								// FileUtils.moveFile(currentFile, newFile);
 								FileCopyMonitor monitor = new FileCopyMonitor(progressBarIndividual,
 									currentFile.length(), progressBarInvidualMaximum);
-								boolean succeeded = IOUtilities.moveFile(currentFile, newFile, monitor, true);
+								boolean succeeded = FileUtilities.moveFile(currentFile, newFile, monitor, true);
 								logger.info("Moved " + currentFile.getAbsolutePath() + " to "
 									+ newFile.getAbsolutePath());
 
