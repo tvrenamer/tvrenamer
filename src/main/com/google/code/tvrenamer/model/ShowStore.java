@@ -1,22 +1,26 @@
 package com.google.code.tvrenamer.model;
 
+import java.net.ConnectException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import com.google.code.tvrenamer.controller.TVRageProvider;
 
 public class ShowStore {
 
+	private static Logger logger = Logger.getLogger(ShowStore.class.getName());
 	private static Map<String, Show> _shows = new HashMap<String, Show>();
 
-	public static void addShow(String showName) {
+	public static void addShow(String showName) throws ConnectException, UnknownHostException {
 		ArrayList<Show> options = TVRageProvider.getShowOptions(showName);
 		Show thisShow = options.get(0);
 
 		TVRageProvider.getShowListing(thisShow);
 		synchronized (_shows) {
-			System.out.println("put show " + showName + " as " + thisShow.getName());
+			logger.fine("Put show " + showName + " as " + thisShow.getName());
 			_shows.put(showName, thisShow);
 		}
 	}
@@ -27,7 +31,9 @@ public class ShowStore {
 			s = _shows.get(showName);
 		}
 		if (s == null) {
-			throw new ShowNotFoundException("Show not found for show name: '" + showName + "'");
+			String message = "Show not found for show name: '" + showName + "'";
+			logger.warning(message);
+			throw new ShowNotFoundException(message);
 		}
 		return s;
 	}

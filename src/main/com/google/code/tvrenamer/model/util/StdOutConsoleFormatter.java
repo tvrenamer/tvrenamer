@@ -1,5 +1,7 @@
 package com.google.code.tvrenamer.model.util;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Formatter;
@@ -33,8 +35,11 @@ public class StdOutConsoleFormatter extends Formatter {
 		buffer.append(rec.getMessage());
 
 		// Stacktrace
-		if (rec.getThrown() != null) {
-			buffer.append("\n" + rec.getThrown().getStackTrace());
+		Throwable throwable = rec.getThrown();
+		if (throwable != null) {
+			StringWriter sink = new StringWriter();
+			throwable.printStackTrace(new PrintWriter(sink, true));
+			buffer.append("\n" + sink.toString());
 		}
 
 		// Note: No need to add a newline as that is added by the Handler

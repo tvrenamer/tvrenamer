@@ -1,8 +1,12 @@
 package com.google.code.tvrenamer.view;
 
+import static com.google.code.tvrenamer.view.UIUtils.showMessageBox;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.ConnectException;
+import java.net.UnknownHostException;
 import java.text.Collator;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -17,6 +21,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
@@ -53,7 +58,6 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.gjt.sp.util.IOUtilities;
 
 import com.google.code.tvrenamer.controller.TVRenamer;
 import com.google.code.tvrenamer.controller.XMLPersistence;
@@ -71,8 +75,8 @@ import com.google.code.tvrenamer.model.util.Constants.SWTMessageBoxType;
 public class UIStarter {
 	private static Logger logger = Logger.getLogger(UIStarter.class.getName());
 	private UserPreferences prefs = null;
-	private ExecutorService executor = Executors.newSingleThreadExecutor();
-	private ExecutorService threadPool = Executors.newCachedThreadPool();
+	private final ExecutorService executor = Executors.newSingleThreadExecutor();
+	private final ExecutorService threadPool = Executors.newCachedThreadPool();
 
 	private Display display;
 	private static Shell shell;
@@ -182,8 +186,8 @@ public class UIStarter {
 		Menu fileMenu = new Menu(shell, SWT.DROP_DOWN);
 		fileMenuHeader.setMenu(fileMenu);
 
-		MenuItem filePerferencesItem = new MenuItem(fileMenu, SWT.PUSH);
-		filePerferencesItem.setText("&Perferences");
+		MenuItem filePreferencesItem = new MenuItem(fileMenu, SWT.PUSH);
+		filePreferencesItem.setText("&Preferences");
 
 		MenuItem fileExitItem = new MenuItem(fileMenu, SWT.PUSH);
 		fileExitItem.setText("E&xit");
@@ -200,7 +204,7 @@ public class UIStarter {
 		MenuItem helpAboutItem = new MenuItem(helpMenu, SWT.PUSH);
 		helpAboutItem.setText("&About");
 
-		filePerferencesItem.addSelectionListener(new SelectionAdapter() {
+		filePreferencesItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
 				showPreferencesPane();
@@ -445,17 +449,13 @@ public class UIStarter {
 			doCleanup();
 		} catch (IllegalArgumentException argumentException) {
 			String message = "Drag and Drop is not currently supported on your operating system, please use the 'Browse Files' option above";
-			// showMessageBox(Constants.ERROR, message);
-			// display.dispose();
-			System.out.println(argumentException.getMessage() + " exception: " + message);
-			argumentException.printStackTrace();
+			logger.log(Level.SEVERE, message, argumentException);
 			JOptionPane.showMessageDialog(null, message);
-			// launch();
 			System.exit(1);
 		} catch (Exception exception) {
 			String message = "An error occoured, please check your internet connection, java version or run from the command line to show errors";
-			showMessageBox(SWTMessageBoxType.ERROR, message);
-			exception.printStackTrace();
+			showMessageBox(shell, SWTMessageBoxType.ERROR, "Error", message);
+			logger.log(Level.SEVERE, message, exception);
 		}
 	}
 
@@ -476,7 +476,13 @@ public class UIStarter {
 					Callable<Boolean> showFetcher = new Callable<Boolean>() {
 						@Override
 						public Boolean call() throws Exception {
-							ShowStore.addShow(showName);
+							try {
+								ShowStore.addShow(showName);
+							} catch (ConnectException ce) {
+								handleNoInternet(ce);
+							} catch (UnknownHostException uhe) {
+								handleNoInternet(uhe);
+							}
 							return true;
 						}
 					};
@@ -561,7 +567,7 @@ public class UIStarter {
 
 				if (newFile.exists() && !newName.equals(currentName)) {
 					String message = "File " + newFile + " already exists.\n" + currentFile + " was not renamed!";
-					showMessageBox(SWTMessageBoxType.QUESTION, message);
+					showMessageBox(shell, SWTMessageBoxType.QUESTION, "Question", message);
 				} else {
 //					final long length = currentFile.length();
 //					
@@ -741,37 +747,19 @@ public class UIStarter {
 		msgSuccess.open();
 	}
 
+	/**
+	 * Create the 'About' dialog.
+	 */
 	private void showAboutPane() {
-		MessageBox msgSuccess = new MessageBox(shell, SWT.OK);
-		msgSuccess.setMessage("TVRenamer is a Java GUI utility to rename tv episodes from tv listings");
-		msgSuccess.open();
+		AboutMessageDialog aboutDialog = new AboutMessageDialog(shell);
+		aboutDialog.open();
 	}
 
-	public static void showMessageBox(SWTMessageBoxType type, String message) {
-		int swtIconValue = -1;
-
-		switch (type) {
-			case QUESTION:
-				swtIconValue = SWT.ICON_QUESTION;
-				break;
-			case MESSAGE:
-				swtIconValue = SWT.ICON_INFORMATION;
-				break;
-			case WARNING:
-				swtIconValue = SWT.ICON_WARNING;
-				break;
-			case ERROR:
-				swtIconValue = SWT.ICON_ERROR;
-				break;
-			case OK:
-				// Intentional missing break
-			default:
-				swtIconValue = SWT.OK;
-		}
-
-		logger.info("swtIconValue: " + swtIconValue);
-		MessageBox msgSuccess = new MessageBox(shell, swtIconValue);
-		msgSuccess.setMessage(message);
-		msgSuccess.open();
+	private void handleNoInternet(Exception exception) {
+		String message = "Unable connect to the TV listing website, please check your internet connection.  "
+			+ "\nNote that proxies are not currently supported.";
+		logger.log(Level.WARNING, message, exception);
+		showMessageBox(shell, SWTMessageBoxType.ERROR, "Error", message);
 	}
+
 }

@@ -8,7 +8,7 @@ import com.google.code.tvrenamer.model.Show;
 public class TVRageProviderTest {
 
 	@Test
-	public void testGetShowOptions() {
+	public void testGetShowOptions() throws Exception {
 		for (Show show : TVRageProvider.getShowOptions("Gossip Girl")) {
 			System.out.println(show.getId() + " -> " + show.getName());
 		}
