@@ -1,9 +1,9 @@
 package com.google.code.tvrenamer.view;
 
+import static com.google.code.tvrenamer.view.UIUtils.handleNoConnection;
 import static com.google.code.tvrenamer.view.UIUtils.showMessageBox;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.ConnectException;
 import java.net.UnknownHostException;
@@ -50,7 +50,6 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Shell;
@@ -60,7 +59,6 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 import com.google.code.tvrenamer.controller.TVRenamer;
-import com.google.code.tvrenamer.controller.XMLPersistence;
 import com.google.code.tvrenamer.controller.util.FileUtilities;
 import com.google.code.tvrenamer.controller.util.StringUtils;
 import com.google.code.tvrenamer.model.FileEpisode;
@@ -74,7 +72,7 @@ import com.google.code.tvrenamer.model.util.Constants.SWTMessageBoxType;
 
 public class UIStarter {
 	private static Logger logger = Logger.getLogger(UIStarter.class.getName());
-	private UserPreferences prefs = null;
+	private final UserPreferences prefs = null;
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 	private final ExecutorService threadPool = Executors.newCachedThreadPool();
 
@@ -100,9 +98,10 @@ public class UIStarter {
 	}
 
 	private void init() {
-		// Set up environment
-		loadPreferences();
+		// load preferences
+		UserPreferences.loadPreferences();
 
+		// Setup display and shell
 		GridLayout gridLayout = new GridLayout(4, false);
 		Display.setAppName(Constants.APPLICATION_NAME);
 		display = new Display();
@@ -111,6 +110,11 @@ public class UIStarter {
 		shell.setText(Constants.APPLICATION_NAME);
 		shell.setLayout(gridLayout);
 
+		// Setup the util class
+		@SuppressWarnings("unused")
+		UIUtils uiUtils = new UIUtils(shell);
+
+		// Add controls to main shell
 		setupBrowseDialog();
 		setupResultsTable();
 		setupTableDragDrop();
@@ -403,28 +407,6 @@ public class UIStarter {
 		}
 	}
 
-	private void loadPreferences() {
-		File prefsFile = new File(System.getProperty("user.dir") + Constants.FILE_SEPARATOR
-			+ Constants.PREFERENCES_FILE);
-		try {
-			prefs = XMLPersistence.retrieve(prefsFile);
-		} catch (IOException e) {
-			// failed to load, revert to in-memory
-			try {
-				prefs = new UserPreferences();
-				XMLPersistence.persist(prefs, prefsFile);
-			} catch (IOException e1) {
-				// either failed to create (no moving),
-				// or failed to save (in-memory prefs only)
-				e1.printStackTrace();
-			}
-			e.printStackTrace();
-		}
-		if (prefs != null) {
-			logger.info("Initialised: " + prefs.toString());
-		}
-	}
-
 	private void launch() {
 		Display display = null;
 		try {
@@ -454,7 +436,7 @@ public class UIStarter {
 			System.exit(1);
 		} catch (Exception exception) {
 			String message = "An error occoured, please check your internet connection, java version or run from the command line to show errors";
-			showMessageBox(shell, SWTMessageBoxType.ERROR, "Error", message);
+			showMessageBox(SWTMessageBoxType.ERROR, "Error", message);
 			logger.log(Level.SEVERE, message, exception);
 		}
 	}
@@ -479,9 +461,9 @@ public class UIStarter {
 							try {
 								ShowStore.addShow(showName);
 							} catch (ConnectException ce) {
-								handleNoInternet(ce);
+								handleNoConnection(ce);
 							} catch (UnknownHostException uhe) {
-								handleNoInternet(uhe);
+								handleNoConnection(uhe);
 							}
 							return true;
 						}
@@ -567,7 +549,7 @@ public class UIStarter {
 
 				if (newFile.exists() && !newName.equals(currentName)) {
 					String message = "File " + newFile + " already exists.\n" + currentFile + " was not renamed!";
-					showMessageBox(shell, SWTMessageBoxType.QUESTION, "Question", message);
+					showMessageBox(SWTMessageBoxType.QUESTION, "Question", message);
 				} else {
 //					final long length = currentFile.length();
 //					
@@ -688,7 +670,7 @@ public class UIStarter {
 		String title = season.getTitle(episode.getEpisodeNumber());
 		titleString = StringUtils.sanitiseTitle(title);
 
-		String newFilename = Constants.DEFAULT_FORMAT_STRING;
+		String newFilename = Constants.DEFAULT_REPLACEMENT_MASK;
 		newFilename = newFilename.replaceAll("%S", showName);
 		newFilename = newFilename.replaceAll("%s", seasonNum);
 		newFilename = newFilename.replaceAll("%e", new DecimalFormat("00").format(episode.getEpisodeNumber()));
@@ -742,9 +724,8 @@ public class UIStarter {
 	}
 
 	private void showPreferencesPane() {
-		MessageBox msgSuccess = new MessageBox(shell, SWT.OK);
-		msgSuccess.setMessage("Preferences Pane placeholder");
-		msgSuccess.open();
+		PreferencesDialog preferencesDialog = new PreferencesDialog(shell);
+		preferencesDialog.open();
 	}
 
 	/**
@@ -754,12 +735,4 @@ public class UIStarter {
 		AboutMessageDialog aboutDialog = new AboutMessageDialog(shell);
 		aboutDialog.open();
 	}
-
-	private void handleNoInternet(Exception exception) {
-		String message = "Unable connect to the TV listing website, please check your internet connection.  "
-			+ "\nNote that proxies are not currently supported.";
-		logger.log(Level.WARNING, message, exception);
-		showMessageBox(shell, SWTMessageBoxType.ERROR, "Error", message);
-	}
-
 }

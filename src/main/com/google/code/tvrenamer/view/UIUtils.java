@@ -4,6 +4,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
@@ -13,23 +14,34 @@ import com.google.code.tvrenamer.model.util.Constants.SWTMessageBoxType;
 public class UIUtils {
 
 	private static Logger logger = Logger.getLogger(UIStarter.class.getName());
+	private static Shell shell;
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param shell
+	 *            the shell to use.
+	 */
+	public UIUtils(Shell shell) {
+		UIUtils.shell = shell;
+	}
 
 	/**
 	 * Determine the system default font
 	 * 
 	 * @param shell
 	 *            the shell to get the font from
-	 * @return the name of the system default font
+	 * @return the system default font
 	 */
-	public static String getDefaultSystemFont(Shell shell) {
-		String fontName = "";
+	public static FontData getDefaultSystemFont() {
+		FontData defaultFont = null;
 		try {
-			fontName = shell.getDisplay().getSystemFont().getFontData()[0].getName();
+			defaultFont = shell.getDisplay().getSystemFont().getFontData()[0];
 		} catch (Exception e) {
 			logger.log(Level.WARNING, "Error attempting to determine system default font", e);
 		}
 
-		return fontName;
+		return defaultFont;
 	}
 
 	/**
@@ -42,8 +54,7 @@ public class UIUtils {
 	 * @param title
 	 *            the window title
 	 */
-	public static void showMessageBox(final Shell shell, final SWTMessageBoxType type, final String title,
-		final String message) {
+	public static void showMessageBox(final SWTMessageBoxType type, final String title, final String message) {
 		final int swtIconValue;
 
 		switch (type) {
@@ -74,5 +85,12 @@ public class UIUtils {
 				msgBox.open();
 			}
 		});
+	}
+
+	public static void handleNoConnection(Exception exception) {
+		String message = "Unable connect to the TV listing website, please check your internet connection.  "
+			+ "\nNote that proxies are not currently supported.";
+		logger.log(Level.WARNING, message, exception);
+		showMessageBox(SWTMessageBoxType.ERROR, "Error", message);
 	}
 }

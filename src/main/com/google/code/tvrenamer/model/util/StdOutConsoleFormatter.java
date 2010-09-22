@@ -27,8 +27,8 @@ public class StdOutConsoleFormatter extends Formatter {
 			buffer.append(rec.getLevel() + " ");
 		}
 
-		// Class, method
-		buffer.append(rec.getSourceClassName() + "#");
+		// Class name (not package), method name
+		buffer.append(rec.getSourceClassName().substring(rec.getSourceClassName().lastIndexOf(".") + 1) + "#");
 		buffer.append(rec.getSourceMethodName() + " ");
 
 		// Message

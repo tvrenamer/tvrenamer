@@ -33,8 +33,6 @@ public class AboutMessageDialog extends Dialog {
 	private static final String GOOGLE_CODE_URL = "http://tv-renamer.googlecode.com";
 	private static Shell aboutShell;
 
-	private static String defaultFont;
-
 	/**
 	 * AboutMessageDialog constructor
 	 * 
@@ -49,8 +47,6 @@ public class AboutMessageDialog extends Dialog {
 		// Create the dialog window
 		aboutShell = new Shell(getParent(), getStyle());
 		aboutShell.setText("About TVRenamer");
-
-		defaultFont = getDefaultSystemFont(aboutShell);
 
 		// Add the contents of the dialog window
 		createContents();
@@ -67,15 +63,6 @@ public class AboutMessageDialog extends Dialog {
 
 	/**
 	 * Creates the dialog's contents.
-	 * 
-	 * <p>
-	 * As the SWT javadoc does not include argument names, the constructor args are:
-	 * </p>
-	 * <ul>
-	 * <li><code>GridData(int horizontalAlignment, int verticalAlignment, boolean grabExcessHorizontalSpace, boolean
-	 * grabExcessVerticalSpace)</code></li>
-	 * <li><code>GridLayout(int numColumns, boolean makeColumnsEqualWidth)</code></li>
-	 * </ul>
 	 * 
 	 * @param aboutShell
 	 *            the dialog window
@@ -105,14 +92,14 @@ public class AboutMessageDialog extends Dialog {
 		}
 
 		Label applicationLabel = new Label(aboutShell, SWT.NONE);
-		Font applicationFont = new Font(aboutShell.getDisplay(), defaultFont, 14, SWT.BOLD);
-		applicationLabel.setFont(applicationFont);
+		applicationLabel.setFont(new Font(aboutShell.getDisplay(), getDefaultSystemFont().getName(),
+			getDefaultSystemFont().getHeight() + 4, SWT.BOLD));
 		applicationLabel.setText(Constants.APPLICATION_NAME);
 		applicationLabel.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true));
 
 		Label versionLabel = new Label(aboutShell, SWT.NONE);
-		Font versionFont = new Font(aboutShell.getDisplay(), defaultFont, 10, SWT.BOLD);
-		versionLabel.setFont(versionFont);
+		versionLabel.setFont(new Font(aboutShell.getDisplay(), getDefaultSystemFont().getName(), getDefaultSystemFont()
+			.getHeight() + 2, SWT.BOLD));
 		versionLabel.setText("Version: " + Constants.VERSION_NUMBER);
 		versionLabel.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true));
 
@@ -176,8 +163,7 @@ public class AboutMessageDialog extends Dialog {
 		updateCheckButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
-				UIUtils.showMessageBox(aboutShell, SWTMessageBoxType.ERROR, "Error",
-									   "This operation is not currently supported");
+				UIUtils.showMessageBox(SWTMessageBoxType.ERROR, "Error", "This operation is not currently supported");
 			}
 		});
 

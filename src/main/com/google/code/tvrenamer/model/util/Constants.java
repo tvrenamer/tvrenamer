@@ -18,7 +18,7 @@ public class Constants {
 
 	public static final String FILE_SEPARATOR = System.getProperty("file.separator");
 
-	public static final String DEFAULT_FORMAT_STRING = "%S [%sx%e] %t";
+	public static final String DEFAULT_REPLACEMENT_MASK = "%S [%sx%e] %t";
 
 	public static final String DEFAULT_DESTINATION_DIRECTORY = "/Users/vipul/TV";
 
