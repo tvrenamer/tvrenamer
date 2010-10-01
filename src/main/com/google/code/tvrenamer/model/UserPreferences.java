@@ -2,6 +2,7 @@ package com.google.code.tvrenamer.model;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.code.tvrenamer.controller.XMLPersistence;
@@ -17,47 +18,53 @@ public class UserPreferences {
 	private String seasonPrefix;
 	private boolean moveEnabled = true;
 	private String renameReplacementMask;
+	private static File prefsFile = new File(System.getProperty("user.dir") + Constants.FILE_SEPARATOR
+		+ Constants.PREFERENCES_FILE);
 
-	public static UserPreferences INSTANCE = new UserPreferences();
-
-	/**
-	 * Private singleton constructor.
-	 */
-	private UserPreferences() {
+	public UserPreferences() throws TVRenamerIOException {
 		this.destDir = new File(Constants.DEFAULT_DESTINATION_DIRECTORY);
 		this.seasonPrefix = Constants.DEFAULT_SEASON_PREFIX;
 		this.renameReplacementMask = Constants.DEFAULT_REPLACEMENT_MASK;
-		ensurePath();
-	}
 
-	public static UserPreferences getInstance() {
-		return INSTANCE;
+		ensurePath();
 	}
 
 	/**
 	 * Load preferences from xml file
 	 */
-	public static void loadPreferences() {
-		File prefsFile = new File(System.getProperty("user.dir") + Constants.FILE_SEPARATOR
-			+ Constants.PREFERENCES_FILE);
+	public static UserPreferences load() {
+		UserPreferences prefs = null;
+
 		try {
 			// retrieve from file and update in-memory copy
-			INSTANCE = XMLPersistence.retrieve(prefsFile);
+			prefs = XMLPersistence.retrieve(prefsFile);
 		} catch (IOException e) {
 			// failed to load, revert to in-memory
 			try {
-				INSTANCE = UserPreferences.getInstance();
-				XMLPersistence.persist(INSTANCE, prefsFile);
+				prefs = new UserPreferences();
+				XMLPersistence.persist(prefs, prefsFile);
 			} catch (IOException e1) {
 				// either failed to create (no moving),
 				// or failed to save (in-memory prefs only)
-				e1.printStackTrace();
+				logger.log(Level.WARNING, "Failed to store preferences", e1);
 			}
-			e.printStackTrace();
+			logger.log(Level.WARNING, "Failed to load preferences", e);
 		}
-		if (INSTANCE != null) {
-			logger.info("Initialised: " + INSTANCE.toString());
+
+		if (prefs != null) {
+			logger.info("Initialised: " + prefs.toString());
 		}
+
+		return prefs;
+	}
+
+	public void store() {
+		try {
+			XMLPersistence.persist(this, prefsFile);
+		} catch (IOException e) {
+			logger.log(Level.WARNING, "Failed to store preferences", e);
+		}
+		logger.fine("Sucessfully saved/updated preferences");
 	}
 
 	/**

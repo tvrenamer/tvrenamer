@@ -99,7 +99,7 @@ public class UIStarter {
 
 	private void init() {
 		// load preferences
-		UserPreferences.loadPreferences();
+		UserPreferences.load();
 
 		// Setup display and shell
 		GridLayout gridLayout = new GridLayout(4, false);
