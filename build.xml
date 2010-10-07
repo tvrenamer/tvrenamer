@@ -38,7 +38,7 @@
 		<sequential>
 			<mkdir dir="${build}/@{platform}" />
 
-			<javac srcdir="${src.main}" destdir="${build}" classpathref="swt.classpath" source="1.5" />
+			<javac srcdir="${src.main}" destdir="${build}" classpathref="swt.classpath" source="1.5" target="1.5" />
 
 			<jar destfile="${build}/@{platform}/tvrenamer.jar" filesetmanifest="mergewithoutmain">
 				<manifest>
