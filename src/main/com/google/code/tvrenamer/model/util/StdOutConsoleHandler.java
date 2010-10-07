@@ -7,8 +7,8 @@ import java.util.logging.LogRecord;
 import java.util.logging.StreamHandler;
 
 /**
- * A {@link StreamHandler} implementation that logs messages to <code>stdout</code>.
- * The standard {@link ConsoleHandler} cannot be used because that logs to <code>stdout</code>.
+ * A {@link StreamHandler} implementation that logs messages to <code>stdout</code>. The standard {@link ConsoleHandler}
+ * cannot be used because that logs to <code>stdout</code>.
  * 
  * @author Dave Harris
  */

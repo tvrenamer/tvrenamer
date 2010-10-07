@@ -135,17 +135,22 @@
 	</target>
 
 	<target name="dist.all" depends="clean, init, dist.win, dist.linux, dist.osx" />
-
-	<target name="clean">
-		<clean />
+	
+	<target name="cocoaUIEnhancer.lib" depends="clean">
+		<javac srcdir="${res}/code/" destdir="${build}" source="1.5" target="1.5">
+		</javac>
+    <jar destfile="${lib}/CocoaUIEnhancer.jar">
+      <manifest>
+        <attribute name="Built-By" value="http://www.transparentech.com/opensource/cocoauienhancer" />
+      </manifest>
+      <fileset file="${build}/CocoaUIEnhancer.class" />
+    </jar>
 	</target>
 
-	<macrodef name="clean">
-		<sequential>
-			<delete includeemptydirs="true" failonerror="false">
-				<fileset dir="${build}" includes="**/*" />
-			</delete>
-		</sequential>
-	</macrodef>
+	<target name="clean">
+		<delete includeemptydirs="true" failonerror="false">
+		  <fileset dir="${build}" includes="**/*" />
+		</delete>
+	</target>
 
 </project>

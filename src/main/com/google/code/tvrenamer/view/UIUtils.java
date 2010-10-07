@@ -77,7 +77,6 @@ public class UIUtils {
 		}
 
 		Display.getDefault().syncExec(new Runnable() {
-			@Override
 			public void run() {
 				MessageBox msgBox = new MessageBox(shell, swtIconValue);
 				msgBox.setText(title);
@@ -92,5 +91,12 @@ public class UIUtils {
 			+ "\nNote that proxies are not currently supported.";
 		logger.log(Level.WARNING, message, exception);
 		showMessageBox(SWTMessageBoxType.ERROR, "Error", message);
+	}
+
+	public static boolean isMac() {
+		if (System.getProperty("os.name").equals("Mac OS X")) {
+			return true;
+		}
+		return false;
 	}
 }

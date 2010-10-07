@@ -27,8 +27,7 @@ import com.google.code.tvrenamer.model.Season;
 import com.google.code.tvrenamer.model.Show;
 
 /**
- * This class encapsulates the interactions between the application and the
- * TVRage XML Feeds
+ * This class encapsulates the interactions between the application and the TVRage XML Feeds
  * 
  * @author Vipul Delwadia
  * @author Dave Harris
@@ -54,14 +53,12 @@ public class TVRageProvider {
 	}
 
 	/**
-	 * Uses the TVRage search tool to retrieve a list of possible shows based on
-	 * the show name. The list returned is in the order returned by the TVRage
-	 * search.
+	 * Uses the TVRage search tool to retrieve a list of possible shows based on the show name. The list returned is in
+	 * the order returned by the TVRage search.
 	 * 
 	 * @param showName
 	 *            the show to search for
-	 * @return a list of matching shows in the order returned by the TVRage
-	 *         search.
+	 * @return a list of matching shows in the order returned by the TVRage search.
 	 * @throws ConnectException
 	 *             thrown when we are connected to <strong>a</strong> network, but cannot connect to remote host, maybe
 	 *             offline or behind a proxy
@@ -131,8 +128,7 @@ public class TVRageProvider {
 	}
 
 	/**
-	 * Uses the TVRage episode listings to populate the Show object with Season
-	 * and Episode Data
+	 * Uses the TVRage episode listings to populate the Show object with Season and Episode Data
 	 * 
 	 * @param show
 	 *            the Show object to populate with season and episode data

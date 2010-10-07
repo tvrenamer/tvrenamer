@@ -1,6 +1,5 @@
 package com.google.code.tvrenamer.view;
 
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
 import org.eclipse.swt.widgets.Display;
@@ -12,42 +11,38 @@ public class FileCopyMonitor implements ProgressObserver {
 	private final ProgressBar progressBar;
 	private final long progressBarMaximum;
 	private int loopCount = 0;
-	private final NumberFormat format = DecimalFormat.getPercentInstance();
+	private final NumberFormat format = NumberFormat.getPercentInstance();
 
 	public FileCopyMonitor(ProgressBar progressBar, long maximum, int progressBarMaximum) {
 		this.progressBar = progressBar;
 		this.progressBarMaximum = progressBarMaximum * 1L;
-		this.setMaximum(maximum);
-		this.setValue(0);
+		setMaximum(maximum);
+		setValue(0);
 		format.setMaximumFractionDigits(1);
 	}
 
-	@Override
 	public void setValue(final long value) {
-		if ((loopCount++ % 1000) == 0) {
+		if (loopCount++ % 1000 == 0) {
 			Display.getDefault().asyncExec(new Runnable() {
-				@Override
 				public void run() {
 					if (progressBar.isDisposed()) {
 						return;
 					}
-					double partial = (value * FileCopyMonitor.this.progressBarMaximum);
-					progressBar.setSelection((int) (partial / FileCopyMonitor.this.maximum));
-					progressBar.setToolTipText(format.format(partial / (100 * (double) FileCopyMonitor.this.maximum)));
+					double partial = value * progressBarMaximum;
+					progressBar.setSelection((int) (partial / maximum));
+					progressBar.setToolTipText(format.format(partial / (100 * (double) maximum)));
 				}
 			});
 		}
 	}
 
-	@Override
 	public void setMaximum(long value) {
-		this.maximum = value;
+		maximum = value;
 	}
 
-	@Override
+
 	public void setStatus(final String status) {
 		Display.getDefault().asyncExec(new Runnable() {
-			@Override
 			public void run() {
 				if (progressBar.isDisposed()) {
 					return;

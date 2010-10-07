@@ -113,7 +113,7 @@ public class PreferencesDialog extends Dialog {
 		moveEnabledCombo = new Combo(moveGroup, SWT.READ_ONLY | SWT.BORDER);
 		moveEnabledCombo.add("false", 0);
 		moveEnabledCombo.add("true", 1);
-		moveEnabledCombo.select((prefs.isMovedEnabled()) ? 1 : 0);
+		moveEnabledCombo.select(prefs.isMovedEnabled() ? 1 : 0);
 		moveEnabledCombo.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 2, 1));
 
 		Label destDirLabel = new Label(moveGroup, SWT.NONE);
@@ -128,7 +128,6 @@ public class PreferencesDialog extends Dialog {
 		final Button destDirButton = new Button(moveGroup, SWT.PUSH);
 		destDirButton.setText("Select a directory");
 		destDirButton.addListener(SWT.Selection, new Listener() {
-			@Override
 			public void handleEvent(Event event) {
 				DirectoryDialog directoryDialog = new DirectoryDialog(preferencesShell);
 

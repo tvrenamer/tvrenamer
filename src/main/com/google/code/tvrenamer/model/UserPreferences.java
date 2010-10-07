@@ -68,8 +68,8 @@ public class UserPreferences {
 	}
 
 	/**
-	 * Sets the directory to move renamed files to. Must be an absolute path,
-	 * and the entire path will be created if it doesn't exist.
+	 * Sets the directory to move renamed files to. Must be an absolute path, and the entire path will be created if it
+	 * doesn't exist.
 	 * 
 	 * @param dir
 	 * @return True if the path was created successfully, false otherwise.
@@ -80,8 +80,7 @@ public class UserPreferences {
 	}
 
 	/**
-	 * Sets the directory to move renamed files to. The entire path will be
-	 * created if it doesn't exist.
+	 * Sets the directory to move renamed files to. The entire path will be created if it doesn't exist.
 	 * 
 	 * @param dir
 	 * @return True if the path was created successfully, false otherwise.

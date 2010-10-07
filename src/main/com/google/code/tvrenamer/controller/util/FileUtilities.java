@@ -22,10 +22,9 @@ public class FileUtilities {
 	/**
 	 * Moves the source file to the destination.
 	 * 
-	 * If the destination cannot be created or is a read-only file, the
-	 * method returns <code>false</code>. Otherwise, the contents of the
-	 * source are copied to the destination, the source is deleted,
-	 * and <code>true</code> is returned.
+	 * If the destination cannot be created or is a read-only file, the method returns <code>false</code>. Otherwise,
+	 * the contents of the source are copied to the destination, the source is deleted, and <code>true</code> is
+	 * returned.
 	 * 
 	 * @param source
 	 *            The source file to move.
