@@ -46,8 +46,14 @@
 					<attribute name="Main-Class" value="${jar.mainClass}" />
 				</manifest>
 				<fileset dir="${build}" />
-				<fileset dir="${res}" />
-				<zipgroupfileset dir="${lib}" includes="swt-@{platform}*.jar xstream*.jar jedit-*-IOUtilities.jar" />
+				<fileset dir="${res}">
+					<!--exclude name="**/oldschool-tv-icon.ico"/-->
+				</fileset>
+				<zipgroupfileset dir="${lib}">
+					<include name="swt-@{platform}*.jar" />
+					<include name="xstream-*.jar" />
+					<include name="jedit-*-IOUtilities.jar" />
+				</zipgroupfileset>
 			</jar>
 		</sequential>
 	</macrodef>
@@ -83,8 +89,7 @@
 
 			<copy file="${etc}/Info.plist" todir="${build}/@{platform}/${rel.name}.app/Contents/" />
 			<copy file="${etc}/run-scripts/run-mac.sh" todir="${build}/@{platform}/${rel.name}.app/Contents/MacOS" />
-			<move file="${build}/@{platform}/tvrenamer.jar"
-			      todir="${build}/@{platform}/${rel.name}.app/Contents/MacOS" />
+			<move file="${build}/@{platform}/tvrenamer.jar" todir="${build}/@{platform}/${rel.name}.app/Contents/MacOS" />
 			<chmod file="${build}/@{platform}/${rel.name}.app/Contents/MacOS/run-mac.sh" perm="+x" />
 			<copy file="${res}/icons/tvrenamer.icns" todir="${build}/@{platform}/${rel.name}.app/Contents/Resources" />
 			<copy file="${etc}/LICENSE" todir="${build}/@{platform}/${rel.name}.app" />
@@ -150,6 +155,7 @@
 	<target name="clean">
 		<delete includeemptydirs="true" failonerror="false">
 		  <fileset dir="${build}" includes="**/*" />
+			<fileset dir="${dist}" includes="**/*" />
 		</delete>
 	</target>
 

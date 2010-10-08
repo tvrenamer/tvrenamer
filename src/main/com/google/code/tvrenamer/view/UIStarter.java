@@ -43,6 +43,7 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -112,8 +113,7 @@ public class UIStarter {
 		shell.setLayout(gridLayout);
 
 		// Setup the util class
-		@SuppressWarnings("unused")
-		UIUtils uiUtils = new UIUtils(shell);
+		new UIUtils(shell);
 
 		// Add controls to main shell
 		setupBrowseDialog();
@@ -150,6 +150,7 @@ public class UIStarter {
 		}
 
 		btnRenameSelected.addSelectionListener(new SelectionAdapter() {
+
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				renameFiles();
@@ -157,6 +158,7 @@ public class UIStarter {
 		});
 
 		btnQuit.addSelectionListener(new SelectionAdapter() {
+
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				doCleanup();
@@ -174,8 +176,8 @@ public class UIStarter {
 	private void setupMoveButton(Button button) {
 		button.setText("Move Selected");
 		button
-		.setToolTipText("Clicking this button will rename and move the selected files to the directory set in preferences (currently "
-		                + prefs.getDestinationDirectory().getAbsolutePath() + ").");
+			.setToolTipText("Clicking this button will rename and move the selected files to the directory set in preferences (currently "
+				+ prefs.getDestinationDirectory().getAbsolutePath() + ").");
 	}
 
 	private void setupRenameButton(Button button) {
@@ -185,14 +187,15 @@ public class UIStarter {
 
 	private void setupMenuBar() {
 		Menu menuBar = new Menu(shell, SWT.BAR);
+		Menu helpMenu;
 
-		Listener showPreferencesListener = new Listener() {
+		Listener preferencesListener = new Listener() {
 			public void handleEvent(Event arg0) {
 				showPreferencesPane();
 			}
 		};
 
-		Listener showAboutListener = new Listener() {
+		Listener aboutListener = new Listener() {
 			public void handleEvent(Event arg0) {
 				showAboutPane();
 			}
@@ -204,41 +207,60 @@ public class UIStarter {
 			}
 		};
 
-		MenuItem helpMenuHeader = new MenuItem(menuBar, SWT.CASCADE);
-		helpMenuHeader.setText("Help");
-
-		Menu helpMenu = new Menu(shell, SWT.DROP_DOWN);
-		helpMenuHeader.setMenu(helpMenu);
-
-		MenuItem helpGetHelpItem = new MenuItem(helpMenu, SWT.PUSH);
-		helpGetHelpItem.setText(Constants.APPLICATION_NAME + " Help");
-
 		if (isMac()) {
 			// Add the special Mac OSX Preferences, About and Quit menus.
 			CocoaUIEnhancer enhancer = new CocoaUIEnhancer(Constants.APPLICATION_NAME);
-			enhancer.hookApplicationMenu(shell.getDisplay(), quitListener, showAboutListener, showPreferencesListener);
+			enhancer.hookApplicationMenu(shell.getDisplay(), quitListener, aboutListener, preferencesListener);
+
+			setupHelpMenuBar(menuBar);
 		} else {
 			// Add the normal Preferences, About and Quit menus.
 			MenuItem fileMenuHeader = new MenuItem(menuBar, SWT.CASCADE);
-			fileMenuHeader.setText("&File");
+			fileMenuHeader.setText("File");
 
 			Menu fileMenu = new Menu(shell, SWT.DROP_DOWN);
 			fileMenuHeader.setMenu(fileMenu);
 
 			MenuItem filePreferencesItem = new MenuItem(fileMenu, SWT.PUSH);
 			filePreferencesItem.setText("Preferences");
-			filePreferencesItem.addListener(SWT.Selection, showPreferencesListener);
+			filePreferencesItem.addListener(SWT.Selection, preferencesListener);
 
 			MenuItem fileExitItem = new MenuItem(fileMenu, SWT.PUSH);
 			fileExitItem.setText("Exit");
 			fileExitItem.addListener(SWT.Selection, quitListener);
 
+			helpMenu = setupHelpMenuBar(menuBar);
+
+			// The About item is added to the OSX bar, so we need to add it manually here
 			MenuItem helpAboutItem = new MenuItem(helpMenu, SWT.PUSH);
 			helpAboutItem.setText("About");
-			helpAboutItem.addListener(SWT.Selection, showAboutListener);
+			helpAboutItem.addListener(SWT.Selection, aboutListener);
 		}
 
 		shell.setMenuBar(menuBar);
+	}
+
+	private Menu setupHelpMenuBar(Menu menuBar) {
+		MenuItem helpMenuHeader = new MenuItem(menuBar, SWT.CASCADE);
+		helpMenuHeader.setText("Help");
+
+		Menu helpMenu = new Menu(shell, SWT.DROP_DOWN);
+		helpMenuHeader.setMenu(helpMenu);
+
+		MenuItem helpHelpItem = new MenuItem(helpMenu, SWT.PUSH);
+		helpHelpItem.setText("Help");
+
+		MenuItem helpVisitWebpageItem = new MenuItem(helpMenu, SWT.PUSH);
+		helpVisitWebpageItem.setText("Visit Webpage");
+		helpVisitWebpageItem.addSelectionListener(new SelectionAdapter() {
+
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				Program.launch(AboutDialog.GOOGLE_CODE_URL);
+			}
+		});
+
+		return helpMenu;
 	}
 
 	private void setupBrowseDialog() {
@@ -247,6 +269,7 @@ public class UIStarter {
 		btnBrowse.setText("Browse files...");
 
 		btnBrowse.addSelectionListener(new SelectionAdapter() {
+
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 
@@ -295,7 +318,7 @@ public class UIStarter {
 		editor.grabHorizontal = true;
 
 // colIdx.addSelectionListener(new SelectionAdapter() {
-// @Override
+// 
 // public void widgetSelected(SelectionEvent e) {
 // tblResults.setSortDirection(tblResults.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN);
 // sortTable(colIdx, 1);
@@ -304,6 +327,7 @@ public class UIStarter {
 // });
 
 		colSrc.addSelectionListener(new SelectionAdapter() {
+
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				tblResults.setSortDirection(tblResults.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN);
@@ -313,6 +337,7 @@ public class UIStarter {
 		});
 
 		colDest.addSelectionListener(new SelectionAdapter() {
+
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				tblResults.setSortDirection(tblResults.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN);
@@ -322,6 +347,7 @@ public class UIStarter {
 		});
 
 		Listener tblEditListener = new Listener() {
+
 			public void handleEvent(Event event) {
 				Rectangle clientArea = tblResults.getClientArea();
 				Point pt = new Point(event.x, event.y);
@@ -335,6 +361,7 @@ public class UIStarter {
 							final int column = i;
 							final Text text = new Text(tblResults, SWT.NONE);
 							Listener textListener = new Listener() {
+
 								@SuppressWarnings("fallthrough")
 								public void handleEvent(final Event e) {
 									switch (e.type) {
@@ -381,6 +408,7 @@ public class UIStarter {
 		DropTarget dt = new DropTarget(tblResults, DND.DROP_DEFAULT | DND.DROP_MOVE);
 		dt.setTransfer(new Transfer[] { FileTransfer.getInstance() });
 		dt.addDropListener(new DropTargetAdapter() {
+
 			@Override
 			public void drop(DropTargetEvent e) {
 				String fileList[] = null;
@@ -455,6 +483,7 @@ public class UIStarter {
 					showNames.add(showName);
 
 					Callable<Boolean> showFetcher = new Callable<Boolean>() {
+
 						public Boolean call() throws Exception {
 							try {
 								ShowStore.addShow(showName);
@@ -475,6 +504,7 @@ public class UIStarter {
 // lblStatus.setText("Please wait ...");
 
 		Thread thread = new Thread() {
+
 			@Override
 			public void run() {
 				final int totalNumShows = showNames.size();
@@ -485,6 +515,7 @@ public class UIStarter {
 
 					final int size = fetchers.size();
 					display.asyncExec(new Runnable() {
+
 						public void run() {
 							if (progressBarTotal.isDisposed()) {
 								return;
@@ -510,6 +541,7 @@ public class UIStarter {
 
 				// all threads should have finished by now
 				display.asyncExec(new Runnable() {
+
 					public void run() {
 						populateTable();
 						// lblStatus.setText("");
@@ -540,7 +572,7 @@ public class UIStarter {
 
 				final File newFile = new File(newFilePath);
 				logger.info("Going to move '" + currentFile.getAbsolutePath() + "' to '" + newFile.getAbsolutePath()
-				            + "'");
+					+ "'");
 
 				if (newFile.exists() && !newName.equals(currentName)) {
 					String message = "File " + newFile + " already exists.\n" + currentFile + " was not renamed!";
@@ -553,15 +585,16 @@ public class UIStarter {
 					final int progressBarInvidualMaximum = progressBarIndividual.getMaximum();
 
 					Callable<Boolean> moveCallable = new Callable<Boolean>() {
+
 						public Boolean call() {
 							if (newFile.getParentFile().exists() || newFile.getParentFile().mkdirs()) {
 								// FileUtils.copyFile(currentFile, newFile);
 								// FileUtils.moveFile(currentFile, newFile);
-								FileCopyMonitor monitor = new FileCopyMonitor(progressBarIndividual, currentFile
-								                                              .length(), progressBarInvidualMaximum);
+								FileCopyMonitor monitor = new FileCopyMonitor(progressBarIndividual,
+									currentFile.length(), progressBarInvidualMaximum);
 								boolean succeeded = FileUtilities.moveFile(currentFile, newFile, monitor, true);
 								logger.info("Moved " + currentFile.getAbsolutePath() + " to "
-								            + newFile.getAbsolutePath());
+									+ newFile.getAbsolutePath());
 
 								episode.setFile(newFile);
 								return succeeded;
@@ -578,6 +611,7 @@ public class UIStarter {
 		final int totalNumFiles = count;
 
 		Thread progressThread = new Thread(new Runnable() {
+
 			public void run() {
 				while (true) {
 					if (display.isDisposed()) {
@@ -586,6 +620,7 @@ public class UIStarter {
 
 					final int size = futures.size();
 					display.asyncExec(new Runnable() {
+
 						public void run() {
 							if (progressBarTotal.isDisposed()) {
 								return;
@@ -723,7 +758,7 @@ public class UIStarter {
 	 * Create the 'About' dialog.
 	 */
 	private void showAboutPane() {
-		AboutMessageDialog aboutDialog = new AboutMessageDialog(shell);
+		AboutDialog aboutDialog = new AboutDialog(shell);
 		aboutDialog.open();
 	}
 }

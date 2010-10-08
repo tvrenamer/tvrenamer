@@ -113,6 +113,8 @@ public class UserPreferences {
 	}
 
 	public void setSeasonPrefix(String prefix) {
+		// Remove the displayed "
+		prefix = prefix.replaceAll("\"", "");
 		this.seasonPrefix = StringUtils.sanitiseTitle(prefix);
 	}
 
@@ -120,11 +122,15 @@ public class UserPreferences {
 		return this.seasonPrefix;
 	}
 
-	public void setRenameReplacementMask(String renameReplacementMask) {
+	public String getSeasonPrefixForDisplay() {
+		return ("\"" + this.seasonPrefix + "\"");
+	}
+
+	public void setRenameReplacementString(String renameReplacementMask) {
 		this.renameReplacementMask = renameReplacementMask;
 	}
 
-	public String getRenameReplacementMask() {
+	public String getRenameReplacementString() {
 		return renameReplacementMask;
 	}
 

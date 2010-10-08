@@ -1,28 +1,29 @@
 package com.google.code.tvrenamer.view;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.HelpEvent;
+import org.eclipse.swt.events.HelpListener;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 import com.google.code.tvrenamer.model.TVRenamerIOException;
@@ -40,10 +41,10 @@ public class PreferencesDialog extends Dialog {
 	private final UserPreferences prefs;
 
 	// The controls to save
-	private Combo moveEnabledCombo;
+	private Button moveEnabledCheckbox;
 	private Text destDirText;
 	private Text seasonPrefixText;
-	private Text replacementMaskText;
+	private Text replacementStringText;
 
 	/**
 	 * PreferencesDialog constructor
@@ -110,15 +111,28 @@ public class PreferencesDialog extends Dialog {
 		moveEnabledLabel.setText("Move Enabled [?]");
 		moveEnabledLabel.setToolTipText("Whether the 'move to TV location' functionality is enabled");
 
-		moveEnabledCombo = new Combo(moveGroup, SWT.READ_ONLY | SWT.BORDER);
-		moveEnabledCombo.add("false", 0);
-		moveEnabledCombo.add("true", 1);
-		moveEnabledCombo.select(prefs.isMovedEnabled() ? 1 : 0);
-		moveEnabledCombo.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 2, 1));
+		moveEnabledCheckbox = new Button(moveGroup, SWT.CHECK);
+		moveEnabledCheckbox.setText("Move Enabled");
+		moveEnabledCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 3, 1));
 
 		Label destDirLabel = new Label(moveGroup, SWT.NONE);
 		destDirLabel.setText("Destination directory [?]");
 		destDirLabel.setToolTipText("The location of your 'TV' folder");
+
+		destDirLabel.addMouseListener(new MouseListener() {
+
+			public void mouseUp(MouseEvent e) {
+				// no-op
+			}
+
+			public void mouseDown(MouseEvent e) {
+				System.out.println("mouseDown");
+			}
+
+			public void mouseDoubleClick(MouseEvent e) {
+				// no-op
+			}
+		});
 
 		destDirText = new Text(moveGroup, SWT.BORDER);
 		destDirText.setText(prefs.getDestinationDirectory().toString());
@@ -128,6 +142,7 @@ public class PreferencesDialog extends Dialog {
 		final Button destDirButton = new Button(moveGroup, SWT.PUSH);
 		destDirButton.setText("Select a directory");
 		destDirButton.addListener(SWT.Selection, new Listener() {
+
 			public void handleEvent(Event event) {
 				DirectoryDialog directoryDialog = new DirectoryDialog(preferencesShell);
 
@@ -141,18 +156,40 @@ public class PreferencesDialog extends Dialog {
 			}
 		});
 
-		moveEnabledCombo.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				handleDestDirControl(moveEnabledCombo, destDirText, destDirButton);
+		destDirText.addKeyListener(new KeyListener() {
+
+			public void keyPressed(KeyEvent e) {
+				if (e.keyCode == SWT.F1) {
+					System.out.println("F1HelpRequested");
+				}
+			}
+
+			public void keyReleased(KeyEvent e) {
+				// no-op
 			}
 		});
 
-		handleDestDirControl(moveEnabledCombo, destDirText, destDirButton);
+		destDirText.addHelpListener(new HelpListener() {
+
+			public void helpRequested(HelpEvent e) {
+				System.out.println("helpRequested");
+			}
+		});
+
+		handleDestDirControl(moveEnabledCheckbox, destDirText, destDirButton);
+
+		moveEnabledCheckbox.addSelectionListener(new SelectionAdapter() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				handleDestDirControl(moveEnabledCheckbox, destDirText, destDirButton);
+			}
+		});
+
 	}
 
-	private void handleDestDirControl(Combo moveEnabledCombo, Text destDirText, Button destDirButton) {
-		boolean enabled = Boolean.parseBoolean(moveEnabledCombo.getText());
+	private void handleDestDirControl(Button moveEnabledCheckbox, Text destDirText, Button destDirButton) {
+		boolean enabled = moveEnabledCheckbox.getSelection();
 		logger.finer("Updating destDir controls to : " + enabled);
 		destDirText.setEnabled(enabled);
 		destDirButton.setEnabled(enabled);
@@ -169,51 +206,61 @@ public class PreferencesDialog extends Dialog {
 		Label seasonPrefixLabel = new Label(replacementGroup, SWT.NONE);
 		seasonPrefixLabel.setText("Season Prefix [?]");
 		seasonPrefixLabel
-			.setToolTipText("This is the prefix of the season when renaming and moving the file.  It is usually 'Season ' or 's'");
+			.setToolTipText("This is the prefix of the season when renaming and moving the file.  It is usually \"Season \" or \"s'\".  The \" will not be included, just displayed here to show whitespace");
 
 		seasonPrefixText = new Text(replacementGroup, SWT.BORDER);
-		seasonPrefixText.setText("[" + prefs.getSeasonPrefix() + "]");
+		seasonPrefixText.setText(prefs.getSeasonPrefixForDisplay());
 		seasonPrefixText.setTextLimit(99);
 		seasonPrefixText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true, 2, 1));
 
-		Label replacementMaskLabel = new Label(replacementGroup, SWT.NONE);
-		replacementMaskLabel.setText("Mask Options:");
+		Label replacementOptionsLabel = new Label(replacementGroup, SWT.NONE);
+		replacementOptionsLabel.setText("Rename Options:");
 
-		Table optionsTable = new Table(replacementGroup, SWT.NONE);
-		optionsTable.setLinesVisible(true);
-		optionsTable.setHeaderVisible(true);
+//		Table optionsTable = new Table(replacementGroup, SWT.NONE);
+//		optionsTable.setLinesVisible(true);
+//		optionsTable.setHeaderVisible(true);
+//
+//		optionsTable.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 2, 1));
+//
+//		TableColumn tokenColumn = new TableColumn(optionsTable, SWT.NONE, 0);
+//		tokenColumn.setText("Token");
+//		tokenColumn.setWidth(50);
+//
+//		TableColumn valueColumn = new TableColumn(optionsTable, SWT.NONE, 1);
+//		valueColumn.setText("Value");
+//		valueColumn.setWidth(120);
+//
+//		Map<String, String> tokenMap = new LinkedHashMap<String, String>();
+//		tokenMap.put("%S", "Show Name");
+//		tokenMap.put("%s", "Season Number");
+//		tokenMap.put("%e", "Episode Number");
+//		tokenMap.put("%t", "Episode Title");
+//		tokenMap.put("%T", "Episode Title (with spaces removed)");
+//
+//		for (String option : tokenMap.keySet()) {
+//			TableItem item = new TableItem(optionsTable, SWT.NONE);
+//			item.setText(0, option);
+//			item.setText(1, tokenMap.get(option));
+//
+//		}
 
-		optionsTable.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 2, 1));
-
-		TableColumn tokenColumn = new TableColumn(optionsTable, SWT.NONE, 0);
-		tokenColumn.setText("Token");
-		tokenColumn.setWidth(50);
-
-		TableColumn valueColumn = new TableColumn(optionsTable, SWT.NONE, 1);
-		valueColumn.setText("Value");
-		valueColumn.setWidth(120);
-
-		Map<String, String> optionsMap = new HashMap<String, String>();
-		optionsMap.put("%S", "Show Name");
-		optionsMap.put("%s", "Season Number");
-		optionsMap.put("%e", "Episode Number");
-		optionsMap.put("%t", "Episode Title");
-
-		for (String option : optionsMap.keySet()) {
-			TableItem item = new TableItem(optionsTable, SWT.NONE);
-			item.setText(0, option);
-			item.setText(1, optionsMap.get(option));
-		}
+		List optionsList = new List(replacementGroup, SWT.SINGLE);
+		optionsList.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 2, 1));
+		optionsList.add("%S : Show Name");
+		optionsList.add("%s : Season Number");
+		optionsList.add("%e : Episode Number");
+		optionsList.add("%t : Episode Title");
+		optionsList.add("%T : Episode Title (with spaces removed)");
 
 		Label episodeTitleLabel = new Label(replacementGroup, SWT.NONE);
-		episodeTitleLabel.setText("Replacement Mask [?]");
+		episodeTitleLabel.setText("Replacement Tokens [?]");
 		episodeTitleLabel
 			.setToolTipText("The result of the rename, with the tokens being replaced by the meaning above");
 
-		replacementMaskText = new Text(replacementGroup, SWT.BORDER);
-		replacementMaskText.setText(prefs.getRenameReplacementMask());
-		replacementMaskText.setTextLimit(99);
-		replacementMaskText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true, 2, 1));
+		replacementStringText = new Text(replacementGroup, SWT.BORDER);
+		replacementStringText.setText(prefs.getRenameReplacementString());
+		replacementStringText.setTextLimit(99);
+		replacementStringText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true, 2, 1));
 	}
 
 	private void createButtonGroup() {
@@ -232,6 +279,7 @@ public class PreferencesDialog extends Dialog {
 		cancelButton.setLayoutData(saveGridData);
 
 		saveButton.addSelectionListener(new SelectionAdapter() {
+
 			@Override
 			public void widgetSelected(SelectionEvent event) {
 				savePreferences();
@@ -240,6 +288,7 @@ public class PreferencesDialog extends Dialog {
 		});
 
 		cancelButton.addSelectionListener(new SelectionAdapter() {
+
 			@Override
 			public void widgetSelected(SelectionEvent event) {
 				preferencesShell.close();
@@ -256,9 +305,9 @@ public class PreferencesDialog extends Dialog {
 	 */
 	private void savePreferences() {
 		// Update the preferences object from the UI control values
-		prefs.setMovedEnabled(Boolean.parseBoolean(moveEnabledCombo.getText()));
+		prefs.setMovedEnabled(moveEnabledCheckbox.getSelection());
 		prefs.setSeasonPrefix(seasonPrefixText.getText());
-		prefs.setRenameReplacementMask(replacementMaskText.getText());
+		prefs.setRenameReplacementString(replacementStringText.getText());
 
 		try {
 			prefs.setDestinationDirectory(destDirText.getText());

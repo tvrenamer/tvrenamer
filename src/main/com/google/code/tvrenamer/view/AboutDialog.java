@@ -25,21 +25,21 @@ import com.google.code.tvrenamer.model.util.Constants.SWTMessageBoxType;
 /**
  * The About Dialog box.
  */
-public class AboutMessageDialog extends Dialog {
+public class AboutDialog extends Dialog {
 
 	private static final String GITHUB_URL = "http://github.com/tvrenamer/tvrenamer";
 	private static final String GPL_2_URL = "http://www.gnu.org/licenses/gpl-2.0.html";
 	private static final String GOOGLE_GROUP_EMAIL = "tvrenamer@googlegroups.com";
-	private static final String GOOGLE_CODE_URL = "http://tv-renamer.googlecode.com";
+	public static final String GOOGLE_CODE_URL = "http://tv-renamer.googlecode.com";
 	private static Shell aboutShell;
 
 	/**
-	 * AboutMessageDialog constructor
+	 * AboutDialog constructor
 	 * 
 	 * @param parent
 	 *            the parent {@link Shell}
 	 */
-	public AboutMessageDialog(Shell parent) {
+	public AboutDialog(Shell parent) {
 		super(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 	}
 
@@ -84,22 +84,22 @@ public class AboutMessageDialog extends Dialog {
 		iconGridData.grabExcessHorizontalSpace = false;
 		iconLabel.setLayoutData(iconGridData);
 
-		InputStream icon = getClass().getResourceAsStream("tvrenamer.png");
+		InputStream icon = getClass().getResourceAsStream("/icons/tvrenamer.png");
 		if (icon != null) {
 			iconLabel.setImage(new Image(Display.getCurrent(), icon));
 		} else {
-			iconLabel.setImage(new Image(Display.getCurrent(), "icons/tvrenamer.png"));
+			iconLabel.setImage(new Image(Display.getCurrent(), "res/icons/tvrenamer.png"));
 		}
 
 		Label applicationLabel = new Label(aboutShell, SWT.NONE);
 		applicationLabel.setFont(new Font(aboutShell.getDisplay(), getDefaultSystemFont().getName(),
-		                                  getDefaultSystemFont().getHeight() + 4, SWT.BOLD));
+			getDefaultSystemFont().getHeight() + 4, SWT.BOLD));
 		applicationLabel.setText(Constants.APPLICATION_NAME);
 		applicationLabel.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true));
 
 		Label versionLabel = new Label(aboutShell, SWT.NONE);
 		versionLabel.setFont(new Font(aboutShell.getDisplay(), getDefaultSystemFont().getName(), getDefaultSystemFont()
-		                              .getHeight() + 2, SWT.BOLD));
+			.getHeight() + 2, SWT.BOLD));
 		versionLabel.setText("Version: " + Constants.VERSION_NUMBER);
 		versionLabel.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true));
 
@@ -120,7 +120,7 @@ public class AboutMessageDialog extends Dialog {
 
 		final Link projectPageLink = new Link(aboutShell, SWT.NONE);
 		projectPageLink.setText("Project Page at Google Code (for bugs, wiki, help etc.) <a href=\"" + GOOGLE_CODE_URL
-		                        + "\">" + GOOGLE_CODE_URL + "</a>");
+			+ "\">" + GOOGLE_CODE_URL + "</a>");
 		projectPageLink.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true));
 
 		projectPageLink.addSelectionListener(new SelectionAdapter() {
@@ -132,7 +132,7 @@ public class AboutMessageDialog extends Dialog {
 
 		final Link supportEmailLink = new Link(aboutShell, SWT.NONE);
 		supportEmailLink.setText("Support email address <a href=\"mailto:" + GOOGLE_GROUP_EMAIL + "\">"
-		                         + GOOGLE_GROUP_EMAIL + "</a>");
+			+ GOOGLE_GROUP_EMAIL + "</a>");
 		supportEmailLink.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true));
 
 		supportEmailLink.addSelectionListener(new SelectionAdapter() {
