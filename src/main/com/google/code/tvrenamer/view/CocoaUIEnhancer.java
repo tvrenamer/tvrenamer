@@ -1,7 +1,9 @@
+// Turn the @formatter:off so we don't change the 3rd party source layout
+package com.google.code.tvrenamer.view;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import org.eclipse.jface.action.IAction;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.internal.C;
 import org.eclipse.swt.internal.Callback;
@@ -52,10 +54,10 @@ public class CocoaUIEnhancer {
      * </p>
      */
     private static class MenuHookObject {
-        final IAction about;
-        final IAction pref;
+        final Listener about;
+        final Listener pref;
 
-        public MenuHookObject( IAction about, IAction pref ) {
+        public MenuHookObject( Listener about, Listener pref ) {
             this.about = about;
             this.pref = pref;
         }
@@ -73,9 +75,9 @@ public class CocoaUIEnhancer {
          */
         public long actionProc( long id, long sel, long arg0 ) {
             if ( sel == sel_aboutMenuItemSelected_ ) {
-                about.run();
+                about.handleEvent(null);
             } else if ( sel == sel_preferencesMenuItemSelected_ ) {
-                pref.run();
+                pref.handleEvent(null);
             } else {
                 // Unknown selection!
             }
@@ -109,8 +111,8 @@ public class CocoaUIEnhancer {
      * @param preferencesAction
      *            The action to run when the Preferences menu is invoked.
      */
-    public void hookApplicationMenu( Display display, Listener quitListener, IAction aboutAction,
-                                     IAction preferencesAction ) {
+    public void hookApplicationMenu( Display display, Listener quitListener, Listener aboutAction,
+                                     Listener preferencesAction ) {
         // This is our callbackObject whose 'actionProc' method will be called when the About or
         // Preferences menuItem is invoked.
         MenuHookObject target = new MenuHookObject( aboutAction, preferencesAction );
