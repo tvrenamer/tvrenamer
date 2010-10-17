@@ -15,15 +15,15 @@ Basically, it will take an ugly filename like 'Lost.S06E05.DD51.720p.WEB-DL.AVC-
 
  * On Windows:
   1. Unzip the downloaded file somewhere, possibly your Desktop or C:\Program Files
-  2. Double click the .exe file
+  1. Double click the .exe file
  * On OSX:
   1. Unzip the downloaded file somewhere, possibly your Desktop or /Applications
-  2. Double click the .app file
+  1. Double click the .app file
  * On Linux:
   1. Unzip the downloaded file somewhere, possibly your Desktop or somewhere in your path (/usr/local/bin/)
-  2. Open an terminal and `cd` to where you unzipped the file to.  Then `cd` into the TVRenamer-&lt;version&gt; folder.  There should be run-linux.sh and tvrenamer.jar file there.
-  3. Execute the run script via ./run-linux.sh
-  4. If you want to add to the top gnome bar (and therefore don't need the terminal) add a 'Custom Application Launcher' with the below settings:  
+  1. Open an terminal and `cd` to where you unzipped the file to.  Then `cd` into the TVRenamer-&lt;version&gt; folder.  There should be run-linux.sh and tvrenamer.jar file there.
+  1. Execute the run script via ./run-linux.sh
+  1. If you want to add to the top gnome bar (and therefore don't need the terminal) add a 'Custom Application Launcher' with the below settings:  
     Type: Application  
     Name: TVRenamer  
     Command: <location of unzipped file from (1.)>/TVRenamer-&lt;version&gt;/run-linux.sh  
@@ -51,12 +51,12 @@ If the application doesn't start with a java error, [ensure that your JAVA_HOME 
 
  * On Windows:
   1. Open the Windows Command Prompt (Windows key + r, then type cmd and push enter)
-  2. Execute `java -jar TVRenamer-<version>.exe`
+  1. Execute `java -jar TVRenamer-<version>.exe`
  * On OSX:
   1. Open the Terminal application (at /Applications/Utilities/Terminal.app)
-  2. Navigate to where the TVRenamer application is.
-  3. Execute it via `./TVRenamer-<version>.app`
+  1. Navigate to where the TVRenamer application is.
+  1. Execute it via `./TVRenamer-<version>.app`
  * On Linux:
   1. Open the Terminal application (in the Gnome Applications menu)
-  2. Navigate to where the TVRenamer application is.
-  3. Execute the run script via `./run-linux.sh`
+  1. Navigate to where the TVRenamer application is.
+  1. Execute the run script via `./run-linux.sh`
