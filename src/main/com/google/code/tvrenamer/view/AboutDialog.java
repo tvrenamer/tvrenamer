@@ -3,6 +3,9 @@ package com.google.code.tvrenamer.view;
 import static com.google.code.tvrenamer.view.UIUtils.getDefaultSystemFont;
 
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.logging.Logger;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -21,16 +24,19 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.google.code.tvrenamer.model.util.Constants;
 import com.google.code.tvrenamer.model.util.Constants.SWTMessageBoxType;
+import com.google.code.tvrenamer.model.util.UpdateChecker;
 
 /**
  * The About Dialog box.
  */
 public class AboutDialog extends Dialog {
+	private static Logger logger = Logger.getLogger(AboutDialog.class.getName());
 
 	private static final String GITHUB_URL = "http://github.com/tvrenamer/tvrenamer";
 	private static final String GPL_2_URL = "http://www.gnu.org/licenses/gpl-2.0.html";
-	private static final String GOOGLE_GROUP_EMAIL = "tvrenamer@googlegroups.com";
+	private static final String SUPPORT_EMAIL = "tvrenamer@gmail.com";
 	public static final String GOOGLE_CODE_URL = "http://tv-renamer.googlecode.com";
+	public static final String GOOGLE__CODE_ISSUES_URL = "http://code.google.com/p/tv-renamer/issues";
 	private static Shell aboutShell;
 
 	/**
@@ -79,7 +85,7 @@ public class AboutDialog extends Dialog {
 		iconGridData.verticalAlignment = GridData.FILL;
 		iconGridData.horizontalAlignment = GridData.FILL;
 		// Force the icon to take up the whole of the right column
-		iconGridData.verticalSpan = 9;
+		iconGridData.verticalSpan = 10;
 		iconGridData.grabExcessVerticalSpace = false;
 		iconGridData.grabExcessHorizontalSpace = false;
 		iconLabel.setLayoutData(iconGridData);
@@ -105,7 +111,7 @@ public class AboutDialog extends Dialog {
 
 		Label descriptionLabel = new Label(aboutShell, SWT.NONE);
 		descriptionLabel.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true));
-		descriptionLabel.setText("TVRenamer is a Java GUI utility to rename tv episodes from tv listings");
+		descriptionLabel.setText("TVRenamer is a Java GUI utility to rename TV episodes from TV listings");
 
 		final Link licenseLink = new Link(aboutShell, SWT.NONE);
 		licenseLink.setText("Licensed under the <a href=\"" + GPL_2_URL + "\">GNU General Public License v2</a>");
@@ -131,14 +137,26 @@ public class AboutDialog extends Dialog {
 		});
 
 		final Link supportEmailLink = new Link(aboutShell, SWT.NONE);
-		supportEmailLink.setText("Support email address <a href=\"mailto:" + GOOGLE_GROUP_EMAIL + "\">"
-			+ GOOGLE_GROUP_EMAIL + "</a>");
+		supportEmailLink.setText("Support email address <a href=\"mailto:" + SUPPORT_EMAIL + "\">" + SUPPORT_EMAIL
+			+ "</a>");
 		supportEmailLink.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true));
 
 		supportEmailLink.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				Program.launch("mailto:" + GOOGLE_GROUP_EMAIL);
+				Program.launch("mailto:" + SUPPORT_EMAIL);
+			}
+		});
+
+		final Link googleCodeIssuesLink = new Link(aboutShell, SWT.NONE);
+		googleCodeIssuesLink.setText("File bugs at <a href=\"" + GOOGLE__CODE_ISSUES_URL + "\">"
+			+ GOOGLE__CODE_ISSUES_URL + "</a>");
+		googleCodeIssuesLink.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true));
+
+		googleCodeIssuesLink.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				Program.launch(GOOGLE__CODE_ISSUES_URL);
 			}
 		});
 
@@ -163,7 +181,31 @@ public class AboutDialog extends Dialog {
 		updateCheckButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
-				UIUtils.showMessageBox(SWTMessageBoxType.ERROR, "Error", "This operation is not currently supported");
+				Boolean updateAvailable = UpdateChecker.isUpdateAvailable();
+				
+				if (updateAvailable == null) {
+					// Don't need to do anything here as the error message has been displayed already
+				}
+				else if (updateAvailable) {
+					StringBuilder messageBuilder = new StringBuilder();
+					messageBuilder.append("There is a new version available!\n\n");
+					messageBuilder.append("You are currently running ");
+					messageBuilder.append(Constants.VERSION_NUMBER);
+					messageBuilder.append(", but there is an update available\n\n");
+					messageBuilder.append("Please visit ");
+					messageBuilder.append(GOOGLE_CODE_URL);
+					messageBuilder.append(" to download the new version.");
+
+					logger.fine(messageBuilder.toString());
+					UIUtils.showMessageBox(SWTMessageBoxType.OK, "New Version Available", messageBuilder.toString());
+				} else {
+					StringBuilder messageBuilder = new StringBuilder();
+					messageBuilder.append("There is a no new version available\n\n");
+					messageBuilder.append("Please check the website (");
+					messageBuilder.append(GOOGLE_CODE_URL);
+					messageBuilder.append(") for any news or check back later.");
+					UIUtils.showMessageBox(SWTMessageBoxType.WARNING, "No New Version Available", messageBuilder.toString());
+				}
 			}
 		});
 

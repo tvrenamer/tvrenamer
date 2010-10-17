@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project name="TVRenamer build script">
-	<property file="build.properties" />
-
 	<property name="src.main" value="src/main" />
+	
+	<property name="version.file" value="${src.main}/tvrenamer.version" />
+	<loadfile property="version" srcFile="${version.file}" />
+	
 	<property name="build" value="build" />
 	<property name="lib" value="lib" />
 	<property name="res" value="res" />
@@ -24,10 +26,12 @@
 		<mkdir dir="${dist}" />
 	</target>
 
-	<path id="swt.classpath">
+	<path id="classpath">
 		<fileset dir="${lib}">
-			<!-- We can compile against any swt version-->
-			<include name="swt-win32*.jar" />
+				<!-- We can compile against any swt version-->
+				<include name="swt-win32*.jar" />
+		</fileset>
+		<fileset dir="${lib}" id="classpath.fileset">
 			<include name="xstream-*.jar" />
 			<include name="jedit-*-IOUtilities.jar" />
 		</fileset>
@@ -38,22 +42,26 @@
 		<sequential>
 			<mkdir dir="${build}/@{platform}" />
 
-			<javac srcdir="${src.main}" destdir="${build}" classpathref="swt.classpath" source="1.5" target="1.5" />
+			<javac srcdir="${src.main}" destdir="${build}" classpathref="classpath" source="1.5" target="1.5" />
 
 			<jar destfile="${build}/@{platform}/tvrenamer.jar" filesetmanifest="mergewithoutmain">
 				<manifest>
 					<attribute name="Built-By" value="${jar.builtBy}" />
 					<attribute name="Main-Class" value="${jar.mainClass}" />
 				</manifest>
+				
 				<fileset dir="${build}" />
+				
 				<fileset dir="${res}">
-					<!--exclude name="**/oldschool-tv-icon.ico"/-->
+					<exclude name="**/oldschool-tv-icon.ico" />
 				</fileset>
+				
+				<zipgroupfileset refid="classpath.fileset" />
 				<zipgroupfileset dir="${lib}">
 					<include name="swt-@{platform}*.jar" />
-					<include name="xstream-*.jar" />
-					<include name="jedit-*-IOUtilities.jar" />
 				</zipgroupfileset>
+				
+				<fileset file="${version.file}" />
 			</jar>
 		</sequential>
 	</macrodef>
@@ -141,17 +149,6 @@
 
 	<target name="dist.all" depends="clean, init, dist.win, dist.linux, dist.osx" />
 	
-	<target name="cocoaUIEnhancer.lib" depends="clean">
-		<javac srcdir="${res}/code/" destdir="${build}" source="1.5" target="1.5">
-		</javac>
-    <jar destfile="${lib}/CocoaUIEnhancer.jar">
-      <manifest>
-        <attribute name="Built-By" value="http://www.transparentech.com/opensource/cocoauienhancer" />
-      </manifest>
-      <fileset file="${build}/CocoaUIEnhancer.class" />
-    </jar>
-	</target>
-
 	<target name="clean">
 		<delete includeemptydirs="true" failonerror="false">
 		  <fileset dir="${build}" includes="**/*" />

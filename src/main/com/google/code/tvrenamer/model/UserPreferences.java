@@ -16,7 +16,7 @@ public class UserPreferences {
 
 	private File destDir;
 	private String seasonPrefix;
-	private boolean moveEnabled = true;
+	private boolean moveEnabled = false;
 	private String renameReplacementMask;
 	private static File prefsFile = new File(System.getProperty("user.dir") + Constants.FILE_SEPARATOR
 		+ Constants.PREFERENCES_FILE);

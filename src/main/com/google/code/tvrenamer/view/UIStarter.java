@@ -86,8 +86,6 @@ public class UIStarter {
 
 	private Table tblResults;
 
-// private Label lblStatus;
-
 	private ProgressBar progressBarIndividual;
 	private ProgressBar progressBarTotal;
 
@@ -129,10 +127,6 @@ public class UIStarter {
 		final Button btnQuit = new Button(shell, SWT.PUSH);
 		btnQuit.setText("Quit");
 		btnQuit.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
-
-// lblStatus = new Label(shell, SWT.NONE);
-// lblStatus.setText("");
-// lblStatus.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
 		FillLayout fillLayout = new FillLayout(SWT.VERTICAL);
 		Composite bars = new Composite(shell, SWT.NONE);
@@ -501,8 +495,6 @@ public class UIStarter {
 			}
 		}
 
-// lblStatus.setText("Please wait ...");
-
 		Thread thread = new Thread() {
 
 			@Override
@@ -544,7 +536,6 @@ public class UIStarter {
 
 					public void run() {
 						populateTable();
-						// lblStatus.setText("");
 					}
 				});
 			}
@@ -647,17 +638,7 @@ public class UIStarter {
 		});
 		progressThread.start();
 
-// if (renamedFiles > 0) {
-// if (renamedFiles == 1) {
-// lblStatus.setText(renamedFiles + " file successfully renamed.");
-// } else {
-// lblStatus.setText(renamedFiles + " files successfully renamed.");
-// }
-//
-// lblStatus.pack(true);
 		populateTable();
-// }
-
 	}
 
 	private void populateTable() {

@@ -1,6 +1,13 @@
 package com.google.code.tvrenamer.model.util;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class Constants {
+	private static Logger logger = Logger.getLogger(Constants.class.getName());
+
 	public enum SWTMessageBoxType {
 		OK, QUESTION, MESSAGE, WARNING, ERROR;
 	}
@@ -9,10 +16,28 @@ public class Constants {
 		SUCCESS, FAILURE;
 	}
 
+	// Static initalisation block
+	static {
+		byte[] buffer = new byte[10];
+		// Release env (jar)
+		InputStream versionStream = Constants.class.getResourceAsStream("/tvrenamer.version");
+
+		// Dev env
+		if (versionStream == null) {
+			versionStream = Constants.class.getResourceAsStream("/src/main/tvrenamer.version");
+		}
+
+		try {
+			versionStream.read(buffer);
+			VERSION_NUMBER = new String(buffer).trim();
+		} catch (IOException e) {
+			logger.log(Level.WARNING, "Exception when reading version file", e);
+		}
+	}
+
 	public static final String APPLICATION_NAME = "TVRenamer";
 
-	/** The version number, this should be aligned with build.properties */
-	public static final String VERSION_NUMBER = "0.5b2";
+	public static String VERSION_NUMBER;
 
 	public static final String PREFERENCES_FILE = "settings.xml";
 
