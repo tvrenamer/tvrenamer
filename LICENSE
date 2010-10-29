@@ -1,3 +1,44 @@
+TVRenamer is released under the GNU GENERAL PUBLIC LICENSE, v2.0 (see license text below)
+
+The below libraries/3rd party contributions are used by TVRenamer:
+
+== Start of TVRenamer license section ==
+
+Eclipse Standard Widget Toolkit (SWT)
+=========================================
+Description: SWT is an open source widget toolkit for Java designed to provide efficient, portable access to the user-interface facilities of the operating systems on which it is implemented.
+Website: http://www.eclipse.org/swt
+License: Eclipse Public License (EPL)
+License website: http://www.eclipse.org/legal/index.php
+
+Codehaus XStream
+=========================================
+Description: XStream is a simple library to serialize objects to XML and back again.
+Website: http://xstream.codehaus.org
+License: GNU GENERAL PUBLIC LICENSE (GPL)
+License website: http://xstream.codehaus.org/license.html
+
+jEdit
+=========================================
+Description: The Programmer's Text Editor
+Website: http://jedit.org
+License: Berkeley Software Distribution v2.0 (BSD)
+License website: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+Note: A small number of classes were taken from the jEdit source and repackaged into the TVRenamer application.  This was purely done to keep the download of our application small
+
+TransparenTech CocoaUIEnhancer
+=========================================
+Description: Connect the About, Preferences and Quit menus in Mac OS X Cocoa SWT and JFace applications
+Website: http://www.transparentech.com/opensource/cocoauienhancer
+License: Eclipse Public License (EPL)
+License website: http://www.eclipse.org/legal/index.php
+Note: This class is packaged into the TVRenamer codebase because some modifications were required.  These were performed with the developer's assistance, and the header left intact
+
+== End of TVRenamer license section ==
+
+
+
+
 		    GNU GENERAL PUBLIC LICENSE
 		       Version 2, June 1991
 

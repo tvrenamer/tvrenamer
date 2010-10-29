@@ -76,7 +76,7 @@
 			<mkdir dir="${build}/@{platform}/${rel.name}" />
 			<move file="${build}/@{platform}/tvrenamer.jar" todir="${build}/@{platform}/${rel.name}" />
 			<copy file="${etc}/run-scripts/run-linux.sh" todir="${build}/@{platform}/${rel.name}" />
-			<copy file="${etc}/LICENSE" todir="${build}/@{platform}/${rel.name}" />
+			<copy file="LICENSE" todir="${build}/@{platform}/${rel.name}" />
 
 			<zip destfile="${build}/@{platform}/${rel.name}/${rel.name}-@{platform}.zip">
 				<zipfileset dir="${build}/@{platform}" filemode="755" />
@@ -100,7 +100,7 @@
 			<move file="${build}/@{platform}/tvrenamer.jar" todir="${build}/@{platform}/${rel.name}.app/Contents/MacOS" />
 			<chmod file="${build}/@{platform}/${rel.name}.app/Contents/MacOS/run-mac.sh" perm="+x" />
 			<copy file="${res}/icons/tvrenamer.icns" todir="${build}/@{platform}/${rel.name}.app/Contents/Resources" />
-			<copy file="${etc}/LICENSE" todir="${build}/@{platform}/${rel.name}.app" />
+			<copy file="$LICENSE" todir="${build}/@{platform}/${rel.name}.app" />
 
 			<zip destfile="${build}/@{platform}/${rel.name}-@{platform}.zip">
 				<zipfileset dir="${build}/@{platform}" filemode="755" />
