@@ -40,15 +40,14 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -86,7 +85,7 @@ public class UIStarter {
 
 	private Table tblResults;
 
-	private ProgressBar progressBarIndividual;
+	private Label invididualProgressLabel;
 	private ProgressBar progressBarTotal;
 
 	private List<FileEpisode> files;
@@ -128,13 +127,12 @@ public class UIStarter {
 		btnQuit.setText("Quit");
 		btnQuit.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 
-		FillLayout fillLayout = new FillLayout(SWT.VERTICAL);
-		Composite bars = new Composite(shell, SWT.NONE);
-		bars.setLayout(fillLayout);
-		progressBarIndividual = new ProgressBar(bars, SWT.SMOOTH);
-		progressBarTotal = new ProgressBar(bars, SWT.SMOOTH);
+		invididualProgressLabel = new Label(shell, SWT.SHADOW_NONE | SWT.CENTER);
+		invididualProgressLabel.setText("Individual Progress");
+		invididualProgressLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
 
-		bars.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		progressBarTotal = new ProgressBar(shell, SWT.SMOOTH);
+		progressBarTotal.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
 		btnRenameSelected = new Button(shell, SWT.PUSH);
 		if (prefs != null && prefs.isMovedEnabled()) {
@@ -558,17 +556,11 @@ public class UIStarter {
 					String message = "File " + newFile + " already exists.\n" + currentFile + " was not renamed!";
 					showMessageBox(SWTMessageBoxType.QUESTION, "Question", message);
 				} else {
-					final int progressBarInvidualMaximum = progressBarIndividual.getMaximum();
-
 					Callable<Boolean> moveCallable = new Callable<Boolean>() {
-
 						public Boolean call() {
 							if (newFile.getParentFile().exists() || newFile.getParentFile().mkdirs()) {
-								// FileUtils.copyFile(currentFile, newFile);
-								// FileUtils.moveFile(currentFile, newFile);
-								FileCopyMonitor monitor = new FileCopyMonitor(progressBarIndividual,
-									currentFile.length(), progressBarInvidualMaximum);
-								boolean succeeded = FileUtilities.moveFile(currentFile, newFile, monitor, true);
+								FileCopyMonitor monitor = new FileCopyMonitor(invididualProgressLabel, currentFile.length());
+								boolean succeeded = FileUtilities.copyFile(currentFile, newFile, monitor, true);
 								logger.info("Moved " + currentFile.getAbsolutePath() + " to "
 									+ newFile.getAbsolutePath());
 
