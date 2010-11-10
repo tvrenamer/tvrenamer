@@ -10,11 +10,11 @@ import java.net.ConnectException;
 import java.net.UnknownHostException;
 import java.text.Collator;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -88,7 +88,7 @@ public class UIStarter {
 	private Label invididualProgressLabel;
 	private ProgressBar progressBarTotal;
 
-	private List<FileEpisode> files;
+	private Map<String, FileEpisode> files = new HashMap<String, FileEpisode>();
 
 	public static void main(String[] args) {
 		UIStarter ui = new UIStarter();
@@ -290,10 +290,6 @@ public class UIStarter {
 		gridData.horizontalSpan = 4;
 		tblResults.setLayoutData(gridData);
 
-		final TableColumn colIdx = new TableColumn(tblResults, SWT.LEFT);
-		colIdx.setWidth(0);
-		colIdx.setResizable(false);
-
 		final TableColumn colSrc = new TableColumn(tblResults, SWT.LEFT);
 		colSrc.setText("Current Name");
 		colSrc.setWidth(350);
@@ -451,7 +447,6 @@ public class UIStarter {
 
 	private void initiateRenamer(final String[] fileNames) {
 		final Queue<Future<Boolean>> fetchers = new LinkedList<Future<Boolean>>();
-		files = new ArrayList<FileEpisode>();
 
 		final Set<String> showNames = new HashSet<String>();
 		for (String fileName : fileNames) {
@@ -464,7 +459,6 @@ public class UIStarter {
 					showNames.add(showName);
 
 					Callable<Boolean> showFetcher = new Callable<Boolean>() {
-
 						public Boolean call() throws Exception {
 							try {
 								ShowStore.addShow(showName);
@@ -478,12 +472,11 @@ public class UIStarter {
 					};
 					fetchers.add(threadPool.submit(showFetcher));
 				}
-				files.add(episode);
+				files.put(fileName, episode);
 			}
 		}
 
 		Thread thread = new Thread() {
-
 			@Override
 			public void run() {
 				final int totalNumShows = showNames.size();
@@ -520,7 +513,6 @@ public class UIStarter {
 
 				// all threads should have finished by now
 				display.asyncExec(new Runnable() {
-
 					public void run() {
 						populateTable();
 					}
@@ -537,11 +529,11 @@ public class UIStarter {
 		for (final TableItem item : tblResults.getItems()) {
 			if (item.getChecked()) {
 				count++;
-				int index = Integer.parseInt(item.getText(0)) - 1;
-				final FileEpisode episode = files.get(index);
-				final File currentFile = episode.getFile();
+				String fileName = item.getText(0);
+				final File currentFile = new File(fileName);
+				final FileEpisode episode = files.get(fileName);
 				String currentName = currentFile.getName();
-				String newName = item.getText(2);
+				String newName = item.getText(1);
 				String newFilePath = currentFile.getParent() + Constants.FILE_SEPARATOR + newName;
 
 				if (prefs != null) {
@@ -570,7 +562,6 @@ public class UIStarter {
 							return false;
 						}
 					};
-
 					futures.add(executor.submit(moveCallable));
 				}
 			}
@@ -619,15 +610,12 @@ public class UIStarter {
 	}
 
 	private void populateTable() {
-		if (files == null) {
-			return;
-		}
 		// Clear the table for new use
 		tblResults.removeAll();
-		for (int i = 0; i < files.size(); i++) {
-			FileEpisode episode = files.get(i);
+		for (String fileName : files.keySet()) {
+			FileEpisode episode = files.get(fileName);
 			TableItem item = new TableItem(tblResults, SWT.NONE);
-			String newFilename = episode.getFile().getName();
+			String newFilename = fileName;
 			try {
 				newFilename = getNewFilename(episode);
 				item.setChecked(true);
@@ -636,7 +624,7 @@ public class UIStarter {
 				item.setChecked(false);
 				item.setForeground(display.getSystemColor(SWT.COLOR_RED));
 			}
-			item.setText(new String[] { String.valueOf(i + 1), episode.getFile().getName(), newFilename });
+			item.setText(new String[] { fileName, newFilename });
 		}
 	}
 
@@ -668,7 +656,7 @@ public class UIStarter {
 		TableItem oldItem = tblResults.getItem(i);
 		boolean wasChecked = oldItem.getChecked();
 		int oldStyle = oldItem.getStyle();
-		String[] values = { oldItem.getText(0), oldItem.getText(1), oldItem.getText(2) };
+		String[] values = { oldItem.getText(0), oldItem.getText(1) };
 		oldItem.dispose();
 		TableItem item = new TableItem(tblResults, oldStyle, j);
 		item.setText(values);
