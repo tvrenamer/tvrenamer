@@ -30,11 +30,11 @@ import com.google.code.tvrenamer.model.util.UpdateChecker;
 public class AboutDialog extends Dialog {
 	private static Logger logger = Logger.getLogger(AboutDialog.class.getName());
 
-	private static final String GITHUB_URL = "http://github.com/tvrenamer/tvrenamer";
-	private static final String GPL_2_URL = "http://www.gnu.org/licenses/gpl-2.0.html";
-	private static final String SUPPORT_EMAIL = "tvrenamer@gmail.com";
-	public static final String GOOGLE_CODE_URL = "http://tv-renamer.googlecode.com";
-	public static final String GOOGLE__CODE_ISSUES_URL = "http://code.google.com/p/tv-renamer/issues";
+	private static final String TVRENAMER_REPOSITORY_URL = "http://github.com/tvrenamer/tvrenamer";
+	private static final String TVRENAMER_LICENSE_URL = "http://www.gnu.org/licenses/gpl-2.0.html";
+	private static final String TVRENAMER_SUPPORT_EMAIL = "tvrenamer@gmail.com";
+	public static final String TVRENAMER_PROJECT_URL = "http://tv-renamer.googlecode.com";
+	public static final String TVRENAMER_PROJECT_ISSUES_URL = "http://code.google.com/p/tv-renamer/issues";
 	private static Shell aboutShell;
 
 	/**
@@ -112,60 +112,62 @@ public class AboutDialog extends Dialog {
 		descriptionLabel.setText("TVRenamer is a Java GUI utility to rename TV episodes from TV listings");
 
 		final Link licenseLink = new Link(aboutShell, SWT.NONE);
-		licenseLink.setText("Licensed under the <a href=\"" + GPL_2_URL + "\">GNU General Public License v2</a>");
+		licenseLink.setText("Licensed under the <a href=\"" + TVRENAMER_LICENSE_URL
+			+ "\">GNU General Public License v2</a>");
 		licenseLink.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true));
 
 		licenseLink.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				Program.launch(GPL_2_URL);
+				Program.launch(TVRENAMER_LICENSE_URL);
 			}
 		});
 
 		final Link projectPageLink = new Link(aboutShell, SWT.NONE);
-		projectPageLink.setText("Project Page at Google Code (for bugs, wiki, help etc.) <a href=\"" + GOOGLE_CODE_URL
-			+ "\">" + GOOGLE_CODE_URL + "</a>");
+		projectPageLink.setText("Project Page at Google Code (for bugs, wiki, help etc.) <a href=\""
+			+ TVRENAMER_PROJECT_URL + "\">" + TVRENAMER_PROJECT_URL + "</a>");
 		projectPageLink.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true));
 
 		projectPageLink.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				Program.launch(GOOGLE_CODE_URL);
+				Program.launch(TVRENAMER_PROJECT_URL);
 			}
 		});
 
 		final Link supportEmailLink = new Link(aboutShell, SWT.NONE);
-		supportEmailLink.setText("Support email address <a href=\"mailto:" + SUPPORT_EMAIL + "\">" + SUPPORT_EMAIL
-			+ "</a>");
+		supportEmailLink.setText("Support email address <a href=\"mailto:" + TVRENAMER_SUPPORT_EMAIL + "\">"
+			+ TVRENAMER_SUPPORT_EMAIL + "</a>");
 		supportEmailLink.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true));
 
 		supportEmailLink.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				Program.launch("mailto:" + SUPPORT_EMAIL);
+				Program.launch("mailto:" + TVRENAMER_SUPPORT_EMAIL);
 			}
 		});
 
 		final Link googleCodeIssuesLink = new Link(aboutShell, SWT.NONE);
-		googleCodeIssuesLink.setText("File bugs at <a href=\"" + GOOGLE__CODE_ISSUES_URL + "\">"
-			+ GOOGLE__CODE_ISSUES_URL + "</a>");
+		googleCodeIssuesLink.setText("File bugs at <a href=\"" + TVRENAMER_PROJECT_ISSUES_URL + "\">"
+			+ TVRENAMER_PROJECT_ISSUES_URL + "</a>");
 		googleCodeIssuesLink.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true));
 
 		googleCodeIssuesLink.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				Program.launch(GOOGLE__CODE_ISSUES_URL);
+				Program.launch(TVRENAMER_PROJECT_ISSUES_URL);
 			}
 		});
 
 		final Link sourceCodeLink = new Link(aboutShell, SWT.NONE);
-		sourceCodeLink.setText("Source code page at Github <a href=\"" + GITHUB_URL + "\">" + GITHUB_URL + "</a>");
+		sourceCodeLink.setText("Source code page at Github <a href=\"" + TVRENAMER_REPOSITORY_URL + "\">"
+			+ TVRENAMER_REPOSITORY_URL + "</a>");
 		sourceCodeLink.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true));
 
 		sourceCodeLink.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				Program.launch(GITHUB_URL);
+				Program.launch(TVRENAMER_REPOSITORY_URL);
 			}
 		});
 
@@ -180,18 +182,17 @@ public class AboutDialog extends Dialog {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
 				Boolean updateAvailable = UpdateChecker.isUpdateAvailable();
-				
+
 				if (updateAvailable == null) {
 					// Don't need to do anything here as the error message has been displayed already
-				}
-				else if (updateAvailable) {
+				} else if (updateAvailable) {
 					StringBuilder messageBuilder = new StringBuilder();
 					messageBuilder.append("There is a new version available!\n\n");
 					messageBuilder.append("You are currently running ");
 					messageBuilder.append(Constants.VERSION_NUMBER);
 					messageBuilder.append(", but there is an update available\n\n");
 					messageBuilder.append("Please visit ");
-					messageBuilder.append(GOOGLE_CODE_URL);
+					messageBuilder.append(TVRENAMER_PROJECT_URL);
 					messageBuilder.append(" to download the new version.");
 
 					logger.fine(messageBuilder.toString());
@@ -200,9 +201,10 @@ public class AboutDialog extends Dialog {
 					StringBuilder messageBuilder = new StringBuilder();
 					messageBuilder.append("There is a no new version available\n\n");
 					messageBuilder.append("Please check the website (");
-					messageBuilder.append(GOOGLE_CODE_URL);
-					messageBuilder.append(") for any news or check again later.");
-					UIUtils.showMessageBox(SWTMessageBoxType.WARNING, "No New Version Available", messageBuilder.toString());
+					messageBuilder.append(TVRENAMER_PROJECT_URL);
+					messageBuilder.append(") for any news or check back later.");
+					UIUtils.showMessageBox(SWTMessageBoxType.WARNING, "No New Version Available",
+										   messageBuilder.toString());
 				}
 			}
 		});

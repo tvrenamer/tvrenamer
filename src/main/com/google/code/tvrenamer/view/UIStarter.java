@@ -250,7 +250,7 @@ public class UIStarter {
 
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				Program.launch(AboutDialog.GOOGLE_CODE_URL);
+				Program.launch(AboutDialog.TVRENAMER_PROJECT_URL);
 			}
 		});
 
