@@ -59,6 +59,7 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
+import com.google.code.tvrenamer.controller.ShowInformationListener;
 import com.google.code.tvrenamer.controller.TVRenamer;
 import com.google.code.tvrenamer.controller.util.FileUtilities;
 import com.google.code.tvrenamer.controller.util.StringUtils;
@@ -449,31 +450,50 @@ public class UIStarter {
 		final Queue<Future<Boolean>> fetchers = new LinkedList<Future<Boolean>>();
 
 		final Set<String> showNames = new HashSet<String>();
-		for (String fileName : fileNames) {
+		for (final String fileName : fileNames) {
 			final FileEpisode episode = TVRenamer.parseFilename(fileName);
 			if (episode == null) {
 				System.err.println("Couldn't parse file: " + fileName);
 			} else {
-				final String showName = episode.getShowName();
+				String showName = episode.getShowName();
+
 				if (!showNames.contains(showName)) {
 					showNames.add(showName);
-
-					Callable<Boolean> showFetcher = new Callable<Boolean>() {
-						public Boolean call() throws Exception {
-							try {
-								ShowStore.addShow(showName);
-							} catch (ConnectException ce) {
-								handleNoConnection(ce);
-							} catch (UnknownHostException uhe) {
-								handleNoConnection(uhe);
-							}
-							return true;
-						}
-					};
-					fetchers.add(threadPool.submit(showFetcher));
 				}
+
 				files.put(fileName, episode);
+				final TableItem item = createTableItem(tblResults, fileName, episode);
+
+				ShowStore.addShow(showName, new ShowInformationListener() {
+					public void downloaded(Show show) {
+						episode.setStatus(EpisodeStatus.DOWNLOADED);
+						display.asyncExec(new Runnable() {
+							public void run() {
+								item.setText(NEW_FILENAME_COLUMN, episode.getNewFilename());
+								item.setImage(FILE_STATUS_COLUMN, plusIcon);
+							}
+						});
+					}
+				});
+
 			}
+		}
+
+		for (final String showName : showNames) {
+			Callable<Boolean> showFetcher = new Callable<Boolean>() {
+				public Boolean call() throws Exception {
+					try {
+						Show show = ShowStore.fetchShow(showName);
+						logger.info("Show listing for '" + show.getName() + "' downloaded.");
+					} catch (ConnectException ce) {
+						handleNoConnection(ce);
+					} catch (UnknownHostException uhe) {
+						handleNoConnection(uhe);
+					}
+					return true;
+				}
+			};
+			fetchers.add(threadPool.submit(showFetcher));
 		}
 
 		Thread thread = new Thread() {
@@ -510,13 +530,6 @@ public class UIStarter {
 						e.printStackTrace();
 					}
 				}
-
-				// all threads should have finished by now
-				display.asyncExec(new Runnable() {
-					public void run() {
-						populateTable();
-					}
-				});
 			}
 		};
 		thread.start();
@@ -614,42 +627,24 @@ public class UIStarter {
 		tblResults.removeAll();
 		for (String fileName : files.keySet()) {
 			FileEpisode episode = files.get(fileName);
-			TableItem item = new TableItem(tblResults, SWT.NONE);
-			String newFilename = fileName;
-			try {
-				newFilename = getNewFilename(episode);
-				item.setChecked(true);
-			} catch (NotFoundException e) {
-				newFilename = e.getMessage();
-				item.setChecked(false);
-				item.setForeground(display.getSystemColor(SWT.COLOR_RED));
-			}
-			item.setText(new String[] { fileName, newFilename });
+			createTableItem(tblResults, fileName, episode);
 		}
 	}
 
-	private String getNewFilename(FileEpisode episode) {
-		String showName = "Show not found";
-		String seasonNum = "Season not found";
-		String titleString = "Episode not found";
+	private static TableItem createTableItem(Table tblResults, String fileName, FileEpisode episode) {
+		TableItem item = new TableItem(tblResults, SWT.NONE);
+		String newFilename = fileName;
+		try {
+			newFilename = episode.getNewFilename();
+			item.setChecked(true);
+		} catch (NotFoundException e) {
+			newFilename = e.getMessage();
+			item.setChecked(false);
+			item.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
+		}
+		item.setText(new String[] { fileName, newFilename });
 
-		Show show = ShowStore.getShow(episode.getShowName().toLowerCase());
-		showName = show.getName();
-
-		Season season = show.getSeason(episode.getSeasonNumber());
-		seasonNum = String.valueOf(season.getNumber());
-
-		String title = season.getTitle(episode.getEpisodeNumber());
-		titleString = StringUtils.sanitiseTitle(title);
-
-		String newFilename = Constants.DEFAULT_REPLACEMENT_MASK;
-		newFilename = newFilename.replaceAll("%S", showName);
-		newFilename = newFilename.replaceAll("%s", seasonNum);
-		newFilename = newFilename.replaceAll("%e", new DecimalFormat("00").format(episode.getEpisodeNumber()));
-		newFilename = newFilename.replaceAll("%t", titleString);
-		newFilename = newFilename.replaceAll("%T", titleString.replace(" ", ""));
-
-		return newFilename + "." + StringUtils.getExtension(episode.getFile().getName());
+		return item;
 	}
 
 	private void setSortedItem(int i, int j) {
