@@ -3,8 +3,6 @@ package com.google.code.tvrenamer.view;
 import static com.google.code.tvrenamer.view.UIUtils.getDefaultSystemFont;
 
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.logging.Logger;
 
 import org.eclipse.swt.SWT;
@@ -203,7 +201,7 @@ public class AboutDialog extends Dialog {
 					messageBuilder.append("There is a no new version available\n\n");
 					messageBuilder.append("Please check the website (");
 					messageBuilder.append(GOOGLE_CODE_URL);
-					messageBuilder.append(") for any news or check back later.");
+					messageBuilder.append(") for any news or check again later.");
 					UIUtils.showMessageBox(SWTMessageBoxType.WARNING, "No New Version Available", messageBuilder.toString());
 				}
 			}
