@@ -1,8 +1,6 @@
 package com.google.code.tvrenamer.model;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.code.tvrenamer.controller.XMLPersistence;
@@ -20,11 +18,13 @@ public class UserPreferences {
 	private String renameReplacementMask;
 	private static File prefsFile = new File(System.getProperty("user.dir") + Constants.FILE_SEPARATOR
 		+ Constants.PREFERENCES_FILE);
+	private ProxySettings proxy;
 
 	public UserPreferences() throws TVRenamerIOException {
 		this.destDir = new File(Constants.DEFAULT_DESTINATION_DIRECTORY);
 		this.seasonPrefix = Constants.DEFAULT_SEASON_PREFIX;
 		this.renameReplacementMask = Constants.DEFAULT_REPLACEMENT_MASK;
+		this.proxy = new ProxySettings();
 
 		ensurePath();
 	}
@@ -134,6 +134,14 @@ public class UserPreferences {
 		return renameReplacementMask;
 	}
 
+	public ProxySettings getProxy() {
+		return proxy;
+	}
+
+	public void setProxy(ProxySettings proxy) {
+		this.proxy = proxy;
+	}
+
 	/**
 	 * Create the directory if it doesn't exist.
 	 */
@@ -151,7 +159,6 @@ public class UserPreferences {
 	@Override
 	public String toString() {
 		return "UserPreferences [destDir=" + destDir + ", seasonPrefix=" + seasonPrefix + ", moveEnabled="
-			+ moveEnabled + ", renameReplacementMask=" + renameReplacementMask + "]";
+			+ moveEnabled + ", renameReplacementMask=" + renameReplacementMask + ", proxy=" + proxy + "]";
 	}
-
 }

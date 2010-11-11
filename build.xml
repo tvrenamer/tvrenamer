@@ -34,6 +34,7 @@
 		<fileset dir="${lib}" id="classpath.fileset">
 			<include name="xstream-*.jar" />
 			<include name="jedit-*-IOUtilities.jar" />
+			<include name="commons-codec-*.jar" />
 		</fileset>
 	</path>
 

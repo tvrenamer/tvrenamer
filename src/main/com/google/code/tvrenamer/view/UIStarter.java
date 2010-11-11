@@ -288,13 +288,11 @@ public class UIStarter {
 		tblResults.setHeaderVisible(true);
 		tblResults.setLinesVisible(true);
 		GridData gridData = new GridData(GridData.FILL_BOTH);
-		// gridData.widthHint = 780;
 		gridData.heightHint = 200;
 		gridData.horizontalSpan = 4;
 		tblResults.setLayoutData(gridData);
 
 		final TableColumn colIdx = new TableColumn(tblResults, SWT.LEFT);
-		// colIdx.setText("Index");
 		colIdx.setWidth(0);
 		colIdx.setResizable(false);
 
@@ -310,15 +308,6 @@ public class UIStarter {
 		final TableEditor editor = new TableEditor(tblResults);
 		editor.horizontalAlignment = SWT.CENTER;
 		editor.grabHorizontal = true;
-
-// colIdx.addSelectionListener(new SelectionAdapter() {
-// 
-// public void widgetSelected(SelectionEvent e) {
-// tblResults.setSortDirection(tblResults.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN);
-// sortTable(colIdx, 1);
-// tblResults.setSortColumn(colIdx);
-// }
-// });
 
 		colSrc.addSelectionListener(new SelectionAdapter() {
 
@@ -569,10 +558,6 @@ public class UIStarter {
 					String message = "File " + newFile + " already exists.\n" + currentFile + " was not renamed!";
 					showMessageBox(SWTMessageBoxType.QUESTION, "Question", message);
 				} else {
-// final long length = currentFile.length();
-//
-// long newLength = newFile.length();
-// System.out.println("(" + newLength + " / " + length + ") = " + ((double) newLength) / length);
 					final int progressBarInvidualMaximum = progressBarIndividual.getMaximum();
 
 					Callable<Boolean> moveCallable = new Callable<Boolean>() {
@@ -682,6 +667,7 @@ public class UIStarter {
 		newFilename = newFilename.replaceAll("%s", seasonNum);
 		newFilename = newFilename.replaceAll("%e", new DecimalFormat("00").format(episode.getEpisodeNumber()));
 		newFilename = newFilename.replaceAll("%t", titleString);
+		newFilename = newFilename.replaceAll("%T", titleString.replace(" ", ""));
 
 		return newFilename + "." + StringUtils.getExtension(episode.getFile().getName());
 	}
@@ -695,7 +681,6 @@ public class UIStarter {
 		TableItem item = new TableItem(tblResults, oldStyle, j);
 		item.setText(values);
 		item.setChecked(wasChecked);
-
 	}
 
 	private void sortTable(TableColumn col, int position) {

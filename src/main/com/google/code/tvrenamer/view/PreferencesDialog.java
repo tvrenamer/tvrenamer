@@ -2,19 +2,29 @@ package com.google.code.tvrenamer.view;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DragSource;
+import org.eclipse.swt.dnd.DragSourceEvent;
+import org.eclipse.swt.dnd.DragSourceListener;
+import org.eclipse.swt.dnd.DropTarget;
+import org.eclipse.swt.dnd.DropTargetEvent;
+import org.eclipse.swt.dnd.DropTargetListener;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.HelpEvent;
 import org.eclipse.swt.events.HelpListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
@@ -26,6 +36,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.google.code.tvrenamer.model.ProxySettings;
 import com.google.code.tvrenamer.model.TVRenamerIOException;
 import com.google.code.tvrenamer.model.UserPreferences;
 import com.google.code.tvrenamer.model.util.Constants.SWTMessageBoxType;
@@ -35,9 +46,11 @@ import com.google.code.tvrenamer.model.util.Constants.SWTMessageBoxType;
  */
 public class PreferencesDialog extends Dialog {
 
+	private static final String REPLACEMENT_OPTIONS_LIST_ENTRY_REGEX = "(.*) :.*";
 	private static Logger logger = Logger.getLogger(PreferencesDialog.class.getName());
-
 	private static Shell preferencesShell;
+	private static int DND_OPERATIONS = DND.DROP_MOVE;
+	
 	private final UserPreferences prefs;
 
 	// The controls to save
@@ -45,6 +58,12 @@ public class PreferencesDialog extends Dialog {
 	private Text destDirText;
 	private Text seasonPrefixText;
 	private Text replacementStringText;
+	private Button proxyEnabledCheckbox;
+	private Text proxyHostText;
+	private Text proxyPortText;
+	private Button proxyAuthenticationRequiredCheckbox;
+	private Text proxyUsernameText;
+	private Text proxyPasswordText;
 
 	/**
 	 * PreferencesDialog constructor
@@ -93,6 +112,8 @@ public class PreferencesDialog extends Dialog {
 		createMoveGroup();
 
 		createRenameGroup();
+		
+		createProxyGroup();
 
 		createButtonGroup();
 	}
@@ -107,32 +128,14 @@ public class PreferencesDialog extends Dialog {
 				+ "It will move the file to <tv directory>/Show Name/<season prefix> #/ \n"
 				+ "Once enabled, set the location of the folder below.");
 
-		Label moveEnabledLabel = new Label(moveGroup, SWT.NONE);
-		moveEnabledLabel.setText("Move Enabled [?]");
-		moveEnabledLabel.setToolTipText("Whether the 'move to TV location' functionality is enabled");
-
 		moveEnabledCheckbox = new Button(moveGroup, SWT.CHECK);
-		moveEnabledCheckbox.setText("Move Enabled");
+		moveEnabledCheckbox.setText("Move Enabled [?]");
 		moveEnabledCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 3, 1));
+		moveEnabledCheckbox.setToolTipText("Whether the 'move to TV location' functionality is enabled");
 
 		Label destDirLabel = new Label(moveGroup, SWT.NONE);
 		destDirLabel.setText("Destination directory [?]");
 		destDirLabel.setToolTipText("The location of your 'TV' folder");
-
-		destDirLabel.addMouseListener(new MouseListener() {
-
-			public void mouseUp(MouseEvent e) {
-				// no-op
-			}
-
-			public void mouseDown(MouseEvent e) {
-				System.out.println("mouseDown");
-			}
-
-			public void mouseDoubleClick(MouseEvent e) {
-				// no-op
-			}
-		});
 
 		destDirText = new Text(moveGroup, SWT.BORDER);
 		destDirText.setText(prefs.getDestinationDirectory().toString());
@@ -142,7 +145,6 @@ public class PreferencesDialog extends Dialog {
 		final Button destDirButton = new Button(moveGroup, SWT.PUSH);
 		destDirButton.setText("Select a directory");
 		destDirButton.addListener(SWT.Selection, new Listener() {
-
 			public void handleEvent(Event event) {
 				DirectoryDialog directoryDialog = new DirectoryDialog(preferencesShell);
 
@@ -176,25 +178,15 @@ public class PreferencesDialog extends Dialog {
 			}
 		});
 
-		handleDestDirControl(moveEnabledCheckbox, destDirText, destDirButton);
+		toggleEnableControls(moveEnabledCheckbox, destDirText, destDirButton);
 
 		moveEnabledCheckbox.addSelectionListener(new SelectionAdapter() {
-
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				handleDestDirControl(moveEnabledCheckbox, destDirText, destDirButton);
+				toggleEnableControls(moveEnabledCheckbox, destDirText, destDirButton);
 			}
 		});
 
-	}
-
-	private void handleDestDirControl(Button moveEnabledCheckbox, Text destDirText, Button destDirButton) {
-		boolean enabled = moveEnabledCheckbox.getSelection();
-		logger.finer("Updating destDir controls to : " + enabled);
-		destDirText.setEnabled(enabled);
-		destDirButton.setEnabled(enabled);
-
-		preferencesShell.redraw();
 	}
 
 	private void createRenameGroup() {
@@ -205,62 +197,181 @@ public class PreferencesDialog extends Dialog {
 
 		Label seasonPrefixLabel = new Label(replacementGroup, SWT.NONE);
 		seasonPrefixLabel.setText("Season Prefix [?]");
-		seasonPrefixLabel
-			.setToolTipText("This is the prefix of the season when renaming and moving the file.  It is usually \"Season \" or \"s'\".  The \" will not be included, just displayed here to show whitespace");
+		seasonPrefixLabel.setToolTipText("This is the prefix of the season when renaming and moving the file.  It is usually \"Season \" or \"s'\"." +
+					"\nThe \" will not be included, just displayed here to show whitespace");
 
 		seasonPrefixText = new Text(replacementGroup, SWT.BORDER);
 		seasonPrefixText.setText(prefs.getSeasonPrefixForDisplay());
 		seasonPrefixText.setTextLimit(99);
 		seasonPrefixText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true, 2, 1));
 
-		Label replacementOptionsLabel = new Label(replacementGroup, SWT.NONE);
-		replacementOptionsLabel.setText("Rename Options:");
+		Label renameTokensLabel = new Label(replacementGroup, SWT.NONE);
+		renameTokensLabel.setText("Rename Tokens [?]");
+		renameTokensLabel.setToolTipText("These are the possible tokens to make up the 'Rename Format' below.\nYou can drag and drop tokens to the 'Rename Format' text box below");
 
-//		Table optionsTable = new Table(replacementGroup, SWT.NONE);
-//		optionsTable.setLinesVisible(true);
-//		optionsTable.setHeaderVisible(true);
-//
-//		optionsTable.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 2, 1));
-//
-//		TableColumn tokenColumn = new TableColumn(optionsTable, SWT.NONE, 0);
-//		tokenColumn.setText("Token");
-//		tokenColumn.setWidth(50);
-//
-//		TableColumn valueColumn = new TableColumn(optionsTable, SWT.NONE, 1);
-//		valueColumn.setText("Value");
-//		valueColumn.setWidth(120);
-//
-//		Map<String, String> tokenMap = new LinkedHashMap<String, String>();
-//		tokenMap.put("%S", "Show Name");
-//		tokenMap.put("%s", "Season Number");
-//		tokenMap.put("%e", "Episode Number");
-//		tokenMap.put("%t", "Episode Title");
-//		tokenMap.put("%T", "Episode Title (with spaces removed)");
-//
-//		for (String option : tokenMap.keySet()) {
-//			TableItem item = new TableItem(optionsTable, SWT.NONE);
-//			item.setText(0, option);
-//			item.setText(1, tokenMap.get(option));
-//
-//		}
-
-		List optionsList = new List(replacementGroup, SWT.SINGLE);
-		optionsList.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 2, 1));
-		optionsList.add("%S : Show Name");
-		optionsList.add("%s : Season Number");
-		optionsList.add("%e : Episode Number");
-		optionsList.add("%t : Episode Title");
-		optionsList.add("%T : Episode Title (with spaces removed)");
+		List renameTokensList = new List(replacementGroup, SWT.SINGLE);
+		renameTokensList.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 2, 1));
+		renameTokensList.add(new RenameToken("%S", "Show Name").toString());
+		renameTokensList.add(new RenameToken("%s", "Season Number").toString());
+		renameTokensList.add(new RenameToken("%e", "Episode Number").toString());
+		renameTokensList.add(new RenameToken("%t", "Episode Title").toString());
+		renameTokensList.add(new RenameToken("%T", "Episode Title (with spaces removed)").toString());
 
 		Label episodeTitleLabel = new Label(replacementGroup, SWT.NONE);
-		episodeTitleLabel.setText("Replacement Tokens [?]");
-		episodeTitleLabel
-			.setToolTipText("The result of the rename, with the tokens being replaced by the meaning above");
+		episodeTitleLabel.setText("Rename Format [?]");
+		episodeTitleLabel.setToolTipText("The result of the rename, with the tokens being replaced by the meaning above");
 
 		replacementStringText = new Text(replacementGroup, SWT.BORDER);
 		replacementStringText.setText(prefs.getRenameReplacementString());
 		replacementStringText.setTextLimit(99);
 		replacementStringText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true, 2, 1));
+		
+		createDragSource(renameTokensList);
+		createDropTarget(replacementStringText);
+	}
+	
+	private static void createDragSource(final List sourceList) {
+		Transfer[] types = new Transfer[] { TextTransfer.getInstance() };
+		DragSource dragSource = new DragSource(sourceList, DND_OPERATIONS);
+		dragSource.setTransfer(types);
+		dragSource.addDragListener(new DragSourceListener() {
+
+			public void dragStart(DragSourceEvent event) {
+				if (sourceList.getSelectionIndex() != 0) {
+					event.doit = true;
+				}
+			}
+
+			public void dragSetData(DragSourceEvent event) {
+				String listEntry = sourceList.getItem(sourceList.getSelectionIndex());
+				String token;
+				
+				Matcher tokenMatcher =  Pattern.compile(REPLACEMENT_OPTIONS_LIST_ENTRY_REGEX).matcher(listEntry);
+				if(tokenMatcher.matches()) {
+					token = tokenMatcher.group(1);
+					event.data = token;
+				}
+			}
+
+			public void dragFinished(DragSourceEvent event) {
+				// no-op
+			}
+		});
+	}
+
+	private static void createDropTarget(final Text targetText) {
+		Transfer[] types = new Transfer[] { TextTransfer.getInstance() };
+		DropTarget dropTarget = new DropTarget(targetText, DND_OPERATIONS);
+		dropTarget.setTransfer(types);
+
+		dropTarget.addDropListener(new DropTargetListener() {
+
+			public void dragEnter(DropTargetEvent event) {
+				// no-op
+			}
+
+			public void dragLeave(DropTargetEvent event) {
+				// no-op
+			}
+
+			public void dragOperationChanged(DropTargetEvent event) {
+				// no-op
+			}
+
+			public void dragOver(DropTargetEvent event) {
+				// no-op
+			}
+
+			public void drop(DropTargetEvent event) {
+				String data = (String) event.data;
+				//  TODO: This currently adds the dropped text onto the end, not where we dropped it
+				targetText.append(data);
+			}
+
+			public void dropAccept(DropTargetEvent event) {
+				// no-op
+			}
+		});
+	}
+	
+	private void createProxyGroup() {
+		ProxySettings proxy = prefs.getProxy();
+		
+		Group proxyGroup = new Group(preferencesShell, SWT.NONE);
+		proxyGroup.setText("Proxy Settings [?]");
+		proxyGroup.setLayout(new GridLayout(3, false));
+		proxyGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 3, 1));
+		proxyGroup.setToolTipText("If you connect to the internet via a proxy server, enable and set the properties");
+
+		proxyEnabledCheckbox = new Button(proxyGroup, SWT.CHECK);
+		proxyEnabledCheckbox.setText("Proxy Enabled");
+		proxyEnabledCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 3, 1));
+		proxyEnabledCheckbox.setSelection(proxy.isEnabled());
+		
+		Label proxyHostLabel = new Label(proxyGroup, SWT.NONE);
+		proxyHostLabel.setText("Proxy Host [?]");
+		proxyHostLabel.setToolTipText("The hostname or IP address of your proxy");
+
+		proxyHostText = new Text(proxyGroup, SWT.BORDER);
+		proxyHostText.setText(proxy.getHostname());
+		proxyHostText.setTextLimit(99);
+		proxyHostText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true, 2, 1));
+		
+		Label proxyPortLabel = new Label(proxyGroup, SWT.NONE);
+		proxyPortLabel.setText("Proxy Port [?]");
+		proxyPortLabel.setToolTipText("The port of your proxy");
+
+		proxyPortText = new Text(proxyGroup, SWT.BORDER);
+		proxyPortText.setText(proxy.getPort());
+		proxyPortText.setTextLimit(99);
+		proxyPortText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true, 2, 1));
+		
+		proxyAuthenticationRequiredCheckbox = new Button(proxyGroup, SWT.CHECK);
+		proxyAuthenticationRequiredCheckbox.setText("Proxy Authentication Required");
+		proxyAuthenticationRequiredCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 3, 1));
+		proxyAuthenticationRequiredCheckbox.setSelection(proxy.isAuthenticationRequired());
+		
+		Label proxyUsernameLabel = new Label(proxyGroup, SWT.NONE);
+		proxyUsernameLabel.setText("Proxy Username [?]");
+		proxyUsernameLabel.setToolTipText("If you connect to a windows domain enter domain\\username");
+
+		proxyUsernameText = new Text(proxyGroup, SWT.BORDER);
+		proxyUsernameText.setText(proxy.getUsername());
+		proxyUsernameText.setTextLimit(99);
+		proxyUsernameText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true, 2, 1));
+		
+		Label proxyPasswordLabel = new Label(proxyGroup, SWT.NONE);
+		proxyPasswordLabel.setText("Proxy Password");
+
+		proxyPasswordText = new Text(proxyGroup, SWT.BORDER);
+		proxyPasswordText.setEchoChar('*');
+		proxyPasswordText.setText(proxy.getDecryptedPassword());
+		proxyPasswordText.setTextLimit(99);
+		proxyPasswordText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true, 2, 1));
+		
+		// Setup initial enabling controls
+		toggleEnableControls(proxyEnabledCheckbox, proxyHostText, proxyPortText, proxyAuthenticationRequiredCheckbox);
+		toggleEnableControls(proxyAuthenticationRequiredCheckbox, proxyUsernameText, proxyPasswordText);
+		
+		// Setup listeners
+		proxyEnabledCheckbox.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if(proxyEnabledCheckbox.getSelection()) {
+					toggleEnableControls(proxyEnabledCheckbox, proxyHostText, proxyPortText, proxyAuthenticationRequiredCheckbox);
+				} else {
+					toggleEnableControls(proxyEnabledCheckbox, proxyHostText, proxyPortText, proxyAuthenticationRequiredCheckbox, proxyUsernameText, proxyPasswordText);
+				}
+			}
+		});
+		
+		proxyAuthenticationRequiredCheckbox.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				toggleEnableControls(proxyAuthenticationRequiredCheckbox, proxyUsernameText, proxyPasswordText);
+			}
+		});
+		
 	}
 
 	private void createButtonGroup() {
@@ -279,7 +390,6 @@ public class PreferencesDialog extends Dialog {
 		cancelButton.setLayoutData(saveGridData);
 
 		saveButton.addSelectionListener(new SelectionAdapter() {
-
 			@Override
 			public void widgetSelected(SelectionEvent event) {
 				savePreferences();
@@ -288,7 +398,6 @@ public class PreferencesDialog extends Dialog {
 		});
 
 		cancelButton.addSelectionListener(new SelectionAdapter() {
-
 			@Override
 			public void widgetSelected(SelectionEvent event) {
 				preferencesShell.close();
@@ -308,6 +417,22 @@ public class PreferencesDialog extends Dialog {
 		prefs.setMovedEnabled(moveEnabledCheckbox.getSelection());
 		prefs.setSeasonPrefix(seasonPrefixText.getText());
 		prefs.setRenameReplacementString(replacementStringText.getText());
+		
+		ProxySettings proxySettings = prefs.getProxy();
+		proxySettings.setEnabled(proxyEnabledCheckbox.getSelection());		
+		if(proxySettings.isEnabled()) {
+			proxySettings.setHostname(proxyHostText.getText());
+			proxySettings.setPort(proxyPortText.getText());
+			
+			proxySettings.setAuthenticationRequired(proxyAuthenticationRequiredCheckbox.getSelection());
+			if(proxySettings.isAuthenticationRequired()) {
+				proxySettings.setUsername(proxyUsernameText.getText());
+				proxySettings.setPlainTextPassword(proxyPasswordText.getText());	
+			}
+			proxySettings.apply();
+			
+			prefs.setProxy(proxySettings);
+		}
 
 		try {
 			prefs.setDestinationDirectory(destDirText.getText());
@@ -317,5 +442,33 @@ public class PreferencesDialog extends Dialog {
 			logger.log(Level.WARNING, "Unable to create the destination directory", e);
 		}
 		prefs.store();
+	}
+	
+	/**
+	 * Toggle whether the or not the listed {@link Control}s are enabled, based off the of the selection value of the checkbox
+	 * @param decidingCheckbox the checkbox the enable flag is taken off
+	 * @param controls the list of controls to update
+	 */
+	private void toggleEnableControls(Button decidingCheckbox, Control... controls) {	
+		for(Control control : controls) {
+			control.setEnabled(decidingCheckbox.getSelection());
+		}
+		preferencesShell.redraw();
+	}
+
+	private class RenameToken {
+		private String token;
+		private String value;
+		
+		public RenameToken(String token, String value) {
+			this.token = token;
+			this.value = value;
+		}
+
+		@Override
+		public String toString() {
+			// Note, the 'token' (ie. %s) format must match the REPLACEMENT_OPTIONS_LIST_ENTRY_REGEX so the dnd works correctly
+			return token + " : " + value;
+		}
 	}
 }
