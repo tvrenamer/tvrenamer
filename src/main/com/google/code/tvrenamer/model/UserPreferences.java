@@ -3,12 +3,15 @@ package com.google.code.tvrenamer.model;
 import java.io.File;
 import java.util.logging.Logger;
 
-import com.google.code.tvrenamer.controller.XMLPersistence;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import com.google.code.tvrenamer.controller.JAXBPersistence;
 import com.google.code.tvrenamer.controller.util.StringUtils;
 import com.google.code.tvrenamer.model.util.Constants;
 import com.google.code.tvrenamer.model.util.Constants.SWTMessageBoxType;
 import com.google.code.tvrenamer.view.UIUtils;
 
+@XmlRootElement
 public class UserPreferences {
 	private static Logger logger = Logger.getLogger(UserPreferences.class.getName());
 
@@ -33,37 +36,17 @@ public class UserPreferences {
 	 * Load preferences from xml file
 	 */
 	public static UserPreferences load() {
-		UserPreferences prefs = null;
-
-		try {
-			// retrieve from file and update in-memory copy
-			prefs = XMLPersistence.retrieve(prefsFile);
-		} catch (IOException e) {
-			// failed to load, revert to in-memory
-			try {
-				prefs = new UserPreferences();
-				XMLPersistence.persist(prefs, prefsFile);
-			} catch (IOException e1) {
-				// either failed to create (no moving),
-				// or failed to save (in-memory prefs only)
-				logger.log(Level.WARNING, "Failed to store preferences", e1);
-			}
-			logger.log(Level.WARNING, "Failed to load preferences", e);
-		}
-
-		if (prefs != null) {
-			logger.info("Initialised: " + prefs.toString());
-		}
+		UserPreferences prefs = JAXBPersistence.retrieve(prefsFile);
+		logger.fine(prefs.toString());
+		
+		// Apply the proxy settings
+		prefs.getProxy().apply();
 
 		return prefs;
 	}
 
 	public void store() {
-		try {
-			XMLPersistence.persist(this, prefsFile);
-		} catch (IOException e) {
-			logger.log(Level.WARNING, "Failed to store preferences", e);
-		}
+		JAXBPersistence.persist(this, prefsFile);
 		logger.fine("Sucessfully saved/updated preferences");
 	}
 
