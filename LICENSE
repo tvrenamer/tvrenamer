@@ -34,6 +34,13 @@ License: Eclipse Public License (EPL)
 License website: http://www.eclipse.org/legal/index.php
 Note: This class is packaged into the TVRenamer codebase because some modifications were required.  These were performed with the developer's assistance, and the header left intact
 
+Apache Commons Codec
+=========================================
+Description: Commons Codec provides implementations of common encoders and decoders such as Base64, Hex, Phonetic and URLs.
+Website: http://commons.apache.org/codec/
+License: Apache License v2.0
+License website: http://www.apache.org/licenses/LICENSE-2.0
+
 == End of TVRenamer license section ==
 
 

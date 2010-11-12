@@ -3,6 +3,7 @@ Below is a list of projects/people that TVRenamer relies on (with thanks):
  - Codehaus XStream
  - jEdit
  - TransparenTech CocoaUIEnhancer
+ - Apache Commons Codec
 
 Below is a list of projects/people that have made contributions to TVRenamer:
  - thefloweringash (http://github.com/thefloweringash/tvrenamer)
