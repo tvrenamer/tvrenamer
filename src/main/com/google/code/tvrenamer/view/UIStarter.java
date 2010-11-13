@@ -291,7 +291,7 @@ public class UIStarter {
 		tblResults.setLinesVisible(true);
 		GridData gridData = new GridData(GridData.FILL_BOTH);
 		// gridData.widthHint = 780;
-		gridData.heightHint = 300;
+		gridData.heightHint = 350;
 		gridData.horizontalSpan = 4;
 		tblResults.setLayoutData(gridData);
 
@@ -301,7 +301,7 @@ public class UIStarter {
 
 		final TableColumn colDest = new TableColumn(tblResults, SWT.LEFT);
 		colDest.setText("Proposed Filename");
-		colDest.setWidth(400);
+		colDest.setWidth(375);
 
 		final TableColumn colStatus = new TableColumn(tblResults, SWT.LEFT);
 		colStatus.setText("Status");
@@ -458,9 +458,43 @@ public class UIStarter {
 	}
 
 	private void initiateRenamer(final String[] fileNames) {
-		final Queue<Future<Boolean>> fetchers = new LinkedList<Future<Boolean>>();
+		final List<String> files = new LinkedList<String>();
+		for (final String fileName : fileNames) {
+			File f = new File(fileName);
+			new FileTraversal() {
+				@Override
+				public void onFile(File f) {
+					files.add(f.getAbsolutePath());
+				}
+			}.traverse(f);
+		}
+		addFiles(files);
+	}
 
-		final Set<String> showNames = new HashSet<String>();
+	// class adopted from http://vafer.org/blog/20071112204524
+	public abstract class FileTraversal {
+		public final void traverse(final File f) {
+			if (f.isDirectory()) {
+				onDirectory(f);
+				final File[] childs = f.listFiles();
+				for (File child : childs) {
+					traverse(child);
+				}
+				return;
+			}
+			onFile(f);
+		}
+
+		public void onDirectory(final File d) {
+
+		}
+
+		public void onFile(final File f) {
+
+		}
+	}
+
+	private void addFiles(final List<String> fileNames) {
 		for (final String fileName : fileNames) {
 			final FileEpisode episode = TVRenamer.parseFilename(fileName);
 			if (episode == null) {
