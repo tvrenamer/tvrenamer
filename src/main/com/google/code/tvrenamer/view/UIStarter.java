@@ -558,7 +558,7 @@ public class UIStarter {
 							if (newFile.getParentFile().exists() || newFile.getParentFile().mkdirs()) {
 								setIconOnTableItem(item, FILE_STATUS_COLUMN, pencilIcon);
 								FileCopyMonitor monitor = new FileCopyMonitor(progressLabel, currentFile.length());
-								boolean succeeded = FileUtilities.copyFile(currentFile, newFile, monitor, true);
+								boolean succeeded = FileUtilities.moveFile(currentFile, newFile, monitor, true);
 								logger.info("Moved " + currentFile.getAbsolutePath() + " to "
 									+ newFile.getAbsolutePath());
 								episode.setFile(newFile);
