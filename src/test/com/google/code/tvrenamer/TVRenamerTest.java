@@ -10,7 +10,7 @@ import com.google.code.tvrenamer.model.FileEpisode;
 
 public class TVRenamerTest {
 
-	public static final String[][] values = new String[13][4];
+	public static final String[][] values = new String[14][4];
 
 	@BeforeClass
 	public static void setupValues() {
@@ -29,6 +29,8 @@ public class TVRenamerTest {
 		values[i++] = new String[] { "the.big.bang.theory.s03e18.720p.hdtv.x264-ctu.mkv", "the big bang theory", "3",
 			"18" };
 		values[i++] = new String[] { "castle.2009.s01e09.720p.hdtv.x264-ctu.mkv", "castle 2009", "1", "9" };
+
+		values[i++] = new String[] { "/TV/Dexter/S05E05 First Blood.mkv", "dexter", "5", "5" };
 	}
 
 	@Test
