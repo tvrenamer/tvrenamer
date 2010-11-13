@@ -7,13 +7,11 @@ import java.io.File;
 import java.io.InputStream;
 import java.text.Collator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -77,9 +75,9 @@ public class UIStarter {
 
 	private static Shell shell;
 
-	private final UserPreferences prefs = null;
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
+	private UserPreferences prefs = null;
 	private Display display;
 
 	private Button btnBrowse;
@@ -104,7 +102,7 @@ public class UIStarter {
 
 	private void init() {
 		// load preferences
-		UserPreferences.load();
+		prefs = UserPreferences.load();
 
 		// Setup display and shell
 		GridLayout gridLayout = new GridLayout(4, false);
