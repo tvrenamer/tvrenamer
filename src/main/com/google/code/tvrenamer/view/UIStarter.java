@@ -1,17 +1,15 @@
 package com.google.code.tvrenamer.view;
 
-import static com.google.code.tvrenamer.view.UIUtils.handleNoConnection;
 import static com.google.code.tvrenamer.view.UIUtils.isMac;
 import static com.google.code.tvrenamer.view.UIUtils.showMessageBox;
 
 import java.io.File;
 import java.io.InputStream;
-import java.net.ConnectException;
-import java.net.UnknownHostException;
 import java.text.Collator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Queue;
@@ -81,7 +79,6 @@ public class UIStarter {
 
 	private final UserPreferences prefs = null;
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
-	private final ExecutorService threadPool = Executors.newCachedThreadPool();
 
 	private Display display;
 
@@ -168,7 +165,7 @@ public class UIStarter {
 
 	private void doCleanup() {
 		executor.shutdownNow();
-		threadPool.shutdownNow();
+		ShowStore.cleanUp();
 		shell.dispose();
 		display.dispose();
 	}
@@ -467,18 +464,14 @@ public class UIStarter {
 		for (final String fileName : fileNames) {
 			final FileEpisode episode = TVRenamer.parseFilename(fileName);
 			if (episode == null) {
-				System.err.println("Couldn't parse file: " + fileName);
+				logger.severe("Couldn't parse file: " + fileName);
 			} else {
 				String showName = episode.getShowName();
-
-				if (!showNames.contains(showName)) {
-					showNames.add(showName);
-				}
 
 				files.put(fileName, episode);
 				final TableItem item = createTableItem(tblResults, fileName, episode);
 
-				ShowStore.addShow(showName, new ShowInformationListener() {
+				ShowStore.getShow(showName, new ShowInformationListener() {
 					public void downloaded(Show show) {
 						episode.setStatus(EpisodeStatus.DOWNLOADED);
 						display.asyncExec(new Runnable() {
@@ -489,64 +482,8 @@ public class UIStarter {
 						});
 					}
 				});
-
 			}
 		}
-
-		for (final String showName : showNames) {
-			Callable<Boolean> showFetcher = new Callable<Boolean>() {
-				public Boolean call() throws Exception {
-					try {
-						Show show = ShowStore.fetchShow(showName);
-						logger.info("Show listing for '" + show.getName() + "' downloaded.");
-					} catch (ConnectException ce) {
-						handleNoConnection(ce);
-					} catch (UnknownHostException uhe) {
-						handleNoConnection(uhe);
-					}
-					return true;
-				}
-			};
-			fetchers.add(threadPool.submit(showFetcher));
-		}
-
-		Thread thread = new Thread() {
-			@Override
-			public void run() {
-				final int totalNumShows = showNames.size();
-				while (true) {
-					if (display.isDisposed()) {
-						return;
-					}
-
-					final int size = fetchers.size();
-					display.asyncExec(new Runnable() {
-
-						public void run() {
-							if (progressBarTotal.isDisposed()) {
-								return;
-							}
-							progressBarTotal.setSelection((int) Math.round(((double) (totalNumShows - size)
-								/ totalNumShows * progressBarTotal.getMaximum())));
-						}
-					});
-
-					if (size == 0) {
-						break;
-					}
-
-					try {
-						Future<Boolean> fetcher = fetchers.remove();
-						fetcher.get(); // will block until callable has completed
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					} catch (ExecutionException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		};
-		thread.start();
 	}
 
 	private void renameFiles() {
@@ -659,15 +596,6 @@ public class UIStarter {
 				item.setImage(column, icon);
 			}
 		});
-	}
-
-	private void populateTable() {
-		// Clear the table for new use
-		tblResults.removeAll();
-		for (String fileName : files.keySet()) {
-			FileEpisode episode = files.get(fileName);
-			createTableItem(tblResults, fileName, episode);
-		}
 	}
 
 	private static TableItem createTableItem(Table tblResults, String fileName, FileEpisode episode) {
