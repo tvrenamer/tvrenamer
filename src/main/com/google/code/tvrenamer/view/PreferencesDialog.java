@@ -71,10 +71,9 @@ public class PreferencesDialog extends Dialog {
 	 * @param parent
 	 *            the parent {@link Shell}
 	 */
-	public PreferencesDialog(Shell parent) {
+	public PreferencesDialog(Shell parent, UserPreferences prefs) {
 		super(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
-
-		prefs = UserPreferences.load();
+		this.prefs = prefs;
 	}
 
 	public void open() {
@@ -214,8 +213,9 @@ public class PreferencesDialog extends Dialog {
 		renameTokensList.add(new RenameToken("%S", "Show Name").toString());
 		renameTokensList.add(new RenameToken("%s", "Season Number").toString());
 		renameTokensList.add(new RenameToken("%e", "Episode Number").toString());
+		renameTokensList.add(new RenameToken("%E", "Episode Number (without leading 0s)").toString());
 		renameTokensList.add(new RenameToken("%t", "Episode Title").toString());
-		renameTokensList.add(new RenameToken("%T", "Episode Title (with spaces removed)").toString());
+		renameTokensList.add(new RenameToken("%T", "Episode Title (' ' replaced with '.')").toString());
 
 		Label episodeTitleLabel = new Label(replacementGroup, SWT.NONE);
 		episodeTitleLabel.setText("Rename Format [?]");

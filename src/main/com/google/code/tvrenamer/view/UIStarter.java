@@ -13,7 +13,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -54,11 +53,12 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
+import com.google.code.tvrenamer.controller.FileMover;
 import com.google.code.tvrenamer.controller.ShowInformationListener;
 import com.google.code.tvrenamer.controller.TVRenamer;
-import com.google.code.tvrenamer.controller.util.FileUtilities;
 import com.google.code.tvrenamer.model.EpisodeStatus;
 import com.google.code.tvrenamer.model.FileEpisode;
+import com.google.code.tvrenamer.model.FileMoveIcon;
 import com.google.code.tvrenamer.model.NotFoundException;
 import com.google.code.tvrenamer.model.Show;
 import com.google.code.tvrenamer.model.ShowStore;
@@ -81,6 +81,7 @@ public class UIStarter {
 	private Display display;
 
 	private Button btnBrowse;
+	private Button btnRefresh;
 	private Button btnRenameSelected;
 
 	private Table tblResults;
@@ -88,11 +89,6 @@ public class UIStarter {
 	private ProgressBar progressBarTotal;
 
 	private Map<String, FileEpisode> files = new HashMap<String, FileEpisode>();
-
-	private static Image plusIcon;
-	private static Image pencilIcon;
-	private static Image checkIcon;
-	private static Image downIcon;
 
 	public static void main(String[] args) {
 		UIStarter ui = new UIStarter();
@@ -105,7 +101,7 @@ public class UIStarter {
 		prefs = UserPreferences.load();
 
 		// Setup display and shell
-		GridLayout gridLayout = new GridLayout(4, false);
+		GridLayout gridLayout = new GridLayout(3, false);
 		Display.setAppName(Constants.APPLICATION_NAME);
 		display = new Display();
 
@@ -118,11 +114,9 @@ public class UIStarter {
 		new UIUtils(shell);
 
 		// Add controls to main shell
-		setupBrowseDialog();
-		setupResultsTable();
-		setupTableDragDrop();
-		setupMenuBar();
 		setupMainWindow();
+		setupBrowseDialog();
+		setupMenuBar();
 
 		setupIcons();
 
@@ -130,6 +124,25 @@ public class UIStarter {
 	}
 
 	private void setupMainWindow() {
+		btnBrowse = new Button(shell, SWT.PUSH);
+		btnBrowse.setText("Add files");
+		btnBrowse.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
+
+		btnRefresh = new Button(shell, SWT.PUSH);
+		btnRefresh.setText("Refresh");
+		GridData gridData = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
+		gridData.horizontalSpan = 2;
+		btnRefresh.setLayoutData(gridData);
+		btnRefresh.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				refreshTable();
+			}
+		});
+
+		setupResultsTable();
+		setupTableDragDrop();
+
 		final Button btnQuit = new Button(shell, SWT.PUSH);
 		btnQuit.setText("Quit");
 		btnQuit.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
@@ -145,7 +158,6 @@ public class UIStarter {
 		}
 
 		btnRenameSelected.addSelectionListener(new SelectionAdapter() {
-
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				renameFiles();
@@ -153,7 +165,6 @@ public class UIStarter {
 		});
 
 		btnQuit.addSelectionListener(new SelectionAdapter() {
-
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				doCleanup();
@@ -260,9 +271,6 @@ public class UIStarter {
 
 	private void setupBrowseDialog() {
 		final FileDialog fd = new FileDialog(shell, SWT.MULTI);
-		btnBrowse = new Button(shell, SWT.PUSH);
-		btnBrowse.setText("Add files");
-
 		btnBrowse.addSelectionListener(new SelectionAdapter() {
 
 			@Override
@@ -274,7 +282,7 @@ public class UIStarter {
 
 					String[] fileNames = fd.getFileNames();
 					for (int i = 0; i < fileNames.length; i++) {
-						fileNames[i] = pathPrefix + Constants.FILE_SEPARATOR + fileNames[i];
+						fileNames[i] = pathPrefix + File.separatorChar + fileNames[i];
 					}
 
 					initiateRenamer(fileNames);
@@ -290,7 +298,7 @@ public class UIStarter {
 		GridData gridData = new GridData(GridData.FILL_BOTH);
 		// gridData.widthHint = 780;
 		gridData.heightHint = 350;
-		gridData.horizontalSpan = 4;
+		gridData.horizontalSpan = 3;
 		tblResults.setLayoutData(gridData);
 
 		final TableColumn colSrc = new TableColumn(tblResults, SWT.LEFT);
@@ -412,10 +420,6 @@ public class UIStarter {
 				shell.setImage(new Image(display, "res/icons/tvrenamer.png"));
 			}
 
-			plusIcon = new Image(display, "res/icons/SweetieLegacy/16-em-plus.png");
-			pencilIcon = new Image(display, "res/icons/SweetieLegacy/16-em-pencil.png");
-			checkIcon = new Image(display, "res/icons/SweetieLegacy/16-em-check.png");
-			downIcon = new Image(display, "res/icons/SweetieLegacy/16-em-down.png");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -501,15 +505,15 @@ public class UIStarter {
 				String showName = episode.getShowName();
 
 				files.put(fileName, episode);
-				final TableItem item = createTableItem(tblResults, fileName, episode);
+				final TableItem item = createTableItem(tblResults, fileName, episode, prefs);
 
 				ShowStore.getShow(showName, new ShowInformationListener() {
 					public void downloaded(Show show) {
 						episode.setStatus(EpisodeStatus.DOWNLOADED);
 						display.asyncExec(new Runnable() {
 							public void run() {
-								item.setText(NEW_FILENAME_COLUMN, episode.getNewFilename());
-								item.setImage(FILE_STATUS_COLUMN, plusIcon);
+								item.setText(NEW_FILENAME_COLUMN, episode.getNewFilename(prefs));
+								item.setImage(FILE_STATUS_COLUMN, FileMoveIcon.ADDED.icon);
 							}
 						});
 					}
@@ -530,10 +534,11 @@ public class UIStarter {
 				final FileEpisode episode = files.get(fileName);
 				String currentName = currentFile.getName();
 				String newName = item.getText(1);
-				String newFilePath = currentFile.getParent() + Constants.FILE_SEPARATOR + newName;
+				String newFilePath = currentFile.getParent() + File.separatorChar + newName;
 
 				if (prefs != null) {
-					newFilePath = episode.getDestinationDirectory(prefs) + Constants.FILE_SEPARATOR + newName;
+					newFilePath = episode.getDestinationDirectory(prefs).getAbsolutePath() + File.separatorChar
+						+ newName;
 				}
 
 				final File newFile = new File(newFilePath);
@@ -544,97 +549,48 @@ public class UIStarter {
 					String message = "File " + newFile + " already exists.\n" + currentFile + " was not renamed!";
 					showMessageBox(SWTMessageBoxType.QUESTION, "Question", message);
 				} else {
-
 					// progress label
 					TableEditor editor = new TableEditor(tblResults);
 					final Label progressLabel = new Label(tblResults, SWT.SHADOW_NONE | SWT.CENTER);
 					editor.grabHorizontal = true;
 					editor.setEditor(progressLabel, item, FILE_STATUS_COLUMN);
 
-					Callable<Boolean> moveCallable = new Callable<Boolean>() {
-						public Boolean call() {
-							if (newFile.getParentFile().exists() || newFile.getParentFile().mkdirs()) {
-								setIconOnTableItem(item, FILE_STATUS_COLUMN, pencilIcon);
-								FileCopyMonitor monitor = new FileCopyMonitor(progressLabel, currentFile.length());
-								boolean succeeded = FileUtilities.moveFile(currentFile, newFile, monitor, true);
-								logger.info("Moved " + currentFile.getAbsolutePath() + " to "
-									+ newFile.getAbsolutePath());
-								episode.setFile(newFile);
-								setIconOnTableItem(item, FILE_STATUS_COLUMN, checkIcon);
-								display.asyncExec(new Runnable() {
-									public void run() {
-										if (progressLabel.isDisposed()) {
-											return;
-										}
-										progressLabel.setText("");
-
-									}
-								});
-								return succeeded;
-							}
-							return false;
-						}
-					};
+					Callable<Boolean> moveCallable = new FileMover(display, episode, newFile, item, progressLabel);
 					futures.add(executor.submit(moveCallable));
 				}
 			}
 		}
 
-		final int totalNumFiles = count;
-
-		Thread progressThread = new Thread(new Runnable() {
-
-			public void run() {
-				while (true) {
-					if (display.isDisposed()) {
-						return;
-					}
-
-					final int size = futures.size();
+		Thread progressThread = new Thread(new ProgressBarUpdater(display, progressBarTotal, count, futures,
+			new UpdateCompleteHandler() {
+				public void onUpdateComplete() {
 					display.asyncExec(new Runnable() {
 						public void run() {
-							if (progressBarTotal.isDisposed()) {
-								return;
-							}
-							progressBarTotal.setSelection((int) Math.round(((double) (totalNumFiles - size)
-								/ totalNumFiles * progressBarTotal.getMaximum())));
+							refreshTable();
 						}
 					});
-
-					if (size == 0) {
-						return;
-					}
-
-					try {
-						Future<Boolean> future = futures.remove();
-						logger.info("future returned: " + future.get());
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					} catch (ExecutionException e) {
-						e.printStackTrace();
-					}
 				}
-			}
-		});
+			}));
 		progressThread.start();
 	}
 
-	private void setIconOnTableItem(final TableItem item, final int column, final Image icon) {
+	public static void setTableItemStatus(Display display, final TableItem item, final FileMoveIcon fmi) {
 		display.asyncExec(new Runnable() {
 			public void run() {
 				if (item.isDisposed()) {
 					return;
 				}
-				item.setImage(column, icon);
+				item.setImage(FILE_STATUS_COLUMN, fmi.icon);
 			}
 		});
 	}
 
-	private static TableItem createTableItem(Table tblResults, String fileName, FileEpisode episode) {
+	private static TableItem createTableItem(Table tblResults, String fileName, FileEpisode episode,
+		UserPreferences prefs) {
 		TableItem item = new TableItem(tblResults, SWT.NONE);
 		String newFilename = fileName;
 		try {
-			newFilename = episode.getNewFilename();
+			newFilename = episode.getNewFilename(prefs);
 			item.setChecked(true);
 		} catch (NotFoundException e) {
 			newFilename = e.getMessage();
@@ -642,7 +598,7 @@ public class UIStarter {
 			item.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
 		}
 		item.setText(new String[] { fileName, newFilename });
-		item.setImage(FILE_STATUS_COLUMN, downIcon);
+		item.setImage(FILE_STATUS_COLUMN, FileMoveIcon.DOWNLOADING.icon);
 		return item;
 	}
 
@@ -689,8 +645,20 @@ public class UIStarter {
 		}
 	}
 
+	private void refreshTable() {
+		logger.info("Refreshing table");
+		for (TableItem item : tblResults.getItems()) {
+			String fileName = item.getText(CURRENT_FILE_COLUMN);
+			FileEpisode episode = files.remove(fileName);
+			String newFileName = episode.getFile().getAbsolutePath();
+			files.put(newFileName, episode);
+			item.setText(CURRENT_FILE_COLUMN, newFileName);
+			item.setText(NEW_FILENAME_COLUMN, episode.getNewFilename(prefs));
+		}
+	}
+
 	private void showPreferencesPane() {
-		PreferencesDialog preferencesDialog = new PreferencesDialog(shell);
+		PreferencesDialog preferencesDialog = new PreferencesDialog(shell, prefs);
 		preferencesDialog.open();
 	}
 

@@ -18,7 +18,7 @@ public class UserPreferences {
 	private String seasonPrefix;
 	private boolean moveEnabled = false;
 	private String renameReplacementMask;
-	private static File prefsFile = new File(System.getProperty("user.dir") + Constants.FILE_SEPARATOR
+	private static File prefsFile = new File(System.getProperty("user.dir") + File.separatorChar
 		+ Constants.PREFERENCES_FILE);
 	private ProxySettings proxy;
 

@@ -2,11 +2,15 @@ package com.google.code.tvrenamer.model;
 
 import java.io.File;
 import java.text.DecimalFormat;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.google.code.tvrenamer.controller.util.StringUtils;
 import com.google.code.tvrenamer.model.util.Constants;
 
 public class FileEpisode {
+	private static Logger logger = Logger.getLogger(FileEpisode.class.getName());
+
 	private static final String ADDED_PLACEHOLDER_FILENAME = "downloading ...";
 	private static final String BROKEN_PLACEHOLDER_FILENAME = "unable to download information";
 	private final String showName;
@@ -53,38 +57,57 @@ public class FileEpisode {
 	}
 
 	public File getDestinationDirectory(UserPreferences prefs) {
-		String show = ShowStore.getShow(showName.toLowerCase()).getName();
-		String destPath = prefs.getDestinationDirectory().getAbsolutePath() + Constants.FILE_SEPARATOR;
-		destPath = destPath + StringUtils.sanitiseTitle(show) + Constants.FILE_SEPARATOR;
-		destPath = destPath + prefs.getSeasonPrefix() + this.seasonNumber + Constants.FILE_SEPARATOR;
+		String show = ShowStore.getShow(showName).getName();
+		String destPath = prefs.getDestinationDirectory().getAbsolutePath() + File.separatorChar;
+		destPath = destPath + StringUtils.sanitiseTitle(show) + File.separatorChar;
+		destPath = destPath + prefs.getSeasonPrefix() + this.seasonNumber + File.separatorChar;
 		return new File(destPath);
 	}
 
-	public String getNewFilename() {
+	public String getNewFilename(UserPreferences prefs) {
 		switch (this.status) {
 			case ADDED: {
 				return ADDED_PLACEHOLDER_FILENAME;
 			}
 			case DOWNLOADED:
 			case RENAMED: {
-				String showName = "Show not found";
-				String seasonNum = "Season not found";
-				String titleString = "Episode not found";
+				String showName = "";
+				String seasonNum = "";
+				String titleString = "";
 
-				Show show = ShowStore.getShow(this.showName.toLowerCase());
-				showName = show.getName();
+				try {
+					Show show = ShowStore.getShow(this.showName);
+					showName = show.getName();
 
-				Season season = show.getSeason(this.seasonNumber);
-				seasonNum = String.valueOf(season.getNumber());
+					try {
+						Season season = show.getSeason(this.seasonNumber);
+						seasonNum = String.valueOf(season.getNumber());
+						
+						try {
+							String title = season.getTitle(this.episodeNumber);
+							titleString = StringUtils.sanitiseTitle(title);
+						} catch (EpisodeNotFoundException e) {
+							logger.log(Level.SEVERE, "Episode not found for '" + this.toString() + "'", e);
+						}
+						
+					} catch (SeasonNotFoundException e) {
+						seasonNum = String.valueOf(this.seasonNumber);
+						logger.log(Level.SEVERE, "Season not found for '" + this.toString() + "'", e);
+					}
+					
+				} catch (ShowNotFoundException e) {
+					showName = this.showName;
+					logger.log(Level.SEVERE, "Show not found for '" + this.toString() + "'", e);
+				}
 
-				String title = season.getTitle(this.episodeNumber);
-				titleString = StringUtils.sanitiseTitle(title);
 
-				String newFilename = Constants.DEFAULT_REPLACEMENT_MASK;
+				String newFilename = prefs.getRenameReplacementString();
 				newFilename = newFilename.replaceAll("%S", showName);
 				newFilename = newFilename.replaceAll("%s", seasonNum);
-				newFilename = newFilename.replaceAll("%e", new DecimalFormat("00").format(this.episodeNumber));
+				newFilename = newFilename.replaceAll("%e", new DecimalFormat("#00").format(this.episodeNumber));
+				newFilename = newFilename.replaceAll("%E", new DecimalFormat("##0").format(this.episodeNumber));
 				newFilename = newFilename.replaceAll("%t", titleString);
+				newFilename = newFilename.replaceAll("%T", titleString.replaceAll(" ", "."));
 
 				return newFilename + "." + StringUtils.getExtension(this.file.getName());
 			}

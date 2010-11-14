@@ -12,10 +12,6 @@ public class Constants {
 		OK, QUESTION, MESSAGE, WARNING, ERROR;
 	}
 
-	public enum FileCopyResult {
-		SUCCESS, FAILURE;
-	}
-
 	// Static initalisation block
 	static {
 		byte[] buffer = new byte[10];
@@ -39,9 +35,7 @@ public class Constants {
 
 	public static String VERSION_NUMBER;
 
-	public static final String PREFERENCES_FILE = "settings.xml";
-
-	public static final String FILE_SEPARATOR = System.getProperty("file.separator");
+	public static final String PREFERENCES_FILE = "preferences.xml";
 
 	public static final String DEFAULT_REPLACEMENT_MASK = "%S [%sx%e] %t";
 

@@ -31,7 +31,7 @@ public class ShowStore {
 		Show s = null;
 		try {
 			_showStoreLock.acquire();
-			s = _shows.get(showName);
+			s = _shows.get(showName.toLowerCase());
 		} catch (InterruptedException e) {
 			logger.log(Level.SEVERE,
 					   "Error: interrupted while getting show information '" + showName + "': " + e.getMessage(), e);
