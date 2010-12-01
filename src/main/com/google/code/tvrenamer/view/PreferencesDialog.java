@@ -129,6 +129,7 @@ public class PreferencesDialog extends Dialog {
 
 		moveEnabledCheckbox = new Button(moveGroup, SWT.CHECK);
 		moveEnabledCheckbox.setText("Move Enabled [?]");
+		moveEnabledCheckbox.setSelection(prefs.isMovedEnabled());
 		moveEnabledCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 3, 1));
 		moveEnabledCheckbox.setToolTipText("Whether the 'move to TV location' functionality is enabled");
 
