@@ -51,6 +51,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.TaskBar;
+import org.eclipse.swt.widgets.TaskItem;
 import org.eclipse.swt.widgets.Text;
 
 import com.google.code.tvrenamer.controller.FileMover;
@@ -425,6 +427,18 @@ public class UIStarter {
 		}
 	}
 
+	private TaskItem getTaskItem() {
+		TaskItem taskItem = null;
+		TaskBar bar = display.getSystemTaskBar();
+		if (bar != null) {
+			taskItem = bar.getItem(shell);
+			if (taskItem == null) {
+				taskItem = bar.getItem(null);
+			}
+		}
+		return taskItem;
+	}
+
 	private void launch() {
 		Display display = null;
 		try {
@@ -560,21 +574,50 @@ public class UIStarter {
 				}
 			}
 		}
+		
+		final TaskItem taskItem = getTaskItem();
+		taskItem.setProgressState(SWT.NORMAL);
+		taskItem.setOverlayImage(FileMoveIcon.RENAMING.icon);
 
-		Thread progressThread = new Thread(new ProgressBarUpdater(display, progressBarTotal, count, futures,
-			new UpdateCompleteHandler() {
-				public void onUpdateComplete() {
-					display.asyncExec(new Runnable() {
-						public void run() {
-							refreshTable();
-						}
-					});
+		Thread progressThread = new Thread(new ProgressBarUpdater(new ProgressProxy() {
+			public void setProgress(final float progress) {
+				if (display.isDisposed()) {
+					return;
 				}
-			}));
+
+				display.asyncExec(new Runnable() {
+					public void run() {
+						if (progressBarTotal.isDisposed()) {
+							return;
+						}
+						progressBarTotal.setSelection((int) Math.round(progress * progressBarTotal.getMaximum()));
+						if (taskItem.isDisposed()) {
+							return;
+						}
+						taskItem.setProgress((int) Math.round(progress * 100));
+					}
+				});
+			}
+		}, count, futures, new UpdateCompleteHandler() {
+			public void onUpdateComplete() {
+				display.asyncExec(new Runnable() {
+					public void run() {
+						taskItem.setOverlayImage(null);
+						taskItem.setProgressState(SWT.DEFAULT);
+						refreshTable();
+					}
+				});
+			}
+		}));
+		progressThread.setName("ProgressThread");
+		progressThread.setDaemon(true);
 		progressThread.start();
 	}
 
 	public static void setTableItemStatus(Display display, final TableItem item, final FileMoveIcon fmi) {
+		if (display.isDisposed()) {
+			return;
+		}
 		display.asyncExec(new Runnable() {
 			public void run() {
 				if (item.isDisposed()) {

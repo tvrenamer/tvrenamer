@@ -5,23 +5,19 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.ProgressBar;
-
 public class ProgressBarUpdater implements Runnable {
 	private static Logger logger = Logger.getLogger(ProgressBarUpdater.class.getName());
 
-	private final Display display;
-	private final ProgressBar progressBar;
 	private final int totalNumFiles;
 	private final Queue<Future<Boolean>> futures;
 
 	private final UpdateCompleteHandler updateCompleteHandler;
 
-	public ProgressBarUpdater(Display display, ProgressBar progressBar, int total, Queue<Future<Boolean>> futures,
+	private final ProgressProxy proxy;
+
+	public ProgressBarUpdater(ProgressProxy proxy, int total, Queue<Future<Boolean>> futures,
 		UpdateCompleteHandler updateComplete) {
-		this.display = display;
-		this.progressBar = progressBar;
+		this.proxy = proxy;
 		this.totalNumFiles = total;
 		this.futures = futures;
 		this.updateCompleteHandler = updateComplete;
@@ -29,20 +25,8 @@ public class ProgressBarUpdater implements Runnable {
 
 	public void run() {
 		while (true) {
-			if (display.isDisposed()) {
-				return;
-			}
-
 			final int size = futures.size();
-			display.asyncExec(new Runnable() {
-				public void run() {
-					if (progressBar.isDisposed()) {
-						return;
-					}
-					progressBar.setSelection((int) Math
-						.round(((double) (totalNumFiles - size) / totalNumFiles * progressBar.getMaximum())));
-				}
-			});
+			proxy.setProgress((float) (totalNumFiles - size) / totalNumFiles);
 
 			if (size == 0) {
 				this.updateCompleteHandler.onUpdateComplete();
