@@ -20,8 +20,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Shell;
 
+import com.google.code.tvrenamer.model.SWTMessageBoxType;
 import com.google.code.tvrenamer.model.util.Constants;
-import com.google.code.tvrenamer.model.util.Constants.SWTMessageBoxType;
 import com.google.code.tvrenamer.model.util.UpdateChecker;
 
 /**

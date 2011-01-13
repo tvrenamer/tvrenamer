@@ -6,7 +6,7 @@ import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.google.code.tvrenamer.model.util.Constants.SWTMessageBoxType;
+import com.google.code.tvrenamer.model.SWTMessageBoxType;
 import com.google.code.tvrenamer.view.UIUtils;
 
 public class UpdateChecker {

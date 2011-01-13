@@ -9,7 +9,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
-import com.google.code.tvrenamer.model.util.Constants.SWTMessageBoxType;
+import com.google.code.tvrenamer.model.SWTMessageBoxType;
 
 public class UIUtils {
 

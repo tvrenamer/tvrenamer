@@ -62,11 +62,11 @@ import com.google.code.tvrenamer.model.EpisodeStatus;
 import com.google.code.tvrenamer.model.FileEpisode;
 import com.google.code.tvrenamer.model.FileMoveIcon;
 import com.google.code.tvrenamer.model.NotFoundException;
+import com.google.code.tvrenamer.model.SWTMessageBoxType;
 import com.google.code.tvrenamer.model.Show;
 import com.google.code.tvrenamer.model.ShowStore;
 import com.google.code.tvrenamer.model.UserPreferences;
 import com.google.code.tvrenamer.model.util.Constants;
-import com.google.code.tvrenamer.model.util.Constants.SWTMessageBoxType;
 
 public class UIStarter {
 	private static final int CURRENT_FILE_COLUMN = 0;

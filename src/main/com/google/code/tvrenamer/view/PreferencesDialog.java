@@ -37,9 +37,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.google.code.tvrenamer.model.ProxySettings;
+import com.google.code.tvrenamer.model.SWTMessageBoxType;
 import com.google.code.tvrenamer.model.TVRenamerIOException;
 import com.google.code.tvrenamer.model.UserPreferences;
-import com.google.code.tvrenamer.model.util.Constants.SWTMessageBoxType;
 
 /**
  * The Preferences Dialog box.

@@ -8,7 +8,6 @@ import java.util.logging.Logger;
 import com.google.code.tvrenamer.controller.XMLPersistence;
 import com.google.code.tvrenamer.controller.util.StringUtils;
 import com.google.code.tvrenamer.model.util.Constants;
-import com.google.code.tvrenamer.model.util.Constants.SWTMessageBoxType;
 import com.google.code.tvrenamer.view.UIUtils;
 
 public class UserPreferences {

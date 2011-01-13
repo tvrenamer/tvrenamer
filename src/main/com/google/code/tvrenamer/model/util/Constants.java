@@ -8,10 +8,6 @@ import java.util.logging.Logger;
 public class Constants {
 	private static Logger logger = Logger.getLogger(Constants.class.getName());
 
-	public enum SWTMessageBoxType {
-		OK, QUESTION, MESSAGE, WARNING, ERROR;
-	}
-
 	// Static initalisation block
 	static {
 		byte[] buffer = new byte[10];
