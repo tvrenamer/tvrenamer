@@ -4,9 +4,9 @@ import java.io.File;
 import java.text.DecimalFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
 
 import com.google.code.tvrenamer.controller.util.StringUtils;
-import com.google.code.tvrenamer.model.util.Constants;
 
 public class FileEpisode {
 	private static Logger logger = Logger.getLogger(FileEpisode.class.getName());
@@ -82,34 +82,43 @@ public class FileEpisode {
 					try {
 						Season season = show.getSeason(this.seasonNumber);
 						seasonNum = String.valueOf(season.getNumber());
-						
+
 						try {
 							String title = season.getTitle(this.episodeNumber);
 							titleString = StringUtils.sanitiseTitle(title);
 						} catch (EpisodeNotFoundException e) {
 							logger.log(Level.SEVERE, "Episode not found for '" + this.toString() + "'", e);
 						}
-						
+
 					} catch (SeasonNotFoundException e) {
 						seasonNum = String.valueOf(this.seasonNumber);
 						logger.log(Level.SEVERE, "Season not found for '" + this.toString() + "'", e);
 					}
-					
+
 				} catch (ShowNotFoundException e) {
 					showName = this.showName;
 					logger.log(Level.SEVERE, "Show not found for '" + this.toString() + "'", e);
 				}
 
-
 				String newFilename = prefs.getRenameReplacementString();
-				newFilename = newFilename.replaceAll("%S", showName);
-				newFilename = newFilename.replaceAll("%s", seasonNum);
-				newFilename = newFilename.replaceAll("%e", new DecimalFormat("#00").format(this.episodeNumber));
-				newFilename = newFilename.replaceAll("%E", new DecimalFormat("##0").format(this.episodeNumber));
-				newFilename = newFilename.replaceAll("%t", titleString);
-				newFilename = newFilename.replaceAll("%T", titleString.replaceAll(" ", "."));
 
-				return newFilename + "." + StringUtils.getExtension(this.file.getName());
+				// Ensure that all special characters in the replacement are quoted
+				showName = Matcher.quoteReplacement(showName);
+				titleString = Matcher.quoteReplacement(titleString);
+				
+				// Make whatever modifications are required
+				String episodeNumberString = new DecimalFormat("#00").format(this.episodeNumber);
+				String episodeNumberNoLeadingZeros = new DecimalFormat("##0").format(this.episodeNumber);
+				String episodeTitleNoSpaces = titleString.replaceAll(" ", ".");
+
+				newFilename = newFilename.replaceAll(ReplacementToken.SHOW_NAME.getToken(), showName);
+				newFilename = newFilename.replaceAll(ReplacementToken.SEASON_NUM.getToken(), seasonNum);
+				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_NUM.getToken(), episodeNumberString);
+				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_NUM_NO_LEADING_ZERO.getToken(), episodeNumberNoLeadingZeros);
+				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_TITLE.getToken(), titleString);
+				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_TITLE_NO_SPACES.getToken(), episodeTitleNoSpaces);
+
+				return newFilename.concat(".").concat(StringUtils.getExtension(this.file.getName()));
 			}
 			case BROKEN:
 			default:
@@ -120,7 +129,7 @@ public class FileEpisode {
 	@Override
 	public String toString() {
 		return "FileEpisode { title:" + showName + ", season:" + seasonNumber + ", episode:" + episodeNumber
-			+ ", file:" + file.getName() + " }";
+		+ ", file:" + file.getName() + " }";
 	}
 
 }

@@ -49,17 +49,18 @@ public class ShowStore {
 
 	}
 
+	/**<p>Download the show details if required, otherwise notify listener.</p>
+	 * <ul>
+	 *   <li>if we have already downloaded the show (exists in _shows) then just call the method on the listener</li>
+	 *   <li>if we don't have the show, but are in the process of downloading the show (exists in _showRegistrations)
+	 *       then add the listener to the registration</li>
+	 *   <li>if we don't have the show and aren't downloading, then create the registration, add the listener and kick
+	 *       off the download</li>
+	 * </ul>
+	 * @param showName the name of the show
+	 * @param listener the listener to notify or register
+	 */
 	public static void getShow(String showName, ShowInformationListener listener) {
-
-		/*
-		 * Basic outline for this method:
-		 * - if we have already downloaded the show (exists in _shows) then just call the method on the listener
-		 * - if we don't have the show, but are in the process of downloading the show (exists in _showRegistrations)
-		 * then add the listener to the registration
-		 * - if we don't have the show and aren't downloading, then create the registration, add the listener and kick
-		 * off the download
-		 */
-
 		try {
 			_showStoreLock.acquire();
 			Show show = _shows.get(showName);
@@ -92,11 +93,7 @@ public class ShowStore {
 
 				TVRageProvider.getShowListing(thisShow);
 
-				_showStoreLock.acquire();
-				logger.info("Show listing for '" + thisShow.getName() + "' downloaded");
-				_shows.put(showName, thisShow);
-				notifyListeners(showName, thisShow);
-				_showStoreLock.release();
+				
 				return true;
 			}
 		};
@@ -131,5 +128,21 @@ public class ShowStore {
 
 	public static void cleanUp() {
 		threadPool.shutdownNow();
+	}
+	
+	/**
+	 * Add a show to the store, registered by the show name.<br />
+	 * Added this distinct method to enable unit testing
+	 * @param showName the show name
+	 * @param show the {@link Show}
+	 * @throws InterruptedException when there is a problem acquiring or releasing the lock
+	 */
+	static void addShow(String showName, Show show) throws InterruptedException {
+		_showStoreLock.acquire();
+		logger.info("Show listing for '" + show.getName() + "' downloaded");
+		//TODO: handle lower case
+		_shows.put(showName, show);
+		notifyListeners(showName, show);
+		_showStoreLock.release();
 	}
 }

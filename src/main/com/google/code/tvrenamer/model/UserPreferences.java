@@ -1,8 +1,6 @@
 package com.google.code.tvrenamer.model;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.code.tvrenamer.controller.XMLPersistence;
@@ -21,7 +19,10 @@ public class UserPreferences {
 		+ Constants.PREFERENCES_FILE);
 	private ProxySettings proxy;
 
-	public UserPreferences() throws TVRenamerIOException {
+	/**
+	 * UserPreferences constructor which uses the defaults from {@link Constants}
+	 */
+	public UserPreferences() {
 		this.destDir = new File(Constants.DEFAULT_DESTINATION_DIRECTORY);
 		this.seasonPrefix = Constants.DEFAULT_SEASON_PREFIX;
 		this.renameReplacementMask = Constants.DEFAULT_REPLACEMENT_MASK;
@@ -34,38 +35,25 @@ public class UserPreferences {
 	 * Load preferences from xml file
 	 */
 	public static UserPreferences load() {
-		UserPreferences prefs = null;
-
-		try {
-			// retrieve from file and update in-memory copy
-			prefs = XMLPersistence.retrieve(prefsFile);
-		} catch (IOException e) {
-			// failed to load, revert to in-memory
-			try {
-				prefs = new UserPreferences();
-				XMLPersistence.persist(prefs, prefsFile);
-			} catch (IOException e1) {
-				// either failed to create (no moving),
-				// or failed to save (in-memory prefs only)
-				logger.log(Level.WARNING, "Failed to store preferences", e1);
-			}
-			logger.log(Level.WARNING, "Failed to load preferences", e);
-		}
+		// retrieve from file and update in-memory copy
+		UserPreferences prefs = XMLPersistence.retrieve(prefsFile);
+		
+		// apply the proxy configuration
+		if(prefs.proxy != null) {
+			prefs.proxy.apply();
+		}		
 
 		if (prefs != null) {
-			logger.info("Initialised: " + prefs.toString());
+			logger.finer("Sucessfully read preferences from: " + prefsFile.getAbsolutePath());
+			logger.info("Sucessfully read preferences: " + prefs.toString());
 		}
 
 		return prefs;
 	}
 
 	public void store() {
-		try {
-			XMLPersistence.persist(this, prefsFile);
-		} catch (IOException e) {
-			logger.log(Level.WARNING, "Failed to store preferences", e);
-		}
-		logger.fine("Sucessfully saved/updated preferences");
+		XMLPersistence.persist(this, prefsFile);
+		logger.fine("Sucessfully saved preferences");
 	}
 
 	/**

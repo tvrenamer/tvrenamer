@@ -37,6 +37,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.google.code.tvrenamer.model.ProxySettings;
+import com.google.code.tvrenamer.model.ReplacementToken;
 import com.google.code.tvrenamer.model.SWTMessageBoxType;
 import com.google.code.tvrenamer.model.TVRenamerIOException;
 import com.google.code.tvrenamer.model.UserPreferences;
@@ -211,12 +212,12 @@ public class PreferencesDialog extends Dialog {
 
 		List renameTokensList = new List(replacementGroup, SWT.SINGLE);
 		renameTokensList.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 2, 1));
-		renameTokensList.add(new RenameToken("%S", "Show Name").toString());
-		renameTokensList.add(new RenameToken("%s", "Season Number").toString());
-		renameTokensList.add(new RenameToken("%e", "Episode Number").toString());
-		renameTokensList.add(new RenameToken("%E", "Episode Number (without leading 0s)").toString());
-		renameTokensList.add(new RenameToken("%t", "Episode Title").toString());
-		renameTokensList.add(new RenameToken("%T", "Episode Title (' ' replaced with '.')").toString());
+		renameTokensList.add(ReplacementToken.SHOW_NAME.toString());
+		renameTokensList.add(ReplacementToken.SEASON_NUM.toString());
+		renameTokensList.add(ReplacementToken.EPISODE_NUM.toString());
+		renameTokensList.add(ReplacementToken.EPISODE_NUM_NO_LEADING_ZERO.toString());
+		renameTokensList.add(ReplacementToken.EPISODE_TITLE.toString());
+		renameTokensList.add(ReplacementToken.EPISODE_TITLE_NO_SPACES.toString());
 
 		Label episodeTitleLabel = new Label(replacementGroup, SWT.NONE);
 		episodeTitleLabel.setText("Rename Format [?]");
@@ -455,21 +456,5 @@ public class PreferencesDialog extends Dialog {
 			control.setEnabled(decidingCheckbox.getSelection());
 		}
 		preferencesShell.redraw();
-	}
-
-	private class RenameToken {
-		private String token;
-		private String value;
-		
-		public RenameToken(String token, String value) {
-			this.token = token;
-			this.value = value;
-		}
-
-		@Override
-		public String toString() {
-			// Note, the 'token' (ie. %s) format must match the REPLACEMENT_OPTIONS_LIST_ENTRY_REGEX so the dnd works correctly
-			return token + " : " + value;
-		}
 	}
 }

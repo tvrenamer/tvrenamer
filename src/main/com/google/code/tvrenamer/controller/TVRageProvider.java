@@ -75,7 +75,7 @@ public class TVRageProvider {
 
 			URL url = new URL(searchURL);
 
-			logger.info("About to retrieving search results from " + url.toString());
+			logger.info("About to retrieve search results from " + url.toString());
 
 			InputStream inputStream = url.openStream();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -115,10 +115,10 @@ public class TVRageProvider {
 			}
 			return options;
 		} catch (ConnectException ce) {
-			logger.log(Level.WARNING, "ConnectionException when connecting to " + searchURL);
+			logger.log(Level.WARNING, "ConnectionException when connecting to " + searchURL, ce);
 			throw ce;
 		} catch (UnknownHostException uhe) {
-			logger.log(Level.WARNING, "UnknownHostException when connecting to " + searchURL);
+			logger.log(Level.WARNING, "UnknownHostException when connecting to " + searchURL, uhe);
 			throw uhe;
 		} catch (Exception e) {
 			logger.log(Level.WARNING, "Caught exception when attempting to download and parse search xml", e);

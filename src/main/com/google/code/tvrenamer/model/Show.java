@@ -3,6 +3,9 @@ package com.google.code.tvrenamer.model;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Represents a TV Show, with a name, url and list of seasons. 
+ */
 public class Show {
 	private final String id;
 	private final String name;
