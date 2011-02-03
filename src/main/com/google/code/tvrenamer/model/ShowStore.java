@@ -63,17 +63,17 @@ public class ShowStore {
 	public static void getShow(String showName, ShowInformationListener listener) {
 		try {
 			_showStoreLock.acquire();
-			Show show = _shows.get(showName);
+			Show show = _shows.get(showName.toLowerCase());
 			if (show != null) {
 				listener.downloaded(show);
 			} else {
-				ShowRegistrations registrations = _showRegistrations.get(showName);
+				ShowRegistrations registrations = _showRegistrations.get(showName.toLowerCase());
 				if (registrations != null) {
 					registrations.addListener(listener);
 				} else {
 					registrations = new ShowRegistrations();
 					registrations.addListener(listener);
-					_showRegistrations.put(showName, registrations);
+					_showRegistrations.put(showName.toLowerCase(), registrations);
 					downloadShow(showName);
 				}
 			}
@@ -92,8 +92,9 @@ public class ShowStore {
 				Show thisShow = options.get(0);
 
 				TVRageProvider.getShowListing(thisShow);
-
 				
+				addShow(showName, thisShow);
+
 				return true;
 			}
 		};
@@ -101,7 +102,7 @@ public class ShowStore {
 	}
 
 	private static void notifyListeners(String showName, Show show) {
-		ShowRegistrations registrations = _showRegistrations.get(showName);
+		ShowRegistrations registrations = _showRegistrations.get(showName.toLowerCase());
 
 		if (registrations != null) {
 			for (ShowInformationListener informationListener : registrations.getListeners()) {
@@ -140,8 +141,8 @@ public class ShowStore {
 	static void addShow(String showName, Show show) throws InterruptedException {
 		_showStoreLock.acquire();
 		logger.info("Show listing for '" + show.getName() + "' downloaded");
-		//TODO: handle lower case
-		_shows.put(showName, show);
+		
+		_shows.put(showName.toLowerCase(), show);
 		notifyListeners(showName, show);
 		_showStoreLock.release();
 	}

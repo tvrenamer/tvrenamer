@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project name="TVRenamer build script">
+<project name="TVRenamer build script" default="usage">
 	<property name="src.main" value="src/main" />
-	
+
 	<property name="version.file" value="${src.main}/tvrenamer.version" />
 	<loadfile property="version" srcFile="${version.file}" />
-	
+
 	<property name="build" value="build" />
 	<property name="lib" value="lib" />
 	<property name="res" value="res" />
@@ -16,8 +16,8 @@
 	<property name="jar.mainClass" value="com.google.code.tvrenamer.view.UIStarter" />
 
 	<!-- To build, get launch4j, update the path and uncomment. Ensure they are commented before committing -->
-	<!--property name="launch4j" value="/opt/local/share/launch4j" />
-    <taskdef name="launch4j"
+	<!--property name="launch4j" value="../launch4j" />
+	<taskdef name="launch4j"
              classname="net.sf.launch4j.ant.Launch4jTask"
              classpath="${launch4j}/launch4j.jar:${launch4j}/lib/xstream.jar" /-->
 
@@ -28,8 +28,8 @@
 
 	<path id="classpath">
 		<fileset dir="${lib}">
-				<!-- We can compile against any swt version-->
-				<include name="swt-win32*.jar" />
+			<!-- We can compile against any swt version-->
+			<include name="swt-win32*.jar" />
 		</fileset>
 		<fileset dir="${lib}" id="classpath.fileset">
 			<include name="xstream-*.jar" />
@@ -51,18 +51,18 @@
 					<attribute name="Built-By" value="${jar.builtBy}" />
 					<attribute name="Main-Class" value="${jar.mainClass}" />
 				</manifest>
-				
+
 				<fileset dir="${build}" />
-				
+
 				<fileset dir="${res}">
 					<exclude name="**/oldschool-tv-icon.ico" />
 				</fileset>
-				
+
 				<zipgroupfileset refid="classpath.fileset" />
 				<zipgroupfileset dir="${lib}">
 					<include name="swt-@{platform}*.jar" />
 				</zipgroupfileset>
-				
+
 				<fileset file="${version.file}" />
 			</jar>
 		</sequential>
@@ -150,12 +150,16 @@
 	</target>
 
 	<target name="dist.all" depends="clean, init, dist.win, dist.linux, dist.osx" />
-	
+
 	<target name="clean">
 		<delete includeemptydirs="true" failonerror="false">
-		  <fileset dir="${build}" includes="**/*" />
+			<fileset dir="${build}" includes="**/*" />
 			<fileset dir="${dist}" includes="**/*" />
 		</delete>
+	</target>
+
+	<target name="usage">
+		<echo message="Usage: ant dist.{win, linux, osx, all}" />
 	</target>
 
 </project>

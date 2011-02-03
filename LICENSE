@@ -2,7 +2,7 @@ TVRenamer is released under the GNU GENERAL PUBLIC LICENSE, v2.0 (see license te
 
 The below libraries/3rd party contributions are used by TVRenamer:
 
-== Start of TVRenamer license section ==
+== Start of TVRenamer 3rd Party licenses section ==
 
 Eclipse Standard Widget Toolkit (SWT)
 =========================================
@@ -41,7 +41,16 @@ Website: http://commons.apache.org/codec/
 License: Apache License v2.0
 License website: http://www.apache.org/licenses/LICENSE-2.0
 
-== End of TVRenamer license section ==
+Xml Pull Parser 3rd Edition (XPP3)
+=========================================
+Description: XPP3 is a stable XmlPull parsing engine
+Website: http://www.extreme.indiana.edu/xgws/xsoap/xpp/mxp1/index.html
+License: Apache Copyright © 2003 The Trustees of Indiana University. All rights reserved
+License website: http://www.extreme.indiana.edu/dist/java-repository/xpp3/licenses/LICENSE.txt
+License conditions: This product includes software developed by the Indiana University Extreme! Lab.  For further information please visit http://www.extreme.indiana.edu/
+
+
+== End of TVRenamer 3rd Party licenses section ==
 
 
 

@@ -6,20 +6,25 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Observable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.code.tvrenamer.model.UserPreferences;
 import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.DomDriver;
+import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider;
 
 public class XMLPersistence {
 	private static Logger logger = Logger.getLogger(XMLPersistence.class.getName());
 	
-	private static final XStream xstream = new XStream(new DomDriver());
+	// Use reflection provider so the default constructor is called, thus calling superclasses constructor
+	private static final XStream xstream = new XStream(new PureJavaReflectionProvider());
 
 	static {
 		xstream.alias("preferences", UserPreferences.class);
+		// Make the fields of Observable transient
+		xstream.omitField(Observable.class, "obs");
+		xstream.omitField(Observable.class, "changed");
 	}
 
 	/**
@@ -51,7 +56,8 @@ public class XMLPersistence {
 	 * @param file the file to read
 	 * @return the populated preferences object
 	 */
-	public static UserPreferences retrieve(File file) {		
+	public static UserPreferences retrieve(File file) {
+		// Instantiate the object so the Observable superclass is called corrected
 		UserPreferences preferences = null;
 		
 		try {

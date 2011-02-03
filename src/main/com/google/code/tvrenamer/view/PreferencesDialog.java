@@ -125,7 +125,7 @@ public class PreferencesDialog extends Dialog {
 		moveGroup.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, true, true, 3, 1));
 		moveGroup
 			.setToolTipText("TVRenamer will automatically move the files to your 'TV' folder if you want it to.  \n"
-				+ "It will move the file to <tv directory>/Show Name/<season prefix> #/ \n"
+				+ "It will move the file to <tv directory>/<show name>/<season prefix> #/ \n"
 				+ "Once enabled, set the location of the folder below.");
 
 		moveEnabledCheckbox = new Button(moveGroup, SWT.CHECK);
@@ -420,8 +420,8 @@ public class PreferencesDialog extends Dialog {
 		prefs.setSeasonPrefix(seasonPrefixText.getText());
 		prefs.setRenameReplacementString(replacementStringText.getText());
 		
-		ProxySettings proxySettings = prefs.getProxy();
-		proxySettings.setEnabled(proxyEnabledCheckbox.getSelection());		
+		ProxySettings proxySettings = new ProxySettings();
+		proxySettings.setEnabled(proxyEnabledCheckbox.getSelection());
 		if(proxySettings.isEnabled()) {
 			proxySettings.setHostname(proxyHostText.getText());
 			proxySettings.setPort(proxyPortText.getText());
@@ -429,7 +429,7 @@ public class PreferencesDialog extends Dialog {
 			proxySettings.setAuthenticationRequired(proxyAuthenticationRequiredCheckbox.getSelection());
 			if(proxySettings.isAuthenticationRequired()) {
 				proxySettings.setUsername(proxyUsernameText.getText());
-				proxySettings.setPlainTextPassword(proxyPasswordText.getText());	
+				proxySettings.setPlainTextPassword(proxyPasswordText.getText());
 			}
 			proxySettings.apply();
 			

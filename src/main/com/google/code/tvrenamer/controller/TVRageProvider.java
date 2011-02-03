@@ -164,7 +164,7 @@ public class TVRageProvider {
 					Node epNumNode = (Node) expr.evaluate(eNode, XPathConstants.NODE);
 					expr = xpath.compile(XPATH_TITLE);
 					Node epTitleNode = (Node) expr.evaluate(eNode, XPathConstants.NODE);
-					logger.fine("[" + sNum + "x" + epNumNode.getTextContent() + "] " + epTitleNode.getTextContent());
+					logger.finer("[" + sNum + "x" + epNumNode.getTextContent() + "] " + epTitleNode.getTextContent());
 					season.setEpisode(Integer.parseInt(epNumNode.getTextContent()), epTitleNode.getTextContent());
 				}
 			}

@@ -38,6 +38,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
@@ -79,12 +80,12 @@ public class UIStarter {
 
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-	private UserPreferences prefs = null;
+	private static UserPreferences prefs = new UserPreferences();
 	private Display display;
 
 	private Button btnBrowse;
 	private Button btnRefresh;
-	private Button btnRenameSelected;
+	private static Button btnRenameSelected;
 
 	private Table tblResults;
 
@@ -100,7 +101,7 @@ public class UIStarter {
 
 	private void init() {
 		// load preferences
-		prefs = UserPreferences.load();
+		prefs = prefs.load();
 
 		// Setup display and shell
 		GridLayout gridLayout = new GridLayout(3, false);
@@ -128,7 +129,6 @@ public class UIStarter {
 	private void setupMainWindow() {
 		btnBrowse = new Button(shell, SWT.PUSH);
 		btnBrowse.setText("Add files");
-		btnBrowse.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
 
 		btnRefresh = new Button(shell, SWT.PUSH);
 		btnRefresh.setText("Refresh");
@@ -144,19 +144,35 @@ public class UIStarter {
 
 		setupResultsTable();
 		setupTableDragDrop();
+		
+		Composite bottomButtonsComposite = new Composite(shell, SWT.FILL);
+		bottomButtonsComposite.setLayout(new GridLayout(3, false));
+		GridData bottomButtonsCompositeGridData = new GridData(SWT.FILL, SWT.CENTER, true, true, 3, 1);
+		// DH: Hack for GTK to stop the bottom of the window being cut off
+		bottomButtonsCompositeGridData.minimumHeight = 65;
+		bottomButtonsComposite.setLayoutData(bottomButtonsCompositeGridData);
 
-		final Button btnQuit = new Button(shell, SWT.PUSH);
+		final Button btnQuit = new Button(bottomButtonsComposite, SWT.PUSH);
+		GridData btnQuitGridData = new GridData(GridData.BEGINNING, GridData.CENTER, false, false);
+		btnQuitGridData.minimumWidth = 70;
+		btnQuitGridData.widthHint = 70;
+		btnQuit.setLayoutData(btnQuitGridData);
 		btnQuit.setText("Quit");
-		btnQuit.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 
-		progressBarTotal = new ProgressBar(shell, SWT.SMOOTH);
-		progressBarTotal.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		progressBarTotal = new ProgressBar(bottomButtonsComposite, SWT.SMOOTH);
+		GridData progressBarTotalGridData = new GridData(GridData.FILL, GridData.CENTER, true, true);
+		progressBarTotal.setLayoutData(progressBarTotalGridData);
 
-		btnRenameSelected = new Button(shell, SWT.PUSH);
+		btnRenameSelected = new Button(bottomButtonsComposite, SWT.PUSH);
+		GridData btnRenameSelectedGridData = new GridData(GridData.END, GridData.CENTER, false, false);
+		btnRenameSelectedGridData.minimumWidth = 160;
+		btnRenameSelectedGridData.widthHint = 160;
+		btnRenameSelected.setLayoutData(btnRenameSelectedGridData);
+		
 		if (prefs != null && prefs.isMovedEnabled()) {
-			setupMoveButton(btnRenameSelected);
+			setupMoveButtonText();
 		} else {
-			setupRenameButton(btnRenameSelected);
+			setupRenameButtonText();
 		}
 
 		btnRenameSelected.addSelectionListener(new SelectionAdapter() {
@@ -181,16 +197,16 @@ public class UIStarter {
 		display.dispose();
 	}
 
-	private void setupMoveButton(Button button) {
-		button.setText("Move Selected");
-		button
+	private void setupMoveButtonText() {
+		getRenameButtonText();
+		btnRenameSelected
 			.setToolTipText("Clicking this button will rename and move the selected files to the directory set in preferences (currently "
 				+ prefs.getDestinationDirectory().getAbsolutePath() + ").");
 	}
 
-	private void setupRenameButton(Button button) {
-		button.setText("Rename Selected");
-		button.setToolTipText("Clicking this button will rename the selected files but leave them where they are.");
+	private void setupRenameButtonText() {
+		getRenameButtonText();
+		btnRenameSelected.setToolTipText("Clicking this button will rename the selected files but leave them where they are.");
 	}
 
 	private void setupMenuBar() {
@@ -492,8 +508,8 @@ public class UIStarter {
 		public final void traverse(final File f) {
 			if (f.isDirectory()) {
 				onDirectory(f);
-				final File[] childs = f.listFiles();
-				for (File child : childs) {
+				final File[] children = f.listFiles();
+				for (File child : children) {
 					traverse(child);
 				}
 				return;
@@ -697,6 +713,14 @@ public class UIStarter {
 			files.put(newFileName, episode);
 			item.setText(CURRENT_FILE_COLUMN, newFileName);
 			item.setText(NEW_FILENAME_COLUMN, episode.getNewFilename(prefs));
+		}
+	}
+	
+	public static void getRenameButtonText() {
+		if(prefs.isMovedEnabled()) {
+			btnRenameSelected.setText("Rename && Move Selected");
+		} else {
+			btnRenameSelected.setText("Rename Selected");
 		}
 	}
 
