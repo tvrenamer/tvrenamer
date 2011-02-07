@@ -125,6 +125,19 @@ public class FileEpisode {
 				return BROKEN_PLACEHOLDER_FILENAME;
 		}
 	}
+	
+	/**
+	 * @param prefs the User Preferences
+	 * @return the new full file path (for table display) using {@link #getNewFilename(UserPreferences)} and the destination directory
+	 */
+	public String getNewFilePath(UserPreferences prefs) {
+		String filename = getNewFilename(prefs);
+		
+		if(prefs != null && prefs.isMovedEnabled()) {
+			return prefs.getDestinationDirectory().getAbsolutePath().concat("/").concat(filename);
+		}
+		return filename;
+	}
 
 	@Override
 	public String toString() {

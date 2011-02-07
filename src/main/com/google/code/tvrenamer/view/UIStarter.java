@@ -542,7 +542,7 @@ public class UIStarter {
 						episode.setStatus(EpisodeStatus.DOWNLOADED);
 						display.asyncExec(new Runnable() {
 							public void run() {
-								item.setText(NEW_FILENAME_COLUMN, episode.getNewFilename(prefs));
+								item.setText(NEW_FILENAME_COLUMN, episode.getNewFilePath(prefs));
 								item.setImage(FILE_STATUS_COLUMN, FileMoveIcon.ADDED.icon);
 							}
 						});
@@ -712,7 +712,7 @@ public class UIStarter {
 			String newFileName = episode.getFile().getAbsolutePath();
 			files.put(newFileName, episode);
 			item.setText(CURRENT_FILE_COLUMN, newFileName);
-			item.setText(NEW_FILENAME_COLUMN, episode.getNewFilename(prefs));
+			item.setText(NEW_FILENAME_COLUMN, episode.getNewFilePath(prefs));
 		}
 	}
 	
