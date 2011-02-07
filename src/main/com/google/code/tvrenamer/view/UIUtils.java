@@ -10,6 +10,7 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import com.google.code.tvrenamer.model.SWTMessageBoxType;
+import com.google.code.tvrenamer.model.util.Constants.OSType;
 
 public class UIUtils {
 
@@ -92,11 +93,13 @@ public class UIUtils {
 		logger.log(Level.WARNING, message, exception);
 		showMessageBox(SWTMessageBoxType.ERROR, "Error", message);
 	}
-
-	public static boolean isMac() {
-		if (System.getProperty("os.name").equals("Mac OS X")) {
-			return true;
+	
+	public static OSType getOSType() {
+		if (System.getProperty("os.name").contains("Mac")) {
+			return OSType.MAC;
+		} if (System.getProperty("os.name").contains("Windows")) {
+			return OSType.WINDOWS;
 		}
-		return false;
+		return OSType.LINUX;
 	}
 }

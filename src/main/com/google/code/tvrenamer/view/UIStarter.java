@@ -1,6 +1,6 @@
 package com.google.code.tvrenamer.view;
 
-import static com.google.code.tvrenamer.view.UIUtils.isMac;
+import static com.google.code.tvrenamer.view.UIUtils.getOSType;
 import static com.google.code.tvrenamer.view.UIUtils.showMessageBox;
 
 import java.io.File;
@@ -68,6 +68,7 @@ import com.google.code.tvrenamer.model.Show;
 import com.google.code.tvrenamer.model.ShowStore;
 import com.google.code.tvrenamer.model.UserPreferences;
 import com.google.code.tvrenamer.model.util.Constants;
+import com.google.code.tvrenamer.model.util.Constants.OSType;
 
 public class UIStarter {
 	private static final int CURRENT_FILE_COLUMN = 0;
@@ -128,7 +129,7 @@ public class UIStarter {
 
 	private void setupMainWindow() {
 		btnBrowse = new Button(shell, SWT.PUSH);
-		btnBrowse.setText("Add files");
+		btnBrowse.setText("Add files ...");
 
 		btnRefresh = new Button(shell, SWT.PUSH);
 		btnRefresh.setText("Refresh");
@@ -144,7 +145,7 @@ public class UIStarter {
 
 		setupResultsTable();
 		setupTableDragDrop();
-		
+
 		Composite bottomButtonsComposite = new Composite(shell, SWT.FILL);
 		bottomButtonsComposite.setLayout(new GridLayout(3, false));
 		GridData bottomButtonsCompositeGridData = new GridData(SWT.FILL, SWT.CENTER, true, true, 3, 1);
@@ -168,7 +169,7 @@ public class UIStarter {
 		btnRenameSelectedGridData.minimumWidth = 160;
 		btnRenameSelectedGridData.widthHint = 160;
 		btnRenameSelected.setLayoutData(btnRenameSelectedGridData);
-		
+
 		if (prefs != null && prefs.isMovedEnabled()) {
 			setupMoveButtonText();
 		} else {
@@ -206,7 +207,8 @@ public class UIStarter {
 
 	private void setupRenameButtonText() {
 		getRenameButtonText();
-		btnRenameSelected.setToolTipText("Clicking this button will rename the selected files but leave them where they are.");
+		btnRenameSelected
+			.setToolTipText("Clicking this button will rename the selected files but leave them where they are.");
 	}
 
 	private void setupMenuBar() {
@@ -231,7 +233,7 @@ public class UIStarter {
 			}
 		};
 
-		if (isMac()) {
+		if (getOSType() == OSType.MAC) {
 			// Add the special Mac OSX Preferences, About and Quit menus.
 			CocoaUIEnhancer enhancer = new CocoaUIEnhancer(Constants.APPLICATION_NAME);
 			enhancer.hookApplicationMenu(shell.getDisplay(), quitListener, aboutListener, preferencesListener);
@@ -587,47 +589,51 @@ public class UIStarter {
 
 					Callable<Boolean> moveCallable = new FileMover(display, episode, newFile, item, progressLabel);
 					futures.add(executor.submit(moveCallable));
+					item.setChecked(false);
 				}
 			}
 		}
-		
+
 		final TaskItem taskItem = getTaskItem();
-		taskItem.setProgressState(SWT.NORMAL);
-		taskItem.setOverlayImage(FileMoveIcon.RENAMING.icon);
+		// There is no task bar on linux
+		if (taskItem != null) {
+			taskItem.setProgressState(SWT.NORMAL);
+			taskItem.setOverlayImage(FileMoveIcon.RENAMING.icon);
 
-		Thread progressThread = new Thread(new ProgressBarUpdater(new ProgressProxy() {
-			public void setProgress(final float progress) {
-				if (display.isDisposed()) {
-					return;
+			Thread progressThread = new Thread(new ProgressBarUpdater(new ProgressProxy() {
+				public void setProgress(final float progress) {
+					if (display.isDisposed()) {
+						return;
+					}
+
+					display.asyncExec(new Runnable() {
+						public void run() {
+							if (progressBarTotal.isDisposed()) {
+								return;
+							}
+							progressBarTotal.setSelection((int) Math.round(progress * progressBarTotal.getMaximum()));
+							if (taskItem.isDisposed()) {
+								return;
+							}
+							taskItem.setProgress((int) Math.round(progress * 100));
+						}
+					});
 				}
-
-				display.asyncExec(new Runnable() {
-					public void run() {
-						if (progressBarTotal.isDisposed()) {
-							return;
+			}, count, futures, new UpdateCompleteHandler() {
+				public void onUpdateComplete() {
+					display.asyncExec(new Runnable() {
+						public void run() {
+							taskItem.setOverlayImage(null);
+							taskItem.setProgressState(SWT.DEFAULT);
+							refreshTable();
 						}
-						progressBarTotal.setSelection((int) Math.round(progress * progressBarTotal.getMaximum()));
-						if (taskItem.isDisposed()) {
-							return;
-						}
-						taskItem.setProgress((int) Math.round(progress * 100));
-					}
-				});
-			}
-		}, count, futures, new UpdateCompleteHandler() {
-			public void onUpdateComplete() {
-				display.asyncExec(new Runnable() {
-					public void run() {
-						taskItem.setOverlayImage(null);
-						taskItem.setProgressState(SWT.DEFAULT);
-						refreshTable();
-					}
-				});
-			}
-		}));
-		progressThread.setName("ProgressThread");
-		progressThread.setDaemon(true);
-		progressThread.start();
+					});
+				}
+			}));
+			progressThread.setName("ProgressThread");
+			progressThread.setDaemon(true);
+			progressThread.start();
+		}
 	}
 
 	public static void setTableItemStatus(Display display, final TableItem item, final FileMoveIcon fmi) {
@@ -715,9 +721,9 @@ public class UIStarter {
 			item.setText(NEW_FILENAME_COLUMN, episode.getNewFilePath(prefs));
 		}
 	}
-	
+
 	public static void getRenameButtonText() {
-		if(prefs.isMovedEnabled()) {
+		if (prefs.isMovedEnabled()) {
 			btnRenameSelected.setText("Rename && Move Selected");
 		} else {
 			btnRenameSelected.setText("Rename Selected");

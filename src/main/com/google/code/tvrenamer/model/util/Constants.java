@@ -38,4 +38,6 @@ public class Constants {
 	public static final String DEFAULT_DESTINATION_DIRECTORY = System.getProperty("user.home") + "/TV";
 
 	public static final String DEFAULT_SEASON_PREFIX = "Season ";
+	
+	public enum OSType { WINDOWS, LINUX, MAC };
 }
