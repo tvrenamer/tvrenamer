@@ -566,7 +566,7 @@ public class UIStarter {
 				String newName = item.getText(1);
 				String newFilePath = currentFile.getParent() + File.separatorChar + newName;
 
-				if (prefs != null) {
+				if (prefs != null && prefs.isMovedEnabled()) {
 					newFilePath = episode.getDestinationDirectory(prefs).getAbsolutePath() + File.separatorChar
 						+ newName;
 				}
