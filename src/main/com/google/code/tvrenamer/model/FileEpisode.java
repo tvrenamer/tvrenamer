@@ -134,7 +134,7 @@ public class FileEpisode {
 		String filename = getNewFilename(prefs);
 		
 		if(prefs != null && prefs.isMovedEnabled()) {
-			return prefs.getDestinationDirectory().getAbsolutePath().concat("/").concat(filename);
+			return getDestinationDirectory(prefs).getAbsolutePath().concat("/").concat(filename);
 		}
 		return filename;
 	}

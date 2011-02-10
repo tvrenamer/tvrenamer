@@ -20,8 +20,8 @@ public class UserPreferencesListener implements Observer {
 			UserPreferencesChangeEvent upce = (UserPreferencesChangeEvent) value;
 			
 			if(upce.getPreference().equals("moveEnabled")) {
-				UIStarter.getRenameButtonText();
-				UIStarter.getColumnDestText();
+				UIStarter.setRenameButtonText();
+				UIStarter.setColumnDestText();
 			} else if(upce.getPreference().equals("proxy")) {
 				preferences.getProxy().apply();
 			}

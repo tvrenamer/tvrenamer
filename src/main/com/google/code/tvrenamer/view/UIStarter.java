@@ -71,9 +71,10 @@ import com.google.code.tvrenamer.model.util.Constants;
 import com.google.code.tvrenamer.model.util.Constants.OSType;
 
 public class UIStarter {
-	private static final int CURRENT_FILE_COLUMN = 0;
-	private static final int NEW_FILENAME_COLUMN = 1;
-	private static final int FILE_STATUS_COLUMN = 2;
+	private static final int SELECTED_COLUMN = 0;
+	private static final int CURRENT_FILE_COLUMN = 1;
+	private static final int NEW_FILENAME_COLUMN = 2;
+	private static final int FILE_STATUS_COLUMN = 3;
 
 	private static Logger logger = Logger.getLogger(UIStarter.class.getName());
 
@@ -87,6 +88,7 @@ public class UIStarter {
 	private Button btnBrowse;
 	private Button btnRefresh;
 	private static Button btnRenameSelected;
+	private static TableColumn colDest;
 
 	private Table tblResults;
 
@@ -129,7 +131,7 @@ public class UIStarter {
 
 	private void setupMainWindow() {
 		btnBrowse = new Button(shell, SWT.PUSH);
-		btnBrowse.setText("Add files ...");
+		btnBrowse.setText("Add files ... ");
 
 		btnRefresh = new Button(shell, SWT.PUSH);
 		btnRefresh.setText("Refresh");
@@ -199,14 +201,14 @@ public class UIStarter {
 	}
 
 	private void setupMoveButtonText() {
-		getRenameButtonText();
+		setRenameButtonText();
 		btnRenameSelected
 			.setToolTipText("Clicking this button will rename and move the selected files to the directory set in preferences (currently "
 				+ prefs.getDestinationDirectory().getAbsolutePath() + ").");
 	}
 
 	private void setupRenameButtonText() {
-		getRenameButtonText();
+		setRenameButtonText();
 		btnRenameSelected
 			.setToolTipText("Clicking this button will rename the selected files but leave them where they are.");
 	}
@@ -321,40 +323,62 @@ public class UIStarter {
 		gridData.horizontalSpan = 3;
 		tblResults.setLayoutData(gridData);
 
+		final TableColumn colSelected = new TableColumn(tblResults, SWT.LEFT);
+		colSelected.setText("Selected");
+		colSelected.setWidth(75);
+
 		final TableColumn colSrc = new TableColumn(tblResults, SWT.LEFT);
 		colSrc.setText("Current File");
 		colSrc.setWidth(550);
 
-		final TableColumn colDest = new TableColumn(tblResults, SWT.LEFT);
-		colDest.setText("Proposed Filename");
+		colDest = new TableColumn(tblResults, SWT.LEFT);
+		setColumnDestText();
 		colDest.setWidth(375);
 
 		final TableColumn colStatus = new TableColumn(tblResults, SWT.LEFT);
 		colStatus.setText("Status");
 		colStatus.setWidth(75);
 
-		// editable table
-		final TableEditor editor = new TableEditor(tblResults);
-		editor.horizontalAlignment = SWT.CENTER;
-		editor.grabHorizontal = true;
+		colSelected.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				tblResults.setSortDirection(tblResults.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN);
+				sortTable(colSelected, 0);
+				tblResults.setSortColumn(colSelected);
+			}
+		});
 
 		colSrc.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				tblResults.setSortDirection(tblResults.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN);
-				sortTable(colSrc, 2);
+				sortTable(colSrc, 1);
 				tblResults.setSortColumn(colSrc);
 			}
 		});
-
+		
 		colDest.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				tblResults.setSortDirection(tblResults.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN);
-				sortTable(colDest, 1);
+				sortTable(colDest, 2);
 				tblResults.setSortColumn(colDest);
 			}
 		});
+		
+		colStatus.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				tblResults.setSortDirection(tblResults.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN);
+				sortTable(colStatus, 3);
+				tblResults.setSortColumn(colStatus);
+			}
+		});
+		
+		// editable table
+		final TableEditor editor = new TableEditor(tblResults);
+		editor.horizontalAlignment = SWT.CENTER;
+		editor.grabHorizontal = true;
 
 		Listener tblEditListener = new Listener() {
 
@@ -561,19 +585,23 @@ public class UIStarter {
 		for (final TableItem item : tblResults.getItems()) {
 			if (item.getChecked()) {
 				count++;
-				String fileName = item.getText(0);
+				String fileName = item.getText(CURRENT_FILE_COLUMN);
 				final File currentFile = new File(fileName);
 				final FileEpisode episode = files.get(fileName);
 				String currentName = currentFile.getName();
-				String newName = item.getText(1);
-				String newFilePath = currentFile.getParent() + File.separatorChar + newName;
+				String newName = item.getText(NEW_FILENAME_COLUMN);				
+				
+				File newFile = null;
 
 				if (prefs != null && prefs.isMovedEnabled()) {
-					newFilePath = episode.getDestinationDirectory(prefs).getAbsolutePath() + File.separatorChar
-						+ newName;
+					// If move is enabled, the full path is in the table already
+					newFile = new File(newName);
+				} else {
+					// Else we need to build it
+					String newFilePath = currentFile.getParent() + File.separatorChar + newName;
+					newFile = new File(newFilePath);
 				}
 
-				final File newFile = new File(newFilePath);
 				logger.info("Going to move '" + currentFile.getAbsolutePath() + "' to '" + newFile.getAbsolutePath()
 					+ "'");
 
@@ -662,7 +690,8 @@ public class UIStarter {
 			item.setChecked(false);
 			item.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
 		}
-		item.setText(new String[] { fileName, newFilename });
+		item.setText(CURRENT_FILE_COLUMN, fileName);
+		item.setText(NEW_FILENAME_COLUMN, newFilename);
 		item.setImage(FILE_STATUS_COLUMN, FileMoveIcon.DOWNLOADING.icon);
 		return item;
 	}
@@ -671,11 +700,14 @@ public class UIStarter {
 		TableItem oldItem = tblResults.getItem(i);
 		boolean wasChecked = oldItem.getChecked();
 		int oldStyle = oldItem.getStyle();
-		String[] values = { oldItem.getText(0), oldItem.getText(1) };
-		oldItem.dispose();
+		
 		TableItem item = new TableItem(tblResults, oldStyle, j);
-		item.setText(values);
 		item.setChecked(wasChecked);
+		item.setText(CURRENT_FILE_COLUMN, oldItem.getText(CURRENT_FILE_COLUMN));
+		item.setText(NEW_FILENAME_COLUMN, oldItem.getText(NEW_FILENAME_COLUMN));
+		item.setChecked(wasChecked);
+		
+		oldItem.dispose();
 	}
 
 	private void sortTable(TableColumn col, int position) {
@@ -722,11 +754,19 @@ public class UIStarter {
 		}
 	}
 
-	public static void getRenameButtonText() {
+	public static void setRenameButtonText() {
 		if (prefs.isMovedEnabled()) {
 			btnRenameSelected.setText("Rename && Move Selected");
 		} else {
 			btnRenameSelected.setText("Rename Selected");
+		}
+	}
+
+	public static void setColumnDestText() {
+		if (prefs.isMovedEnabled()) {
+			colDest.setText("Proposed File Path");
+		} else {
+			colDest.setText("Proposed File Name");
 		}
 	}
 

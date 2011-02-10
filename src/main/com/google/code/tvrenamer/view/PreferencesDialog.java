@@ -24,6 +24,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.DirectoryDialog;
@@ -373,35 +374,40 @@ public class PreferencesDialog extends Dialog {
 				toggleEnableControls(proxyAuthenticationRequiredCheckbox, proxyUsernameText, proxyPasswordText);
 			}
 		});
-		
 	}
 
 	private void createButtonGroup() {
-		Button cancelButton = new Button(preferencesShell, SWT.PUSH);
+		Composite bottomButtonsComposite = new Composite(preferencesShell, SWT.FILL);
+		bottomButtonsComposite.setLayout(new GridLayout(2, false));
+		GridData bottomButtonsCompositeGridData = new GridData(SWT.FILL, SWT.CENTER, true, true, 2, 1);
+		bottomButtonsComposite.setLayoutData(bottomButtonsCompositeGridData);
+		
+		Button cancelButton = new Button(bottomButtonsComposite, SWT.PUSH);
+		GridData cancelButtonGridData = new GridData(GridData.BEGINNING, GridData.CENTER, false, false);
+		cancelButtonGridData.minimumWidth = 150;
+		cancelButtonGridData.widthHint = 150;
+		cancelButton.setLayoutData(cancelButtonGridData);
 		cancelButton.setText("Cancel");
+		
+		cancelButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				preferencesShell.close();
+			}
+		});
 
-		Button saveButton = new Button(preferencesShell, SWT.PUSH);
+		Button saveButton = new Button(bottomButtonsComposite, SWT.PUSH);
+		GridData saveButtonGridData = new GridData(GridData.END, GridData.CENTER, true, true);
+		saveButtonGridData.minimumWidth = 150;
+		saveButtonGridData.widthHint = 150;
+		saveButton.setLayoutData(saveButtonGridData);
 		saveButton.setText("Save");
-
-		GridData saveGridData = new GridData();
-		saveGridData.widthHint = 150;
-		saveGridData.horizontalAlignment = GridData.END;
-		saveButton.setLayoutData(saveGridData);
 		saveButton.setFocus();
-
-		cancelButton.setLayoutData(saveGridData);
 
 		saveButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
 				savePreferences();
-				preferencesShell.close();
-			}
-		});
-
-		cancelButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent event) {
 				preferencesShell.close();
 			}
 		});
