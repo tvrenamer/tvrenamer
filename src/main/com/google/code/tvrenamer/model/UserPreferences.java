@@ -73,7 +73,7 @@ public class UserPreferences extends Observable {
 	public void setDestinationDirectory(String dir) throws TVRenamerIOException {
 		if(hasChanged(this.destDir.getAbsolutePath(), dir)) {
 			setChanged();
-			notifyObservers(dir);
+			notifyObservers(new UserPreferencesChangeEvent("destDir", dir));
 
 			this.destDir = new File(dir);
 			ensurePath();
@@ -89,7 +89,7 @@ public class UserPreferences extends Observable {
 	public void setDestinationDirectory(File dir) throws TVRenamerIOException {
 		if(hasChanged(this.destDir, dir)) {
 			setChanged();
-			notifyObservers(dir);
+			notifyObservers(new UserPreferencesChangeEvent("destDir", dir));
 
 			this.destDir = dir;
 			ensurePath();
@@ -108,7 +108,7 @@ public class UserPreferences extends Observable {
 	public void setMovedEnabled(boolean moveEnabled) {
 		if(hasChanged(this.moveEnabled, moveEnabled)) {
 			setChanged();
-			notifyObservers(moveEnabled);
+			notifyObservers(new UserPreferencesChangeEvent("moveEnabled", moveEnabled));
 
 			this.moveEnabled = moveEnabled;
 		}
@@ -129,7 +129,7 @@ public class UserPreferences extends Observable {
 
 		if(hasChanged(this.seasonPrefix, prefix)) {
 			setChanged();
-			notifyObservers(prefix);
+			notifyObservers(new UserPreferencesChangeEvent("prefix", prefix));
 
 			this.seasonPrefix = StringUtils.sanitiseTitle(prefix);
 		}
@@ -146,7 +146,7 @@ public class UserPreferences extends Observable {
 	public void setRenameReplacementString(String renameReplacementMask) {
 		if(hasChanged(this.renameReplacementMask, renameReplacementMask)) {
 			setChanged();
-			notifyObservers(renameReplacementMask);
+			notifyObservers(new UserPreferencesChangeEvent("renameReplacementMask", renameReplacementMask));
 
 			this.renameReplacementMask = renameReplacementMask;
 		}
@@ -163,7 +163,7 @@ public class UserPreferences extends Observable {
 	public void setProxy(ProxySettings proxy) {
 		if(hasChanged(this.proxy, proxy)) {
 			setChanged();
-			notifyObservers(proxy);
+			notifyObservers(new UserPreferencesChangeEvent("proxy", proxy));
 
 			this.proxy = proxy;
 		}

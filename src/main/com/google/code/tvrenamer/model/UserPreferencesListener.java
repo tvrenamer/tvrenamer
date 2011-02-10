@@ -12,9 +12,20 @@ public class UserPreferencesListener implements Observer {
 	/* (non-Javadoc)
 	 * @see java.util.Observer#update(java.util.Observable, java.lang.Object)
 	 */
-	public void update(Observable newPreferences, Object newValue) {
-		logger.info("Preference change for " + newPreferences + ", changing to " + newValue);
+	public void update(Observable observable, Object value) {
+		logger.info("Preference change for: " + observable + ", " + value);
 		
-		UIStarter.getRenameButtonText();
+		if(observable instanceof UserPreferences && value instanceof UserPreferencesChangeEvent) {
+			UserPreferences preferences = (UserPreferences) observable;
+			UserPreferencesChangeEvent upce = (UserPreferencesChangeEvent) value;
+			
+			if(upce.getPreference().equals("moveEnabled")) {
+				UIStarter.getRenameButtonText();
+				UIStarter.getColumnDestText();
+			} else if(upce.getPreference().equals("proxy")) {
+				preferences.getProxy().apply();
+			}
+		}
+		
 	}
 }
