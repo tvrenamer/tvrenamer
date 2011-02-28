@@ -84,7 +84,7 @@ public class UIStarter {
 	private static Shell shell;
 	private Display display;
 	private static UserPreferences prefs;
-	
+
 	private Button addFilesButton;
 	private Link updatesAvailableLink;
 	private static Button renameSelectedButton;
@@ -141,8 +141,8 @@ public class UIStarter {
 		updatesAvailableLink = new Link(topButtonsComposite, SWT.VERTICAL);
 		updatesAvailableLink.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, true));
 		updatesAvailableLink.setVisible(false);
-		updatesAvailableLink.setText("There is an update available. <a href=\""
-			+ TVRENAMER_DOWNLOAD_URL + "\">Click here to download</a>");
+		updatesAvailableLink.setText("There is an update available. <a href=\"" + TVRENAMER_DOWNLOAD_URL
+			+ "\">Click here to download</a>");
 		updatesAvailableLink.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
@@ -151,13 +151,22 @@ public class UIStarter {
 		});
 
 		// Show the label if updates are available (in a new thread)
-		display.asyncExec(new Runnable() {
+		Thread updateCheckThread = new Thread(new Runnable() {
 			public void run() {
-				if(prefs.checkForUpdates()) {
-					updatesAvailableLink.setVisible(UpdateChecker.isUpdateAvailable());
+				if (prefs.checkForUpdates()) {
+					final boolean updatesAvailable = UpdateChecker.isUpdateAvailable();
+
+					if (updatesAvailable) {						
+						display.asyncExec(new Runnable() {
+							public void run() {
+								updatesAvailableLink.setVisible(updatesAvailable);
+							}
+						});
+					}
 				}
 			}
 		});
+		updateCheckThread.start();
 
 		setupResultsTable();
 		setupTableDragDrop();
