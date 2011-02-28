@@ -9,7 +9,7 @@ import com.google.code.tvrenamer.model.util.CryptographyUtils;
 public class ProxySettings {
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(ProxySettings.class.getName());
-	
+
 	private static final String HTTP_PROXY_PORT = "http.proxyPort";
 	private static final String HTTP_PROXY_HOST = "http.proxyHost";
 	private boolean enabled = false;
@@ -18,7 +18,7 @@ public class ProxySettings {
 	private boolean authenticationRequired;
 	private String username;
 	private String encryptedPassword;
-	
+
 	public ProxySettings() {
 		enabled = false;
 		hostname = "";
@@ -26,13 +26,13 @@ public class ProxySettings {
 		username = "";
 		encryptedPassword = "";
 	}
-	
+
 	/**
 	 * If enabled, set the global system proxy settings so all subsequent
 	 * connections use this.
 	 */
 	public void apply() {
-		if(enabled) {
+		if (enabled) {
 			System.setProperty(HTTP_PROXY_HOST, hostname);
 			System.setProperty(HTTP_PROXY_PORT, port);
 			setupAuthenticator();
@@ -40,7 +40,7 @@ public class ProxySettings {
 			System.setProperty(HTTP_PROXY_HOST, "");
 		}
 	}
-	
+
 	public boolean isEnabled() {
 		return enabled;
 	}
@@ -84,10 +84,11 @@ public class ProxySettings {
 	public String getEncryptedPassword() {
 		return encryptedPassword;
 	}
-	
+
 	public String getDecryptedPassword() {
 		String decrypted = CryptographyUtils.decrypt(encryptedPassword);
-		//logger.fine("Decrypting [" + encryptedPassword + "] into [" + decrypted + "]"); // Disable logging of sensitive information, but helps debug
+		// logger.fine("Decrypting [" + encryptedPassword + "] into [" + decrypted + "]"); // Disable logging of
+// sensitive information, but helps debug
 		return decrypted;
 	}
 
@@ -95,19 +96,21 @@ public class ProxySettings {
 		this.encryptedPassword = encryptedPassword;
 		setupAuthenticator();
 	}
-	
+
 	public void setPlainTextPassword(String passwordToEncyrypt) {
 		String encrypted = CryptographyUtils.encrypt(passwordToEncyrypt);
-		//logger.fine("Encrypting [" + passwordToEncyrypt + "] into [" + encrypted + "]");  // Disable logging of sensitive information, but helps debug
+		// logger.fine("Encrypting [" + passwordToEncyrypt + "] into [" + encrypted + "]"); // Disable logging of
+// sensitive information, but helps debug
 		this.encryptedPassword = encrypted;
 		setupAuthenticator();
 	}
-	
+
 	private void setupAuthenticator() {
-		if(authenticationRequired) {
+		if (authenticationRequired) {
 			Authenticator.setDefault(new Authenticator() {
 				protected PasswordAuthentication getPasswordAuthentication() {
-					return new PasswordAuthentication(username.replace("\\", "\\\\"), CryptographyUtils.decrypt(encryptedPassword).toCharArray());
+					return new PasswordAuthentication(username.replace("\\", "\\\\"), CryptographyUtils
+						.decrypt(encryptedPassword).toCharArray());
 				}
 			});
 		}
@@ -115,7 +118,28 @@ public class ProxySettings {
 
 	@Override
 	public String toString() {
-		return "[enabled=" + enabled + ", hostname=" + hostname + ", port=" + port + ", username="
-			+ username + "]";
+		return "[enabled=" + enabled + ", hostname=" + hostname + ", port=" + port + ", username=" + username + "]";
+	}
+
+	public int hashCode() {
+		return 3852104;
+	}
+
+	public boolean equals(Object obj) {
+		if (obj == null)
+			return false;
+		if (obj == this)
+			return true;
+		if (obj.getClass() != getClass())
+			return false;
+
+		ProxySettings rhs = (ProxySettings) obj;
+
+		if (this.enabled == rhs.enabled && this.hostname.equals(rhs.hostname) && this.port.equals(rhs.port)
+			&& this.authenticationRequired == rhs.authenticationRequired && this.username.equals(rhs.username)
+			&& this.encryptedPassword.equals(rhs.encryptedPassword)) {
+			return true;
+		}
+		return false;
 	}
 }

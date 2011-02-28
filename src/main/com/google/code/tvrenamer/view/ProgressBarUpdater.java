@@ -5,6 +5,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
+import com.google.code.tvrenamer.controller.UpdateCompleteHandler;
+
 public class ProgressBarUpdater implements Runnable {
 	private static Logger logger = Logger.getLogger(ProgressBarUpdater.class.getName());
 

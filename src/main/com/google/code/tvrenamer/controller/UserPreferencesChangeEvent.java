@@ -1,4 +1,4 @@
-package com.google.code.tvrenamer.model;
+package com.google.code.tvrenamer.controller;
 
 /**
  * Represents a change event of user preferences

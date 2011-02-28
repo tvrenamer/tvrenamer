@@ -1,11 +1,7 @@
 package com.google.code.tvrenamer.controller;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.ConnectException;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -23,6 +19,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import com.google.code.tvrenamer.controller.util.StringUtils;
 import com.google.code.tvrenamer.model.Season;
 import com.google.code.tvrenamer.model.Show;
 
@@ -67,34 +64,17 @@ public class TVRageProvider {
 	 */
 	public static ArrayList<Show> getShowOptions(String showName) throws ConnectException, UnknownHostException {
 		ArrayList<Show> options = new ArrayList<Show>();
-		showName = showName.replaceAll(" ", "%20");
-		String searchURL = BASE_SEARCH_URL + showName;
+		String searchURL = BASE_SEARCH_URL + StringUtils.encodeSpecialCharacters(showName);
 
 		try {
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
-			URL url = new URL(searchURL);
-
-			logger.info("About to retrieve search results from " + url.toString());
-
-			InputStream inputStream = url.openStream();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-
-			logger.finer("Before encoding XML");
-
-			String s;
-			String xml = "";
-			while ((s = reader.readLine()) != null) {
-				if (logger.isLoggable(Level.FINEST)) {
-					logger.finest(s);
-				}
-				xml += encodeSpecialCharacters(s);
-			}
-
-			logger.finest("xml:\n" + xml);
+			logger.info("About to retrieve search results from " + searchURL);
+			
+			String searchXml = new HttpConnectionHandler().downloadUrl(searchURL);
 
 			DocumentBuilder db = dbf.newDocumentBuilder();
-			Document doc = db.parse(new InputSource(new StringReader(xml)));
+			Document doc = db.parse(new InputSource(new StringReader(searchXml)));
 
 			XPathFactory factory = XPathFactory.newInstance();
 			XPath xpath = factory.newXPath();
@@ -141,8 +121,10 @@ public class TVRageProvider {
 
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		try {
+			String showXml = new HttpConnectionHandler().downloadUrl(showURL);
+			
 			DocumentBuilder db = dbf.newDocumentBuilder();
-			Document doc = db.parse(showURL);
+			Document doc = db.parse(new InputSource(new StringReader(showXml)));
 			XPathFactory factory = XPathFactory.newInstance();
 			XPath xpath = factory.newXPath();
 
@@ -171,24 +153,5 @@ public class TVRageProvider {
 		} catch (Exception e) {
 			logger.log(Level.WARNING, "Caught exception when attempting to parse show detail xml", e);
 		}
-	}
-
-	/**
-	 * Replaces unsafe HTML Characters with HTML Entities
-	 * 
-	 * @param input
-	 *            string to encode
-	 * @return HTML safe representation of input
-	 */
-	private static String encodeSpecialCharacters(String input) {
-		if (input == null || input.length() == 0) {
-			return "";
-		}
-
-		// TODO: determine other characters that need to be replaced (eg "'", "-")
-		logger.finest("Input before encoding: [" + input + "]");
-		input = input.replaceAll("& ", "&amp; ");
-		logger.finest("Input after encoding: [" + input + "]");
-		return input;
 	}
 }

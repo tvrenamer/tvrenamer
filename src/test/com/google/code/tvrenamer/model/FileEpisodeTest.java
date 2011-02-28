@@ -4,24 +4,28 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
 
 import junit.framework.Assert;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
+
 
 public class FileEpisodeTest {
 	private static Logger logger = Logger.getLogger(FileEpisodeTest.class.getName());
 	
-	FileEpisode fileEpisode;
+	private FileEpisode fileEpisode;
 	
-	List<File> testFiles;
+	private List<File> testFiles;
+	
+	private UserPreferences prefs;
 
 	@Before
 	public void setUp() throws Exception {
 		testFiles = new ArrayList<File>();
+		prefs = Mockito.mock(UserPreferences.class);
 	}
 
 	/**
@@ -43,8 +47,11 @@ public class FileEpisodeTest {
 		show.setSeason(seasonNum, season5);
 		ShowStore.addShow(showName, show);
 		
-		UserPreferences prefs = new UserPreferences();
-		prefs.setRenameReplacementString("%S [%sx%e] %t");
+		
+		Mockito.when(prefs.getRenameReplacementString()).thenReturn("%S [%sx%e] %t");
+		
+//		UserPreferences prefs = new UserPreferences();
+//		prefs.setRenameReplacementString("%S [%sx%e] %t");
 		
 		fileEpisode = new FileEpisode(showName, seasonNum, episodeNum, file);
 		fileEpisode.setStatus(EpisodeStatus.RENAMED);

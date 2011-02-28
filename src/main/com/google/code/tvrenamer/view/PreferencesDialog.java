@@ -66,6 +66,7 @@ public class PreferencesDialog extends Dialog {
 	private Button proxyAuthenticationRequiredCheckbox;
 	private Text proxyUsernameText;
 	private Text proxyPasswordText;
+	private Button checkForUpdatesCheckbox;
 
 	/**
 	 * PreferencesDialog constructor
@@ -115,13 +116,15 @@ public class PreferencesDialog extends Dialog {
 		createRenameGroup();
 		
 		createProxyGroup();
+		
+		createCheckForUpdatesGroup();
 
-		createButtonGroup();
+		createActionButtonGroup();
 	}
 
 	private void createMoveGroup() {
 		Group moveGroup = new Group(preferencesShell, SWT.NONE);
-		moveGroup.setText("Move To Destination [?]");
+		moveGroup.setText("Move To TV Folder [?]");
 		moveGroup.setLayout(new GridLayout(3, false));
 		moveGroup.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, true, true, 3, 1));
 		moveGroup
@@ -136,7 +139,7 @@ public class PreferencesDialog extends Dialog {
 		moveEnabledCheckbox.setToolTipText("Whether the 'move to TV location' functionality is enabled");
 
 		Label destDirLabel = new Label(moveGroup, SWT.NONE);
-		destDirLabel.setText("Destination directory [?]");
+		destDirLabel.setText("TV Directory [?]");
 		destDirLabel.setToolTipText("The location of your 'TV' folder");
 
 		destDirText = new Text(moveGroup, SWT.BORDER);
@@ -375,8 +378,20 @@ public class PreferencesDialog extends Dialog {
 			}
 		});
 	}
+	
+	private void createCheckForUpdatesGroup() {
+		Group checkForUpdateGroup = new Group(preferencesShell, SWT.FILL);
+		checkForUpdateGroup.setText("Check for Updates");
+		checkForUpdateGroup.setLayout(new GridLayout(3, false));
+		checkForUpdateGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 3, 1));
+		
+		checkForUpdatesCheckbox = new Button(checkForUpdateGroup, SWT.CHECK);
+		checkForUpdatesCheckbox.setText("Check for Updates at startup");
+		checkForUpdatesCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 3, 1));
+		checkForUpdatesCheckbox.setSelection(prefs.checkForUpdates());
+	}
 
-	private void createButtonGroup() {
+	private void createActionButtonGroup() {
 		Composite bottomButtonsComposite = new Composite(preferencesShell, SWT.FILL);
 		bottomButtonsComposite.setLayout(new GridLayout(2, false));
 		GridData bottomButtonsCompositeGridData = new GridData(SWT.FILL, SWT.CENTER, true, true, 2, 1);
@@ -437,10 +452,11 @@ public class PreferencesDialog extends Dialog {
 				proxySettings.setUsername(proxyUsernameText.getText());
 				proxySettings.setPlainTextPassword(proxyPasswordText.getText());
 			}
-			proxySettings.apply();
 			
 			prefs.setProxy(proxySettings);
 		}
+		
+		prefs.setCheckForUpdates(checkForUpdatesCheckbox.getSelection());
 
 		try {
 			prefs.setDestinationDirectory(destDirText.getText());
@@ -449,7 +465,7 @@ public class PreferencesDialog extends Dialog {
 				+ destDirText.getText());
 			logger.log(Level.WARNING, "Unable to create the destination directory", e);
 		}
-		prefs.store();
+		UserPreferences.store(prefs);
 	}
 	
 	/**

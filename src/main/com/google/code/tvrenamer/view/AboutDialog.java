@@ -20,9 +20,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Shell;
 
+import com.google.code.tvrenamer.controller.UpdateChecker;
 import com.google.code.tvrenamer.model.SWTMessageBoxType;
 import com.google.code.tvrenamer.model.util.Constants;
-import com.google.code.tvrenamer.model.util.UpdateChecker;
 
 /**
  * The About Dialog box.
@@ -34,7 +34,7 @@ public class AboutDialog extends Dialog {
 	private static final String TVRENAMER_LICENSE_URL = "http://www.gnu.org/licenses/gpl-2.0.html";
 	private static final String TVRENAMER_SUPPORT_EMAIL = "tvrenamer@gmail.com";
 	public static final String TVRENAMER_PROJECT_URL = "http://tv-renamer.googlecode.com";
-	public static final String TVRENAMER_PROJECT_ISSUES_URL = "http://code.google.com/p/tv-renamer/issues";
+	private static final String TVRENAMER_PROJECT_ISSUES_URL = TVRENAMER_PROJECT_URL + "/issues";
 	private static Shell aboutShell;
 
 	/**

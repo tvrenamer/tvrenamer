@@ -65,7 +65,7 @@ public class XMLPersistence {
 		} catch (FileNotFoundException e) {
 			// If file doesn't exist, assume defaults
 			logger.log(Level.FINER, "Preferences file '" + file.getAbsolutePath() + "' does not exist - assuming defaults");
-			preferences = new UserPreferences();
+			preferences = UserPreferences.getInstance();
 		}
 		
 		return preferences;
