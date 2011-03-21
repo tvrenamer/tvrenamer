@@ -545,7 +545,10 @@ public class UIStarter {
 			new FileTraversal() {
 				@Override
 				public void onFile(File f) {
-					files.add(f.getAbsolutePath());
+					// Don't add hidden files - defect 38
+					if(!f.isHidden()) {
+						files.add(f.getAbsolutePath());
+					}
 				}
 			}.traverse(f);
 		}
