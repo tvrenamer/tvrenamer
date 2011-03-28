@@ -452,9 +452,8 @@ public class PreferencesDialog extends Dialog {
 				proxySettings.setUsername(proxyUsernameText.getText());
 				proxySettings.setPlainTextPassword(proxyPasswordText.getText());
 			}
-			
-			prefs.setProxy(proxySettings);
 		}
+		prefs.setProxy(proxySettings);
 		
 		prefs.setCheckForUpdates(checkForUpdatesCheckbox.getSelection());
 

@@ -532,7 +532,7 @@ public class UIStarter {
 			System.exit(1);
 		} catch (Exception exception) {
 			String message = "An error occurred, please check your internet connection, java version or run from the command line to show errors";
-			showMessageBox(SWTMessageBoxType.ERROR, "Error", message);
+			showMessageBox(SWTMessageBoxType.ERROR, "Error", message, exception);
 			logger.log(Level.SEVERE, message, exception);
 			System.exit(1);
 		}

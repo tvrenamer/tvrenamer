@@ -44,6 +44,40 @@ public class UIUtils {
 
 		return defaultFont;
 	}
+	
+	public static void showMessageBox(final SWTMessageBoxType type, final String title, final String message, final Exception exception) {
+		final int swtIconValue;
+
+		switch (type) {
+			case QUESTION:
+				swtIconValue = SWT.ICON_QUESTION;
+				break;
+			case MESSAGE:
+				swtIconValue = SWT.ICON_INFORMATION;
+				break;
+			case WARNING:
+				swtIconValue = SWT.ICON_WARNING;
+				break;
+			case ERROR:
+				swtIconValue = SWT.ICON_ERROR;
+				break;
+			case OK:
+				// Intentional missing break
+			default:
+				swtIconValue = SWT.OK;
+		}
+
+		Display.getDefault().syncExec(new Runnable() {
+			public void run() {
+				String messageText = message + "/n" + exception.getLocalizedMessage();  
+				
+				MessageBox msgBox = new MessageBox(shell, swtIconValue);
+				msgBox.setText(title);
+				msgBox.setMessage(messageText);
+				msgBox.open();
+			}
+		});
+	}
 
 	/**
 	 * Show a message box of the given type with the given message content and window title.
