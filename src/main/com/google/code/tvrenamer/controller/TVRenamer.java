@@ -52,6 +52,9 @@ public class TVRenamer {
 		String fName = file.getName();
 		if (fName.matches("[sS]\\d\\d?[eE]\\d\\d?.*")) {
 			String parentName = file.getParentFile().getName();
+			if (parentName.toLowerCase().startsWith("season")) {
+				parentName = file.getParentFile().getParentFile().getName();
+			}
 			logger.info("appending parent directory '" + parentName + "' to filename '" + fName + "'");
 			return parentName + " " + fName;
 		} else {
