@@ -174,8 +174,10 @@ public class UIStarter {
 		Composite bottomButtonsComposite = new Composite(shell, SWT.FILL);
 		bottomButtonsComposite.setLayout(new GridLayout(3, false));
 		GridData bottomButtonsCompositeGridData = new GridData(SWT.FILL, SWT.CENTER, true, true, 3, 1);
-		// DH: Hack for GTK to stop the bottom of the window being cut off
-		bottomButtonsCompositeGridData.minimumHeight = 65;
+		if(getOSType() == OSType.LINUX) {
+			// DH: Hack for GTK to stop the bottom of the window being cut off
+			bottomButtonsCompositeGridData.minimumHeight = 65;	
+		}		
 		bottomButtonsComposite.setLayoutData(bottomButtonsCompositeGridData);
 
 		final Button quitButton = new Button(bottomButtonsComposite, SWT.PUSH);
