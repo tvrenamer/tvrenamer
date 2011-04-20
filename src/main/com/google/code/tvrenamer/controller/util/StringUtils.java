@@ -16,8 +16,7 @@ public class StringUtils {
 	}
 
 	public static String replacePunctuation(String s) {
-		s = s.replaceAll("\\.", " ");
-		s = s.replaceAll(",", " ");
+		s = s.replaceAll("\\p{Punct}"," ");
 		return s;
 	}
 

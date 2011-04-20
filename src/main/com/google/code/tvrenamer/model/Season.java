@@ -16,7 +16,7 @@ public class Season {
 		return num;
 	}
 
-	public void setEpisode(int epNum, String title) {
+	public void addEpisode(int epNum, String title) {
 		episodes.put(epNum, title);
 	}
 

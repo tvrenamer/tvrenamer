@@ -75,7 +75,7 @@ public class FileEpisode {
 				String seasonNum = "";
 				String titleString = "";
 
-				try {
+				try {					
 					Show show = ShowStore.getShow(this.showName);
 					showName = show.getName();
 

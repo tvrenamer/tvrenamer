@@ -26,6 +26,11 @@ public class ShowStore {
 	private static final Semaphore _showStoreLock = new Semaphore(1);
 
 	private static final ExecutorService threadPool = Executors.newCachedThreadPool();
+	
+	// static initaliser block as there are static methods
+	static {
+		populateFireflyShow();
+	}
 
 	public static Show getShow(String showName) {
 		Show s = null;
@@ -92,7 +97,7 @@ public class ShowStore {
 				Show thisShow = options.get(0);
 
 				TVRageProvider.getShowListing(thisShow);
-				
+								
 				addShow(showName, thisShow);
 
 				return true;
@@ -145,5 +150,34 @@ public class ShowStore {
 		_shows.put(showName.toLowerCase(), show);
 		notifyListeners(showName, show);
 		_showStoreLock.release();
+	}
+
+	private static void populateFireflyShow() {
+		Show firefly = new Show("3548", "Firefly", "http://www.tvrage.com/Firefly");
+
+		Season season = new Season(1);
+		season.addEpisode(1, "Serenity");
+		season.addEpisode(2, "The Train Job");
+		season.addEpisode(3, "Bushwhacked");
+		season.addEpisode(4, "Shindig");
+		season.addEpisode(5, "Safe");
+		season.addEpisode(6, "Our Mrs Reynolds");
+		season.addEpisode(7, "Jaynestown");
+		season.addEpisode(8, "Out of Gas");
+		season.addEpisode(9, "Ariel");
+		season.addEpisode(10, "War Stories");
+		season.addEpisode(11, "Trash");
+		season.addEpisode(12, "The Message");
+		season.addEpisode(13, "Heart of Gold");
+		season.addEpisode(14, "Objects in Space");
+
+		firefly.setSeason(1, season);
+
+		try {
+			addShow("firefly", firefly);
+		} catch (InterruptedException e) {
+			// Should never happen
+			logger.log(Level.SEVERE, "InterruptedException when attempting to add Firefly to cache", e);
+		}
 	}
 }
