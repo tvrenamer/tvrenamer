@@ -176,7 +176,7 @@ public class UIStarter {
 		GridData bottomButtonsCompositeGridData = new GridData(SWT.FILL, SWT.CENTER, true, true, 3, 1);
 		if(getOSType() == OSType.LINUX) {
 			// DH: Hack for GTK to stop the bottom of the window being cut off
-			bottomButtonsCompositeGridData.minimumHeight = 65;	
+			bottomButtonsCompositeGridData.minimumHeight = 75;
 		}		
 		bottomButtonsComposite.setLayoutData(bottomButtonsCompositeGridData);
 

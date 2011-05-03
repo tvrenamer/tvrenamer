@@ -126,11 +126,11 @@ public class PreferencesDialog extends Dialog {
 		Group moveGroup = new Group(preferencesShell, SWT.NONE);
 		moveGroup.setText("Move To TV Folder [?]");
 		moveGroup.setLayout(new GridLayout(3, false));
-		moveGroup.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, true, true, 3, 1));
+		moveGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 3, 1));
 		moveGroup
 			.setToolTipText("TVRenamer will automatically move the files to your 'TV' folder if you want it to.  \n"
 				+ "It will move the file to <tv directory>/<show name>/<season prefix> #/ \n"
-				+ "Once enabled, set the location of the folder below.");
+				+ "Once enabled, set the location below.");
 
 		moveEnabledCheckbox = new Button(moveGroup, SWT.CHECK);
 		moveEnabledCheckbox.setText("Move Enabled [?]");
@@ -148,7 +148,7 @@ public class PreferencesDialog extends Dialog {
 		destDirText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true));
 
 		final Button destDirButton = new Button(moveGroup, SWT.PUSH);
-		destDirButton.setText("Select a directory");
+		destDirButton.setText("Select directory");
 		destDirButton.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event event) {
 				DirectoryDialog directoryDialog = new DirectoryDialog(preferencesShell);
@@ -191,7 +191,6 @@ public class PreferencesDialog extends Dialog {
 				toggleEnableControls(moveEnabledCheckbox, destDirText, destDirButton);
 			}
 		});
-
 	}
 
 	private void createRenameGroup() {

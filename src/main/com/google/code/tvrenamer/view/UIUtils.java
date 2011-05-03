@@ -1,7 +1,10 @@
 package com.google.code.tvrenamer.view;
 
+import java.awt.HeadlessException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.swing.JOptionPane;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.FontData;
@@ -90,6 +93,16 @@ public class UIUtils {
 	 *            the window title
 	 */
 	public static void showMessageBox(final SWTMessageBoxType type, final String title, final String message) {
+		if(shell == null) {
+			// Shell not established yet, try using JOPtionPane instead
+			try {
+				JOptionPane.showMessageDialog(null, message);
+			} catch(HeadlessException he) {
+				logger.warning("Could not show message graphically: " + message);
+				return;
+			}
+		}
+		
 		final int swtIconValue;
 
 		switch (type) {
