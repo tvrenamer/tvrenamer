@@ -3,7 +3,11 @@
 	<property name="src.main" value="src/main" />
 
 	<property name="version.file" value="${src.main}/tvrenamer.version" />
-	<loadfile property="version" srcFile="${version.file}" />
+	<loadfile property="version" srcFile="${version.file}">
+		<filterchain>
+			<striplinebreaks />
+		</filterchain>
+	</loadfile>
 
 	<property name="build" value="build" />
 	<property name="lib" value="lib" />
