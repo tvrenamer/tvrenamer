@@ -14,7 +14,7 @@ import com.google.code.tvrenamer.view.UIUtils;
 public class UserPreferences extends Observable {
 	private static Logger logger = Logger.getLogger(UserPreferences.class.getName());
 
-	public static File prefsFile = new File(System.getProperty("user.dir") + File.separatorChar
+	public static File prefsFile = new File(System.getProperty("user.home") + File.separatorChar
 	                                		+ Constants.PREFERENCES_FILE);
 	
 	private File destDir;

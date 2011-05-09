@@ -31,7 +31,7 @@ public class Constants {
 
 	public static String VERSION_NUMBER;
 
-	public static final String PREFERENCES_FILE = "preferences.xml";
+	public static final String PREFERENCES_FILE = "tvrenamer.preferences";
 
 	public static final String DEFAULT_REPLACEMENT_MASK = "%S [%sx%e] %t";
 
