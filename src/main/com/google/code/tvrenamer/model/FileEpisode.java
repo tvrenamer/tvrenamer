@@ -110,9 +110,11 @@ public class FileEpisode {
 				String episodeNumberString = new DecimalFormat("#00").format(this.episodeNumber);
 				String episodeNumberNoLeadingZeros = new DecimalFormat("##0").format(this.episodeNumber);
 				String episodeTitleNoSpaces = titleString.replaceAll(" ", ".");
+				String seasonNumberWithLeadingZero = new DecimalFormat("00").format(this.seasonNumber);
 
 				newFilename = newFilename.replaceAll(ReplacementToken.SHOW_NAME.getToken(), showName);
 				newFilename = newFilename.replaceAll(ReplacementToken.SEASON_NUM.getToken(), seasonNum);
+				newFilename = newFilename.replaceAll(ReplacementToken.SEASON_NUM_LEADING_ZERO.getToken(), seasonNumberWithLeadingZero);
 				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_NUM.getToken(), episodeNumberString);
 				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_NUM_NO_LEADING_ZERO.getToken(), episodeNumberNoLeadingZeros);
 				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_TITLE.getToken(), titleString);

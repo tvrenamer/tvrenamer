@@ -217,6 +217,7 @@ public class PreferencesDialog extends Dialog {
 		renameTokensList.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 2, 1));
 		renameTokensList.add(ReplacementToken.SHOW_NAME.toString());
 		renameTokensList.add(ReplacementToken.SEASON_NUM.toString());
+		renameTokensList.add(ReplacementToken.SEASON_NUM_LEADING_ZERO.toString());
 		renameTokensList.add(ReplacementToken.EPISODE_NUM.toString());
 		renameTokensList.add(ReplacementToken.EPISODE_NUM_NO_LEADING_ZERO.toString());
 		renameTokensList.add(ReplacementToken.EPISODE_TITLE.toString());

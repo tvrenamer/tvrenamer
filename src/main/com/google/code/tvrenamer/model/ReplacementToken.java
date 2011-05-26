@@ -5,10 +5,11 @@ public enum ReplacementToken {
 	
 	SHOW_NAME("%S", "Show Name"), 
 	SEASON_NUM("%s", "Season Number"), 
+	SEASON_NUM_LEADING_ZERO("%0s", "Season Number (with leading 0)"), 
 	EPISODE_NUM("%e", "Episode Number"), 
 	EPISODE_NUM_NO_LEADING_ZERO("%E", "Episode Number (without leading 0s)"), 
 	EPISODE_TITLE("%t", "Episode Title"), 
-	EPISODE_TITLE_NO_SPACES("%T", "Episode Title ('' replaced with '.')");
+	EPISODE_TITLE_NO_SPACES("%T", "Episode Title (<space> replaced with '.')");
 	
 	private String token;
 	private String description;
