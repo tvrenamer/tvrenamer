@@ -38,6 +38,7 @@ public class TVRageProvider {
 	private static final String XPATH_SHOWID = "showid";
 	private static final String XPATH_NAME = "name";
 	private static final String XPATH_LINK = "link";
+	private static final String XPATH_YEAR = "started";
 	private static final String BASE_LIST_URL = "http://www.tvrage.com/feeds/episode_list.php?sid=";
 	private static final String XPATH_ALL = "*";
 	private static final String XPATH_EPISODE_LIST = "/Show/Episodelist/Season";
@@ -91,7 +92,9 @@ public class TVRageProvider {
 				String optionName = ((Node) expr.evaluate(eNode, XPathConstants.NODE)).getTextContent();
 				expr = xpath.compile(XPATH_LINK);
 				String optionUrl = ((Node) expr.evaluate(eNode, XPathConstants.NODE)).getTextContent();
-				options.add(new Show(optionId, optionName, optionUrl));
+				expr = xpath.compile(XPATH_YEAR);
+				String optionYear = ((Node) expr.evaluate(eNode, XPathConstants.NODE)).getTextContent();
+				options.add(new Show(optionId, optionName, optionUrl, optionYear));
 			}
 			return options;
 		} catch (ConnectException ce) {

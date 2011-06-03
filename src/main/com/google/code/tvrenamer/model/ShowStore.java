@@ -65,7 +65,7 @@ public class ShowStore {
 	 * @param showName the name of the show
 	 * @param listener the listener to notify or register
 	 */
-	public static void getShow(String showName, ShowInformationListener listener) {
+	public static void getShow(String showName, String year, ShowInformationListener listener) {
 		try {
 			_showStoreLock.acquire();
 			Show show = _shows.get(showName.toLowerCase());
@@ -79,7 +79,7 @@ public class ShowStore {
 					registrations = new ShowRegistrations();
 					registrations.addListener(listener);
 					_showRegistrations.put(showName.toLowerCase(), registrations);
-					downloadShow(showName);
+					downloadShow(showName, year);
 				}
 			}
 		} catch (InterruptedException e) {
@@ -90,12 +90,29 @@ public class ShowStore {
 		}
 	}
 
-	private static void downloadShow(final String showName) {
+	private static void downloadShow(final String showName, final String year) {
 		Callable<Boolean> showFetcher = new Callable<Boolean>() {
 			public Boolean call() throws Exception {
 				ArrayList<Show> options = TVRageProvider.getShowOptions(showName);
-				Show thisShow = options.get(0);
-
+				
+				Show thisShow = null;
+				
+				if (options.size() == 1) {
+					thisShow = options.get(0);
+				} else {
+					if (year != null) {
+						for (Show show : options) {
+							if (year.equals(show.getYear())) {
+								thisShow = show;
+							}
+						}
+					}
+				}
+				
+				if (thisShow == null) {
+					thisShow = options.get(0);
+				}
+								
 				TVRageProvider.getShowListing(thisShow);
 								
 				addShow(showName, thisShow);

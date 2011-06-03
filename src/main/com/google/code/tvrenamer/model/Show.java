@@ -10,13 +10,15 @@ public class Show {
 	private final String id;
 	private final String name;
 	private final String url;
+	private final String year;
 
 	private final Map<Integer, Season> seasons;
 
-	public Show(String id, String name, String url) {
+	public Show(String id, String name, String url, String year) {
 		this.id = id;
 		this.name = name;
 		this.url = url;
+		this.year = year;
 
 		seasons = new HashMap<Integer, Season>();
 	}
@@ -31,6 +33,10 @@ public class Show {
 
 	public String getUrl() {
 		return url;
+	}
+	
+	public String getYear() {
+		return year;
 	}
 
 	public void setSeason(int sNum, Season season) {

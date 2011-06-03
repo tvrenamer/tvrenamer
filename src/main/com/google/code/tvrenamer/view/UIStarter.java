@@ -6,6 +6,7 @@ import static com.google.code.tvrenamer.view.UIUtils.showMessageBox;
 import java.io.File;
 import java.io.InputStream;
 import java.text.Collator;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -86,6 +87,7 @@ public class UIStarter {
 	private static UserPreferences prefs;
 
 	private Button addFilesButton;
+	private Button removeFilesButton;
 	private Link updatesAvailableLink;
 	private static Button renameSelectedButton;
 	private static TableColumn destinationColumn;
@@ -137,6 +139,11 @@ public class UIStarter {
 		addFilesButton = new Button(topButtonsComposite, SWT.PUSH);
 		addFilesButton.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
 		addFilesButton.setText("Add files ... ");
+		
+		removeFilesButton = new Button(topButtonsComposite, SWT.PUSH);
+		removeFilesButton.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
+		removeFilesButton.setText("Remove Unselected");
+		
 
 		updatesAvailableLink = new Link(topButtonsComposite, SWT.VERTICAL);
 		updatesAvailableLink.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, true));
@@ -209,6 +216,13 @@ public class UIStarter {
 			}
 		});
 
+		removeFilesButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				removeFiles();
+			}
+		});
+		
 		quitButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -591,7 +605,7 @@ public class UIStarter {
 				files.put(fileName, episode);
 				final TableItem item = createTableItem(resultsTable, fileName, episode, prefs);
 
-				ShowStore.getShow(showName, new ShowInformationListener() {
+				ShowStore.getShow(showName, episode.getYear(), new ShowInformationListener() {
 					public void downloaded(Show show) {
 						episode.setStatus(EpisodeStatus.DOWNLOADED);
 						display.asyncExec(new Runnable() {
@@ -692,6 +706,25 @@ public class UIStarter {
 		}
 	}
 
+	private void removeFiles() {
+		ArrayList<Integer> filesForRemoval = new ArrayList<Integer>();
+		
+		int sel = 0;
+		for (int i = 0; i < resultsTable.getItemCount(); i++) {
+			if (!resultsTable.getItem(i).getChecked()) {
+				logger.info("Remove file:" + sel + " with index " + i);
+				filesForRemoval.add(i);
+			}
+		}
+		int[] indexes = new int[filesForRemoval.size()];
+		int i = 0;
+		for (Integer idx : filesForRemoval) {
+			indexes[i++] = idx;
+		}
+		resultsTable.remove(indexes);
+		
+	}
+	
 	public static void setTableItemStatus(Display display, final TableItem item, final FileMoveIcon fmi) {
 		if (display.isDisposed()) {
 			return;

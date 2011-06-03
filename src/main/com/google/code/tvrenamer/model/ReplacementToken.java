@@ -9,7 +9,10 @@ public enum ReplacementToken {
 	EPISODE_NUM("%e", "Episode Number"), 
 	EPISODE_NUM_NO_LEADING_ZERO("%E", "Episode Number (without leading 0s)"), 
 	EPISODE_TITLE("%t", "Episode Title"), 
-	EPISODE_TITLE_NO_SPACES("%T", "Episode Title (<space> replaced with '.')");
+	EPISODE_TITLE_NO_SPACES("%T", "Episode Title (<space> replaced with '.')"),
+	SEASON_NUM_LEADING_ZERO("%0s", "Season Number (with leading 0)"),
+	YEAR("%y", "Year if available"),
+	YEAR_WITH_BRACKETS("%Y", "Year if available (with brackets)");
 	
 	private String token;
 	private String description;
