@@ -132,7 +132,7 @@ public class UIStarter {
 	private void setupMainWindow() {
 		final Composite topButtonsComposite = new Composite(shell, SWT.FILL);
 		topButtonsComposite.setLayout(new GridLayout(2, false));
-		topButtonsComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 2, 1));
+		topButtonsComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 
 		addFilesButton = new Button(topButtonsComposite, SWT.PUSH);
 		addFilesButton.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
@@ -152,12 +152,14 @@ public class UIStarter {
 
 		// Show the label if updates are available (in a new thread)
 		Thread updateCheckThread = new Thread(new Runnable() {
+			@Override
 			public void run() {
 				if (prefs.checkForUpdates()) {
 					final boolean updatesAvailable = UpdateChecker.isUpdateAvailable();
 
 					if (updatesAvailable) {						
 						display.asyncExec(new Runnable() {
+							@Override
 							public void run() {
 								updatesAvailableLink.setVisible(updatesAvailable);
 							}
@@ -173,11 +175,7 @@ public class UIStarter {
 
 		Composite bottomButtonsComposite = new Composite(shell, SWT.FILL);
 		bottomButtonsComposite.setLayout(new GridLayout(3, false));
-		GridData bottomButtonsCompositeGridData = new GridData(SWT.FILL, SWT.CENTER, true, true, 3, 1);
-		if(getOSType() == OSType.LINUX) {
-			// DH: Hack for GTK to stop the bottom of the window being cut off
-			bottomButtonsCompositeGridData.minimumHeight = 75;
-		}		
+		GridData bottomButtonsCompositeGridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1);
 		bottomButtonsComposite.setLayoutData(bottomButtonsCompositeGridData);
 
 		final Button quitButton = new Button(bottomButtonsComposite, SWT.PUSH);
@@ -188,7 +186,7 @@ public class UIStarter {
 		quitButton.setText("Quit");
 
 		totalProgressBar = new ProgressBar(bottomButtonsComposite, SWT.SMOOTH);
-		totalProgressBar.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true));
+		totalProgressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
 
 		renameSelectedButton = new Button(bottomButtonsComposite, SWT.PUSH);
 		GridData renameSelectedButtonGridData = new GridData(GridData.END, GridData.CENTER, false, false);
@@ -242,18 +240,21 @@ public class UIStarter {
 		Menu helpMenu;
 
 		Listener preferencesListener = new Listener() {
+			@Override
 			public void handleEvent(Event e) {
 				showPreferencesPane();
 			}
 		};
 
 		Listener aboutListener = new Listener() {
+			@Override
 			public void handleEvent(Event e) {
 				showAboutPane();
 			}
 		};
 
 		Listener quitListener = new Listener() {
+			@Override
 			public void handleEvent(Event e) {
 				doCleanup();
 			}
@@ -349,7 +350,7 @@ public class UIStarter {
 
 		final TableColumn selectedColumn = new TableColumn(resultsTable, SWT.LEFT);
 		selectedColumn.setText("Selected");
-		selectedColumn.setWidth(75);
+		selectedColumn.setWidth(60);
 
 		final TableColumn sourceColum = new TableColumn(resultsTable, SWT.LEFT);
 		sourceColum.setText("Current File");
@@ -357,11 +358,11 @@ public class UIStarter {
 
 		destinationColumn = new TableColumn(resultsTable, SWT.LEFT);
 		setColumnDestText();
-		destinationColumn.setWidth(375);
+		destinationColumn.setWidth(550);
 
 		final TableColumn statusColumn = new TableColumn(resultsTable, SWT.LEFT);
 		statusColumn.setText("Status");
-		statusColumn.setWidth(75);
+		statusColumn.setWidth(60);
 
 		selectedColumn.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -406,6 +407,7 @@ public class UIStarter {
 
 		Listener tblEditListener = new Listener() {
 
+			@Override
 			public void handleEvent(Event event) {
 				Rectangle clientArea = resultsTable.getClientArea();
 				Point pt = new Point(event.x, event.y);
@@ -420,6 +422,7 @@ public class UIStarter {
 							final Text text = new Text(resultsTable, SWT.NONE);
 							Listener textListener = new Listener() {
 
+								@Override
 								@SuppressWarnings("fallthrough")
 								public void handleEvent(final Event e) {
 									switch (e.type) {
@@ -459,7 +462,7 @@ public class UIStarter {
 				}
 			}
 		};
-		resultsTable.addListener(SWT.MouseDown, tblEditListener);
+		//resultsTable.addListener(SWT.MouseDown, tblEditListener);
 	}
 
 	private void setupTableDragDrop() {
@@ -592,9 +595,11 @@ public class UIStarter {
 				final TableItem item = createTableItem(resultsTable, fileName, episode, prefs);
 
 				ShowStore.getShow(showName, new ShowInformationListener() {
+					@Override
 					public void downloaded(Show show) {
 						episode.setStatus(EpisodeStatus.DOWNLOADED);
 						display.asyncExec(new Runnable() {
+							@Override
 							public void run() {
 								item.setText(NEW_FILENAME_COLUMN, episode.getNewFilePath(prefs));
 								item.setImage(STATUS_COLUMN, FileMoveIcon.ADDED.icon);
@@ -657,12 +662,14 @@ public class UIStarter {
 			taskItem.setOverlayImage(FileMoveIcon.RENAMING.icon);
 
 			Thread progressThread = new Thread(new ProgressBarUpdater(new ProgressProxy() {
+				@Override
 				public void setProgress(final float progress) {
 					if (display.isDisposed()) {
 						return;
 					}
 
 					display.asyncExec(new Runnable() {
+						@Override
 						public void run() {
 							if (totalProgressBar.isDisposed()) {
 								return;
@@ -676,8 +683,10 @@ public class UIStarter {
 					});
 				}
 			}, count, futures, new UpdateCompleteHandler() {
+				@Override
 				public void onUpdateComplete() {
 					display.asyncExec(new Runnable() {
+						@Override
 						public void run() {
 							taskItem.setOverlayImage(null);
 							taskItem.setProgressState(SWT.DEFAULT);
@@ -697,6 +706,7 @@ public class UIStarter {
 			return;
 		}
 		display.asyncExec(new Runnable() {
+			@Override
 			public void run() {
 				if (item.isDisposed()) {
 					return;

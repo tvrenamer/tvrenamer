@@ -56,7 +56,7 @@ public class FileEpisode {
 		this.status = newStatus;
 	}
 
-	public File getDestinationDirectory(UserPreferences prefs) {
+	private File getDestinationDirectory(UserPreferences prefs) {
 		String show = ShowStore.getShow(showName).getName();
 		String destPath = prefs.getDestinationDirectory().getAbsolutePath() + File.separatorChar;
 		destPath = destPath + StringUtils.sanitiseTitle(show) + File.separatorChar;
@@ -135,8 +135,8 @@ public class FileEpisode {
 	public String getNewFilePath(UserPreferences prefs) {
 		String filename = getNewFilename(prefs);
 		
-		if(prefs != null && prefs.isMovedEnabled()) {
-			return getDestinationDirectory(prefs).getAbsolutePath().concat("/").concat(filename);
+		if (prefs != null && prefs.isMovedEnabled()) {
+			return getDestinationDirectory(prefs).getAbsolutePath().concat(File.separator).concat(filename);
 		}
 		return filename;
 	}
