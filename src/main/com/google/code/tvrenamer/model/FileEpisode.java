@@ -75,7 +75,7 @@ public class FileEpisode {
 				String seasonNum = "";
 				String titleString = "";
 
-				try {
+				try {					
 					Show show = ShowStore.getShow(this.showName);
 					showName = show.getName();
 
@@ -110,24 +110,16 @@ public class FileEpisode {
 				String episodeNumberString = new DecimalFormat("#00").format(this.episodeNumber);
 				String episodeNumberNoLeadingZeros = new DecimalFormat("##0").format(this.episodeNumber);
 				String episodeTitleNoSpaces = titleString.replaceAll(" ", ".");
+				String seasonNumberWithLeadingZero = new DecimalFormat("00").format(this.seasonNumber);
 
 				newFilename = newFilename.replaceAll(ReplacementToken.SHOW_NAME.getToken(), showName);
 				newFilename = newFilename.replaceAll(ReplacementToken.SEASON_NUM.getToken(), seasonNum);
-				newFilename = newFilename.replaceAll(ReplacementToken.SEASON_NUM_LEADING_ZERO.getToken(), seasonNum.length() == 1 ? "0" + seasonNum : seasonNum);
+				newFilename = newFilename.replaceAll(ReplacementToken.SEASON_NUM_LEADING_ZERO.getToken(), seasonNumberWithLeadingZero);
 				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_NUM.getToken(), episodeNumberString);
 				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_NUM_NO_LEADING_ZERO.getToken(), episodeNumberNoLeadingZeros);
 				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_TITLE.getToken(), titleString);
 				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_TITLE_NO_SPACES.getToken(), episodeTitleNoSpaces);
-				
-				if (year == null) {
-					newFilename = newFilename.replaceAll(ReplacementToken.YEAR.getToken(), "");
-					newFilename = newFilename.replaceAll(ReplacementToken.YEAR_WITH_BRACKETS.getToken(), "");
-				} else {
-					newFilename = newFilename.replaceAll(ReplacementToken.YEAR.getToken(), year);
-					newFilename = newFilename.replaceAll(ReplacementToken.YEAR_WITH_BRACKETS.getToken(), "(" + year + ")");
-				}
-				
-				
+
 				return newFilename.concat(".").concat(StringUtils.getExtension(this.file.getName()));
 			}
 			case BROKEN:

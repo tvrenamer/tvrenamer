@@ -222,9 +222,7 @@ public class PreferencesDialog extends Dialog {
 		renameTokensList.add(ReplacementToken.EPISODE_NUM_NO_LEADING_ZERO.toString());
 		renameTokensList.add(ReplacementToken.EPISODE_TITLE.toString());
 		renameTokensList.add(ReplacementToken.EPISODE_TITLE_NO_SPACES.toString());
-		renameTokensList.add(ReplacementToken.YEAR.toString());
-		renameTokensList.add(ReplacementToken.YEAR_WITH_BRACKETS.toString());
-		
+
 		Label episodeTitleLabel = new Label(replacementGroup, SWT.NONE);
 		episodeTitleLabel.setText("Rename Format [?]");
 		episodeTitleLabel.setToolTipText("The result of the rename, with the tokens being replaced by the meaning above");
