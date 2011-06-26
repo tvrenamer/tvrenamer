@@ -84,8 +84,7 @@ public class FileEpisode {
 						seasonNum = String.valueOf(season.getNumber());
 
 						try {
-							String title = season.getTitle(this.episodeNumber);
-							titleString = StringUtils.sanitiseTitle(title);
+							titleString = season.getTitle(this.episodeNumber);
 						} catch (EpisodeNotFoundException e) {
 							logger.log(Level.SEVERE, "Episode not found for '" + this.toString() + "'", e);
 						}
@@ -120,7 +119,8 @@ public class FileEpisode {
 				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_TITLE.getToken(), titleString);
 				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_TITLE_NO_SPACES.getToken(), episodeTitleNoSpaces);
 
-				return newFilename.concat(".").concat(StringUtils.getExtension(this.file.getName()));
+				String resultingFilename = newFilename.concat(".").concat(StringUtils.getExtension(file.getName()));
+				return StringUtils.sanitiseTitle(resultingFilename);
 			}
 			case BROKEN:
 			default:

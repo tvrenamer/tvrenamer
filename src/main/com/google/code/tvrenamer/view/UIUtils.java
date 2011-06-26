@@ -97,6 +97,7 @@ public class UIUtils {
 			// Shell not established yet, try using JOPtionPane instead
 			try {
 				JOptionPane.showMessageDialog(null, message);
+				return;
 			} catch(HeadlessException he) {
 				logger.warning("Could not show message graphically: " + message);
 				return;
