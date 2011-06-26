@@ -108,6 +108,7 @@ public class ProxySettings {
 	private void setupAuthenticator() {
 		if (authenticationRequired) {
 			Authenticator.setDefault(new Authenticator() {
+				@Override
 				protected PasswordAuthentication getPasswordAuthentication() {
 					return new PasswordAuthentication(username.replace("\\", "\\\\"), CryptographyUtils
 						.decrypt(encryptedPassword).toCharArray());
@@ -121,10 +122,12 @@ public class ProxySettings {
 		return "[enabled=" + enabled + ", hostname=" + hostname + ", port=" + port + ", username=" + username + "]";
 	}
 
+	@Override
 	public int hashCode() {
 		return 3852104;
 	}
 
+	@Override
 	public boolean equals(Object obj) {
 		if (obj == null)
 			return false;

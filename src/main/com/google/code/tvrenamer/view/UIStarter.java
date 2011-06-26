@@ -152,14 +152,12 @@ public class UIStarter {
 
 		// Show the label if updates are available (in a new thread)
 		Thread updateCheckThread = new Thread(new Runnable() {
-			@Override
 			public void run() {
 				if (prefs.checkForUpdates()) {
 					final boolean updatesAvailable = UpdateChecker.isUpdateAvailable();
 
 					if (updatesAvailable) {						
 						display.asyncExec(new Runnable() {
-							@Override
 							public void run() {
 								updatesAvailableLink.setVisible(updatesAvailable);
 							}
@@ -240,21 +238,18 @@ public class UIStarter {
 		Menu helpMenu;
 
 		Listener preferencesListener = new Listener() {
-			@Override
 			public void handleEvent(Event e) {
 				showPreferencesPane();
 			}
 		};
 
 		Listener aboutListener = new Listener() {
-			@Override
 			public void handleEvent(Event e) {
 				showAboutPane();
 			}
 		};
 
 		Listener quitListener = new Listener() {
-			@Override
 			public void handleEvent(Event e) {
 				doCleanup();
 			}
@@ -406,8 +401,6 @@ public class UIStarter {
 		editor.grabHorizontal = true;
 
 		Listener tblEditListener = new Listener() {
-
-			@Override
 			public void handleEvent(Event event) {
 				Rectangle clientArea = resultsTable.getClientArea();
 				Point pt = new Point(event.x, event.y);
@@ -421,8 +414,6 @@ public class UIStarter {
 							final int column = i;
 							final Text text = new Text(resultsTable, SWT.NONE);
 							Listener textListener = new Listener() {
-
-								@Override
 								@SuppressWarnings("fallthrough")
 								public void handleEvent(final Event e) {
 									switch (e.type) {
@@ -595,11 +586,9 @@ public class UIStarter {
 				final TableItem item = createTableItem(resultsTable, fileName, episode, prefs);
 
 				ShowStore.getShow(showName, new ShowInformationListener() {
-					@Override
 					public void downloaded(Show show) {
 						episode.setStatus(EpisodeStatus.DOWNLOADED);
 						display.asyncExec(new Runnable() {
-							@Override
 							public void run() {
 								item.setText(NEW_FILENAME_COLUMN, episode.getNewFilePath(prefs));
 								item.setImage(STATUS_COLUMN, FileMoveIcon.ADDED.icon);
@@ -662,14 +651,12 @@ public class UIStarter {
 			taskItem.setOverlayImage(FileMoveIcon.RENAMING.icon);
 
 			Thread progressThread = new Thread(new ProgressBarUpdater(new ProgressProxy() {
-				@Override
 				public void setProgress(final float progress) {
 					if (display.isDisposed()) {
 						return;
 					}
 
 					display.asyncExec(new Runnable() {
-						@Override
 						public void run() {
 							if (totalProgressBar.isDisposed()) {
 								return;
@@ -683,10 +670,8 @@ public class UIStarter {
 					});
 				}
 			}, count, futures, new UpdateCompleteHandler() {
-				@Override
 				public void onUpdateComplete() {
 					display.asyncExec(new Runnable() {
-						@Override
 						public void run() {
 							taskItem.setOverlayImage(null);
 							taskItem.setProgressState(SWT.DEFAULT);
@@ -706,7 +691,6 @@ public class UIStarter {
 			return;
 		}
 		display.asyncExec(new Runnable() {
-			@Override
 			public void run() {
 				if (item.isDisposed()) {
 					return;
