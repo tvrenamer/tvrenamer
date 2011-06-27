@@ -186,11 +186,14 @@
     	proxyuser="${proxy.user}" proxypassword="${proxy.password}"/>
 	</target>
 	
-	<target name="tests" depends="compile.test, proxy">		
-		<junit haltonfailure="false" printsummary="true" fork="no" forkmode="once">
+	<target name="tests" depends="clean, compile.test, proxy">
+		<copy file="${src.main}/tvrenamer.version" todir="${build}" />
+		
+		<junit haltonerror="true" haltonfailure="true" printsummary="true" fork="no" forkmode="once">
 			<formatter type="plain" usefile="false" />
 			
 			<classpath refid="classpath.test" />
+			
 			<batchtest>
 				<fileset dir="${src.test}" />
 			</batchtest>

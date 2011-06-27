@@ -23,6 +23,8 @@ public class Constants {
 			VERSION_NUMBER = new String(buffer).trim();
 		} catch (Exception e) {
 			logger.log(Level.WARNING, "Exception when reading version file", e);
+			// Has to be unchecked exception as in static block, otherwise exception isn't actually handled (mainly for junit in ant)
+			throw new RuntimeException("Exception when reading version file", e);
 		}
 	}
 
