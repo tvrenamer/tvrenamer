@@ -40,18 +40,15 @@ public class FileEpisodeTest {
 		int episodeNum = 10;
 		File file = new File(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + "the.simpsons.5.10.avi");
 		file.createNewFile();
+		testFiles.add(file);
 		
 		Show show = new Show("1", showName, "http://www.tvrage.com/shows/id-6190");
 		Season season5 = new Season(seasonNum);
 		season5.setEpisode(episodeNum, title);
 		show.setSeason(seasonNum, season5);
-		ShowStore.addShow(showName, show);
-		
+		ShowStore.addShow(showName, show);		
 		
 		Mockito.when(prefs.getRenameReplacementString()).thenReturn("%S [%sx%e] %t");
-		
-//		UserPreferences prefs = new UserPreferences();
-//		prefs.setRenameReplacementString("%S [%sx%e] %t");
 		
 		fileEpisode = new FileEpisode(showName, seasonNum, episodeNum, file);
 		fileEpisode.setStatus(EpisodeStatus.RENAMED);
