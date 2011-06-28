@@ -1,5 +1,7 @@
 package com.google.code.tvrenamer.model;
 
+import java.net.ConnectException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -7,8 +9,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -64,8 +68,9 @@ public class ShowStore {
 	 * </ul>
 	 * @param showName the name of the show
 	 * @param listener the listener to notify or register
+	 * @throws TVRenamerIOException when the show information downloading fails
 	 */
-	public static void getShow(String showName, ShowInformationListener listener) {
+	public static void getShow(String showName, ShowInformationListener listener) throws TVRenamerIOException {
 		try {
 			_showStoreLock.acquire();
 			Show show = _shows.get(showName.toLowerCase());
@@ -79,31 +84,53 @@ public class ShowStore {
 					registrations = new ShowRegistrations();
 					registrations.addListener(listener);
 					_showRegistrations.put(showName.toLowerCase(), registrations);
-					downloadShow(showName);
+					
+					FutureResult downloadResult = downloadShow(showName);
+					if(downloadResult == FutureResult.EXCEPTION) {
+						throw new TVRenamerIOException("Exception when downloading the show information");
+					}
 				}
 			}
 		} catch (InterruptedException e) {
-			logger.log(Level.SEVERE,
-					   "Error: interrupted while getting show information '" + showName + "': " + e.getMessage(), e);
-		} finally {
+			logger.log(Level.SEVERE, "Error: interrupted while attempting to aquire lock", e);
+		}
+		finally {
 			_showStoreLock.release();
 		}
 	}
 
-	private static void downloadShow(final String showName) {
-		Callable<Boolean> showFetcher = new Callable<Boolean>() {
-			public Boolean call() throws Exception {
-				ArrayList<Show> options = TVRageProvider.getShowOptions(showName);
-				Show thisShow = options.get(0);
+	private static FutureResult downloadShow(final String showName) {
+		
+		Callable<FutureResult> showFetcher = new Callable<FutureResult>() {
+			public FutureResult call() throws Exception {
+				try {
+					ArrayList<Show> options = TVRageProvider.getShowOptions(showName);
+					Show thisShow = options.get(0);
 
-				TVRageProvider.getShowListing(thisShow);
-								
-				addShow(showName, thisShow);
+					TVRageProvider.getShowListing(thisShow);
 
-				return true;
+					addShow(showName, thisShow);
+				} catch (InterruptedException e) {
+					logger.log(Level.SEVERE, "Exception when adding shows", e);
+					throw e;
+				} catch(TVRenamerIOException e) {
+					logger.log(Level.SEVERE, "Exception when downloading tv listings", e);
+					FutureResult exception = FutureResult.EXCEPTION;
+					exception.setCause(e);
+					return exception;
+				}
+
+				return FutureResult.SUCCESS;
 			}
 		};
-		threadPool.submit(showFetcher);
+		Future<FutureResult> future = threadPool.submit(showFetcher);
+		
+		try {
+			return future.get();
+		} catch (Exception e) {
+			logger.log(Level.SEVERE, "Exception when attempting to get the Future result value", e);
+			return FutureResult.EXCEPTION;
+		}
 	}
 
 	private static void notifyListeners(String showName, Show show) {
@@ -152,6 +179,10 @@ public class ShowStore {
 		_showStoreLock.release();
 	}
 
+	/**
+	 * Populate the cache with the Firefly episodes in the correct order,
+	 * not in the broadcast order from tvrage.com
+	 */
 	private static void populateFireflyShow() {
 		Show firefly = new Show("3548", "Firefly", "http://www.tvrage.com/Firefly");
 

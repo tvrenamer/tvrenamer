@@ -2,6 +2,7 @@ package com.google.code.tvrenamer.controller;
 
 import java.io.StringReader;
 import java.net.ConnectException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -22,6 +23,7 @@ import org.xml.sax.InputSource;
 import com.google.code.tvrenamer.controller.util.StringUtils;
 import com.google.code.tvrenamer.model.Season;
 import com.google.code.tvrenamer.model.Show;
+import com.google.code.tvrenamer.model.TVRenamerIOException;
 
 /**
  * This class encapsulates the interactions between the application and the TVRage XML Feeds
@@ -61,8 +63,10 @@ public class TVRageProvider {
 	 *             offline or behind a proxy
 	 * @throws UnknownHostException
 	 *             when we don't have a network connection
+	 * @throws SocketTimeoutException thrown when we are connected to <strong>a</strong> network, but cannot connect to remote host, maybe
+	 *             offline or behind a proxy
 	 */
-	public static ArrayList<Show> getShowOptions(String showName) throws ConnectException, UnknownHostException {
+	public static ArrayList<Show> getShowOptions(String showName) throws TVRenamerIOException {
 		ArrayList<Show> options = new ArrayList<Show>();
 		String searchURL = BASE_SEARCH_URL + StringUtils.encodeSpecialCharacters(showName);
 
@@ -94,13 +98,10 @@ public class TVRageProvider {
 				options.add(new Show(optionId, optionName, optionUrl));
 			}
 			return options;
-		} catch (ConnectException ce) {
-			logger.log(Level.WARNING, "ConnectionException when connecting to " + searchURL, ce);
-			throw ce;
-		} catch (UnknownHostException uhe) {
-			logger.log(Level.WARNING, "UnknownHostException when connecting to " + searchURL, uhe);
-			throw uhe;
-		} catch (Exception e) {
+		} catch (TVRenamerIOException e) {
+			throw e;
+		}
+		catch (Exception e) {
 			logger.log(Level.WARNING, "Caught exception when attempting to download and parse search xml", e);
 		}
 

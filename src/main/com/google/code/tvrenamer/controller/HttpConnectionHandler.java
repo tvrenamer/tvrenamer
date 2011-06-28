@@ -14,6 +14,7 @@ import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
 import com.google.code.tvrenamer.controller.util.StringUtils;
+import com.google.code.tvrenamer.model.TVRenamerIOException;
 
 public class HttpConnectionHandler {
 	private static Logger logger = Logger.getLogger(HttpConnectionHandler.class.getName());
@@ -24,8 +25,9 @@ public class HttpConnectionHandler {
 	 * Download the URL and return as a String
 	 * @param urlString the URL as a String
 	 * @return String of the contents
+	 * @throws TVRenamerIOException when the download fails (for any reason)
 	 */
-	public String downloadUrl(String urlString) {
+	public String downloadUrl(String urlString) throws TVRenamerIOException {
 		try {
 			return downloadUrl(new URL(urlString));
 		} catch (MalformedURLException e) {
@@ -44,7 +46,7 @@ public class HttpConnectionHandler {
 	 * @throws IOException
 	 *             when there is an error connecting or reading the URL
 	 */
-	public String downloadUrl(URL url) {
+	public String downloadUrl(URL url) throws TVRenamerIOException {
 		InputStream inputStream = null;
 		StringBuilder contents = new StringBuilder();
 
@@ -85,6 +87,7 @@ public class HttpConnectionHandler {
 			}
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, "Exception when attempting to download and parse URL " + url, e);
+			throw new TVRenamerIOException("Exception when attempting to download and parse " + url, e);
 		} finally {
 			try {
 				if(inputStream != null) {

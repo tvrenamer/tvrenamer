@@ -69,6 +69,7 @@ import com.google.code.tvrenamer.model.NotFoundException;
 import com.google.code.tvrenamer.model.SWTMessageBoxType;
 import com.google.code.tvrenamer.model.Show;
 import com.google.code.tvrenamer.model.ShowStore;
+import com.google.code.tvrenamer.model.TVRenamerIOException;
 import com.google.code.tvrenamer.model.UserPreferences;
 import com.google.code.tvrenamer.model.util.Constants;
 import com.google.code.tvrenamer.model.util.Constants.OSType;
@@ -334,7 +335,7 @@ public class UIStarter {
 	}
 
 	private void setupResultsTable() {
-		resultsTable = new Table(shell, SWT.CHECK);
+		resultsTable = new Table(shell, SWT.FULL_SELECTION);
 		resultsTable.setHeaderVisible(true);
 		resultsTable.setLinesVisible(true);
 		GridData gridData = new GridData(GridData.FILL_BOTH);
@@ -585,17 +586,27 @@ public class UIStarter {
 				files.put(fileName, episode);
 				final TableItem item = createTableItem(resultsTable, fileName, episode, prefs);
 
-				ShowStore.getShow(showName, new ShowInformationListener() {
-					public void downloaded(Show show) {
-						episode.setStatus(EpisodeStatus.DOWNLOADED);
-						display.asyncExec(new Runnable() {
-							public void run() {
-								item.setText(NEW_FILENAME_COLUMN, episode.getNewFilePath(prefs));
-								item.setImage(STATUS_COLUMN, FileMoveIcon.ADDED.icon);
-							}
-						});
-					}
-				});
+				try {
+    				ShowStore.getShow(showName, new ShowInformationListener() {
+    					public void downloaded(Show show) {
+    						episode.setStatus(EpisodeStatus.DOWNLOADED);
+    						display.asyncExec(new Runnable() {
+    							public void run() {
+    								item.setText(NEW_FILENAME_COLUMN, episode.getNewFilePath(prefs));
+    								item.setImage(STATUS_COLUMN, FileMoveIcon.ADDED.icon);
+    							}
+    						});
+    					}
+    				});
+				} catch(TVRenamerIOException e) {
+					episode.setStatus(EpisodeStatus.BROKEN);
+					display.asyncExec(new Runnable() {
+						public void run() {
+							item.setText(NEW_FILENAME_COLUMN, "Downloading show listings failed.  Check internet connection");
+							item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
+						}
+					});
+				}
 			}
 		}
 	}

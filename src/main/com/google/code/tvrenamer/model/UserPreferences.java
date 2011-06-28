@@ -19,7 +19,7 @@ public class UserPreferences extends Observable {
 	
 	private File destDir;
 	private String seasonPrefix;
-	private boolean moveEnabled = false;
+	private boolean moveEnabled;
 	private String renameReplacementMask;
 	private ProxySettings proxy;
 	private boolean checkForUpdates;
@@ -34,8 +34,10 @@ public class UserPreferences extends Observable {
 
 		this.destDir = new File(Constants.DEFAULT_DESTINATION_DIRECTORY);
 		this.seasonPrefix = Constants.DEFAULT_SEASON_PREFIX;
+		moveEnabled = false;
 		this.renameReplacementMask = Constants.DEFAULT_REPLACEMENT_MASK;
 		this.proxy = new ProxySettings();
+		checkForUpdates = true;
 
 		ensurePath();
 	}
