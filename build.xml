@@ -60,14 +60,7 @@
 				<fileset dir="${build}" />
 
 				<fileset dir="${res}">
-					<include name="tvrenamer.icns" />
-					<include name="tvrenamer.png" />
-					
-					<include name="icons/SweetieLegacy/16-circle-blue.png" />
-					<include name="icons/SweetieLegacy/16-clock.png" />
-					<include name="icons/SweetieLegacy/16-em-pencil.png" />
-					<include name="icons/SweetieLegacy/16-em-check.png" />
-					<include name="icons/SweetieLegacy/16-em-cross.png" />
+					<exclude name="**/oldschool-tv-icon.ico" />
 				</fileset>
 
 				<zipgroupfileset refid="classpath.fileset" />
@@ -136,8 +129,7 @@
 				        dontWrapJar="false"
 				        jar="${build}/@{platform}/tvrenamer.jar"
 				        icon="${res}\icons\oldschool-tv-icon.ico"
-				        chdir="."
-                customProcName="true">
+				        chdir=".">
 					<jre minVersion="1.5.0" />
 				</config>
 			</launch4j>
