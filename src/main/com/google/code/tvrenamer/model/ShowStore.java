@@ -92,12 +92,17 @@ public class ShowStore {
 
 	private static void downloadShow(final String showName) {
 		Callable<Boolean> showFetcher = new Callable<Boolean>() {
-			public Boolean call() throws Exception {
-				ArrayList<Show> options = TVRageProvider.getShowOptions(showName);
-				Show thisShow = options.get(0);
-
-				TVRageProvider.getShowListing(thisShow);
-								
+			public Boolean call() throws InterruptedException {
+				Show thisShow;
+				try {
+					ArrayList<Show> options = TVRageProvider.getShowOptions(showName);
+					thisShow = options.get(0);
+    
+    				TVRageProvider.getShowListing(thisShow);
+				} catch(TVRenamerIOException e) {
+					thisShow = new FailedShow("", showName, "", e);
+				}
+					
 				addShow(showName, thisShow);
 
 				return true;
@@ -111,7 +116,11 @@ public class ShowStore {
 
 		if (registrations != null) {
 			for (ShowInformationListener informationListener : registrations.getListeners()) {
-				informationListener.downloaded(show);
+				if(show instanceof FailedShow) {
+					informationListener.downloadFailed(show);
+				} else {
+					informationListener.downloaded(show);
+				}
 			}
 		}
 	}

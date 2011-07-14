@@ -74,6 +74,7 @@ import com.google.code.tvrenamer.model.util.Constants;
 import com.google.code.tvrenamer.model.util.Constants.OSType;
 
 public class UIStarter {
+	private static final String DOWNLOADING_FAILED_MESSAGE = "Downloading show listings failed.  Check internet connection";
 	private static Logger logger = Logger.getLogger(UIStarter.class.getName());
 	private static final int SELECTED_COLUMN = 0;
 	private static final int CURRENT_FILE_COLUMN = 1;
@@ -334,7 +335,7 @@ public class UIStarter {
 	}
 
 	private void setupResultsTable() {
-		resultsTable = new Table(shell, SWT.CHECK);
+		resultsTable = new Table(shell, SWT.CHECK | SWT.FULL_SELECTION);
 		resultsTable.setHeaderVisible(true);
 		resultsTable.setLinesVisible(true);
 		GridData gridData = new GridData(GridData.FILL_BOTH);
@@ -592,6 +593,15 @@ public class UIStarter {
 							public void run() {
 								item.setText(NEW_FILENAME_COLUMN, episode.getNewFilePath(prefs));
 								item.setImage(STATUS_COLUMN, FileMoveIcon.ADDED.icon);
+							}
+						});
+					}
+					public void downloadFailed(Show show) {
+						episode.setStatus(EpisodeStatus.BROKEN);
+						display.asyncExec(new Runnable() {
+							public void run() {
+								item.setText(NEW_FILENAME_COLUMN, DOWNLOADING_FAILED_MESSAGE);
+								item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
 							}
 						});
 					}

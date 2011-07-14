@@ -60,7 +60,14 @@
 				<fileset dir="${build}" />
 
 				<fileset dir="${res}">
-					<exclude name="**/oldschool-tv-icon.ico" />
+					<include name="tvrenamer.icns" />
+					<include name="tvrenamer.png" />
+					
+					<include name="icons/SweetieLegacy/16-circle-blue.png" />
+					<include name="icons/SweetieLegacy/16-clock.png" />
+					<include name="icons/SweetieLegacy/16-em-pencil.png" />
+					<include name="icons/SweetieLegacy/16-em-check.png" />
+					<include name="icons/SweetieLegacy/16-em-cross.png" />
 				</fileset>
 
 				<zipgroupfileset refid="classpath.fileset" />

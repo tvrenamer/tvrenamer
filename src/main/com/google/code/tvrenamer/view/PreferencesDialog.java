@@ -443,16 +443,14 @@ public class PreferencesDialog extends Dialog {
 		
 		ProxySettings proxySettings = new ProxySettings();
 		proxySettings.setEnabled(proxyEnabledCheckbox.getSelection());
-		if(proxySettings.isEnabled()) {
-			proxySettings.setHostname(proxyHostText.getText());
-			proxySettings.setPort(proxyPortText.getText());
-			
-			proxySettings.setAuthenticationRequired(proxyAuthenticationRequiredCheckbox.getSelection());
-			if(proxySettings.isAuthenticationRequired()) {
-				proxySettings.setUsername(proxyUsernameText.getText());
-				proxySettings.setPlainTextPassword(proxyPasswordText.getText());
-			}
-		}
+		
+		proxySettings.setHostname(proxyHostText.getText());
+		proxySettings.setPort(proxyPortText.getText());
+		
+		proxySettings.setAuthenticationRequired(proxyAuthenticationRequiredCheckbox.getSelection());
+		proxySettings.setUsername(proxyUsernameText.getText());
+		proxySettings.setPlainTextPassword(proxyPasswordText.getText());
+		
 		prefs.setProxy(proxySettings);
 		
 		prefs.setCheckForUpdates(checkForUpdatesCheckbox.getSelection());

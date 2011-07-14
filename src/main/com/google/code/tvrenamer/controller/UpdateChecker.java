@@ -1,7 +1,9 @@
 package com.google.code.tvrenamer.controller;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.google.code.tvrenamer.model.TVRenamerIOException;
 import com.google.code.tvrenamer.model.util.Constants;
 
 public class UpdateChecker {
@@ -14,7 +16,14 @@ public class UpdateChecker {
 	 * @return the new version number as a string if available, empty string if no new version or null if an error has occurred
 	 */
 	public static boolean isUpdateAvailable() {
-		String latestVersion = new HttpConnectionHandler().downloadUrl(VERSION_URL);
+		String latestVersion;
+		try {
+			latestVersion = new HttpConnectionHandler().downloadUrl(VERSION_URL);
+		} catch (TVRenamerIOException e) {
+			// Do nothing when an exception is thrown, just don't update display
+			logger.log(Level.SEVERE, "Exception when downloading version file " + VERSION_URL, e);
+			return false;
+		}
 		
 		boolean newVersionAvailable = latestVersion.compareToIgnoreCase(Constants.VERSION_NUMBER) > 0;
 		

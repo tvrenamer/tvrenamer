@@ -1,5 +1,6 @@
 package com.google.code.tvrenamer.controller;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.net.ConnectException;
 import java.net.UnknownHostException;
@@ -9,19 +10,23 @@ import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import com.google.code.tvrenamer.controller.util.StringUtils;
 import com.google.code.tvrenamer.model.Season;
 import com.google.code.tvrenamer.model.Show;
+import com.google.code.tvrenamer.model.TVRenamerIOException;
 
 /**
  * This class encapsulates the interactions between the application and the TVRage XML Feeds
@@ -31,6 +36,9 @@ import com.google.code.tvrenamer.model.Show;
  * 
  */
 public class TVRageProvider {
+	private static final String ERROR_PARSING_TV_RAGE_XML = "Error parsing TVRage XML";
+	private static final String ERROR_DOWNLOADING_SHOW_INFORMATION = "Error downloading show information.  Check internet or proxy settings";
+
 	private static Logger logger = Logger.getLogger(TVRageProvider.class.getName());
 
 	private static final String BASE_SEARCH_URL = "http://www.tvrage.com/feeds/search.php?show=";
@@ -62,7 +70,7 @@ public class TVRageProvider {
 	 * @throws UnknownHostException
 	 *             when we don't have a network connection
 	 */
-	public static ArrayList<Show> getShowOptions(String showName) throws ConnectException, UnknownHostException {
+	public static ArrayList<Show> getShowOptions(String showName) throws TVRenamerIOException {
 		ArrayList<Show> options = new ArrayList<Show>();
 		String searchURL = BASE_SEARCH_URL + StringUtils.encodeSpecialCharacters(showName);
 
@@ -94,17 +102,25 @@ public class TVRageProvider {
 				options.add(new Show(optionId, optionName, optionUrl));
 			}
 			return options;
-		} catch (ConnectException ce) {
-			logger.log(Level.WARNING, "ConnectionException when connecting to " + searchURL, ce);
-			throw ce;
-		} catch (UnknownHostException uhe) {
-			logger.log(Level.WARNING, "UnknownHostException when connecting to " + searchURL, uhe);
-			throw uhe;
-		} catch (Exception e) {
-			logger.log(Level.WARNING, "Caught exception when attempting to download and parse search xml", e);
+		} catch (ConnectException e) {
+			logger.log(Level.WARNING, e.getMessage(), e);
+			throw new TVRenamerIOException(ERROR_DOWNLOADING_SHOW_INFORMATION, e);
+		} catch (UnknownHostException e) {
+			logger.log(Level.WARNING, e.getMessage(), e);
+			throw new TVRenamerIOException(ERROR_DOWNLOADING_SHOW_INFORMATION, e);
+		} catch (ParserConfigurationException e) {
+			logger.log(Level.WARNING, e.getMessage(), e);
+			throw new TVRenamerIOException(ERROR_PARSING_TV_RAGE_XML, e);
+		} catch (XPathExpressionException e) {
+			logger.log(Level.WARNING, e.getMessage(), e);
+			throw new TVRenamerIOException(ERROR_PARSING_TV_RAGE_XML, e);
+		} catch (SAXException e) {
+			logger.log(Level.WARNING, e.getMessage(), e);
+			throw new TVRenamerIOException(ERROR_PARSING_TV_RAGE_XML, e);
+		} catch (IOException e) {
+			logger.log(Level.WARNING, e.getMessage(), e);
+			throw new TVRenamerIOException(ERROR_PARSING_TV_RAGE_XML, e);
 		}
-
-		return options;
 	}
 
 	/**
