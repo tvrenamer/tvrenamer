@@ -602,6 +602,7 @@ public class UIStarter {
 							public void run() {
 								item.setText(NEW_FILENAME_COLUMN, DOWNLOADING_FAILED_MESSAGE);
 								item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
+								item.setChecked(false);
 							}
 						});
 					}
