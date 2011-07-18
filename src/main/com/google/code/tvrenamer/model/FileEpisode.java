@@ -56,15 +56,15 @@ public class FileEpisode {
 		this.status = newStatus;
 	}
 
-	private File getDestinationDirectory(UserPreferences prefs) {
+	private File getDestinationDirectory() {
 		String show = ShowStore.getShow(showName).getName();
-		String destPath = prefs.getDestinationDirectory().getAbsolutePath() + File.separatorChar;
+		String destPath = UserPreferences.getInstance().getDestinationDirectory().getAbsolutePath() + File.separatorChar;
 		destPath = destPath + StringUtils.sanitiseTitle(show) + File.separatorChar;
-		destPath = destPath + prefs.getSeasonPrefix() + this.seasonNumber + File.separatorChar;
+		destPath = destPath + UserPreferences.getInstance().getSeasonPrefix() + this.seasonNumber + File.separatorChar;
 		return new File(destPath);
 	}
 
-	public String getNewFilename(UserPreferences prefs) {
+	public String getNewFilename() {
 		switch (this.status) {
 			case ADDED: {
 				return ADDED_PLACEHOLDER_FILENAME;
@@ -99,7 +99,7 @@ public class FileEpisode {
 					logger.log(Level.SEVERE, "Show not found for '" + this.toString() + "'", e);
 				}
 
-				String newFilename = prefs.getRenameReplacementString();
+				String newFilename = UserPreferences.getInstance().getRenameReplacementString();
 
 				// Ensure that all special characters in the replacement are quoted
 				showName = Matcher.quoteReplacement(showName);
@@ -130,13 +130,14 @@ public class FileEpisode {
 	
 	/**
 	 * @param prefs the User Preferences
-	 * @return the new full file path (for table display) using {@link #getNewFilename(UserPreferences)} and the destination directory
+	 * @return the new full file path (for table display) using {@link #getNewFilename()} and the destination directory
 	 */
-	public String getNewFilePath(UserPreferences prefs) {
-		String filename = getNewFilename(prefs);
+	public String getNewFilePath() {
+		UserPreferences prefs = UserPreferences.getInstance();
+		String filename = getNewFilename();
 		
 		if (prefs != null && prefs.isMovedEnabled()) {
-			return getDestinationDirectory(prefs).getAbsolutePath().concat(File.separator).concat(filename);
+			return getDestinationDirectory().getAbsolutePath().concat(File.separator).concat(filename);
 		}
 		return filename;
 	}

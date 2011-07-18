@@ -74,9 +74,9 @@ public class PreferencesDialog extends Dialog {
 	 * @param parent
 	 *            the parent {@link Shell}
 	 */
-	public PreferencesDialog(Shell parent, UserPreferences prefs) {
+	public PreferencesDialog(Shell parent) {
 		super(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
-		this.prefs = prefs;
+		this.prefs = UserPreferences.getInstance();
 	}
 
 	public void open() {

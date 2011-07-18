@@ -584,14 +584,14 @@ public class UIStarter {
 				String showName = episode.getShowName();
 
 				files.put(fileName, episode);
-				final TableItem item = createTableItem(resultsTable, fileName, episode, prefs);
+				final TableItem item = createTableItem(resultsTable, fileName, episode);
 
 				ShowStore.getShow(showName, new ShowInformationListener() {
 					public void downloaded(Show show) {
 						episode.setStatus(EpisodeStatus.DOWNLOADED);
 						display.asyncExec(new Runnable() {
 							public void run() {
-								item.setText(NEW_FILENAME_COLUMN, episode.getNewFilePath(prefs));
+								item.setText(NEW_FILENAME_COLUMN, episode.getNewFilePath());
 								item.setImage(STATUS_COLUMN, FileMoveIcon.ADDED.icon);
 							}
 						});
@@ -711,12 +711,11 @@ public class UIStarter {
 		});
 	}
 
-	private static TableItem createTableItem(Table tblResults, String fileName, FileEpisode episode,
-		UserPreferences prefs) {
+	private static TableItem createTableItem(Table tblResults, String fileName, FileEpisode episode) {
 		TableItem item = new TableItem(tblResults, SWT.NONE);
 		String newFilename = fileName;
 		try {
-			newFilename = episode.getNewFilename(prefs);
+			newFilename = episode.getNewFilename();
 			item.setChecked(true);
 		} catch (NotFoundException e) {
 			newFilename = e.getMessage();
@@ -783,7 +782,7 @@ public class UIStarter {
 			String newFileName = episode.getFile().getAbsolutePath();
 			files.put(newFileName, episode);
 			item.setText(CURRENT_FILE_COLUMN, newFileName);
-			item.setText(NEW_FILENAME_COLUMN, episode.getNewFilePath(prefs));
+			item.setText(NEW_FILENAME_COLUMN, episode.getNewFilePath());
 		}
 	}
 
@@ -804,7 +803,7 @@ public class UIStarter {
 	}
 
 	private void showPreferencesPane() {
-		PreferencesDialog preferencesDialog = new PreferencesDialog(shell, prefs);
+		PreferencesDialog preferencesDialog = new PreferencesDialog(shell);
 		preferencesDialog.open();
 	}
 
