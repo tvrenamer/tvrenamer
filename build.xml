@@ -2,6 +2,8 @@
 <project name="TVRenamer build script" default="usage">
 	<property name="src.main" value="src/main" />
 
+	<property file="build.properties" />
+	
 	<property name="version.file" value="${src.main}/tvrenamer.version" />
 	<loadfile property="version" srcFile="${version.file}">
 		<filterchain>
@@ -19,11 +21,10 @@
 	<property name="jar.builtBy" value="http://code.google.com/p/tv-renamer" />
 	<property name="jar.mainClass" value="com.google.code.tvrenamer.view.UIStarter" />
 
-	<!-- To build, get launch4j, update the path and uncomment. Ensure they are commented before committing -->
-	<!--property name="launch4j" value="../launch4j" />
+	<!-- To build, get launch4j, update the path in build.properties -->
 	<taskdef name="launch4j"
              classname="net.sf.launch4j.ant.Launch4jTask"
-             classpath="${launch4j}/launch4j.jar:${launch4j}/lib/xstream.jar" /-->
+             classpath="${launch4j.path}/launch4j.jar:${launch4j.path}/lib/xstream.jar" onerror="report" />
 
 	<target name="init">
 		<mkdir dir="${build}" />
@@ -128,6 +129,8 @@
 	<macrodef name="build.win">
 		<attribute name="platform" />
 		<sequential>
+			<fail unless="launch4j.path" message="You must set the 'launch4j.path' property in build.properties. Copy, rename build.properties.template and enter the launch4j location" />
+
 			<build.jar platform="@{platform}" />
 			<!-- Create the .exe with launch4j, but first you must uncomment the ant task import above -->
 			<launch4j>
