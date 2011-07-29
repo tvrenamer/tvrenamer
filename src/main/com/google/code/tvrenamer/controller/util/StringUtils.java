@@ -48,4 +48,41 @@ public class StringUtils {
 		logger.finest("Input after encoding: [" + input + "]");
 		return input;
 	}
+	
+	/**
+	 * <p>Checks if a String is whitespace, empty ("") or null.</p>
+	 * Copied from 
+	 * <a href="http://commons.apache.org/lang/api-2.5/org/apache/commons/lang/StringUtils.html#isBlank(java.lang.String)">
+	 *   Apache Commons Lang StringUtils
+	 * </a>
+	 * 
+	 * @param str the String to check, may be null
+	 * @return <code>true</code> if the String is null, empty or whitespace
+	 */
+	public static boolean isBlank(String str) {
+        int strLen;
+        if (str == null || (strLen = str.length()) == 0) {
+            return true;
+        }
+        for (int i = 0; i < strLen; i++) {
+            if ((Character.isWhitespace(str.charAt(i)) == false)) {
+                return false;
+            }
+        }
+        return true;
+    }
+	
+	/**
+     * <p>Checks if a String is not empty (""), not null and not whitespace only.</p>
+     * Copied from 
+     * <a href="http://commons.apache.org/lang/api-2.5/org/apache/commons/lang/StringUtils.html#isNotBlank(java.lang.String)">
+     *   Apache Commons Lang StringUtils
+     * </a>
+     *
+     * @param str  the String to check, may be null
+     * @return <code>true</code> if the String is not empty and not null and not whitespace
+     */
+	public static boolean isNotBlank(String str) {
+        return !StringUtils.isBlank(str);
+    }
 }

@@ -17,7 +17,8 @@ public class FileEpisode {
 	private final int seasonNumber;
 	private final int episodeNumber;
 	private File file;
-
+	
+	private UserPreferences userPrefs = UserPreferences.getInstance();
 	private EpisodeStatus status;
 
 	public FileEpisode(String name, int season, int episode, File f) {
@@ -58,9 +59,13 @@ public class FileEpisode {
 
 	private File getDestinationDirectory() {
 		String show = ShowStore.getShow(showName).getName();
-		String destPath = UserPreferences.getInstance().getDestinationDirectory().getAbsolutePath() + File.separatorChar;
+		String destPath = userPrefs.getDestinationDirectory().getAbsolutePath() + File.separatorChar;
 		destPath = destPath + StringUtils.sanitiseTitle(show) + File.separatorChar;
-		destPath = destPath + UserPreferences.getInstance().getSeasonPrefix() + this.seasonNumber + File.separatorChar;
+		
+		// Defect #50: Only add the 'season #' folder if set, otherwise put files in showname root 
+		if(StringUtils.isNotBlank(userPrefs.getSeasonPrefix())) {
+			destPath = destPath + userPrefs.getSeasonPrefix() + this.seasonNumber + File.separatorChar;
+		}		
 		return new File(destPath);
 	}
 
@@ -99,7 +104,7 @@ public class FileEpisode {
 					logger.log(Level.SEVERE, "Show not found for '" + this.toString() + "'", e);
 				}
 
-				String newFilename = UserPreferences.getInstance().getRenameReplacementString();
+				String newFilename = userPrefs.getRenameReplacementString();
 
 				// Ensure that all special characters in the replacement are quoted
 				showName = Matcher.quoteReplacement(showName);
@@ -135,7 +140,7 @@ public class FileEpisode {
 	public String getNewFilePath() {
 		String filename = getNewFilename();
 		
-		if (UserPreferences.getInstance().isMovedEnabled()) {
+		if (userPrefs.isMovedEnabled()) {
 			return getDestinationDirectory().getAbsolutePath().concat(File.separator).concat(filename);
 		}
 		return filename;

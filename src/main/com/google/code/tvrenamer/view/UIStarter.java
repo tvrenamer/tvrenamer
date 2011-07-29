@@ -623,6 +623,11 @@ public class UIStarter {
 				final FileEpisode episode = files.get(fileName);
 				String currentName = currentFile.getName();
 				String newName = item.getText(NEW_FILENAME_COLUMN);
+				
+				// Skip files not successfully downloaded
+				if(episode.getStatus() != EpisodeStatus.DOWNLOADED) {
+					continue;
+				}
 
 				File newFile = null;
 

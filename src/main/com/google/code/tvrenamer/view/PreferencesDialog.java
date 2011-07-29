@@ -162,6 +162,17 @@ public class PreferencesDialog extends Dialog {
 				}
 			}
 		});
+		
+		Label seasonPrefixLabel = new Label(moveGroup, SWT.NONE);
+		seasonPrefixLabel.setText("Season Prefix [?]");
+		seasonPrefixLabel.setToolTipText("This is the prefix of the season when renaming and moving the file.  It is usually \"Season \" or \"s'\"." +
+					"\nThe \" will not be included, just displayed here to show whitespace" +
+					"\nIf no value is entered, the season folder will not be created, putting all files in the show name folder");
+
+		seasonPrefixText = new Text(moveGroup, SWT.BORDER);
+		seasonPrefixText.setText(prefs.getSeasonPrefixForDisplay());
+		seasonPrefixText.setTextLimit(99);
+		seasonPrefixText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true, 2, 1));
 
 		destDirText.addKeyListener(new KeyListener() {
 
@@ -183,12 +194,12 @@ public class PreferencesDialog extends Dialog {
 			}
 		});
 
-		toggleEnableControls(moveEnabledCheckbox, destDirText, destDirButton);
+		toggleEnableControls(moveEnabledCheckbox, destDirText, destDirButton, seasonPrefixText);
 
 		moveEnabledCheckbox.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				toggleEnableControls(moveEnabledCheckbox, destDirText, destDirButton);
+				toggleEnableControls(moveEnabledCheckbox, destDirText, destDirButton, seasonPrefixText);
 			}
 		});
 	}
@@ -197,17 +208,7 @@ public class PreferencesDialog extends Dialog {
 		Group replacementGroup = new Group(preferencesShell, SWT.NONE);
 		replacementGroup.setText("Rename Options");
 		replacementGroup.setLayout(new GridLayout(3, false));
-		replacementGroup.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, true, true, 3, 1));
-
-		Label seasonPrefixLabel = new Label(replacementGroup, SWT.NONE);
-		seasonPrefixLabel.setText("Season Prefix [?]");
-		seasonPrefixLabel.setToolTipText("This is the prefix of the season when renaming and moving the file.  It is usually \"Season \" or \"s'\"." +
-					"\nThe \" will not be included, just displayed here to show whitespace");
-
-		seasonPrefixText = new Text(replacementGroup, SWT.BORDER);
-		seasonPrefixText.setText(prefs.getSeasonPrefixForDisplay());
-		seasonPrefixText.setTextLimit(99);
-		seasonPrefixText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true, 2, 1));
+		replacementGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 3, 1));
 
 		Label renameTokensLabel = new Label(replacementGroup, SWT.NONE);
 		renameTokensLabel.setText("Rename Tokens [?]");
