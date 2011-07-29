@@ -115,7 +115,7 @@ public class FileEpisode {
 				newFilename = newFilename.replaceAll(ReplacementToken.SEASON_NUM.getToken(), seasonNum);
 				newFilename = newFilename.replaceAll(ReplacementToken.SEASON_NUM_LEADING_ZERO.getToken(), seasonNumberWithLeadingZero);
 				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_NUM.getToken(), episodeNumberString);
-				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_NUM_NO_LEADING_ZERO.getToken(), episodeNumberNoLeadingZeros);
+				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_NUM_LEADING_ZERO.getToken(), episodeNumberNoLeadingZeros);
 				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_TITLE.getToken(), titleString);
 				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_TITLE_NO_SPACES.getToken(), episodeTitleNoSpaces);
 
@@ -133,10 +133,9 @@ public class FileEpisode {
 	 * @return the new full file path (for table display) using {@link #getNewFilename()} and the destination directory
 	 */
 	public String getNewFilePath() {
-		UserPreferences prefs = UserPreferences.getInstance();
 		String filename = getNewFilename();
 		
-		if (prefs != null && prefs.isMovedEnabled()) {
+		if (UserPreferences.getInstance().isMovedEnabled()) {
 			return getDestinationDirectory().getAbsolutePath().concat(File.separator).concat(filename);
 		}
 		return filename;

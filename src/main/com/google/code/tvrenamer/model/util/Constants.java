@@ -33,7 +33,7 @@ public class Constants {
 
 	public static final String PREFERENCES_FILE = "tvrenamer.preferences";
 
-	public static final String DEFAULT_REPLACEMENT_MASK = "%S [%sx%e] %t";
+	public static final String DEFAULT_REPLACEMENT_MASK = "%S [%sx%0e] %t";
 
 	public static final String DEFAULT_DESTINATION_DIRECTORY = System.getProperty("user.home") + "/TV";
 

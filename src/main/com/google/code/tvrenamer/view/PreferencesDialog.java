@@ -219,7 +219,7 @@ public class PreferencesDialog extends Dialog {
 		renameTokensList.add(ReplacementToken.SEASON_NUM.toString());
 		renameTokensList.add(ReplacementToken.SEASON_NUM_LEADING_ZERO.toString());
 		renameTokensList.add(ReplacementToken.EPISODE_NUM.toString());
-		renameTokensList.add(ReplacementToken.EPISODE_NUM_NO_LEADING_ZERO.toString());
+		renameTokensList.add(ReplacementToken.EPISODE_NUM_LEADING_ZERO.toString());
 		renameTokensList.add(ReplacementToken.EPISODE_TITLE.toString());
 		renameTokensList.add(ReplacementToken.EPISODE_TITLE_NO_SPACES.toString());
 
