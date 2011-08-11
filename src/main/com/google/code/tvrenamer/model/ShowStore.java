@@ -145,6 +145,15 @@ public class ShowStore {
 		threadPool.shutdownNow();
 	}
 	
+	public static void clear() throws InterruptedException {
+		_showStoreLock.acquire();
+		
+		_shows.clear();
+		_showRegistrations.clear();
+		
+		_showStoreLock.release();
+	}
+	
 	/**
 	 * Add a show to the store, registered by the show name.<br />
 	 * Added this distinct method to enable unit testing

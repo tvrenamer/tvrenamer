@@ -2,8 +2,10 @@ package com.google.code.tvrenamer.controller;
 
 import java.util.Observable;
 import java.util.Observer;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.google.code.tvrenamer.model.ShowStore;
 import com.google.code.tvrenamer.model.UserPreferences;
 import com.google.code.tvrenamer.view.UIStarter;
 
@@ -22,6 +24,15 @@ public class UserPreferencesChangeListener implements Observer {
 			if(upce.getPreference().equals("moveEnabled")) {
 				UIStarter.setRenameButtonText();
 				UIStarter.setColumnDestText();
+			}
+			
+			if(upce.getPreference().equals("proxy")) {
+				// There may be incorrect entries in ShowStore if there is no internet, so clear on proxy change
+				try {
+					ShowStore.clear();
+				} catch (InterruptedException e) {
+					logger.log(Level.SEVERE, "Error when attempting to clear store Map", e);
+				}
 			}
 		}
 	}
