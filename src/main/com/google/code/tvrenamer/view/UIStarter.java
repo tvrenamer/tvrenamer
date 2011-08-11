@@ -4,6 +4,7 @@ import static com.google.code.tvrenamer.view.UIUtils.getOSType;
 import static com.google.code.tvrenamer.view.UIUtils.showMessageBox;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.text.Collator;
 import java.util.HashMap;
@@ -17,6 +18,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
+import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
@@ -96,6 +98,21 @@ public class UIStarter {
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
 	private Map<String, FileEpisode> files = new HashMap<String, FileEpisode>();
+	
+	// Static initalisation block
+	static {
+		// Find logging.properties file inside jar
+		InputStream loggingConfigStream = UIStarter.class.getResourceAsStream("/logging.properties");
+
+		if (loggingConfigStream != null) {
+			try {
+				LogManager.getLogManager().readConfiguration(loggingConfigStream);
+			} catch (IOException e) {
+				System.err.println("Exception thrown while loading logging config");
+				e.printStackTrace();
+			}
+		}
+	}
 
 	public static void main(String[] args) {
 		UIStarter ui = new UIStarter();
