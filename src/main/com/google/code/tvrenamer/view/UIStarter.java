@@ -1,7 +1,6 @@
 package com.google.code.tvrenamer.view;
 
-import static com.google.code.tvrenamer.view.UIUtils.getOSType;
-import static com.google.code.tvrenamer.view.UIUtils.showMessageBox;
+import static com.google.code.tvrenamer.view.UIUtils.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,6 +40,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
@@ -660,7 +660,7 @@ public class UIStarter {
 
 				if (newFile.exists() && !newName.equals(currentName)) {
 					String message = "File " + newFile + " already exists.\n" + currentFile + " was not renamed!";
-					showMessageBox(SWTMessageBoxType.QUESTION, "Question", message);
+					showMessageBox(SWTMessageBoxType.ERROR, "Rename Failed", message);
 				} else {
 					// progress label
 					TableEditor editor = new TableEditor(resultsTable);
@@ -711,7 +711,7 @@ public class UIStarter {
 					});
 				}
 			}));
-			progressThread.setName("ProgressThread");
+			progressThread.setName("ProgressBarThread");
 			progressThread.setDaemon(true);
 			progressThread.start();
 		}
