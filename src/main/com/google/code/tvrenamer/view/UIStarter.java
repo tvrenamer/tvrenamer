@@ -206,8 +206,6 @@ public class UIStarter {
 
 		renameSelectedButton = new Button(bottomButtonsComposite, SWT.PUSH);
 		GridData renameSelectedButtonGridData = new GridData(GridData.END, GridData.CENTER, false, false);
-		renameSelectedButtonGridData.minimumWidth = 160;
-		renameSelectedButtonGridData.widthHint = 160;
 		renameSelectedButton.setLayoutData(renameSelectedButtonGridData);
 
 		if (prefs != null && prefs.isMovedEnabled()) {
@@ -811,8 +809,12 @@ public class UIStarter {
 	public static void setRenameButtonText() {
 		if (prefs.isMovedEnabled()) {
 			renameSelectedButton.setText("Rename && Move Selected");
+			shell.changed(new Control[] {renameSelectedButton});
+			shell.layout(false, true);
 		} else {
 			renameSelectedButton.setText("Rename Selected");
+			shell.changed(new Control[] {renameSelectedButton});
+			shell.layout(false, true);
 		}
 	}
 
