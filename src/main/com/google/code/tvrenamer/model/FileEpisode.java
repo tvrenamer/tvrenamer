@@ -111,8 +111,8 @@ public class FileEpisode {
 				titleString = Matcher.quoteReplacement(titleString);
 				
 				// Make whatever modifications are required
-				String episodeNumberString = new DecimalFormat("#00").format(this.episodeNumber);
-				String episodeNumberNoLeadingZeros = new DecimalFormat("##0").format(this.episodeNumber);
+				String episodeNumberString = new DecimalFormat("##0").format(this.episodeNumber);
+				String episodeNumberWithLeadingZeros = new DecimalFormat("#00").format(this.episodeNumber);
 				String episodeTitleNoSpaces = titleString.replaceAll(" ", ".");
 				String seasonNumberWithLeadingZero = new DecimalFormat("00").format(this.seasonNumber);
 
@@ -120,7 +120,7 @@ public class FileEpisode {
 				newFilename = newFilename.replaceAll(ReplacementToken.SEASON_NUM.getToken(), seasonNum);
 				newFilename = newFilename.replaceAll(ReplacementToken.SEASON_NUM_LEADING_ZERO.getToken(), seasonNumberWithLeadingZero);
 				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_NUM.getToken(), episodeNumberString);
-				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_NUM_LEADING_ZERO.getToken(), episodeNumberNoLeadingZeros);
+				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_NUM_LEADING_ZERO.getToken(), episodeNumberWithLeadingZeros);
 				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_TITLE.getToken(), titleString);
 				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_TITLE_NO_SPACES.getToken(), episodeTitleNoSpaces);
 
