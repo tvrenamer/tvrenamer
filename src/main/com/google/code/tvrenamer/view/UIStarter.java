@@ -1,9 +1,9 @@
 package com.google.code.tvrenamer.view;
 
-import static com.google.code.tvrenamer.view.UIUtils.getOSType;
-import static com.google.code.tvrenamer.view.UIUtils.showMessageBox;
+import static com.google.code.tvrenamer.view.UIUtils.*;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.text.Collator;
 import java.util.HashMap;
@@ -17,6 +17,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
+import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
@@ -39,6 +40,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
@@ -74,6 +76,7 @@ import com.google.code.tvrenamer.model.util.Constants;
 import com.google.code.tvrenamer.model.util.Constants.OSType;
 
 public class UIStarter {
+	private static final String DOWNLOADING_FAILED_MESSAGE = "Downloading show listings failed.  Check internet connection";
 	private static Logger logger = Logger.getLogger(UIStarter.class.getName());
 	private static final int SELECTED_COLUMN = 0;
 	private static final int CURRENT_FILE_COLUMN = 1;
@@ -95,6 +98,21 @@ public class UIStarter {
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
 	private Map<String, FileEpisode> files = new HashMap<String, FileEpisode>();
+	
+	// Static initalisation block
+	static {
+		// Find logging.properties file inside jar
+		InputStream loggingConfigStream = UIStarter.class.getResourceAsStream("/logging.properties");
+
+		if (loggingConfigStream != null) {
+			try {
+				LogManager.getLogManager().readConfiguration(loggingConfigStream);
+			} catch (IOException e) {
+				System.err.println("Exception thrown while loading logging config");
+				e.printStackTrace();
+			}
+		}
+	}
 
 	public static void main(String[] args) {
 		UIStarter ui = new UIStarter();
@@ -132,7 +150,7 @@ public class UIStarter {
 	private void setupMainWindow() {
 		final Composite topButtonsComposite = new Composite(shell, SWT.FILL);
 		topButtonsComposite.setLayout(new GridLayout(2, false));
-		topButtonsComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 2, 1));
+		topButtonsComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 
 		addFilesButton = new Button(topButtonsComposite, SWT.PUSH);
 		addFilesButton.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
@@ -173,9 +191,7 @@ public class UIStarter {
 
 		Composite bottomButtonsComposite = new Composite(shell, SWT.FILL);
 		bottomButtonsComposite.setLayout(new GridLayout(3, false));
-		GridData bottomButtonsCompositeGridData = new GridData(SWT.FILL, SWT.CENTER, true, true, 3, 1);
-		// DH: Hack for GTK to stop the bottom of the window being cut off
-		bottomButtonsCompositeGridData.minimumHeight = 65;
+		GridData bottomButtonsCompositeGridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1);
 		bottomButtonsComposite.setLayoutData(bottomButtonsCompositeGridData);
 
 		final Button quitButton = new Button(bottomButtonsComposite, SWT.PUSH);
@@ -186,12 +202,10 @@ public class UIStarter {
 		quitButton.setText("Quit");
 
 		totalProgressBar = new ProgressBar(bottomButtonsComposite, SWT.SMOOTH);
-		totalProgressBar.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true));
+		totalProgressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
 
 		renameSelectedButton = new Button(bottomButtonsComposite, SWT.PUSH);
 		GridData renameSelectedButtonGridData = new GridData(GridData.END, GridData.CENTER, false, false);
-		renameSelectedButtonGridData.minimumWidth = 160;
-		renameSelectedButtonGridData.widthHint = 160;
 		renameSelectedButton.setLayoutData(renameSelectedButtonGridData);
 
 		if (prefs != null && prefs.isMovedEnabled()) {
@@ -336,7 +350,7 @@ public class UIStarter {
 	}
 
 	private void setupResultsTable() {
-		resultsTable = new Table(shell, SWT.CHECK);
+		resultsTable = new Table(shell, SWT.CHECK | SWT.FULL_SELECTION);
 		resultsTable.setHeaderVisible(true);
 		resultsTable.setLinesVisible(true);
 		GridData gridData = new GridData(GridData.FILL_BOTH);
@@ -347,7 +361,7 @@ public class UIStarter {
 
 		final TableColumn selectedColumn = new TableColumn(resultsTable, SWT.LEFT);
 		selectedColumn.setText("Selected");
-		selectedColumn.setWidth(75);
+		selectedColumn.setWidth(60);
 
 		final TableColumn sourceColum = new TableColumn(resultsTable, SWT.LEFT);
 		sourceColum.setText("Current File");
@@ -355,11 +369,11 @@ public class UIStarter {
 
 		destinationColumn = new TableColumn(resultsTable, SWT.LEFT);
 		setColumnDestText();
-		destinationColumn.setWidth(375);
+		destinationColumn.setWidth(550);
 
 		final TableColumn statusColumn = new TableColumn(resultsTable, SWT.LEFT);
 		statusColumn.setText("Status");
-		statusColumn.setWidth(75);
+		statusColumn.setWidth(60);
 
 		selectedColumn.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -403,7 +417,6 @@ public class UIStarter {
 		editor.grabHorizontal = true;
 
 		Listener tblEditListener = new Listener() {
-
 			public void handleEvent(Event event) {
 				Rectangle clientArea = resultsTable.getClientArea();
 				Point pt = new Point(event.x, event.y);
@@ -417,7 +430,6 @@ public class UIStarter {
 							final int column = i;
 							final Text text = new Text(resultsTable, SWT.NONE);
 							Listener textListener = new Listener() {
-
 								@SuppressWarnings("fallthrough")
 								public void handleEvent(final Event e) {
 									switch (e.type) {
@@ -457,7 +469,7 @@ public class UIStarter {
 				}
 			}
 		};
-		resultsTable.addListener(SWT.MouseDown, tblEditListener);
+		//resultsTable.addListener(SWT.MouseDown, tblEditListener);
 	}
 
 	private void setupTableDragDrop() {
@@ -532,7 +544,7 @@ public class UIStarter {
 			System.exit(1);
 		} catch (Exception exception) {
 			String message = "An error occurred, please check your internet connection, java version or run from the command line to show errors";
-			showMessageBox(SWTMessageBoxType.ERROR, "Error", message);
+			showMessageBox(SWTMessageBoxType.ERROR, "Error", message, exception);
 			logger.log(Level.SEVERE, message, exception);
 			System.exit(1);
 		}
@@ -587,15 +599,25 @@ public class UIStarter {
 				String showName = episode.getShowName();
 
 				files.put(fileName, episode);
-				final TableItem item = createTableItem(resultsTable, fileName, episode, prefs);
+				final TableItem item = createTableItem(resultsTable, fileName, episode);
 
 				ShowStore.getShow(showName, new ShowInformationListener() {
 					public void downloaded(Show show) {
 						episode.setStatus(EpisodeStatus.DOWNLOADED);
 						display.asyncExec(new Runnable() {
 							public void run() {
-								item.setText(NEW_FILENAME_COLUMN, episode.getNewFilePath(prefs));
+								item.setText(NEW_FILENAME_COLUMN, episode.getNewFilePath());
 								item.setImage(STATUS_COLUMN, FileMoveIcon.ADDED.icon);
+							}
+						});
+					}
+					public void downloadFailed(Show show) {
+						episode.setStatus(EpisodeStatus.BROKEN);
+						display.asyncExec(new Runnable() {
+							public void run() {
+								item.setText(NEW_FILENAME_COLUMN, DOWNLOADING_FAILED_MESSAGE);
+								item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
+								item.setChecked(false);
 							}
 						});
 					}
@@ -616,6 +638,11 @@ public class UIStarter {
 				final FileEpisode episode = files.get(fileName);
 				String currentName = currentFile.getName();
 				String newName = item.getText(NEW_FILENAME_COLUMN);
+				
+				// Skip files not successfully downloaded
+				if(episode.getStatus() != EpisodeStatus.DOWNLOADED) {
+					continue;
+				}
 
 				File newFile = null;
 
@@ -633,7 +660,7 @@ public class UIStarter {
 
 				if (newFile.exists() && !newName.equals(currentName)) {
 					String message = "File " + newFile + " already exists.\n" + currentFile + " was not renamed!";
-					showMessageBox(SWTMessageBoxType.QUESTION, "Question", message);
+					showMessageBox(SWTMessageBoxType.ERROR, "Rename Failed", message);
 				} else {
 					// progress label
 					TableEditor editor = new TableEditor(resultsTable);
@@ -684,7 +711,7 @@ public class UIStarter {
 					});
 				}
 			}));
-			progressThread.setName("ProgressThread");
+			progressThread.setName("ProgressBarThread");
 			progressThread.setDaemon(true);
 			progressThread.start();
 		}
@@ -704,12 +731,11 @@ public class UIStarter {
 		});
 	}
 
-	private static TableItem createTableItem(Table tblResults, String fileName, FileEpisode episode,
-		UserPreferences prefs) {
+	private static TableItem createTableItem(Table tblResults, String fileName, FileEpisode episode) {
 		TableItem item = new TableItem(tblResults, SWT.NONE);
 		String newFilename = fileName;
 		try {
-			newFilename = episode.getNewFilename(prefs);
+			newFilename = episode.getNewFilename();
 			item.setChecked(true);
 		} catch (NotFoundException e) {
 			newFilename = e.getMessage();
@@ -776,15 +802,19 @@ public class UIStarter {
 			String newFileName = episode.getFile().getAbsolutePath();
 			files.put(newFileName, episode);
 			item.setText(CURRENT_FILE_COLUMN, newFileName);
-			item.setText(NEW_FILENAME_COLUMN, episode.getNewFilePath(prefs));
+			item.setText(NEW_FILENAME_COLUMN, episode.getNewFilePath());
 		}
 	}
 
 	public static void setRenameButtonText() {
 		if (prefs.isMovedEnabled()) {
 			renameSelectedButton.setText("Rename && Move Selected");
+			shell.changed(new Control[] {renameSelectedButton});
+			shell.layout(false, true);
 		} else {
 			renameSelectedButton.setText("Rename Selected");
+			shell.changed(new Control[] {renameSelectedButton});
+			shell.layout(false, true);
 		}
 	}
 
@@ -797,7 +827,7 @@ public class UIStarter {
 	}
 
 	private void showPreferencesPane() {
-		PreferencesDialog preferencesDialog = new PreferencesDialog(shell, prefs);
+		PreferencesDialog preferencesDialog = new PreferencesDialog(shell);
 		preferencesDialog.open();
 	}
 

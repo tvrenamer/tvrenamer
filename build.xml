@@ -2,6 +2,17 @@
 <project name="TVRenamer build script" default="usage">
 
 	<property name="src.main" value="src/main" />
+
+	<property file="build.properties" />
+	
+	<property name="version.file" value="${src.main}/tvrenamer.version" />
+	<loadfile property="version" srcFile="${version.file}">
+		<filterchain>
+			<striplinebreaks />
+		</filterchain>
+	</loadfile>
+
+	<property name="src.main" value="src/main" />
 	<property name="src.test" value="src/test" />
 	<property name="build" value="build" />
 	<property name="lib.main" value="lib/main" />
@@ -13,15 +24,11 @@
 	<property name="etc" value="etc" />
 	<property name="jar.builtBy" value="http://code.google.com/p/tv-renamer" />
 	<property name="jar.mainClass" value="com.google.code.tvrenamer.view.UIStarter" />
-	
-	<property name="version.file" value="${src.main}/tvrenamer.version" />
-	<loadfile property="version" srcFile="${version.file}" />
 
-	<!-- To build, get launch4j, update the path and uncomment. Ensure they are commented before committing -->
-	<!--property name="launch4j" value="../launch4j" />
+	<!-- To build, get launch4j, update the path in build.properties -->
 	<taskdef name="launch4j"
              classname="net.sf.launch4j.ant.Launch4jTask"
-             classpath="${launch4j}/launch4j.jar:${launch4j}/lib/xstream.jar" /-->
+             classpath="${launch4j.path}/launch4j.jar:${launch4j.path}/lib/xstream.jar" onerror="report" />
 
 	<path id="classpath">
 		<fileset dir="${lib.main}">
@@ -30,6 +37,7 @@
 		</fileset>
 		<fileset dir="${lib.main}" id="classpath.runtime">
 			<include name="xstream-*.jar" />
+			<include name="xpp3_min*.jar" />
 			<include name="jedit-*-IOUtilities.jar" />
 			<include name="commons-codec-*.jar" />
 		</fileset>
@@ -73,7 +81,14 @@
 				<fileset dir="${build}" />
 
 				<fileset dir="${res}">
-					<exclude name="**/oldschool-tv-icon.ico" />
+					<include name="icons/tvrenamer.icns" />
+					<include name="icons/tvrenamer.png" />
+					
+					<include name="icons/SweetieLegacy/16-circle-blue.png" />
+					<include name="icons/SweetieLegacy/16-clock.png" />
+					<include name="icons/SweetieLegacy/16-em-pencil.png" />
+					<include name="icons/SweetieLegacy/16-em-check.png" />
+					<include name="icons/SweetieLegacy/16-em-cross.png" />
 				</fileset>
 
 				<zipgroupfileset refid="classpath.runtime" />
@@ -82,6 +97,7 @@
 				</zipgroupfileset>
 
 				<fileset file="${version.file}" />
+				<fileset file="etc/logging.properties" />
 			</jar>
 		</sequential>
 	</macrodef>
@@ -134,6 +150,8 @@
 	<macrodef name="build.win">
 		<attribute name="platform" />
 		<sequential>
+			<fail unless="launch4j.path" message="You must set the 'launch4j.path' property in build.properties. Copy, rename build.properties.template and enter the launch4j location" />
+
 			<build.jar platform="@{platform}" />
 			<!-- Create the .exe with launch4j, but first you must uncomment the ant task import above -->
 			<launch4j>

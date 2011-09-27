@@ -26,6 +26,11 @@ public class ShowStore {
 	private static final Semaphore _showStoreLock = new Semaphore(1);
 
 	private static final ExecutorService threadPool = Executors.newCachedThreadPool();
+	
+	// static initaliser block as there are static methods
+	static {
+		populateFireflyShow();
+	}
 
 	public static Show getShow(String showName) {
 		Show s = null;
@@ -87,12 +92,17 @@ public class ShowStore {
 
 	private static void downloadShow(final String showName) {
 		Callable<Boolean> showFetcher = new Callable<Boolean>() {
-			public Boolean call() throws Exception {
-				ArrayList<Show> options = TVRageProvider.getShowOptions(showName);
-				Show thisShow = options.get(0);
-
-				TVRageProvider.getShowListing(thisShow);
-				
+			public Boolean call() throws InterruptedException {
+				Show thisShow;
+				try {
+					ArrayList<Show> options = TVRageProvider.getShowOptions(showName);
+					thisShow = options.get(0);
+    
+    				TVRageProvider.getShowListing(thisShow);
+				} catch(TVRenamerIOException e) {
+					thisShow = new FailedShow("", showName, "", e);
+				}
+					
 				addShow(showName, thisShow);
 
 				return true;
@@ -106,7 +116,11 @@ public class ShowStore {
 
 		if (registrations != null) {
 			for (ShowInformationListener informationListener : registrations.getListeners()) {
-				informationListener.downloaded(show);
+				if(show instanceof FailedShow) {
+					informationListener.downloadFailed(show);
+				} else {
+					informationListener.downloaded(show);
+				}
 			}
 		}
 	}
@@ -131,6 +145,15 @@ public class ShowStore {
 		threadPool.shutdownNow();
 	}
 	
+	public static void clear() throws InterruptedException {
+		_showStoreLock.acquire();
+		
+		_shows.clear();
+		_showRegistrations.clear();
+		
+		_showStoreLock.release();
+	}
+	
 	/**
 	 * Add a show to the store, registered by the show name.<br />
 	 * Added this distinct method to enable unit testing
@@ -145,5 +168,34 @@ public class ShowStore {
 		_shows.put(showName.toLowerCase(), show);
 		notifyListeners(showName, show);
 		_showStoreLock.release();
+	}
+
+	private static void populateFireflyShow() {
+		Show firefly = new Show("3548", "Firefly", "http://www.tvrage.com/Firefly");
+
+		Season season = new Season(1);
+		season.addEpisode(1, "Serenity");
+		season.addEpisode(2, "The Train Job");
+		season.addEpisode(3, "Bushwhacked");
+		season.addEpisode(4, "Shindig");
+		season.addEpisode(5, "Safe");
+		season.addEpisode(6, "Our Mrs Reynolds");
+		season.addEpisode(7, "Jaynestown");
+		season.addEpisode(8, "Out of Gas");
+		season.addEpisode(9, "Ariel");
+		season.addEpisode(10, "War Stories");
+		season.addEpisode(11, "Trash");
+		season.addEpisode(12, "The Message");
+		season.addEpisode(13, "Heart of Gold");
+		season.addEpisode(14, "Objects in Space");
+
+		firefly.setSeason(1, season);
+
+		try {
+			addShow("firefly", firefly);
+		} catch (InterruptedException e) {
+			// Should never happen
+			logger.log(Level.SEVERE, "InterruptedException when attempting to add Firefly to cache", e);
+		}
 	}
 }

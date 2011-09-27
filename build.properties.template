@@ -1,0 +1,2 @@
+# The location of launch4j.  Can be relative such as ../launch4j
+launch4j.path=../launch4j

@@ -17,7 +17,8 @@ public class FileEpisode {
 	private final int seasonNumber;
 	private final int episodeNumber;
 	private File file;
-
+	
+	private UserPreferences userPrefs = UserPreferences.getInstance();
 	private EpisodeStatus status;
 
 	public FileEpisode(String name, int season, int episode, File f) {
@@ -56,15 +57,19 @@ public class FileEpisode {
 		this.status = newStatus;
 	}
 
-	public File getDestinationDirectory(UserPreferences prefs) {
+	private File getDestinationDirectory() {
 		String show = ShowStore.getShow(showName).getName();
-		String destPath = prefs.getDestinationDirectory().getAbsolutePath() + File.separatorChar;
+		String destPath = userPrefs.getDestinationDirectory().getAbsolutePath() + File.separatorChar;
 		destPath = destPath + StringUtils.sanitiseTitle(show) + File.separatorChar;
-		destPath = destPath + prefs.getSeasonPrefix() + this.seasonNumber + File.separatorChar;
+		
+		// Defect #50: Only add the 'season #' folder if set, otherwise put files in showname root 
+		if(StringUtils.isNotBlank(userPrefs.getSeasonPrefix())) {
+			destPath = destPath + userPrefs.getSeasonPrefix() + this.seasonNumber + File.separatorChar;
+		}		
 		return new File(destPath);
 	}
 
-	public String getNewFilename(UserPreferences prefs) {
+	public String getNewFilename() {
 		switch (this.status) {
 			case ADDED: {
 				return ADDED_PLACEHOLDER_FILENAME;
@@ -75,7 +80,7 @@ public class FileEpisode {
 				String seasonNum = "";
 				String titleString = "";
 
-				try {
+				try {					
 					Show show = ShowStore.getShow(this.showName);
 					showName = show.getName();
 
@@ -84,8 +89,7 @@ public class FileEpisode {
 						seasonNum = String.valueOf(season.getNumber());
 
 						try {
-							String title = season.getTitle(this.episodeNumber);
-							titleString = StringUtils.sanitiseTitle(title);
+							titleString = season.getTitle(this.episodeNumber);
 						} catch (EpisodeNotFoundException e) {
 							logger.log(Level.SEVERE, "Episode not found for '" + this.toString() + "'", e);
 						}
@@ -100,25 +104,28 @@ public class FileEpisode {
 					logger.log(Level.SEVERE, "Show not found for '" + this.toString() + "'", e);
 				}
 
-				String newFilename = prefs.getRenameReplacementString();
+				String newFilename = userPrefs.getRenameReplacementString();
 
 				// Ensure that all special characters in the replacement are quoted
 				showName = Matcher.quoteReplacement(showName);
 				titleString = Matcher.quoteReplacement(titleString);
 				
 				// Make whatever modifications are required
-				String episodeNumberString = new DecimalFormat("#00").format(this.episodeNumber);
-				String episodeNumberNoLeadingZeros = new DecimalFormat("##0").format(this.episodeNumber);
+				String episodeNumberString = new DecimalFormat("##0").format(this.episodeNumber);
+				String episodeNumberWithLeadingZeros = new DecimalFormat("#00").format(this.episodeNumber);
 				String episodeTitleNoSpaces = titleString.replaceAll(" ", ".");
+				String seasonNumberWithLeadingZero = new DecimalFormat("00").format(this.seasonNumber);
 
 				newFilename = newFilename.replaceAll(ReplacementToken.SHOW_NAME.getToken(), showName);
 				newFilename = newFilename.replaceAll(ReplacementToken.SEASON_NUM.getToken(), seasonNum);
+				newFilename = newFilename.replaceAll(ReplacementToken.SEASON_NUM_LEADING_ZERO.getToken(), seasonNumberWithLeadingZero);
 				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_NUM.getToken(), episodeNumberString);
-				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_NUM_NO_LEADING_ZERO.getToken(), episodeNumberNoLeadingZeros);
+				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_NUM_LEADING_ZERO.getToken(), episodeNumberWithLeadingZeros);
 				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_TITLE.getToken(), titleString);
 				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_TITLE_NO_SPACES.getToken(), episodeTitleNoSpaces);
 
-				return newFilename.concat(".").concat(StringUtils.getExtension(this.file.getName()));
+				String resultingFilename = newFilename.concat(".").concat(StringUtils.getExtension(file.getName()));
+				return StringUtils.sanitiseTitle(resultingFilename);
 			}
 			case BROKEN:
 			default:
@@ -128,13 +135,13 @@ public class FileEpisode {
 	
 	/**
 	 * @param prefs the User Preferences
-	 * @return the new full file path (for table display) using {@link #getNewFilename(UserPreferences)} and the destination directory
+	 * @return the new full file path (for table display) using {@link #getNewFilename()} and the destination directory
 	 */
-	public String getNewFilePath(UserPreferences prefs) {
-		String filename = getNewFilename(prefs);
+	public String getNewFilePath() {
+		String filename = getNewFilename();
 		
-		if(prefs != null && prefs.isMovedEnabled()) {
-			return getDestinationDirectory(prefs).getAbsolutePath().concat("/").concat(filename);
+		if (userPrefs.isMovedEnabled()) {
+			return getDestinationDirectory().getAbsolutePath().concat(File.separator).concat(filename);
 		}
 		return filename;
 	}

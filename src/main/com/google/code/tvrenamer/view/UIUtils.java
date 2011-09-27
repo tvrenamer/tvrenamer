@@ -1,7 +1,10 @@
 package com.google.code.tvrenamer.view;
 
+import java.awt.HeadlessException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.swing.JOptionPane;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.FontData;
@@ -44,47 +47,44 @@ public class UIUtils {
 
 		return defaultFont;
 	}
+	
+	public static void showMessageBox(final SWTMessageBoxType type, final String title, final String message, final Exception exception) {
+		if(shell == null) {
+			// Shell not established yet, try using JOPtionPane instead
+			try {
+				JOptionPane.showMessageDialog(null, message);
+				return;
+			} catch(HeadlessException he) {
+				logger.warning("Could not show message graphically: " + message);
+				return;
+			}
+		}
+		
+		Display.getDefault().syncExec(new Runnable() {
+			public void run() {			
+				MessageBox msgBox = new MessageBox(shell, type.swtIconValue);
+				msgBox.setText(title);
+				
+				if(exception == null) {
+					msgBox.setMessage(message);
+				} else {
+					msgBox.setMessage(message + "/n" + exception.getLocalizedMessage());
+				}
+				
+				msgBox.open();
+			}
+		});
+	}
 
 	/**
 	 * Show a message box of the given type with the given message content and window title.
 	 * 
-	 * @param type
-	 *            the {@link SWTMessageBoxType} to create
-	 * @param message
-	 *            the message content
-	 * @param title
-	 *            the window title
+	 * @param type the {@link SWTMessageBoxType} to create
+	 * @param title the window title
+	 * @param message the message content
 	 */
 	public static void showMessageBox(final SWTMessageBoxType type, final String title, final String message) {
-		final int swtIconValue;
-
-		switch (type) {
-			case QUESTION:
-				swtIconValue = SWT.ICON_QUESTION;
-				break;
-			case MESSAGE:
-				swtIconValue = SWT.ICON_INFORMATION;
-				break;
-			case WARNING:
-				swtIconValue = SWT.ICON_WARNING;
-				break;
-			case ERROR:
-				swtIconValue = SWT.ICON_ERROR;
-				break;
-			case OK:
-				// Intentional missing break
-			default:
-				swtIconValue = SWT.OK;
-		}
-
-		Display.getDefault().syncExec(new Runnable() {
-			public void run() {
-				MessageBox msgBox = new MessageBox(shell, swtIconValue);
-				msgBox.setText(title);
-				msgBox.setMessage(message);
-				msgBox.open();
-			}
-		});
+		showMessageBox(type, title, message, null);
 	}
 
 	public static void handleNoConnection(Exception exception) {

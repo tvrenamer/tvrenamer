@@ -44,7 +44,9 @@ public class XMLPersistence {
 			logger.log(Level.SEVERE, "Exception occoured when writing preferences file", e);
 		} finally {
 			try {
-				writer.close();
+				if (writer != null) {
+					writer.close();
+				}
 			} catch (IOException e) {
 				logger.log(Level.SEVERE, "Exception occoured when closing preferences file", e);
 			}
