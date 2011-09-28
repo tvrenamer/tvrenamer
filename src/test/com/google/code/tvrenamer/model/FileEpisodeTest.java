@@ -1,10 +1,8 @@
 package com.google.code.tvrenamer.model;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,9 +13,9 @@ import java.util.logging.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import com.google.code.tvrenamer.controller.ShowInformationListener;
-
 
 public class FileEpisodeTest {
 	private static Logger logger = Logger.getLogger(FileEpisodeTest.class.getName());
@@ -55,7 +53,10 @@ public class FileEpisodeTest {
 		
 		Mockito.when(prefs.getRenameReplacementString()).thenReturn("%S [%sx%e] %t");
 		
-		String newFilename = fileEpisode.getNewFilename();
+		FileEpisode episode = new FileEpisode(showName, seasonNum, episodeNum, file);
+		episode.setStatus(EpisodeStatus.DOWNLOADED);
+		
+		String newFilename = episode.getNewFilename();
 		
 		assertEquals("The Simpsons [5x10] $pringfield.avi", newFilename);
 	}

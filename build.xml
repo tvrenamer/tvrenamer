@@ -2,6 +2,15 @@
 <project name="TVRenamer build script" default="usage">
 
 	<property name="src.main" value="src/main" />
+	<property name="src.test" value="src/test" />
+	<property name="build" value="build" />
+	<property name="lib.main" value="lib/main" />
+	<property name="lib.test" value="lib/test" />
+	<property name="res" value="res" />
+	<property name="rel" value="release" />
+	
+	<property name="dist" value="dist" />
+	<property name="etc" value="etc" />
 
 	<property file="build.properties" />
 	
@@ -12,23 +21,14 @@
 		</filterchain>
 	</loadfile>
 
-	<property name="src.main" value="src/main" />
-	<property name="src.test" value="src/test" />
-	<property name="build" value="build" />
-	<property name="lib.main" value="lib/main" />
-	<property name="lib.test" value="lib/test" />
-	<property name="res" value="res" />
-	<property name="rel" value="release" />
 	<property name="rel.name" value="TVRenamer-${version}" />
-	<property name="dist" value="dist" />
-	<property name="etc" value="etc" />
 	<property name="jar.builtBy" value="http://code.google.com/p/tv-renamer" />
 	<property name="jar.mainClass" value="com.google.code.tvrenamer.view.UIStarter" />
 
 	<!-- To build, get launch4j, update the path in build.properties -->
 	<taskdef name="launch4j"
-             classname="net.sf.launch4j.ant.Launch4jTask"
-             classpath="${launch4j.path}/launch4j.jar:${launch4j.path}/lib/xstream.jar" onerror="report" />
+			classname="net.sf.launch4j.ant.Launch4jTask"
+			classpath="${launch4j.path}/launch4j.jar:${launch4j.path}/lib/xstream.jar" onerror="report" />
 
 	<path id="classpath">
 		<fileset dir="${lib.main}">
@@ -57,12 +57,12 @@
 	
 	<target name="compile" depends="init">
 		<javac srcdir="${src.main}" destdir="${build}" classpathref="classpath" 
-				source="1.5" target="1.5" debug="true" debuglevel="lines, vars, and source"/>
+				source="1.5" target="1.5" debug="true" debuglevel="lines, vars, source"/>
 	</target>
 	
 	<target name="compile.test" depends="compile">
 			<javac srcdir="${src.test}" destdir="${build}" classpathref="classpath.test" 
-					source="1.5" target="1.5" debug="true" debuglevel="lines, vars, and source"/>
+					source="1.5" target="1.5" debug="true" debuglevel="lines, vars, source"/>
 		</target>
 
 	<macrodef name="build.jar" description="Compiles the source then creates an executable jar for the given platform">
@@ -70,7 +70,8 @@
 		<sequential>
 			<mkdir dir="${build}/@{platform}" />
 
-			<compile />
+			<!-- Use antcall because macrodef's can't declare dependencies -->
+			<antcall target="compile"/>
 
 			<jar destfile="${build}/@{platform}/tvrenamer.jar" filesetmanifest="mergewithoutmain">
 				<manifest>
@@ -196,7 +197,7 @@
 
 	<target name="usage">
 		<echo message="Usage: ant dist.{win, linux, osx, all}" />
-		<echo message="       tests {-Dproxy.enabled -Dproxy.host, -Dproxy.port, {-Dproxy.user, -Dproxy.password}}" />
+		<echo message="       tests {-Dproxy.enabled=true -Dproxy.host=hostname -Dproxy.port=portNumber {-Dproxy.user=username -Dproxy.password=password}}" />
 	</target>
 
 	<target name="proxy" if="proxy.enabled">
