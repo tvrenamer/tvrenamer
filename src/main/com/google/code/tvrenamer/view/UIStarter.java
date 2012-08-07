@@ -37,10 +37,12 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
@@ -89,6 +91,7 @@ public class UIStarter {
 	private static UserPreferences prefs;
 
 	private Button addFilesButton;
+	private Button addFolderButton;
 	private Link updatesAvailableLink;
 	private static Button renameSelectedButton;
 	private static TableColumn destinationColumn;
@@ -149,15 +152,16 @@ public class UIStarter {
 
 	private void setupMainWindow() {
 		final Composite topButtonsComposite = new Composite(shell, SWT.FILL);
-		topButtonsComposite.setLayout(new GridLayout(2, false));
-		topButtonsComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
+		topButtonsComposite.setLayout(new RowLayout());
 
 		addFilesButton = new Button(topButtonsComposite, SWT.PUSH);
-		addFilesButton.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
-		addFilesButton.setText("Add files ... ");
+		addFilesButton.setText("Add files");
+		
+		addFolderButton = new Button(topButtonsComposite, SWT.PUSH);
+		addFolderButton.setText("Add Folder");
 
 		updatesAvailableLink = new Link(topButtonsComposite, SWT.VERTICAL);
-		updatesAvailableLink.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, true));
+		//updatesAvailableLink.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, true));
 		updatesAvailableLink.setVisible(false);
 		updatesAvailableLink.setText("There is an update available. <a href=\"" + TVRENAMER_DOWNLOAD_URL
 			+ "\">Click here to download</a>");
@@ -346,6 +350,30 @@ public class UIStarter {
 					initiateRenamer(fileNames);
 				}
 			}
+		});
+		
+		final DirectoryDialog dd = new DirectoryDialog(shell, SWT.SINGLE);
+		addFolderButton.addSelectionListener(new SelectionAdapter() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				String directory = dd.open();
+				if ( directory != null ) {
+					// load all of the files in the dir
+					File file = new File(directory);
+					String[] fileNames = file.list();
+					
+					if( fileNames != null ){
+						for( int i = 0; i < fileNames.length; i++ ){
+							fileNames[i] = directory + File.separatorChar + fileNames[i];
+						}
+						
+						initiateRenamer(fileNames);
+					}
+					
+				}
+			}
+			
 		});
 	}
 
