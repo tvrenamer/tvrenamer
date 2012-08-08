@@ -23,6 +23,7 @@ public class UserPreferences extends Observable {
 	private String renameReplacementMask;
 	private ProxySettings proxy;
 	private boolean checkForUpdates;
+	private boolean recursivelyAddFolders;
 	
 	private final static UserPreferences INSTANCE = load();
 
@@ -38,6 +39,7 @@ public class UserPreferences extends Observable {
 		this.renameReplacementMask = Constants.DEFAULT_REPLACEMENT_MASK;
 		this.proxy = new ProxySettings();
 		this.checkForUpdates = true;
+		this.recursivelyAddFolders = true;
 
 		ensurePath();
 	}
@@ -137,6 +139,24 @@ public class UserPreferences extends Observable {
 	public boolean isMovedEnabled() {
 		return this.moveEnabled;
 	}
+	
+	public void setRecursivelyAddFolders(boolean recursivelyAddFolders) {
+		if(hasChanged(this.recursivelyAddFolders, recursivelyAddFolders)) {
+			this.recursivelyAddFolders = recursivelyAddFolders;
+			
+			setChanged();
+			notifyObservers(new UserPreferencesChangeEvent("recursivelyAddFolders", recursivelyAddFolders));
+		}
+	}
+	
+	/**
+	 * Get the status of recursively adding files within a directory
+	 * 
+	 * @return true if adding subdirectories, false otherwise
+	 */
+	public boolean isRecursivelyAddFolders() {
+		return this.recursivelyAddFolders;
+	}
 
 	public void setSeasonPrefix(String prefix) {
 		// Remove the displayed "
@@ -221,7 +241,8 @@ public class UserPreferences extends Observable {
 	@Override
 	public String toString() {
 		return "UserPreferences [destDir=" + destDir + ", seasonPrefix=" + seasonPrefix + ", moveEnabled="
-			+ moveEnabled + ", renameReplacementMask=" + renameReplacementMask + ", proxy=" + proxy + "]";
+			+ moveEnabled + ", renameReplacementMask=" + renameReplacementMask + ", proxy=" + proxy
+			+ ", setRecursivelyAddFolders=" + recursivelyAddFolders + "]";
 	}
 
 	private boolean hasChanged(Object originalValue, Object newValue) {
