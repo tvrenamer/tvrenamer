@@ -31,6 +31,8 @@ import org.eclipse.swt.dnd.DropTargetAdapter;
 import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.FileTransfer;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
@@ -427,6 +429,28 @@ public class UIStarter {
 		final TableColumn statusColumn = new TableColumn(resultsTable, SWT.LEFT);
 		statusColumn.setText("Status");
 		statusColumn.setWidth(60);
+		
+		// Allow deleting of elements
+		resultsTable.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				super.keyReleased(e);
+
+				switch(e.keyCode){
+					
+					// backspace
+					case '\u0008':
+						deleteTableItem(resultsTable.getSelectionIndex());
+						break;
+						
+					// delete
+					case '\u007F':
+						deleteTableItem(resultsTable.getSelectionIndex());
+						break;
+				}
+					
+			}
+		});
 
 		selectedColumn.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -659,8 +683,10 @@ public class UIStarter {
 						episode.setStatus(EpisodeStatus.DOWNLOADED);
 						display.asyncExec(new Runnable() {
 							public void run() {
-								item.setText(NEW_FILENAME_COLUMN, episode.getNewFilePath());
-								item.setImage(STATUS_COLUMN, FileMoveIcon.ADDED.icon);
+								if( tableContainsTableItem(item) ) {
+        							item.setText(NEW_FILENAME_COLUMN, episode.getNewFilePath());
+        							item.setImage(STATUS_COLUMN, FileMoveIcon.ADDED.icon);
+								}
 							}
 						});
 					}
@@ -668,15 +694,30 @@ public class UIStarter {
 						episode.setStatus(EpisodeStatus.BROKEN);
 						display.asyncExec(new Runnable() {
 							public void run() {
-								item.setText(NEW_FILENAME_COLUMN, DOWNLOADING_FAILED_MESSAGE);
-								item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
-								item.setChecked(false);
+								if( tableContainsTableItem(item) ){
+    								item.setText(NEW_FILENAME_COLUMN, DOWNLOADING_FAILED_MESSAGE);
+    								item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
+    								item.setChecked(false);
+								}
 							}
 						});
 					}
 				});
 			}
 		}
+	}
+	
+	private boolean tableContainsTableItem (TableItem item) {
+		
+		if ( item == null ) return false;
+		
+		for ( TableItem ti: resultsTable.getItems() ){
+			if( item.equals(ti) ) {
+				item = null;
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void renameFiles() {
@@ -799,6 +840,14 @@ public class UIStarter {
 		item.setText(NEW_FILENAME_COLUMN, newFilename);
 		item.setImage(STATUS_COLUMN, FileMoveIcon.DOWNLOADING.icon);
 		return item;
+	}
+	
+	private void deleteTableItem (int index) {
+		if( resultsTable.getItems().length > 0 ) {
+    		files.remove(resultsTable.getItem(index).getText(CURRENT_FILE_COLUMN));
+    		resultsTable.remove(index);
+    		resultsTable.select(index > 0 ? index - 1 : 0);
+		}
 	}
 
 	private void setSortedItem(int i, int j) {
