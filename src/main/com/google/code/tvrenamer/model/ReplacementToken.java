@@ -9,7 +9,14 @@ public enum ReplacementToken {
 	EPISODE_NUM("%e", "Episode Number"), 
 	EPISODE_NUM_LEADING_ZERO("%0e", "Episode Number (with leading 0s)"), 
 	EPISODE_TITLE("%t", "Episode Title"), 
-	EPISODE_TITLE_NO_SPACES("%T", "Episode Title (<space> replaced with '.')");
+	EPISODE_TITLE_NO_SPACES("%T", "Episode Title (<space> replaced with '.')"),
+	
+	DATE_YEAR_FULL("%yyyy", "Year e.g. 2012"),
+	DATE_YEAR_MIN ("%yy", "Short year e.g. 12"),
+	DATE_MONTH_NUM("%m", "Month num"),
+	DATE_MONTH_NUMLZ("%0m", "Month num (with leading 0s)"),
+	DATE_DAY_NUM("%d", "Day num"),
+	DATE_DAY_NUMLZ("%0d", "Day num (with leading 0s)");
 	
 	private String token;
 	private String description;

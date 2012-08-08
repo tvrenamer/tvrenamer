@@ -2,6 +2,7 @@ package com.google.code.tvrenamer.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -174,20 +175,22 @@ public class ShowStore {
 		Show firefly = new Show("3548", "Firefly", "http://www.tvrage.com/Firefly");
 
 		Season season = new Season(1);
-		season.addEpisode(1, "Serenity");
-		season.addEpisode(2, "The Train Job");
-		season.addEpisode(3, "Bushwhacked");
-		season.addEpisode(4, "Shindig");
-		season.addEpisode(5, "Safe");
-		season.addEpisode(6, "Our Mrs Reynolds");
-		season.addEpisode(7, "Jaynestown");
-		season.addEpisode(8, "Out of Gas");
-		season.addEpisode(9, "Ariel");
-		season.addEpisode(10, "War Stories");
-		season.addEpisode(11, "Trash");
-		season.addEpisode(12, "The Message");
-		season.addEpisode(13, "Heart of Gold");
-		season.addEpisode(14, "Objects in Space");
+		
+		season.addEpisode(1, "Serenity", new Date());
+		season.addEpisode(2, "The Train Job", new Date());
+		season.addEpisode(3, "Bushwhacked", new Date());
+		season.addEpisode(4, "Shindig", new Date());
+		season.addEpisode(5, "Safe", new Date());
+		season.addEpisode(6, "Our Mrs Reynolds", new Date());
+		season.addEpisode(7, "Jaynestown", new Date());
+		season.addEpisode(8, "Out of Gas", new Date());
+		season.addEpisode(9, "Ariel", new Date());
+		season.addEpisode(10, "War Stories", new Date());
+		season.addEpisode(11, "Trash", new Date());
+		season.addEpisode(12, "The Message", new Date());
+		season.addEpisode(13, "Heart of Gold", new Date());
+		season.addEpisode(14, "Objects in Space", new Date());
+		
 
 		firefly.setSeason(1, season);
 
