@@ -67,6 +67,7 @@ public class PreferencesDialog extends Dialog {
 	private Text proxyUsernameText;
 	private Text proxyPasswordText;
 	private Button checkForUpdatesCheckbox;
+	private Button recurseFoldersCheckbox;
 
 	/**
 	 * PreferencesDialog constructor
@@ -118,6 +119,8 @@ public class PreferencesDialog extends Dialog {
 		createProxyGroup();
 		
 		createCheckForUpdatesGroup();
+		
+		createAddFolderGroup();
 
 		createActionButtonGroup();
 	}
@@ -224,6 +227,12 @@ public class PreferencesDialog extends Dialog {
 		renameTokensList.add(ReplacementToken.EPISODE_NUM_LEADING_ZERO.toString());
 		renameTokensList.add(ReplacementToken.EPISODE_TITLE.toString());
 		renameTokensList.add(ReplacementToken.EPISODE_TITLE_NO_SPACES.toString());
+		renameTokensList.add(ReplacementToken.DATE_DAY_NUM.toString());
+		renameTokensList.add(ReplacementToken.DATE_DAY_NUMLZ.toString());
+		renameTokensList.add(ReplacementToken.DATE_MONTH_NUM.toString());
+		renameTokensList.add(ReplacementToken.DATE_MONTH_NUMLZ.toString());
+		renameTokensList.add(ReplacementToken.DATE_YEAR_MIN.toString());
+		renameTokensList.add(ReplacementToken.DATE_YEAR_FULL.toString());
 
 		Label episodeTitleLabel = new Label(replacementGroup, SWT.NONE);
 		episodeTitleLabel.setText("Rename Format [?]");
@@ -392,6 +401,19 @@ public class PreferencesDialog extends Dialog {
 		checkForUpdatesCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 3, 1));
 		checkForUpdatesCheckbox.setSelection(prefs.checkForUpdates());
 	}
+	
+	private void createAddFolderGroup() {
+		Group createAddFolderGroup = new Group( preferencesShell, SWT.FILL);
+		createAddFolderGroup.setText("Adding Folders");
+		createAddFolderGroup.setLayout(new GridLayout(3, false));
+		createAddFolderGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 3, 1));
+		
+		recurseFoldersCheckbox = new Button(createAddFolderGroup, SWT.CHECK);
+		recurseFoldersCheckbox.setText("Recursively add shows in subdirectories");
+		recurseFoldersCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 3, 1));
+		recurseFoldersCheckbox.setSelection(prefs.isRecursivelyAddFolders());
+		
+	}
 
 	private void createActionButtonGroup() {
 		Composite bottomButtonsComposite = new Composite(preferencesShell, SWT.FILL);
@@ -456,6 +478,7 @@ public class PreferencesDialog extends Dialog {
 		prefs.setProxy(proxySettings);
 		
 		prefs.setCheckForUpdates(checkForUpdatesCheckbox.getSelection());
+		prefs.setRecursivelyAddFolders(recurseFoldersCheckbox.getSelection());
 
 		try {
 			prefs.setDestinationDirectory(destDirText.getText());
