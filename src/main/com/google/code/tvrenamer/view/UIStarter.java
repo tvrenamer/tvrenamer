@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.Collator;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -364,8 +365,32 @@ public class UIStarter {
 					String[] fileNames = file.list();
 					
 					if( fileNames != null ){
+						
+						// Check we are not recursive
+						boolean includeDirs = prefs.isRecursivelyAddFolders();
+						List<String> subDirs = new ArrayList<String>();
+						
 						for( int i = 0; i < fileNames.length; i++ ){
-							fileNames[i] = directory + File.separatorChar + fileNames[i];
+							String path = directory + File.separatorChar +fileNames[i];
+							
+							// Store the list of directories
+							if( new File(path).isDirectory() ) {
+								subDirs.add(path);
+							}
+							
+							// update the fileName value
+							fileNames[i] = path;
+						}
+						
+						if( !includeDirs ) {
+							for (String subDir : subDirs){
+								for(int i = 0; i < fileNames.length; i++) {
+									if(fileNames[i].startsWith(subDir)){
+										// A safe way of removing the file name
+										fileNames[i] = "";
+									}
+								}
+							}
 						}
 						
 						initiateRenamer(fileNames);
