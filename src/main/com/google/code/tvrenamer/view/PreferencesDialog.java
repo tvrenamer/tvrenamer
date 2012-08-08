@@ -227,6 +227,12 @@ public class PreferencesDialog extends Dialog {
 		renameTokensList.add(ReplacementToken.EPISODE_NUM_LEADING_ZERO.toString());
 		renameTokensList.add(ReplacementToken.EPISODE_TITLE.toString());
 		renameTokensList.add(ReplacementToken.EPISODE_TITLE_NO_SPACES.toString());
+		renameTokensList.add(ReplacementToken.DATE_DAY_NUM.toString());
+		renameTokensList.add(ReplacementToken.DATE_DAY_NUMLZ.toString());
+		renameTokensList.add(ReplacementToken.DATE_MONTH_NUM.toString());
+		renameTokensList.add(ReplacementToken.DATE_MONTH_NUMLZ.toString());
+		renameTokensList.add(ReplacementToken.DATE_YEAR_MIN.toString());
+		renameTokensList.add(ReplacementToken.DATE_YEAR_FULL.toString());
 
 		Label episodeTitleLabel = new Label(replacementGroup, SWT.NONE);
 		episodeTitleLabel.setText("Rename Format [?]");
