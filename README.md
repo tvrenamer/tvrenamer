@@ -1,4 +1,5 @@
 # TVRenamer
+[![Build Status](https://travis-ci.org/tvrenamer/tvrenamer.png)](https://travis-ci.org/tvrenamer/tvrenamer)
 
 ## About
 TVRenamer is a Java GUI utility to rename TV episodes from TV listings  
