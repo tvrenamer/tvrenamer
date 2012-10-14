@@ -205,7 +205,7 @@
     	proxyuser="${proxy.user}" proxypassword="${proxy.password}"/>
 	</target>
 	
-	<target name="tests" depends="clean, compile.test, proxy">
+	<target name="test" depends="clean, compile.test, proxy">
 		<copy file="${src.main}/tvrenamer.version" todir="${build}" />
 		
 		<junit haltonerror="true" haltonfailure="true" printsummary="true" fork="no" forkmode="once">
