@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project name="TVRenamer build script" default="usage">
 	<property name="src.main" value="src/main" />
-	
+
 	<property file="build.properties" />
 	
 	<property name="version.file" value="${src.main}/tvrenamer.version" />
@@ -23,8 +23,8 @@
 
 	<!-- To build, get launch4j, update the path in build.properties -->
 	<taskdef name="launch4j"
-			classname="net.sf.launch4j.ant.Launch4jTask"
-			classpath="${launch4j.path}/launch4j.jar:${launch4j.path}/lib/xstream.jar" onerror="report" />
+             classname="net.sf.launch4j.ant.Launch4jTask"
+             classpath="${launch4j.path}/launch4j.jar:${launch4j.path}/lib/xstream.jar" onerror="report" />
 
 	<target name="init">
 		<mkdir dir="${build}" />
@@ -43,7 +43,7 @@
 			<include name="commons-codec-*.jar" />
 		</fileset>
 	</path>
-	
+
 	<macrodef name="build.jar" description="Compiles the source then creates an executable jar for the given platform">
 		<attribute name="platform" />
 		<sequential>
@@ -176,18 +176,6 @@
 
 	<target name="usage">
 		<echo message="Usage: ant dist.{win, linux, osx, all}" />
-	<target name="test" depends="clean, compile.test, proxy">
-		<copy file="${src.main}/tvrenamer.version" todir="${build}" />
-		
-		<junit haltonerror="true" haltonfailure="true" printsummary="true" fork="no" forkmode="once">
-			<formatter type="plain" usefile="false" />
-			
-			<classpath refid="classpath.test" />
-			
-			<batchtest>
-				<fileset dir="${src.test}" />
-			</batchtest>
-		</junit>
 	</target>
 
 </project>
