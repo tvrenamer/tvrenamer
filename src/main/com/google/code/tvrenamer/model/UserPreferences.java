@@ -246,9 +246,6 @@ public class UserPreferences extends Observable {
 	}
 
 	private boolean hasChanged(Object originalValue, Object newValue) {
-		if (originalValue.equals(newValue)) {
-			return false;
-		}
-		return true;
+		return originalValue.equals(newValue);
 	}
 }
