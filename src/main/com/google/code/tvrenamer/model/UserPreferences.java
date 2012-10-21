@@ -59,7 +59,26 @@ public class UserPreferences extends Observable {
 			logger.finer("Sucessfully read preferences from: " + prefsFile.getAbsolutePath());
 			logger.info("Sucessfully read preferences: " + prefs.toString());
 		} else {
-			prefs = new UserPreferences();
+			
+			// Look in the legacy location, if not, create new
+			File legacyPrefsFile = new File(System.getProperty("user.home") + File.separatorChar
+	                                		+ Constants.PREFERENCES_FILE_LEGACY);
+			
+			prefs = XMLPersistence.retrieve(legacyPrefsFile);
+			
+			if( prefs != null ) {
+				logger.finer("Sucessfully read legacy preferences from: " + prefsFile.getAbsolutePath());
+				logger.info("Sucessfully read legacy preferences: " + prefs.toString());
+				
+				// Delete the old file, then store into the new file
+				legacyPrefsFile.delete();
+				store(prefs);
+				
+				logger.info("Deleted legacy prefs file in favour of the new file");
+			
+			} else {
+				prefs = new UserPreferences();
+			}
 		}
 		
 		// apply the proxy configuration
