@@ -33,10 +33,11 @@ Basically, it will take an ugly filename like **Lost.S06E05.DD51.720p.WEB-DL.AVC
     
 ## Common Problems
 ### Java version issues
-Ensure that you have Java version 5 or 6 installed.  Type `java -version` into your terminal and ensure that the output is similar to:  
-        java version "1.6.0_14"
-        Java(TM) SE Runtime Environment (build 1.6.0_14-b08)
-        Java HotSpot(TM) 64-Bit Server VM (build 14.0-b16, mixed mode)
+Ensure that you have Java version 5 or 6 installed.  Type `java -version` into your terminal and ensure that the output is similar to:
+
+    java version "1.6.0_14"
+    Java(TM) SE Runtime Environment (build 1.6.0_14-b08)
+    Java HotSpot(TM) 64-Bit Server VM (build 14.0-b16, mixed mode)
 
 ### TVRenamer version issues
  Ensure that you are running the correct version of TVRenamer for the version of Java you are running.  If you don't have it right, you get a helpful error message on startup (when running on the terminal), like below:  
