@@ -8,12 +8,12 @@
 	<property name="lib.test" value="lib/test" />
 	<property name="res" value="res" />
 	<property name="rel" value="release" />
-	
+
 	<property name="dist" value="dist" />
 	<property name="etc" value="etc" />
 
 	<property file="build.properties" />
-	
+
 	<property name="version.file" value="${src.main}/tvrenamer.version" />
 	<loadfile property="version" srcFile="${version.file}">
 		<filterchain>
@@ -42,27 +42,27 @@
 			<include name="commons-codec-*.jar" />
 		</fileset>
 	</path>
-	
+
 	<path id="classpath.test">
 		<path refid="classpath" />
 		<fileset dir="${lib.test}" />
-		
+
 		<pathelement location="${build}" />
 	</path>
-	
+
 	<target name="init">
 		<mkdir dir="${build}" />
 		<mkdir dir="${dist}" />
 	</target>
-	
+
 	<target name="compile" depends="init">
-		<javac srcdir="${src.main}" destdir="${build}" classpathref="classpath" 
-				source="1.5" target="1.5" debug="true" debuglevel="lines, vars, source"/>
+		<javac srcdir="${src.main}" destdir="${build}" classpathref="classpath"
+				source="1.5" target="1.5" debug="true" debuglevel="lines,vars,source"/>
 	</target>
-	
+
 	<target name="compile.test" depends="compile">
-			<javac srcdir="${src.test}" destdir="${build}" classpathref="classpath.test" 
-					source="1.5" target="1.5" debug="true" debuglevel="lines, vars, source"/>
+			<javac srcdir="${src.test}" destdir="${build}" classpathref="classpath.test"
+					source="1.5" target="1.5" debug="true" debuglevel="lines,vars,source"/>
 		</target>
 
 	<macrodef name="build.jar" description="Compiles the source then creates an executable jar for the given platform">
@@ -84,7 +84,7 @@
 				<fileset dir="${res}">
 					<include name="icons/tvrenamer.icns" />
 					<include name="icons/tvrenamer.png" />
-					
+
 					<include name="icons/SweetieLegacy/16-circle-blue.png" />
 					<include name="icons/SweetieLegacy/16-clock.png" />
 					<include name="icons/SweetieLegacy/16-em-pencil.png" />
@@ -201,18 +201,18 @@
 	</target>
 
 	<target name="proxy" if="proxy.enabled">
-    <setproxy proxyhost="${proxy.host}" proxyport="${proxy.port}" 
+    <setproxy proxyhost="${proxy.host}" proxyport="${proxy.port}"
     	proxyuser="${proxy.user}" proxypassword="${proxy.password}"/>
 	</target>
-	
+
 	<target name="test" depends="clean, compile.test, proxy">
 		<copy file="${src.main}/tvrenamer.version" todir="${build}" />
-		
+
 		<junit haltonerror="true" haltonfailure="true" printsummary="true" fork="no" forkmode="once">
 			<formatter type="plain" usefile="false" />
-			
+
 			<classpath refid="classpath.test" />
-			
+
 			<batchtest>
 				<fileset dir="${src.test}" />
 			</batchtest>
