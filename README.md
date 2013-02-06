@@ -44,8 +44,8 @@ Ensure that you have Java version 5 or 6 installed.  Type `java -version` into y
         Exception in thread "main" java.lang.UnsatisfiedLinkError: Cannot load 32-bit SWT libraries on 64-bit JVM
 To fix this, see the output of `java -version`, the last line will say if you are running 64-bit Java or not.  Then [download](http://code.google.com/p/tv-renamer/downloads/list) the appropriate version.
 
-### "TVRenamer can't be opened because it's from an un-identifier developer" error message on Mountain Lion
-This is because we have not signed the application with Apple (and because we use Java, they won't allow us to). To get around this, just right-click the app in Finder and select Open. You only need to do this once. 
+### "TVRenamer can't be opened because it's from an unidentified developer" error message on Mountain Lion
+This is because we have not signed the application with Apple (and because we use Java, they won't allow us to). To get around this, just right-click the app in Finder and select Open. You only need to do this once.  
 [More information from iMore](http://www.imore.com/how-open-apps-unidentified-developer-os-x-mountain-lion)
 
 ## Getting Support and Submitting Bug Reports
