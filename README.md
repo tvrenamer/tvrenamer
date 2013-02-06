@@ -11,8 +11,8 @@ Basically, it will take an ugly filename like **Lost.S06E05.DD51.720p.WEB-DL.AVC
  * Native look & feel for your operating system
  * Drag & Drop or standard 'add file' interface
 
-## Usage
-[Download](http://code.google.com/p/tv-renamer/downloads/list) the correct version for your operating system (OSX, Windows, Linux) and architecture (32 or 64 bit)
+## Usage & Download
+[Download](http://tvrenamer.github.com) the correct version for your operating system (OSX, Windows, Linux) and architecture (32 or 64 bit)
 
   * On Windows:
     1. Unzip the downloaded file somewhere, possibly your Desktop or C:\Program Files
@@ -43,6 +43,10 @@ Ensure that you have Java version 5 or 6 installed.  Type `java -version` into y
  Ensure that you are running the correct version of TVRenamer for the version of Java you are running.  If you don't have it right, you get a helpful error message on startup (when running on the terminal), like below:  
         Exception in thread "main" java.lang.UnsatisfiedLinkError: Cannot load 32-bit SWT libraries on 64-bit JVM
 To fix this, see the output of `java -version`, the last line will say if you are running 64-bit Java or not.  Then [download](http://code.google.com/p/tv-renamer/downloads/list) the appropriate version.
+
+### "TVRenamer can't be opened because it's from an un-identifier developer" error message on Mountain Lion
+This is because we have not signed the application with Apple (and because we use Java, they won't allow us to). To get around this, just right-click the app in Finder and select Open. You only need to do this once. 
+[More information from iMore](http://www.imore.com/how-open-apps-unidentified-developer-os-x-mountain-lion)
 
 ## Getting Support and Submitting Bug Reports
 [View past bug reports](http://code.google.com/p/tv-renamer/issues/list?can=1&q=&colspec=ID+Type+Status+Priority+Milestone+Owner+Summary&cells=tiles) and if that is no help then [submit a new one](http://code.google.com/p/tv-renamer/issues/entry).  The developers will be notified and you should hear back shortly.
