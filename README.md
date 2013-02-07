@@ -49,10 +49,10 @@ This is because we have not signed the application with Apple (and because we us
 [More information from iMore](http://www.imore.com/how-open-apps-unidentified-developer-os-x-mountain-lion)
 
 ## Getting Support and Submitting Bug Reports
-[View past bug reports](http://code.google.com/p/tv-renamer/issues/list?can=1&q=&colspec=ID+Type+Status+Priority+Milestone+Owner+Summary&cells=tiles) and if that is no help then [submit a new one](http://code.google.com/p/tv-renamer/issues/entry).  The developers will be notified and you should hear back shortly.
+[View past bug reports](https://github.com/tvrenamer/tvrenamer/issues) and if that is no help then [submit a new one](https://github.com/tvrenamer/tvrenamer/issues/new), but please add labels appropriately.  The developers will be notified and you should hear back shortly.
 
 ## Running in debug mode
-If the application crashes it helps us greatly if you can provide us a stacktrace of what went wrong.  In order to do this, you just need to run the application in the terminal, then copy the output into [a new bug report](http://code.google.com/p/tv-renamer/issues/entry).
+If the application crashes it helps us greatly if you can provide us a stacktrace of what went wrong.  In order to do this, you just need to run the application in the terminal, then copy the output into [a new bug report](https://github.com/tvrenamer/tvrenamer/issues/new).
 
 If the application doesn't start with a java error, [ensure that your JAVA_HOME environment variable is set correctly](http://www.oracle.com/technology/sample_code/tech/java/sqlj_jdbc/files/9i_jdbc/EnvSetup.html).
 
@@ -67,9 +67,10 @@ If the application doesn't start with a java error, [ensure that your JAVA_HOME 
   * On Linux:
     1. Open the Terminal application (from the Gnome Applications menu)
     1. Navigate to where the TVRenamer application is.
+    2. 
     1. Execute the run script via `./TVRenamer-<version>.app/Contents/MacOS/run-mac.sh`
 
 ## Contributions
 The development team numbers just 2, so anything from Java code patches to UI/UX recommendations would be gratefully received.  
 To contribute to the code side of things you should know Java and it would be helpful if you know some SWT and git.  The easiest way to submit changes is via a [guthub pull request](http://help.github.com/forking/) based off the [devel branch](http://github.com/tvrenamer/tvrenamer/tree/devel).  
-If you anything else (feature requests, comments, fanmail!), [create a new issue](http://code.google.com/p/tv-renamer/issues/entry) and set the Type label to be 'Type-Enhancement' or 'Type-Other'.
+If you anything else (feature requests, comments, fanmail!), [create a new issue](https://github.com/tvrenamer/tvrenamer/issues/new) and set the Type label to be 'Type-Enhancement' or 'Type-Other'.
