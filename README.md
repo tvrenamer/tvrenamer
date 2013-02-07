@@ -73,4 +73,4 @@ If the application doesn't start with a java error, [ensure that your JAVA_HOME 
 ## Contributions
 The development team numbers just 2, so anything from Java code patches to UI/UX recommendations would be gratefully received.  
 To contribute to the code side of things you should know Java and it would be helpful if you know some SWT and git.  The easiest way to submit changes is via a [guthub pull request](http://help.github.com/forking/) based off the [devel branch](http://github.com/tvrenamer/tvrenamer/tree/devel).  
-If you anything else (feature requests, comments, fanmail!), [create a new issue](https://github.com/tvrenamer/tvrenamer/issues/new) and set the Type label to be 'Type-Enhancement' or 'Type-Other'.
+If you anything else (feature requests, comments, fanmail!), [create a new issue](https://github.com/tvrenamer/tvrenamer/issues/new) and set the label to be 'Type-Enhancement'.
