@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 
 import com.google.code.tvrenamer.controller.ShowInformationListener;
 import com.google.code.tvrenamer.controller.TVRageProvider;
+import com.google.code.tvrenamer.controller.TheTVDBProvider;
 
 public class ShowStore {
 
@@ -96,10 +97,12 @@ public class ShowStore {
 			public Boolean call() throws InterruptedException {
 				Show thisShow;
 				try {
-					ArrayList<Show> options = TVRageProvider.getShowOptions(showName);
+					// ArrayList<Show> options = TVRageProvider.getShowOptions(showName);
+					ArrayList<Show> options = TheTVDBProvider.getShowOptions(showName);
 					thisShow = options.get(0);
     
-    				TVRageProvider.getShowListing(thisShow);
+    				// TVRageProvider.getShowListing(thisShow);
+					TheTVDBProvider.getShowListing(thisShow);
 				} catch(TVRenamerIOException e) {
 					thisShow = new FailedShow("", showName, "", e);
 				}

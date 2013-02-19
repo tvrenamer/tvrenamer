@@ -34,23 +34,10 @@ public class Season {
 			throw new EpisodeNotFoundException("Episode #" + epNum + " not found for season #" + this.num);
 		return e.getAirDate();
 	}
-	
-	private class Episode {
-		private String title;
-		private Date airDate;
-		
-		public Episode (String title, Date airDate) {
-			this.title = title;
-			this.airDate = airDate;
-		}
 
-		public String getTitle() {
-			return title;
-		}
-
-		public Date getAirDate() {
-			return airDate;
-		}
+	@Override
+	public String toString() {
+		return "Season [num=" + num + ", episodes=" + episodes + "]";
 	}
 	
 }

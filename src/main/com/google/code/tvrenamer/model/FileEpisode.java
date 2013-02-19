@@ -19,7 +19,7 @@ public class FileEpisode {
 	private final int seasonNumber;
 	private final int episodeNumber;
 	private File file;
-	
+
 	private UserPreferences userPrefs = UserPreferences.getInstance();
 	private EpisodeStatus status;
 
@@ -63,11 +63,11 @@ public class FileEpisode {
 		String show = ShowStore.getShow(showName).getName();
 		String destPath = userPrefs.getDestinationDirectory().getAbsolutePath() + File.separatorChar;
 		destPath = destPath + StringUtils.sanitiseTitle(show) + File.separatorChar;
-		
-		// Defect #50: Only add the 'season #' folder if set, otherwise put files in showname root 
-		if(StringUtils.isNotBlank(userPrefs.getSeasonPrefix())) {
+
+		// Defect #50: Only add the 'season #' folder if set, otherwise put files in showname root
+		if (StringUtils.isNotBlank(userPrefs.getSeasonPrefix())) {
 			destPath = destPath + userPrefs.getSeasonPrefix() + this.seasonNumber + File.separatorChar;
-		}		
+		}
 		return new File(destPath);
 	}
 
@@ -81,14 +81,19 @@ public class FileEpisode {
 				String showName = "";
 				String seasonNum = "";
 				String titleString = "";
-				Calendar airDate = Calendar.getInstance();;
+				Calendar airDate = Calendar.getInstance();
+				;
 
-				try {					
+				try {
 					Show show = ShowStore.getShow(this.showName);
 					showName = show.getName();
 
-					try {
-						Season season = show.getSeason(this.seasonNumber);
+					Season season = show.getSeason(this.seasonNumber);
+					if (season == null) {
+						seasonNum = String.valueOf(this.seasonNumber);
+						logger.log(Level.SEVERE, "Season #" + this.seasonNumber + " not found for show '"
+							+ this.showName + "'");
+					} else {
 						seasonNum = String.valueOf(season.getNumber());
 
 						try {
@@ -97,10 +102,6 @@ public class FileEpisode {
 						} catch (EpisodeNotFoundException e) {
 							logger.log(Level.SEVERE, "Episode not found for '" + this.toString() + "'", e);
 						}
-
-					} catch (SeasonNotFoundException e) {
-						seasonNum = String.valueOf(this.seasonNumber);
-						logger.log(Level.SEVERE, "Season not found for '" + this.toString() + "'", e);
 					}
 
 				} catch (ShowNotFoundException e) {
@@ -113,7 +114,7 @@ public class FileEpisode {
 				// Ensure that all special characters in the replacement are quoted
 				showName = Matcher.quoteReplacement(showName);
 				titleString = Matcher.quoteReplacement(titleString);
-				
+
 				// Make whatever modifications are required
 				String episodeNumberString = new DecimalFormat("##0").format(this.episodeNumber);
 				String episodeNumberWithLeadingZeros = new DecimalFormat("#00").format(this.episodeNumber);
@@ -122,19 +123,28 @@ public class FileEpisode {
 
 				newFilename = newFilename.replaceAll(ReplacementToken.SHOW_NAME.getToken(), showName);
 				newFilename = newFilename.replaceAll(ReplacementToken.SEASON_NUM.getToken(), seasonNum);
-				newFilename = newFilename.replaceAll(ReplacementToken.SEASON_NUM_LEADING_ZERO.getToken(), seasonNumberWithLeadingZero);
+				newFilename = newFilename.replaceAll(ReplacementToken.SEASON_NUM_LEADING_ZERO.getToken(),
+													 seasonNumberWithLeadingZero);
 				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_NUM.getToken(), episodeNumberString);
-				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_NUM_LEADING_ZERO.getToken(), episodeNumberWithLeadingZeros);
+				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_NUM_LEADING_ZERO.getToken(),
+													 episodeNumberWithLeadingZeros);
 				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_TITLE.getToken(), titleString);
-				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_TITLE_NO_SPACES.getToken(), episodeTitleNoSpaces);
-				
+				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_TITLE_NO_SPACES.getToken(),
+													 episodeTitleNoSpaces);
+
 				// Date and times
-				newFilename = newFilename.replaceAll(ReplacementToken.DATE_DAY_NUM.getToken(), formatDate(airDate,"d"));
-				newFilename = newFilename.replaceAll(ReplacementToken.DATE_DAY_NUMLZ.getToken(), formatDate(airDate,"dd"));
-				newFilename = newFilename.replaceAll(ReplacementToken.DATE_MONTH_NUM.getToken(), formatDate(airDate,"M"));
-				newFilename = newFilename.replaceAll(ReplacementToken.DATE_MONTH_NUMLZ.getToken(), formatDate(airDate,"MM"));
-				newFilename = newFilename.replaceAll(ReplacementToken.DATE_YEAR_FULL.getToken(), formatDate(airDate,"yyyy"));
-				newFilename = newFilename.replaceAll(ReplacementToken.DATE_YEAR_MIN.getToken(), formatDate(airDate,"yy"));
+				newFilename = newFilename
+					.replaceAll(ReplacementToken.DATE_DAY_NUM.getToken(), formatDate(airDate, "d"));
+				newFilename = newFilename.replaceAll(ReplacementToken.DATE_DAY_NUMLZ.getToken(),
+													 formatDate(airDate, "dd"));
+				newFilename = newFilename.replaceAll(ReplacementToken.DATE_MONTH_NUM.getToken(),
+													 formatDate(airDate, "M"));
+				newFilename = newFilename.replaceAll(ReplacementToken.DATE_MONTH_NUMLZ.getToken(),
+													 formatDate(airDate, "MM"));
+				newFilename = newFilename.replaceAll(ReplacementToken.DATE_YEAR_FULL.getToken(),
+													 formatDate(airDate, "yyyy"));
+				newFilename = newFilename.replaceAll(ReplacementToken.DATE_YEAR_MIN.getToken(),
+													 formatDate(airDate, "yy"));
 
 				String resultingFilename = newFilename.concat(".").concat(StringUtils.getExtension(file.getName()));
 				return StringUtils.sanitiseTitle(resultingFilename);
@@ -144,19 +154,20 @@ public class FileEpisode {
 				return BROKEN_PLACEHOLDER_FILENAME;
 		}
 	}
-	
-	private String formatDate (Calendar cal, String format) {
+
+	private String formatDate(Calendar cal, String format) {
 		SimpleDateFormat date_format = new SimpleDateFormat(format);
 		return date_format.format(cal.getTime());
 	}
-	
+
 	/**
-	 * @param prefs the User Preferences
+	 * @param prefs
+	 *            the User Preferences
 	 * @return the new full file path (for table display) using {@link #getNewFilename()} and the destination directory
 	 */
 	public String getNewFilePath() {
 		String filename = getNewFilename();
-		
+
 		if (userPrefs.isMovedEnabled()) {
 			return getDestinationDirectory().getAbsolutePath().concat(File.separator).concat(filename);
 		}
@@ -166,7 +177,7 @@ public class FileEpisode {
 	@Override
 	public String toString() {
 		return "FileEpisode { title:" + showName + ", season:" + seasonNumber + ", episode:" + episodeNumber
-		+ ", file:" + file.getName() + " }";
+			+ ", file:" + file.getName() + " }";
 	}
 
 }
