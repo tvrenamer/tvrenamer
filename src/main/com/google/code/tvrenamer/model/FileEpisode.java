@@ -113,6 +113,7 @@ public class FileEpisode {
 
 				// Ensure that all special characters in the replacement are quoted
 				showName = Matcher.quoteReplacement(showName);
+				showName = GlobalOverrides.getInstance().getShowName(showName);
 				titleString = Matcher.quoteReplacement(titleString);
 
 				// Make whatever modifications are required

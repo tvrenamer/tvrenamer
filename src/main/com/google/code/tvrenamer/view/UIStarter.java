@@ -72,6 +72,7 @@ import com.google.code.tvrenamer.controller.UpdateCompleteHandler;
 import com.google.code.tvrenamer.model.EpisodeStatus;
 import com.google.code.tvrenamer.model.FileEpisode;
 import com.google.code.tvrenamer.model.FileMoveIcon;
+import com.google.code.tvrenamer.model.GlobalOverrides;
 import com.google.code.tvrenamer.model.NotFoundException;
 import com.google.code.tvrenamer.model.SWTMessageBoxType;
 import com.google.code.tvrenamer.model.Show;

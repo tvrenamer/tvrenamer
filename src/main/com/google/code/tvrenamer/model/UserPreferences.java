@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 
 import com.google.code.tvrenamer.controller.UserPreferencesChangeEvent;
 import com.google.code.tvrenamer.controller.UserPreferencesChangeListener;
-import com.google.code.tvrenamer.controller.XMLPersistence;
+import com.google.code.tvrenamer.controller.UserPreferencesPersistence;
 import com.google.code.tvrenamer.controller.util.StringUtils;
 import com.google.code.tvrenamer.model.util.Constants;
 import com.google.code.tvrenamer.view.UIUtils;
@@ -53,7 +53,7 @@ public class UserPreferences extends Observable {
 	 */
 	public static UserPreferences load() {
 		// retrieve from file and update in-memory copy
-		UserPreferences prefs = XMLPersistence.retrieve(prefsFile);
+		UserPreferences prefs = UserPreferencesPersistence.retrieve(prefsFile);
 
 		if (prefs != null) {
 			logger.finer("Sucessfully read preferences from: " + prefsFile.getAbsolutePath());
@@ -64,7 +64,7 @@ public class UserPreferences extends Observable {
 			File legacyPrefsFile = new File(System.getProperty("user.home") + File.separatorChar
 	                                		+ Constants.PREFERENCES_FILE_LEGACY);
 			
-			prefs = XMLPersistence.retrieve(legacyPrefsFile);
+			prefs = UserPreferencesPersistence.retrieve(legacyPrefsFile);
 			
 			if( prefs != null ) {
 				logger.finer("Sucessfully read legacy preferences from: " + prefsFile.getAbsolutePath());
@@ -95,7 +95,7 @@ public class UserPreferences extends Observable {
 	}
 	
 	public static void store(UserPreferences prefs) {
-		XMLPersistence.persist(prefs, prefsFile);
+		UserPreferencesPersistence.persist(prefs, prefsFile);
 		logger.fine("Sucessfully saved/updated preferences");
 	}
 

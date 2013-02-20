@@ -14,10 +14,10 @@ import com.google.code.tvrenamer.model.UserPreferences;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider;
 
-public class XMLPersistence {
-	private static Logger logger = Logger.getLogger(XMLPersistence.class.getName());
+public class UserPreferencesPersistence {
+	private static Logger logger = Logger.getLogger(UserPreferencesPersistence.class.getName());
 	
-	// Use reflection provider so the default constructor is called, thus calling superclasses constructor
+	// Use reflection provider so the default constructor is called, thus calling the superclass constructor
 	private static final XStream xstream = new XStream(new PureJavaReflectionProvider());
 
 	static {
