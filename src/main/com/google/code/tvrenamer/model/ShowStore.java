@@ -28,7 +28,7 @@ public class ShowStore {
 	private static final Semaphore _showStoreLock = new Semaphore(1);
 
 	private static final ExecutorService threadPool = Executors.newCachedThreadPool();
-	
+
 	// static initaliser block as there are static methods
 	static {
 		populateFireflyShow();
@@ -97,16 +97,16 @@ public class ShowStore {
 			public Boolean call() throws InterruptedException {
 				Show thisShow;
 				try {
-					// ArrayList<Show> options = TVRageProvider.getShowOptions(showName);
-					ArrayList<Show> options = TheTVDBProvider.getShowOptions(showName);
+					ArrayList<Show> options = TVRageProvider.getShowOptions(showName);
+					// ArrayList<Show> options = TheTVDBProvider.getShowOptions(showName);
 					thisShow = options.get(0);
-    
-    				// TVRageProvider.getShowListing(thisShow);
-					TheTVDBProvider.getShowListing(thisShow);
+
+    				TVRageProvider.getShowListing(thisShow);
+					// TheTVDBProvider.getShowListing(thisShow);
 				} catch(TVRenamerIOException e) {
 					thisShow = new FailedShow("", showName, "", e);
 				}
-					
+
 				addShow(showName, thisShow);
 
 				return true;
@@ -148,16 +148,16 @@ public class ShowStore {
 	public static void cleanUp() {
 		threadPool.shutdownNow();
 	}
-	
+
 	public static void clear() throws InterruptedException {
 		_showStoreLock.acquire();
-		
+
 		_shows.clear();
 		_showRegistrations.clear();
-		
+
 		_showStoreLock.release();
 	}
-	
+
 	/**
 	 * Add a show to the store, registered by the show name.<br />
 	 * Added this distinct method to enable unit testing
@@ -168,7 +168,7 @@ public class ShowStore {
 	static void addShow(String showName, Show show) throws InterruptedException {
 		_showStoreLock.acquire();
 		logger.info("Show listing for '" + show.getName() + "' downloaded");
-		
+
 		_shows.put(showName.toLowerCase(), show);
 		notifyListeners(showName, show);
 		_showStoreLock.release();
@@ -178,7 +178,7 @@ public class ShowStore {
 		Show firefly = new Show("3548", "Firefly", "http://www.tvrage.com/Firefly");
 
 		Season season = new Season(1);
-		
+
 		season.addEpisode(1, "Serenity", new Date());
 		season.addEpisode(2, "The Train Job", new Date());
 		season.addEpisode(3, "Bushwhacked", new Date());
@@ -193,7 +193,7 @@ public class ShowStore {
 		season.addEpisode(12, "The Message", new Date());
 		season.addEpisode(13, "Heart of Gold", new Date());
 		season.addEpisode(14, "Objects in Space", new Date());
-		
+
 
 		firefly.setSeason(1, season);
 
