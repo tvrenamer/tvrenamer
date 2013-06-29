@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>org.gjt.sp.jedit</groupId>
+  <artifactId>IOUtilities</artifactId>
+  <versioning>
+    <release>4.3.2</release>
+    <versions>
+      <version>4.3.2</version>
+    </versions>
+    <lastUpdated>20130629104609</lastUpdated>
+  </versioning>
+</metadata>
