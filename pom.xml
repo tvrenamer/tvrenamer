@@ -54,6 +54,31 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>com.akathist.maven.plugins.launch4j</groupId>
+				<artifactId>launch4j-maven-plugin</artifactId>
+				<version>1.5.2</version>
+				<executions>
+					<execution>
+						<id>l4j-clui</id>
+						<phase>package</phase>
+						<goals>
+							<goal>launch4j</goal>
+						</goals>
+						<configuration>
+							<headerType>gui</headerType>
+							<jar>${project.build.directory}/${project.artifactId}-${project.version}-jar-with-dependencies.jar</jar>
+							<outfile>${project.build.directory}/${project.artifactId}-${project.version}.exe</outfile>
+							<icon>src/main/resources/icons/oldschool-tv-icon.ico</icon>
+							<chdir>.</chdir>
+							<dontWrapJar>false</dontWrapJar>
+							<jre>
+								<minVersion>1.5.0</minVersion>
+							</jre>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 
