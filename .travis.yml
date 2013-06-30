@@ -1,6 +1,6 @@
 before_install:
   - sudo apt-get update
-  - sudo apt-get install ia32-libs
+  - sudo apt-get install libc6:i386
 language: java
 jdk:
   - openjdk6
