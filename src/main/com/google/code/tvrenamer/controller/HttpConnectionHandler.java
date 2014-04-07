@@ -18,87 +18,87 @@ import com.google.code.tvrenamer.model.TVRenamerIOException;
 
 public class HttpConnectionHandler {
 
-    private static final Logger logger = Logger.getLogger(HttpConnectionHandler.class.getName());
-    private static final int CONNECT_TIMEOUT_MS = 2000;
-    private static final int READ_TIMEOUT_MS = 5000;
+	private static final Logger logger = Logger.getLogger(HttpConnectionHandler.class.getName());
+	private static final int CONNECT_TIMEOUT_MS = 2000;
+	private static final int READ_TIMEOUT_MS = 5000;
 
-    /**
-     * Download the URL and return as a String
-     *
-     * @param urlString the URL as a String
-     * @return String of the contents
-     */
-    public String downloadUrl(String urlString) throws TVRenamerIOException {
-        try {
-            return downloadUrl(new URL(urlString));
-        } catch (MalformedURLException e) {
-            logger.log(Level.SEVERE, urlString + " is not a valid URL ", e);
-            return "";
-        }
-    }
+	/**
+	 * Download the URL and return as a String
+	 *
+	 * @param urlString the URL as a String
+	 * @return String of the contents
+	 */
+	public String downloadUrl(String urlString) throws TVRenamerIOException {
+		try {
+			return downloadUrl(new URL(urlString));
+		} catch (MalformedURLException e) {
+			logger.log(Level.SEVERE, urlString + " is not a valid URL ", e);
+			return "";
+		}
+	}
 
-    /**
-     * Download the URL and return as a String. Gzip handling from http://goo.gl/J88WG
-     *
-     * @param url the URL to download
-     * @return String of the URL contents
-     * @throws IOException when there is an error connecting or reading the URL
-     */
-    public String downloadUrl(URL url) throws TVRenamerIOException {
-        InputStream inputStream = null;
-        StringBuilder contents = new StringBuilder();
+	/**
+	 * Download the URL and return as a String. Gzip handling from http://goo.gl/J88WG
+	 *
+	 * @param url the URL to download
+	 * @return String of the URL contents
+	 * @throws IOException when there is an error connecting or reading the URL
+	 */
+	public String downloadUrl(URL url) throws TVRenamerIOException {
+		InputStream inputStream = null;
+		StringBuilder contents = new StringBuilder();
 
-        try {
-            if (url != null) {
-                logger.log(Level.INFO, "Downloading URL {0}", url.toString());
+		try {
+			if (url != null) {
+				logger.log(Level.INFO, "Downloading URL {0}", url.toString());
 
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+				HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
-                HttpURLConnection.setFollowRedirects(true);
-                // allow both GZip and Deflate (ZLib) encodings
-                conn.setRequestProperty("Accept-Encoding", "gzip, deflate");
-                conn.setConnectTimeout(CONNECT_TIMEOUT_MS);
-                conn.setReadTimeout(READ_TIMEOUT_MS);
+				HttpURLConnection.setFollowRedirects(true);
+				// allow both GZip and Deflate (ZLib) encodings
+				conn.setRequestProperty("Accept-Encoding", "gzip, deflate");
+				conn.setConnectTimeout(CONNECT_TIMEOUT_MS);
+				conn.setReadTimeout(READ_TIMEOUT_MS);
 
-                // create the appropriate stream wrapper based on the encoding type
-                String encoding = conn.getContentEncoding();
-                if (encoding != null && encoding.equalsIgnoreCase("gzip")) {
-                    inputStream = new GZIPInputStream(conn.getInputStream());
-                } else if (encoding != null && encoding.equalsIgnoreCase("deflate")) {
-                    inputStream = new InflaterInputStream(conn.getInputStream(), new Inflater(true));
-                } else {
-                    inputStream = conn.getInputStream();
-                }
+				// create the appropriate stream wrapper based on the encoding type
+				String encoding = conn.getContentEncoding();
+				if (encoding != null && encoding.equalsIgnoreCase("gzip")) {
+					inputStream = new GZIPInputStream(conn.getInputStream());
+				} else if (encoding != null && encoding.equalsIgnoreCase("deflate")) {
+					inputStream = new InflaterInputStream(conn.getInputStream(), new Inflater(true));
+				} else {
+					inputStream = conn.getInputStream();
+				}
 
-                // always specify encoding while reading streams
-                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+				// always specify encoding while reading streams
+				BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
 
-                logger.finer("Before reading url stream");
+				logger.finer("Before reading url stream");
 
-                String s;
-                while ((s = reader.readLine()) != null) {
-                    contents.append(s);
-                }
+				String s;
+				while ((s = reader.readLine()) != null) {
+					contents.append(s);
+				}
 
-                if (logger.isLoggable(Level.FINEST)) {
-                    // no need to encode for logger output
-                    logger.log(Level.FINEST, "Url stream:\n{0}", contents.toString());
-                }
-            }
-        } catch (Exception e) {
-            String message = "Exception when attempting to download and parse URL " + url;
-            logger.log(Level.SEVERE, message, e);
-            throw new TVRenamerIOException(message, e);
-        } finally {
-            try {
-                if (inputStream != null) {
-                    inputStream.close();
-                }
-            } catch (IOException e) {
-                logger.log(Level.SEVERE, "Exception when attempting to close input stream", e);
-            }
-        }
+				if (logger.isLoggable(Level.FINEST)) {
+					// no need to encode for logger output
+					logger.log(Level.FINEST, "Url stream:\n{0}", contents.toString());
+				}
+			}
+		} catch (Exception e) {
+			String message = "Exception when attempting to download and parse URL " + url;
+			logger.log(Level.SEVERE, message, e);
+			throw new TVRenamerIOException(message, e);
+		} finally {
+			try {
+				if (inputStream != null) {
+					inputStream.close();
+				}
+			} catch (IOException e) {
+				logger.log(Level.SEVERE, "Exception when attempting to close input stream", e);
+			}
+		}
 
-        return StringUtils.encodeSpecialCharacters(contents.toString());
-    }
+		return StringUtils.encodeSpecialCharacters(contents.toString());
+	}
 }
