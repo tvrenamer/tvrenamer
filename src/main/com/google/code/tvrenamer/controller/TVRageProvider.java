@@ -41,12 +41,12 @@ public class TVRageProvider {
 
 	private static Logger logger = Logger.getLogger(TVRageProvider.class.getName());
 
-	private static final String BASE_SEARCH_URL = "http://www.tvrage.com/feeds/search.php?show=";
+	private static final String BASE_SEARCH_URL = "http://services.tvrage.com/feeds/search.php?show=";
 	private static final String XPATH_SHOW = "//show";
 	private static final String XPATH_SHOWID = "showid";
 	private static final String XPATH_NAME = "name";
 	private static final String XPATH_LINK = "link";
-	private static final String BASE_LIST_URL = "http://www.tvrage.com/feeds/episode_list.php?sid=";
+	private static final String BASE_LIST_URL = "http://services.tvrage.com/feeds/episode_list.php?sid=";
 	private static final String XPATH_ALL = "*";
 	private static final String XPATH_EPISODE_LIST = "/Show/Episodelist/Season";
 	private static final String XPATH_SEASON_NUM = "seasonnum";
