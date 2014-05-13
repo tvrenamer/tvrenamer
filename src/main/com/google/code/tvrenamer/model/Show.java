@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * Represents a TV Show, with a name, url and list of seasons. 
  */
-public class Show {
+public class Show implements Comparable<Show> {
 	private final String id;
 	private final String name;
 	private final String url;
@@ -38,9 +38,16 @@ public class Show {
 	}
 
 	public Season getSeason(int sNum) {
-		Season s = seasons.get(sNum);
-		if (s == null)
-			throw new SeasonNotFoundException("Season #" + sNum + " not found for show '" + name + "'");
-		return s;
+		return seasons.get(sNum);
 	}
+
+	@Override
+	public String toString() {
+		return "Show [id=" + id + ", name=" + name + ", url=" + url + ", seasons=" + seasons + "]";
+	}
+	
+	public int compareTo(Show other) {
+		return Integer.parseInt(other.id) - Integer.parseInt(this.id);
+	}
+
 }

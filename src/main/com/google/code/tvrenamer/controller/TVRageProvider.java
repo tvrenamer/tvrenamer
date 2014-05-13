@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.ConnectException;
 import java.net.UnknownHostException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -52,6 +54,7 @@ public class TVRageProvider {
 	private static final String XPATH_SEASON_NUM = "seasonnum";
 	private static final String XPATH_SEASON_ATTR = "no";
 	private static final String XPATH_TITLE = "title";
+	private static final String XPATH_AIRDATE = "airdate";
 
 	private TVRageProvider() {
 		// Prevents instantiation
@@ -162,8 +165,13 @@ public class TVRageProvider {
 					Node epNumNode = (Node) expr.evaluate(eNode, XPathConstants.NODE);
 					expr = xpath.compile(XPATH_TITLE);
 					Node epTitleNode = (Node) expr.evaluate(eNode, XPathConstants.NODE);
+					expr = xpath.compile(XPATH_AIRDATE);
+					Node airdateNode = (Node) expr.evaluate(eNode, XPathConstants.NODE);
 					logger.finer("[" + sNum + "x" + epNumNode.getTextContent() + "] " + epTitleNode.getTextContent());
-					season.addEpisode(Integer.parseInt(epNumNode.getTextContent()), epTitleNode.getTextContent());
+					DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+					season.addEpisode(Integer.parseInt(epNumNode.getTextContent()), 
+					                  epTitleNode.getTextContent(),
+					                  df.parse(airdateNode.getTextContent()));
 				}
 			}
 		} catch (Exception e) {

@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -33,8 +34,8 @@ public class FileEpisodeTest {
 	}
 
 	/**
-	 * Test case for Issue 37 where the title "$pringfield"
-	 * breaks the regex used for String.replaceAll()
+	 * Test case for <a href="https://github.com/tvrenamer/tvrenamer/issues/36">Issue 36</a> where the title
+	 * "$pringfield" breaks the regex used for String.replaceAll()
 	 */
 	@Test
 	public void testGetNewFilenameSpecialRegexChars() throws Exception {
@@ -42,12 +43,13 @@ public class FileEpisodeTest {
 		String title = "$pringfield";
 		int seasonNum = 5;
 		int episodeNum = 10;
-		File file = new File(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + "the.simpsons.5.10.avi");
+		File file = new File(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator")
+			+ "the.simpsons.5.10.avi");
 		createFile(file);
 		
 		Show show = new Show("1", showName, "http://www.tvrage.com/shows/id-6190");
 		Season season5 = new Season(seasonNum);
-		season5.addEpisode(episodeNum, title);
+		season5.addEpisode(episodeNum, title, new Date());
 		show.setSeason(seasonNum, season5);
 		ShowStore.addShow(showName, show);
 		
@@ -62,14 +64,15 @@ public class FileEpisodeTest {
 	}
 	
 	/**
-	 * Ensure that Firefly episodes are ordered correcrly - ie. by DVD not TV order
+	 * Ensure that Firefly episodes are ordered correctly - i.e. by DVD not TV order
 	 */
 	@Test
 	public void testFireflyEpisodeOrder() throws Exception {
 		String showName = "Firefly";
 		int seasonNum = 1;
 		int episodeNum = 1;
-		File file = new File(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + "firefly.1.01.the.train.job.avi");
+		File file = new File(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator")
+			+ "firefly.1.01.the.train.job.avi");
 		createFile(file);
 		
 		// Verify that the show was already found in the store
@@ -86,8 +89,8 @@ public class FileEpisodeTest {
 	}
 	
 	/**
-	 * Ensure that colons (:) don't make it into the renamed filename
-	 * <br />Fixes <a href="http://code.google.com/p/tv-renamer/issues/detail?id=46">Defect 46</a>
+	 * Ensure that colons (:) don't make it into the renamed filename <br />
+	 * Fixes <a href="https://github.com/tvrenamer/tvrenamer/issues/46">Issue 46</a>
 	 */
 	@Test
 	public void testColon() throws Exception {
@@ -95,12 +98,13 @@ public class FileEpisodeTest {
 		String title = "The Way of the Gun";
 		int seasonNum = 1;
 		int episodeNum = 1;
-		File file = new File(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + "steven.segal.lawman.1.01.avi");
+		File file = new File(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator")
+			+ "steven.segal.lawman.1.01.avi");
 		createFile(file);
 		
 		Show show = new Show("1", showName, "http://www.tvrage.com/shows/id-20664");
 		Season season1 = new Season(seasonNum);
-		season1.addEpisode(episodeNum, title);
+		season1.addEpisode(episodeNum, title, new Date());
 		show.setSeason(seasonNum, season1);
 		ShowStore.addShow(showName, show);
 		

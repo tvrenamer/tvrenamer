@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.Collator;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,6 +31,8 @@ import org.eclipse.swt.dnd.DropTargetAdapter;
 import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.FileTransfer;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
@@ -37,10 +40,12 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
@@ -67,6 +72,7 @@ import com.google.code.tvrenamer.controller.UpdateCompleteHandler;
 import com.google.code.tvrenamer.model.EpisodeStatus;
 import com.google.code.tvrenamer.model.FileEpisode;
 import com.google.code.tvrenamer.model.FileMoveIcon;
+import com.google.code.tvrenamer.model.GlobalOverrides;
 import com.google.code.tvrenamer.model.NotFoundException;
 import com.google.code.tvrenamer.model.SWTMessageBoxType;
 import com.google.code.tvrenamer.model.Show;
@@ -89,6 +95,7 @@ public class UIStarter {
 	private static UserPreferences prefs;
 
 	private Button addFilesButton;
+	private Button addFolderButton;
 	private Link updatesAvailableLink;
 	private static Button renameSelectedButton;
 	private static TableColumn destinationColumn;
@@ -149,15 +156,16 @@ public class UIStarter {
 
 	private void setupMainWindow() {
 		final Composite topButtonsComposite = new Composite(shell, SWT.FILL);
-		topButtonsComposite.setLayout(new GridLayout(2, false));
-		topButtonsComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
+		topButtonsComposite.setLayout(new RowLayout());
 
 		addFilesButton = new Button(topButtonsComposite, SWT.PUSH);
-		addFilesButton.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
-		addFilesButton.setText("Add files ... ");
+		addFilesButton.setText("Add files");
+		
+		addFolderButton = new Button(topButtonsComposite, SWT.PUSH);
+		addFolderButton.setText("Add Folder");
 
 		updatesAvailableLink = new Link(topButtonsComposite, SWT.VERTICAL);
-		updatesAvailableLink.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, true));
+		//updatesAvailableLink.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, true));
 		updatesAvailableLink.setVisible(false);
 		updatesAvailableLink.setText("There is an update available. <a href=\"" + TVRENAMER_DOWNLOAD_URL
 			+ "\">Click here to download</a>");
@@ -347,6 +355,54 @@ public class UIStarter {
 				}
 			}
 		});
+		
+		final DirectoryDialog dd = new DirectoryDialog(shell, SWT.SINGLE);
+		addFolderButton.addSelectionListener(new SelectionAdapter() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				String directory = dd.open();
+				if ( directory != null ) {
+					// load all of the files in the dir
+					File file = new File(directory);
+					String[] fileNames = file.list();
+					
+					if( fileNames != null ){
+						
+						// Check we are not recursive
+						boolean includeDirs = prefs.isRecursivelyAddFolders();
+						List<String> subDirs = new ArrayList<String>();
+						
+						for( int i = 0; i < fileNames.length; i++ ){
+							String path = directory + File.separatorChar +fileNames[i];
+							
+							// Store the list of directories
+							if( new File(path).isDirectory() ) {
+								subDirs.add(path);
+							}
+							
+							// update the fileName value
+							fileNames[i] = path;
+						}
+						
+						if( !includeDirs ) {
+							for (String subDir : subDirs){
+								for(int i = 0; i < fileNames.length; i++) {
+									if(fileNames[i].startsWith(subDir)){
+										// A safe way of removing the file name
+										fileNames[i] = "";
+									}
+								}
+							}
+						}
+						
+						initiateRenamer(fileNames);
+					}
+					
+				}
+			}
+			
+		});
 	}
 
 	private void setupResultsTable() {
@@ -374,6 +430,28 @@ public class UIStarter {
 		final TableColumn statusColumn = new TableColumn(resultsTable, SWT.LEFT);
 		statusColumn.setText("Status");
 		statusColumn.setWidth(60);
+		
+		// Allow deleting of elements
+		resultsTable.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				super.keyReleased(e);
+
+				switch(e.keyCode){
+					
+					// backspace
+					case '\u0008':
+						deleteTableItem(resultsTable.getSelectionIndex());
+						break;
+						
+					// delete
+					case '\u007F':
+						deleteTableItem(resultsTable.getSelectionIndex());
+						break;
+				}
+					
+			}
+		});
 
 		selectedColumn.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -606,8 +684,10 @@ public class UIStarter {
 						episode.setStatus(EpisodeStatus.DOWNLOADED);
 						display.asyncExec(new Runnable() {
 							public void run() {
-								item.setText(NEW_FILENAME_COLUMN, episode.getNewFilePath());
-								item.setImage(STATUS_COLUMN, FileMoveIcon.ADDED.icon);
+								if( tableContainsTableItem(item) ) {
+        							item.setText(NEW_FILENAME_COLUMN, episode.getNewFilePath());
+        							item.setImage(STATUS_COLUMN, FileMoveIcon.ADDED.icon);
+								}
 							}
 						});
 					}
@@ -615,15 +695,30 @@ public class UIStarter {
 						episode.setStatus(EpisodeStatus.BROKEN);
 						display.asyncExec(new Runnable() {
 							public void run() {
-								item.setText(NEW_FILENAME_COLUMN, DOWNLOADING_FAILED_MESSAGE);
-								item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
-								item.setChecked(false);
+								if( tableContainsTableItem(item) ){
+    								item.setText(NEW_FILENAME_COLUMN, DOWNLOADING_FAILED_MESSAGE);
+    								item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
+    								item.setChecked(false);
+								}
 							}
 						});
 					}
 				});
 			}
 		}
+	}
+	
+	private boolean tableContainsTableItem (TableItem item) {
+		
+		if ( item == null ) return false;
+		
+		for ( TableItem ti: resultsTable.getItems() ){
+			if( item.equals(ti) ) {
+				item = null;
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void renameFiles() {
@@ -746,6 +841,14 @@ public class UIStarter {
 		item.setText(NEW_FILENAME_COLUMN, newFilename);
 		item.setImage(STATUS_COLUMN, FileMoveIcon.DOWNLOADING.icon);
 		return item;
+	}
+	
+	private void deleteTableItem (int index) {
+		if( resultsTable.getItems().length > 0 ) {
+    		files.remove(resultsTable.getItem(index).getText(CURRENT_FILE_COLUMN));
+    		resultsTable.remove(index);
+    		resultsTable.select(index > 0 ? index - 1 : 0);
+		}
 	}
 
 	private void setSortedItem(int i, int j) {

@@ -2,6 +2,7 @@ package com.google.code.tvrenamer.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.logging.Logger;
 
 import com.google.code.tvrenamer.controller.ShowInformationListener;
 import com.google.code.tvrenamer.controller.TVRageProvider;
+import com.google.code.tvrenamer.controller.TheTVDBProvider;
 
 public class ShowStore {
 
@@ -26,7 +28,7 @@ public class ShowStore {
 	private static final Semaphore _showStoreLock = new Semaphore(1);
 
 	private static final ExecutorService threadPool = Executors.newCachedThreadPool();
-	
+
 	// static initaliser block as there are static methods
 	static {
 		populateFireflyShow();
@@ -96,13 +98,15 @@ public class ShowStore {
 				Show thisShow;
 				try {
 					ArrayList<Show> options = TVRageProvider.getShowOptions(showName);
+					// ArrayList<Show> options = TheTVDBProvider.getShowOptions(showName);
 					thisShow = options.get(0);
-    
+
     				TVRageProvider.getShowListing(thisShow);
+					// TheTVDBProvider.getShowListing(thisShow);
 				} catch(TVRenamerIOException e) {
 					thisShow = new FailedShow("", showName, "", e);
 				}
-					
+
 				addShow(showName, thisShow);
 
 				return true;
@@ -144,16 +148,16 @@ public class ShowStore {
 	public static void cleanUp() {
 		threadPool.shutdownNow();
 	}
-	
+
 	public static void clear() throws InterruptedException {
 		_showStoreLock.acquire();
-		
+
 		_shows.clear();
 		_showRegistrations.clear();
-		
+
 		_showStoreLock.release();
 	}
-	
+
 	/**
 	 * Add a show to the store, registered by the show name.<br />
 	 * Added this distinct method to enable unit testing
@@ -164,7 +168,7 @@ public class ShowStore {
 	static void addShow(String showName, Show show) throws InterruptedException {
 		_showStoreLock.acquire();
 		logger.info("Show listing for '" + show.getName() + "' downloaded");
-		
+
 		_shows.put(showName.toLowerCase(), show);
 		notifyListeners(showName, show);
 		_showStoreLock.release();
@@ -174,20 +178,22 @@ public class ShowStore {
 		Show firefly = new Show("3548", "Firefly", "http://www.tvrage.com/Firefly");
 
 		Season season = new Season(1);
-		season.addEpisode(1, "Serenity");
-		season.addEpisode(2, "The Train Job");
-		season.addEpisode(3, "Bushwhacked");
-		season.addEpisode(4, "Shindig");
-		season.addEpisode(5, "Safe");
-		season.addEpisode(6, "Our Mrs Reynolds");
-		season.addEpisode(7, "Jaynestown");
-		season.addEpisode(8, "Out of Gas");
-		season.addEpisode(9, "Ariel");
-		season.addEpisode(10, "War Stories");
-		season.addEpisode(11, "Trash");
-		season.addEpisode(12, "The Message");
-		season.addEpisode(13, "Heart of Gold");
-		season.addEpisode(14, "Objects in Space");
+
+		season.addEpisode(1, "Serenity", new Date());
+		season.addEpisode(2, "The Train Job", new Date());
+		season.addEpisode(3, "Bushwhacked", new Date());
+		season.addEpisode(4, "Shindig", new Date());
+		season.addEpisode(5, "Safe", new Date());
+		season.addEpisode(6, "Our Mrs Reynolds", new Date());
+		season.addEpisode(7, "Jaynestown", new Date());
+		season.addEpisode(8, "Out of Gas", new Date());
+		season.addEpisode(9, "Ariel", new Date());
+		season.addEpisode(10, "War Stories", new Date());
+		season.addEpisode(11, "Trash", new Date());
+		season.addEpisode(12, "The Message", new Date());
+		season.addEpisode(13, "Heart of Gold", new Date());
+		season.addEpisode(14, "Objects in Space", new Date());
+
 
 		firefly.setSeason(1, season);
 

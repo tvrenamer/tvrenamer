@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 
 import com.google.code.tvrenamer.controller.UserPreferencesChangeEvent;
 import com.google.code.tvrenamer.controller.UserPreferencesChangeListener;
-import com.google.code.tvrenamer.controller.XMLPersistence;
+import com.google.code.tvrenamer.controller.UserPreferencesPersistence;
 import com.google.code.tvrenamer.controller.util.StringUtils;
 import com.google.code.tvrenamer.model.util.Constants;
 import com.google.code.tvrenamer.view.UIUtils;
@@ -23,6 +23,7 @@ public class UserPreferences extends Observable {
 	private String renameReplacementMask;
 	private ProxySettings proxy;
 	private boolean checkForUpdates;
+	private boolean recursivelyAddFolders;
 	
 	private final static UserPreferences INSTANCE = load();
 
@@ -38,6 +39,7 @@ public class UserPreferences extends Observable {
 		this.renameReplacementMask = Constants.DEFAULT_REPLACEMENT_MASK;
 		this.proxy = new ProxySettings();
 		this.checkForUpdates = true;
+		this.recursivelyAddFolders = true;
 
 		ensurePath();
 	}
@@ -51,13 +53,32 @@ public class UserPreferences extends Observable {
 	 */
 	public static UserPreferences load() {
 		// retrieve from file and update in-memory copy
-		UserPreferences prefs = XMLPersistence.retrieve(prefsFile);
+		UserPreferences prefs = UserPreferencesPersistence.retrieve(prefsFile);
 
 		if (prefs != null) {
 			logger.finer("Sucessfully read preferences from: " + prefsFile.getAbsolutePath());
 			logger.info("Sucessfully read preferences: " + prefs.toString());
 		} else {
-			prefs = new UserPreferences();
+			
+			// Look in the legacy location, if not, create new
+			File legacyPrefsFile = new File(System.getProperty("user.home") + File.separatorChar
+	                                		+ Constants.PREFERENCES_FILE_LEGACY);
+			
+			prefs = UserPreferencesPersistence.retrieve(legacyPrefsFile);
+			
+			if( prefs != null ) {
+				logger.finer("Sucessfully read legacy preferences from: " + prefsFile.getAbsolutePath());
+				logger.info("Sucessfully read legacy preferences: " + prefs.toString());
+				
+				// Delete the old file, then store into the new file
+				legacyPrefsFile.delete();
+				store(prefs);
+				
+				logger.info("Deleted legacy prefs file in favour of the new file");
+			
+			} else {
+				prefs = new UserPreferences();
+			}
 		}
 		
 		// apply the proxy configuration
@@ -74,7 +95,7 @@ public class UserPreferences extends Observable {
 	}
 	
 	public static void store(UserPreferences prefs) {
-		XMLPersistence.persist(prefs, prefsFile);
+		UserPreferencesPersistence.persist(prefs, prefsFile);
 		logger.fine("Sucessfully saved/updated preferences");
 	}
 
@@ -136,6 +157,24 @@ public class UserPreferences extends Observable {
 	 */
 	public boolean isMovedEnabled() {
 		return this.moveEnabled;
+	}
+	
+	public void setRecursivelyAddFolders(boolean recursivelyAddFolders) {
+		if(hasChanged(this.recursivelyAddFolders, recursivelyAddFolders)) {
+			this.recursivelyAddFolders = recursivelyAddFolders;
+			
+			setChanged();
+			notifyObservers(new UserPreferencesChangeEvent("recursivelyAddFolders", recursivelyAddFolders));
+		}
+	}
+	
+	/**
+	 * Get the status of recursively adding files within a directory
+	 * 
+	 * @return true if adding subdirectories, false otherwise
+	 */
+	public boolean isRecursivelyAddFolders() {
+		return this.recursivelyAddFolders;
 	}
 
 	public void setSeasonPrefix(String prefix) {
@@ -221,13 +260,11 @@ public class UserPreferences extends Observable {
 	@Override
 	public String toString() {
 		return "UserPreferences [destDir=" + destDir + ", seasonPrefix=" + seasonPrefix + ", moveEnabled="
-			+ moveEnabled + ", renameReplacementMask=" + renameReplacementMask + ", proxy=" + proxy + "]";
+			+ moveEnabled + ", renameReplacementMask=" + renameReplacementMask + ", proxy=" + proxy
+			+ ", setRecursivelyAddFolders=" + recursivelyAddFolders + "]";
 	}
 
 	private boolean hasChanged(Object originalValue, Object newValue) {
-		if (originalValue.equals(newValue)) {
-			return false;
-		}
-		return true;
+		return originalValue.equals(newValue);
 	}
 }

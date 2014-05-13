@@ -6,12 +6,20 @@ public class StringUtils {
 	private static Logger logger = Logger.getLogger(StringUtils.class.getName());
 
 	public static String sanitiseTitle(String title) {
-		// need to add more mappings, such as ':'
-		title = title.replace(":", " -");
-		title = title.replace('/', '-');
-		title = title.replace('\\', '-');
-		title = title.replace("?", "");
-		title = title.replace("`", "'");
+		// anything that's not valid in Windows will be replaced
+		// this list is: \ / : * ? " < > |
+		// see http://msdn.microsoft.com/en-us/library/aa365247%28VS.85%29.aspx for more information
+
+		title = title.replace('\\', '-'); // replace '\' with '-'
+		title = title.replace('/', '-'); // replace '/' with '-'
+		title = title.replace(":", " -"); // replace ':' with ' -'
+		title = title.replace('|', '-'); // replace '|' with '-'
+		title = title.replace("*", ""); // replace '*' with ''
+		title = title.replace("?", ""); // replace '?' with ''
+		title = title.replace("<", ""); // replace '<' with ''
+		title = title.replace(">", ""); // replace '>' with ''
+		title = title.replace("\"", "'"); // replace '"' with "'"
+		title = title.replace("`", "'"); // replace '`' with "'"
 		return title;
 	}
 

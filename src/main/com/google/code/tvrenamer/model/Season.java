@@ -1,29 +1,43 @@
 package com.google.code.tvrenamer.model;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Season {
 	private final int num;
-	private final Map<Integer, String> episodes;
+	private final Map<Integer, Episode> episodes;
 
 	public Season(int num) {
 		this.num = num;
-		episodes = new HashMap<Integer, String>();
+		episodes = new HashMap<Integer, Episode>();
 	}
 
 	public int getNumber() {
 		return num;
 	}
 
-	public void addEpisode(int epNum, String title) {
-		episodes.put(epNum, title);
+	public void addEpisode(int epNum, String title, Date airDate) {
+		episodes.put(epNum, new Episode(title,airDate));
 	}
 
 	public String getTitle(int epNum) {
-		String t = episodes.get(epNum);
-		if (t == null)
+		Episode e = episodes.get(epNum);
+		if (e == null)
 			throw new EpisodeNotFoundException("Episode #" + epNum + " not found for season #" + this.num);
-		return t;
+		return e.getTitle();
 	}
+	
+	public Date getAirDate(int epNum) {
+		Episode e = episodes.get(epNum);
+		if (e == null)
+			throw new EpisodeNotFoundException("Episode #" + epNum + " not found for season #" + this.num);
+		return e.getAirDate();
+	}
+
+	@Override
+	public String toString() {
+		return "Season [num=" + num + ", episodes=" + episodes + "]";
+	}
+	
 }

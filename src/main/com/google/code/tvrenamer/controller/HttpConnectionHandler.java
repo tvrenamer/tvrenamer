@@ -17,12 +17,14 @@ import com.google.code.tvrenamer.controller.util.StringUtils;
 import com.google.code.tvrenamer.model.TVRenamerIOException;
 
 public class HttpConnectionHandler {
-	private static Logger logger = Logger.getLogger(HttpConnectionHandler.class.getName());
+
+	private static final Logger logger = Logger.getLogger(HttpConnectionHandler.class.getName());
 	private static final int CONNECT_TIMEOUT_MS = 2000;
 	private static final int READ_TIMEOUT_MS = 5000;
-	
+
 	/**
 	 * Download the URL and return as a String
+	 *
 	 * @param urlString the URL as a String
 	 * @return String of the contents
 	 */
@@ -36,14 +38,11 @@ public class HttpConnectionHandler {
 	}
 
 	/**
-	 * Download the URL and return as a String.
-	 * Gzip handling from http://goo.gl/J88WG
-	 * 
-	 * @param url
-	 *            the URL to download
+	 * Download the URL and return as a String. Gzip handling from http://goo.gl/J88WG
+	 *
+	 * @param url the URL to download
 	 * @return String of the URL contents
-	 * @throws IOException
-	 *             when there is an error connecting or reading the URL
+	 * @throws IOException when there is an error connecting or reading the URL
 	 */
 	public String downloadUrl(URL url) throws TVRenamerIOException {
 		InputStream inputStream = null;
@@ -51,8 +50,8 @@ public class HttpConnectionHandler {
 
 		try {
 			if (url != null) {
-				logger.info("Downloading URL " + url.toString());
-				
+				logger.log(Level.INFO, "Downloading URL {0}", url.toString());
+
 				HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
 				HttpURLConnection.setFollowRedirects(true);
@@ -71,7 +70,8 @@ public class HttpConnectionHandler {
 					inputStream = conn.getInputStream();
 				}
 
-				BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+				// always specify encoding while reading streams
+				BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
 
 				logger.finer("Before reading url stream");
 
@@ -81,7 +81,8 @@ public class HttpConnectionHandler {
 				}
 
 				if (logger.isLoggable(Level.FINEST)) {
-					logger.finest("Url stream:\n" + StringUtils.encodeSpecialCharacters(contents.toString()));
+					// no need to encode for logger output
+					logger.log(Level.FINEST, "Url stream:\n{0}", contents.toString());
 				}
 			}
 		} catch (Exception e) {
@@ -90,7 +91,7 @@ public class HttpConnectionHandler {
 			throw new TVRenamerIOException(message, e);
 		} finally {
 			try {
-				if(inputStream != null) {
+				if (inputStream != null) {
 					inputStream.close();
 				}
 			} catch (IOException e) {
