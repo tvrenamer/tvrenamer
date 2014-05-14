@@ -32,8 +32,8 @@ public class Constants {
 
 	public static String VERSION_NUMBER;
 
-	public static final String PREFERENCES_FILE = ".tvrenamerpref";
-	
+	public static final String PREFERENCES_FILE = ".tvrenamer";
+
 	public static final String PREFERENCES_FILE_LEGACY = "tvrenamer.preferences";
 
 	public static final String OVERRIDES_FILE = ".tvrenameroverrides";

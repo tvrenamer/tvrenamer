@@ -22,7 +22,7 @@
 	</loadfile>
 
 	<property name="rel.name" value="TVRenamer-${version}" />
-	<property name="jar.builtBy" value="http://code.google.com/p/tv-renamer" />
+	<property name="jar.builtBy" value="https://github.com/tvrenamer/tvrenamer" />
 	<property name="jar.mainClass" value="com.google.code.tvrenamer.view.UIStarter" />
 
 	<!-- To build, get launch4j, update the path in build.properties -->
