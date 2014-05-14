@@ -22,7 +22,7 @@
 	</loadfile>
 
 	<property name="rel.name" value="TVRenamer-${version}" />
-	<property name="jar.builtBy" value="http://code.google.com/p/tv-renamer" />
+	<property name="jar.builtBy" value="https://github.com/tvrenamer/tvrenamer" />
 	<property name="jar.mainClass" value="com.google.code.tvrenamer.view.UIStarter" />
 
 	<!-- To build, get launch4j, update the path in build.properties -->
@@ -115,12 +115,9 @@
 			<copy file="${etc}/run-scripts/run-linux.sh" todir="${build}/@{platform}/${rel.name}" />
 			<copy file="LICENSE" todir="${build}/@{platform}/${rel.name}" />
 
-			<zip destfile="${build}/@{platform}/${rel.name}/${rel.name}-@{platform}.zip">
+			<zip destfile="${dist}/${rel.name}/${rel.name}-@{platform}.zip">
 				<zipfileset dir="${build}/@{platform}" filemode="755" />
 			</zip>
-			<copy file="${build}/@{platform}/${rel.name}/${rel.name}-@{platform}.zip" todir="${dist}" />
-
-			<delete dir="${build}/@{platform}/" failonerror="false" />
 		</sequential>
 	</macrodef>
 
@@ -139,12 +136,9 @@
 			<copy file="${res}/icons/tvrenamer.icns" todir="${build}/@{platform}/${rel.name}.app/Contents/Resources" />
 			<copy file="LICENSE" todir="${build}/@{platform}/${rel.name}.app" />
 
-			<zip destfile="${build}/@{platform}/${rel.name}-@{platform}.zip">
+			<zip destfile="${dist}/${rel.name}-@{platform}.zip">
 				<zipfileset dir="${build}/@{platform}" filemode="755" />
 			</zip>
-			<copy file="${build}/@{platform}/${rel.name}-@{platform}.zip" todir="${dist}" />
-
-			<delete dir="${build}/@{platform}/" failonerror="false" />
 		</sequential>
 	</macrodef>
 
@@ -165,8 +159,6 @@
 					<jre minVersion="1.5.0" />
 				</config>
 			</launch4j>
-
-			<delete dir="${build}/@{platform}/" failonerror="false" />
 		</sequential>
 	</macrodef>
 

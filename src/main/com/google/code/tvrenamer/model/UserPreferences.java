@@ -261,10 +261,10 @@ public class UserPreferences extends Observable {
 	public String toString() {
 		return "UserPreferences [destDir=" + destDir + ", seasonPrefix=" + seasonPrefix + ", moveEnabled="
 			+ moveEnabled + ", renameReplacementMask=" + renameReplacementMask + ", proxy=" + proxy
-			+ ", setRecursivelyAddFolders=" + recursivelyAddFolders + "]";
+			+ ", checkForUpdates=" + checkForUpdates + ", setRecursivelyAddFolders=" + recursivelyAddFolders + "]";
 	}
 
 	private boolean hasChanged(Object originalValue, Object newValue) {
-		return originalValue.equals(newValue);
+		return !originalValue.equals(newValue);
 	}
 }

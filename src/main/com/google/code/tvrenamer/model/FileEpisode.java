@@ -13,8 +13,8 @@ import com.google.code.tvrenamer.controller.util.StringUtils;
 public class FileEpisode {
 	private static Logger logger = Logger.getLogger(FileEpisode.class.getName());
 
-	private static final String ADDED_PLACEHOLDER_FILENAME = "downloading ...";
-	private static final String BROKEN_PLACEHOLDER_FILENAME = "unable to download information";
+	private static final String ADDED_PLACEHOLDER_FILENAME = "Downloading ...";
+	private static final String BROKEN_PLACEHOLDER_FILENAME = "Unable to download show information";
 	private final String showName;
 	private final int seasonNumber;
 	private final int episodeNumber;
