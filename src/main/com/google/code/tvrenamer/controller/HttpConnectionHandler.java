@@ -19,8 +19,8 @@ import com.google.code.tvrenamer.model.TVRenamerIOException;
 public class HttpConnectionHandler {
 
 	private static final Logger logger = Logger.getLogger(HttpConnectionHandler.class.getName());
-	private static final int CONNECT_TIMEOUT_MS = 2000;
-	private static final int READ_TIMEOUT_MS = 5000;
+	private static final int CONNECT_TIMEOUT_MS = 30000;
+	private static final int READ_TIMEOUT_MS = 60000;
 
 	/**
 	 * Download the URL and return as a String
