@@ -153,6 +153,7 @@ public class PreferencesDialog extends Dialog {
 		final Button destDirButton = new Button(moveGroup, SWT.PUSH);
 		destDirButton.setText("Select directory");
 		destDirButton.addListener(SWT.Selection, new Listener() {
+			@Override
 			public void handleEvent(Event event) {
 				DirectoryDialog directoryDialog = new DirectoryDialog(preferencesShell);
 
@@ -179,12 +180,14 @@ public class PreferencesDialog extends Dialog {
 
 		destDirText.addKeyListener(new KeyListener() {
 
+			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.keyCode == SWT.F1) {
 					System.out.println("F1HelpRequested");
 				}
 			}
 
+			@Override
 			public void keyReleased(KeyEvent e) {
 				// no-op
 			}
@@ -192,6 +195,7 @@ public class PreferencesDialog extends Dialog {
 
 		destDirText.addHelpListener(new HelpListener() {
 
+			@Override
 			public void helpRequested(HelpEvent e) {
 				System.out.println("helpRequested");
 			}
@@ -253,12 +257,14 @@ public class PreferencesDialog extends Dialog {
 		dragSource.setTransfer(types);
 		dragSource.addDragListener(new DragSourceListener() {
 
+			@Override
 			public void dragStart(DragSourceEvent event) {
 				if (sourceList.getSelectionIndex() != 0) {
 					event.doit = true;
 				}
 			}
 
+			@Override
 			public void dragSetData(DragSourceEvent event) {
 				String listEntry = sourceList.getItem(sourceList.getSelectionIndex());
 				String token;
@@ -270,6 +276,7 @@ public class PreferencesDialog extends Dialog {
 				}
 			}
 
+			@Override
 			public void dragFinished(DragSourceEvent event) {
 				// no-op
 			}
@@ -283,28 +290,34 @@ public class PreferencesDialog extends Dialog {
 
 		dropTarget.addDropListener(new DropTargetListener() {
 
+			@Override
 			public void dragEnter(DropTargetEvent event) {
 				// no-op
 			}
 
+			@Override
 			public void dragLeave(DropTargetEvent event) {
 				// no-op
 			}
 
+			@Override
 			public void dragOperationChanged(DropTargetEvent event) {
 				// no-op
 			}
 
+			@Override
 			public void dragOver(DropTargetEvent event) {
 				// no-op
 			}
 
+			@Override
 			public void drop(DropTargetEvent event) {
 				String data = (String) event.data;
 				//  TODO: This currently adds the dropped text onto the end, not where we dropped it
 				targetText.append(data);
 			}
 
+			@Override
 			public void dropAccept(DropTargetEvent event) {
 				// no-op
 			}

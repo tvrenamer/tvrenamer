@@ -1,6 +1,7 @@
 package com.google.code.tvrenamer.view;
 
-import static com.google.code.tvrenamer.view.UIUtils.*;
+import static com.google.code.tvrenamer.view.UIUtils.getOSType;
+import static com.google.code.tvrenamer.view.UIUtils.showMessageBox;
 
 import java.io.File;
 import java.io.IOException;
@@ -72,7 +73,6 @@ import com.google.code.tvrenamer.controller.UpdateCompleteHandler;
 import com.google.code.tvrenamer.model.EpisodeStatus;
 import com.google.code.tvrenamer.model.FileEpisode;
 import com.google.code.tvrenamer.model.FileMoveIcon;
-import com.google.code.tvrenamer.model.GlobalOverrides;
 import com.google.code.tvrenamer.model.NotFoundException;
 import com.google.code.tvrenamer.model.SWTMessageBoxType;
 import com.google.code.tvrenamer.model.Show;
@@ -178,12 +178,14 @@ public class UIStarter {
 
 		// Show the label if updates are available (in a new thread)
 		Thread updateCheckThread = new Thread(new Runnable() {
+			@Override
 			public void run() {
 				if (prefs.checkForUpdates()) {
 					final boolean updatesAvailable = UpdateChecker.isUpdateAvailable();
 
 					if (updatesAvailable) {						
 						display.asyncExec(new Runnable() {
+							@Override
 							public void run() {
 								updatesAvailableLink.setVisible(updatesAvailable);
 							}
@@ -262,18 +264,21 @@ public class UIStarter {
 		Menu helpMenu;
 
 		Listener preferencesListener = new Listener() {
+			@Override
 			public void handleEvent(Event e) {
 				showPreferencesPane();
 			}
 		};
 
 		Listener aboutListener = new Listener() {
+			@Override
 			public void handleEvent(Event e) {
 				showAboutPane();
 			}
 		};
 
 		Listener quitListener = new Listener() {
+			@Override
 			public void handleEvent(Event e) {
 				doCleanup();
 			}
@@ -494,7 +499,9 @@ public class UIStarter {
 		editor.horizontalAlignment = SWT.CENTER;
 		editor.grabHorizontal = true;
 
+		@SuppressWarnings("unused")
 		Listener tblEditListener = new Listener() {
+			@Override
 			public void handleEvent(Event event) {
 				Rectangle clientArea = resultsTable.getClientArea();
 				Point pt = new Point(event.x, event.y);
@@ -508,6 +515,7 @@ public class UIStarter {
 							final int column = i;
 							final Text text = new Text(resultsTable, SWT.NONE);
 							Listener textListener = new Listener() {
+								@Override
 								@SuppressWarnings("fallthrough")
 								public void handleEvent(final Event e) {
 									switch (e.type) {
@@ -680,9 +688,11 @@ public class UIStarter {
 				final TableItem item = createTableItem(resultsTable, fileName, episode);
 
 				ShowStore.getShow(showName, new ShowInformationListener() {
+					@Override
 					public void downloaded(Show show) {
 						episode.setStatus(EpisodeStatus.DOWNLOADED);
 						display.asyncExec(new Runnable() {
+							@Override
 							public void run() {
 								if( tableContainsTableItem(item) ) {
         							item.setText(NEW_FILENAME_COLUMN, episode.getNewFilePath());
@@ -691,9 +701,11 @@ public class UIStarter {
 							}
 						});
 					}
+					@Override
 					public void downloadFailed(Show show) {
 						episode.setStatus(EpisodeStatus.BROKEN);
 						display.asyncExec(new Runnable() {
+							@Override
 							public void run() {
 								if( tableContainsTableItem(item) ){
     								item.setText(NEW_FILENAME_COLUMN, DOWNLOADING_FAILED_MESSAGE);
@@ -777,27 +789,31 @@ public class UIStarter {
 			taskItem.setOverlayImage(FileMoveIcon.RENAMING.icon);
 
 			Thread progressThread = new Thread(new ProgressBarUpdater(new ProgressProxy() {
+				@Override
 				public void setProgress(final float progress) {
 					if (display.isDisposed()) {
 						return;
 					}
 
 					display.asyncExec(new Runnable() {
+						@Override
 						public void run() {
 							if (totalProgressBar.isDisposed()) {
 								return;
 							}
-							totalProgressBar.setSelection((int) Math.round(progress * totalProgressBar.getMaximum()));
+							totalProgressBar.setSelection(Math.round(progress * totalProgressBar.getMaximum()));
 							if (taskItem.isDisposed()) {
 								return;
 							}
-							taskItem.setProgress((int) Math.round(progress * 100));
+							taskItem.setProgress(Math.round(progress * 100));
 						}
 					});
 				}
 			}, count, futures, new UpdateCompleteHandler() {
+				@Override
 				public void onUpdateComplete() {
 					display.asyncExec(new Runnable() {
+						@Override
 						public void run() {
 							taskItem.setOverlayImage(null);
 							taskItem.setProgressState(SWT.DEFAULT);
@@ -817,6 +833,7 @@ public class UIStarter {
 			return;
 		}
 		display.asyncExec(new Runnable() {
+			@Override
 			public void run() {
 				if (item.isDisposed()) {
 					return;

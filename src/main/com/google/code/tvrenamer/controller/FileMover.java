@@ -35,6 +35,7 @@ public class FileMover implements Callable<Boolean> {
 		this.progressLabel = progressLabel;
 	}
 
+	@Override
 	public Boolean call() {
 		File srcFile = this.episode.getFile();
 		if (destFile.getParentFile().exists() || destFile.getParentFile().mkdirs()) {
@@ -53,6 +54,7 @@ public class FileMover implements Callable<Boolean> {
 				succeeded = FileUtilities.moveFile(srcFile, destFile, monitor, true);
 				if (!display.isDisposed()) {
 					display.asyncExec(new Runnable() {
+						@Override
 						public void run() {
 							if (progressLabel.isDisposed()) {
 								return;

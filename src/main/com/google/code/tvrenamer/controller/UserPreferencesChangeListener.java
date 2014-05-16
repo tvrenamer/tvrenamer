@@ -15,6 +15,7 @@ public class UserPreferencesChangeListener implements Observer {
 	/* (non-Javadoc)
 	 * @see java.util.Observer#update(java.util.Observable, java.lang.Object)
 	 */
+	@Override
 	public void update(Observable observable, Object value) {
 		logger.info("Preference change event: " + value);
 		

@@ -25,6 +25,7 @@ public class ProgressBarUpdater implements Runnable {
 		this.updateCompleteHandler = updateComplete;
 	}
 
+	@Override
 	public void run() {
 		while (true) {
 			final int size = futures.size();

@@ -46,6 +46,7 @@ public class Show implements Comparable<Show> {
 		return "Show [id=" + id + ", name=" + name + ", url=" + url + ", seasons=" + seasons + "]";
 	}
 	
+	@Override
 	public int compareTo(Show other) {
 		return Integer.parseInt(other.id) - Integer.parseInt(this.id);
 	}

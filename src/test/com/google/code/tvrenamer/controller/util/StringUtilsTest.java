@@ -1,6 +1,6 @@
 package com.google.code.tvrenamer.controller.util;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 

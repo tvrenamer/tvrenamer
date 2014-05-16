@@ -16,7 +16,6 @@ import java.util.logging.Logger;
 
 import com.google.code.tvrenamer.controller.ShowInformationListener;
 import com.google.code.tvrenamer.controller.TVRageProvider;
-import com.google.code.tvrenamer.controller.TheTVDBProvider;
 
 public class ShowStore {
 
@@ -94,6 +93,7 @@ public class ShowStore {
 
 	private static void downloadShow(final String showName) {
 		Callable<Boolean> showFetcher = new Callable<Boolean>() {
+			@Override
 			public Boolean call() throws InterruptedException {
 				Show thisShow;
 				try {

@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
@@ -61,6 +60,7 @@ public class UIUtils {
 		}
 		
 		Display.getDefault().syncExec(new Runnable() {
+			@Override
 			public void run() {			
 				MessageBox msgBox = new MessageBox(shell, type.swtIconValue);
 				msgBox.setText(title);

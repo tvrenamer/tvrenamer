@@ -19,9 +19,11 @@ public class FileCopyMonitor implements ProgressObserver {
 		format.setMaximumFractionDigits(1);
 	}
 
+	@Override
 	public void setValue(final long value) {
 		if (loopCount++ % 500 == 0) {
 			Display.getDefault().asyncExec(new Runnable() {
+				@Override
 				public void run() {
 					if (label.isDisposed()) {
 						return;
@@ -32,12 +34,15 @@ public class FileCopyMonitor implements ProgressObserver {
 		}
 	}
 
+	@Override
 	public void setMaximum(long value) {
 		maximum = value;
 	}
 
+	@Override
 	public void setStatus(final String status) {
 		Display.getDefault().asyncExec(new Runnable() {
+			@Override
 			public void run() {
 				if (label.isDisposed()) {
 					return;
