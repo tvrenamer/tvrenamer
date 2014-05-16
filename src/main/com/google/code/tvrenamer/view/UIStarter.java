@@ -88,7 +88,7 @@ public class UIStarter {
 	private static final int CURRENT_FILE_COLUMN = 1;
 	private static final int NEW_FILENAME_COLUMN = 2;
 	private static final int STATUS_COLUMN = 3;
-	private static final String TVRENAMER_DOWNLOAD_URL = AboutDialog.TVRENAMER_PROJECT_URL + "/downloads/list";
+	private static final String TVRENAMER_DOWNLOAD_URL = AboutDialog.TVRENAMER_PROJECT_URL + "/downloads";
 
 	private static Shell shell;
 	private Display display;
