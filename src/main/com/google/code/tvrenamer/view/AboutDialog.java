@@ -30,10 +30,10 @@ import com.google.code.tvrenamer.model.util.Constants;
 public class AboutDialog extends Dialog {
 	private static Logger logger = Logger.getLogger(AboutDialog.class.getName());
 
-	private static final String TVRENAMER_REPOSITORY_URL = "http://github.com/tvrenamer/tvrenamer";
+	private static final String TVRENAMER_REPOSITORY_URL = "http://tvrenamer.org/source";
 	private static final String TVRENAMER_LICENSE_URL = "http://www.gnu.org/licenses/gpl-2.0.html";
-	private static final String TVRENAMER_SUPPORT_EMAIL = "tvrenamer@gmail.com";
-	public static final String TVRENAMER_PROJECT_URL = "http://code.google.com/p/tv-renamer";
+	private static final String TVRENAMER_SUPPORT_EMAIL = "support@tvrenamer.org";
+	public static final String TVRENAMER_PROJECT_URL = "http://tvrenamer.org";
 	private static final String TVRENAMER_PROJECT_ISSUES_URL = TVRENAMER_PROJECT_URL + "/issues";
 	private static Shell aboutShell;
 
@@ -124,8 +124,7 @@ public class AboutDialog extends Dialog {
 		});
 
 		final Link projectPageLink = new Link(aboutShell, SWT.NONE);
-		projectPageLink.setText("Project Page at Google Code (for bugs, wiki, help etc.) <a href=\""
-			+ TVRENAMER_PROJECT_URL + "\">" + TVRENAMER_PROJECT_URL + "</a>");
+		projectPageLink.setText("<a href=\"" + TVRENAMER_PROJECT_URL + "\">Project Page</a>");
 		projectPageLink.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true));
 
 		projectPageLink.addSelectionListener(new SelectionAdapter() {
@@ -135,33 +134,29 @@ public class AboutDialog extends Dialog {
 			}
 		});
 
-		final Link supportEmailLink = new Link(aboutShell, SWT.NONE);
-		supportEmailLink.setText("Support email address <a href=\"mailto:" + TVRENAMER_SUPPORT_EMAIL + "\">"
-			+ TVRENAMER_SUPPORT_EMAIL + "</a>");
-		supportEmailLink.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true));
+		final Link issuesLink = new Link(aboutShell, SWT.NONE);
+		issuesLink.setText("<a href=\"" + TVRENAMER_PROJECT_ISSUES_URL + "\">Issue Tracker</a>");
+		issuesLink.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true));
 
-		supportEmailLink.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent arg0) {
-				Program.launch("mailto:" + TVRENAMER_SUPPORT_EMAIL);
-			}
-		});
-
-		final Link googleCodeIssuesLink = new Link(aboutShell, SWT.NONE);
-		googleCodeIssuesLink.setText("File bugs at <a href=\"" + TVRENAMER_PROJECT_ISSUES_URL + "\">"
-			+ TVRENAMER_PROJECT_ISSUES_URL + "</a>");
-		googleCodeIssuesLink.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true));
-
-		googleCodeIssuesLink.addSelectionListener(new SelectionAdapter() {
+		issuesLink.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
 				Program.launch(TVRENAMER_PROJECT_ISSUES_URL);
 			}
 		});
 
+		final Link supportEmailLink = new Link(aboutShell, SWT.NONE);
+    supportEmailLink.setText("<a href=\"mailto:" + TVRENAMER_SUPPORT_EMAIL + "\">Send support email</a>");
+    supportEmailLink.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true));
+    supportEmailLink.addSelectionListener(new SelectionAdapter() {
+        @Override
+        public void widgetSelected(SelectionEvent arg0) {
+            Program.launch("mailto:" + TVRENAMER_SUPPORT_EMAIL);
+        }
+    });
+
 		final Link sourceCodeLink = new Link(aboutShell, SWT.NONE);
-		sourceCodeLink.setText("Source code page at Github <a href=\"" + TVRENAMER_REPOSITORY_URL + "\">"
-			+ TVRENAMER_REPOSITORY_URL + "</a>");
+		sourceCodeLink.setText("<a href=\"" + TVRENAMER_REPOSITORY_URL + "\">Source Code</a>");
 		sourceCodeLink.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true));
 
 		sourceCodeLink.addSelectionListener(new SelectionAdapter() {
@@ -172,9 +167,9 @@ public class AboutDialog extends Dialog {
 		});
 
 		Button updateCheckButton = new Button(aboutShell, SWT.PUSH);
-		updateCheckButton.setText("Check for updates");
+		updateCheckButton.setText("Check for Updates...");
 		GridData gridDataUpdateCheck = new GridData();
-		gridDataUpdateCheck.widthHint = 150;
+		gridDataUpdateCheck.widthHint = 160;
 		gridDataUpdateCheck.horizontalAlignment = GridData.END;
 		updateCheckButton.setLayoutData(gridDataUpdateCheck);
 
@@ -196,7 +191,7 @@ public class AboutDialog extends Dialog {
 					messageBuilder.append(" to download the new version.");
 
 					logger.fine(messageBuilder.toString());
-					UIUtils.showMessageBox(SWTMessageBoxType.OK, "New Version Available", messageBuilder.toString());
+					UIUtils.showMessageBox(SWTMessageBoxType.OK, "New Version Available!", messageBuilder.toString());
 				} else {
 					StringBuilder messageBuilder = new StringBuilder();
 					messageBuilder.append("There is a no new version available\n\n");
@@ -212,7 +207,7 @@ public class AboutDialog extends Dialog {
 		Button okButton = new Button(aboutShell, SWT.PUSH);
 		okButton.setText("OK");
 		GridData gridDataOK = new GridData();
-		gridDataOK.widthHint = 150;
+		gridDataOK.widthHint = 160;
 		gridDataOK.horizontalAlignment = GridData.END;
 		okButton.setLayoutData(gridDataOK);
 		okButton.setFocus();
