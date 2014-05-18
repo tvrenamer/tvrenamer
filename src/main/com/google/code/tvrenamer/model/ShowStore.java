@@ -170,8 +170,8 @@ public class ShowStore {
 		logger.info("Show listing for '" + show.getName() + "' downloaded");
 
 		_shows.put(showName.toLowerCase(), show);
-		notifyListeners(showName, show);
 		_showStoreLock.release();
+		notifyListeners(showName, show);
 	}
 
 	private static void populateFireflyShow() {

@@ -4,72 +4,50 @@ import java.io.File;
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.TableItem;
+import org.gjt.sp.util.ProgressObserver;
 
 import com.google.code.tvrenamer.controller.util.FileUtilities;
 import com.google.code.tvrenamer.model.FileEpisode;
-import com.google.code.tvrenamer.model.FileMoveIcon;
-import com.google.code.tvrenamer.view.FileCopyMonitor;
-import com.google.code.tvrenamer.view.UIStarter;
 
 public class FileMover implements Callable<Boolean> {
 	private static Logger logger = Logger.getLogger(FileMover.class.getName());
 
 	private final File destFile;
 
-	private final TableItem item;
-
 	private final FileEpisode episode;
 
-	private final Label progressLabel;
+	private final FileMoveProgressListener callback;
 
-	private final Display display;
-
-	public FileMover(Display display, FileEpisode src, File destFile, TableItem item, Label progressLabel) {
-		this.display = display;
+	public FileMover(FileEpisode src, File destFile, FileMoveProgressListener callback) {
 		this.episode = src;
 		this.destFile = destFile;
-		this.item = item;
-		this.progressLabel = progressLabel;
+		this.callback = callback;
 	}
 
 	@Override
 	public Boolean call() {
 		File srcFile = this.episode.getFile();
 		if (destFile.getParentFile().exists() || destFile.getParentFile().mkdirs()) {
-			UIStarter.setTableItemStatus(display, item, FileMoveIcon.RENAMING);
+			callback.moveStarted();
 			boolean succeeded = false;
 			if (areSameDisk(srcFile.getAbsolutePath(), destFile.getAbsolutePath())) {
 				succeeded = srcFile.renameTo(destFile);
 			}
 			if (succeeded) {
-				UIStarter.setTableItemStatus(display, item, FileMoveIcon.SUCCESS);
+				callback.moveSuccess();
 				logger.info("Moved " + srcFile.getAbsolutePath() + " to " + destFile.getAbsolutePath());
 				episode.setFile(destFile);
 				return true;
 			} else {
-				FileCopyMonitor monitor = new FileCopyMonitor(progressLabel, srcFile.length());
-				succeeded = FileUtilities.moveFile(srcFile, destFile, monitor, true);
-				if (!display.isDisposed()) {
-					display.asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							if (progressLabel.isDisposed()) {
-								return;
-							}
-							progressLabel.setText("");
-						}
-					});
-				}
+				ProgressObserver observer = callback.moveProgress(srcFile.length());
+				succeeded = FileUtilities.moveFile(srcFile, destFile, observer, true);
 				if (succeeded) {
 					logger.info("Moved " + srcFile.getAbsolutePath() + " to " + destFile.getAbsolutePath());
 					episode.setFile(destFile);
-					UIStarter.setTableItemStatus(display, item, FileMoveIcon.SUCCESS);
+					callback.moveSuccess();
 				} else {
 					logger.severe("Unable to move " + srcFile.getAbsolutePath() + " to " + destFile.getAbsolutePath());
-					UIStarter.setTableItemStatus(display, item, FileMoveIcon.FAIL);
+					callback.moveFail();
 				}
 				return succeeded;
 			}
@@ -87,8 +65,7 @@ public class FileMover implements Callable<Boolean> {
 			if (pathA.startsWith(rootPath)) {
 				if (pathB.startsWith(rootPath)) {
 					return true;
-				}
-				else {
+				} else {
 					return false;
 				}
 			}

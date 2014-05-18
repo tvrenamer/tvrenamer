@@ -24,6 +24,7 @@
 	<property name="rel.name" value="TVRenamer-${version}" />
 	<property name="jar.builtBy" value="https://github.com/tvrenamer/tvrenamer" />
 	<property name="jar.mainClass" value="com.google.code.tvrenamer.view.UIStarter" />
+    <property name="jar.consoleMainClass" value="com.google.code.tvrenamer.controller.ConsoleStarter" />
 
 	<!-- To build, get launch4j, update the path in build.properties -->
 	<taskdef name="launch4j"
@@ -102,6 +103,27 @@
 			</jar>
 		</sequential>
 	</macrodef>
+    
+    <macrodef name="build-minimal.jar">
+        <sequential>
+            <antcall target="compile" />
+			<jar destfile="${build}/tvrenamer.jar" filesetmanifest="mergewithoutmain">
+				<manifest>
+					<attribute name="Built-By" value="${jar.builtBy}" />
+					<attribute name="Main-Class" value="${jar.consoleMainClass}" />
+				</manifest>
+
+				<fileset dir="${build}">
+				    <exclude name="com/google/code/tvrenamer/view/" />
+			    </fileset>
+
+				<zipgroupfileset refid="classpath.runtime" />
+
+				<fileset file="${version.file}" />
+				<fileset file="etc/logging.properties" />
+			</jar>
+        </sequential>
+    </macrodef>
 
 	<macrodef name="build.linux">
 		<attribute name="platform" />
@@ -134,17 +156,12 @@
 
 			<copy file="${etc}/Info.plist" todir="${build}/@{platform}/${rel.name}.app/Contents/" />
 			<copy file="${etc}/run-scripts/run-mac.sh" todir="${build}/@{platform}/${rel.name}.app/Contents/MacOS" />
-			<move file="${build}/@{platform}/tvrenamer.jar" todir="${build}/@{platform}/${rel.name}.app/Contents/MacOS" />
+		    <copy file="${etc}/run-scripts/run.sh" todir="${build}/@{platform}/${rel.name}.app/Contents/MacOS" />
+		    <move file="${build}/@{platform}/tvrenamer.jar" todir="${build}/@{platform}/${rel.name}.app/Contents/MacOS" />
 			<chmod file="${build}/@{platform}/${rel.name}.app/Contents/MacOS/run-mac.sh" perm="+x" />
+			<chmod file="${build}/@{platform}/${rel.name}.app/Contents/MacOS/run.sh" perm="+x" />
 			<copy file="${res}/icons/tvrenamer.icns" todir="${build}/@{platform}/${rel.name}.app/Contents/Resources" />
 			<copy file="LICENSE" todir="${build}/@{platform}/${rel.name}.app" />
-
-			<zip destfile="${build}/@{platform}/${rel.name}-@{platform}.zip">
-				<zipfileset dir="${build}/@{platform}" filemode="755" />
-			</zip>
-			<copy file="${build}/@{platform}/${rel.name}-@{platform}.zip" todir="${dist}" />
-
-			<delete dir="${build}/@{platform}/" failonerror="false" />
 		</sequential>
 	</macrodef>
 
@@ -169,8 +186,7 @@
 			<delete dir="${build}/@{platform}/" failonerror="false" />
 		</sequential>
 	</macrodef>
-
-
+    
 	<target name="dist.win" depends="clean">
 		<build.win platform="win32" />
 		<build.win platform="win64" />
@@ -185,6 +201,10 @@
 		<build.osx platform="osx32" />
 		<build.osx platform="osx64" />
 	</target>
+    
+    <target name="build.console" depends="clean">
+        <build-minimal.jar />
+    </target>
 
 	<target name="dist.all" depends="clean, dist.win, dist.linux, dist.osx" />
 
@@ -218,5 +238,4 @@
 			</batchtest>
 		</junit>
 	</target>
-
 </project>

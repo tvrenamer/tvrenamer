@@ -64,10 +64,14 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.TaskBar;
 import org.eclipse.swt.widgets.TaskItem;
 import org.eclipse.swt.widgets.Text;
+import org.gjt.sp.util.ProgressObserver;
 
+import com.google.code.tvrenamer.controller.FileMoveProgressListener;
 import com.google.code.tvrenamer.controller.FileMover;
+import com.google.code.tvrenamer.controller.FilesAddedListener;
 import com.google.code.tvrenamer.controller.ShowInformationListener;
 import com.google.code.tvrenamer.controller.TVRenamer;
+import com.google.code.tvrenamer.controller.TVRenamerInitiator;
 import com.google.code.tvrenamer.controller.UpdateChecker;
 import com.google.code.tvrenamer.controller.UpdateCompleteHandler;
 import com.google.code.tvrenamer.model.EpisodeStatus;
@@ -81,7 +85,7 @@ import com.google.code.tvrenamer.model.UserPreferences;
 import com.google.code.tvrenamer.model.util.Constants;
 import com.google.code.tvrenamer.model.util.Constants.OSType;
 
-public class UIStarter {
+public class UIStarter implements FilesAddedListener {
 	private static final String DOWNLOADING_FAILED_MESSAGE = "Downloading show listings failed.  Check internet connection";
 	private static Logger logger = Logger.getLogger(UIStarter.class.getName());
 	private static final int SELECTED_COLUMN = 0;
@@ -107,7 +111,7 @@ public class UIStarter {
 	private Map<String, FileEpisode> files = new HashMap<String, FileEpisode>();
 	
 	// Static initalisation block
-	static {
+	private static void setup() {
 		// Find logging.properties file inside jar
 		InputStream loggingConfigStream = UIStarter.class.getResourceAsStream("/logging.properties");
 
@@ -119,18 +123,18 @@ public class UIStarter {
 				e.printStackTrace();
 			}
 		}
+		// load preferences
+		prefs = UserPreferences.getInstance();
 	}
 
 	public static void main(String[] args) {
+		setup();
 		UIStarter ui = new UIStarter();
 		ui.init();
 		ui.launch();
 	}
 
 	private void init() {
-		// load preferences
-		prefs = UserPreferences.getInstance();
-
 		// Setup display and shell
 		GridLayout shellGridLayout = new GridLayout(3, false);
 		Display.setAppName(Constants.APPLICATION_NAME);
@@ -218,11 +222,7 @@ public class UIStarter {
 		GridData renameSelectedButtonGridData = new GridData(GridData.END, GridData.CENTER, false, false);
 		renameSelectedButton.setLayoutData(renameSelectedButtonGridData);
 
-		if (prefs != null && prefs.isMovedEnabled()) {
-			setupMoveButtonText();
-		} else {
-			setupRenameButtonText();
-		}
+		setRenameButtonText();
 
 		renameSelectedButton.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -244,19 +244,6 @@ public class UIStarter {
 		ShowStore.cleanUp();
 		shell.dispose();
 		display.dispose();
-	}
-
-	private void setupMoveButtonText() {
-		setRenameButtonText();
-		renameSelectedButton
-			.setToolTipText("Clicking this button will rename and move the selected files to the directory set in preferences (currently "
-				+ prefs.getDestinationDirectory().getAbsolutePath() + ").");
-	}
-
-	private void setupRenameButtonText() {
-		setRenameButtonText();
-		renameSelectedButton
-			.setToolTipText("Clicking this button will rename the selected files but leave them where they are.");
 	}
 
 	private void setupMenuBar() {
@@ -356,7 +343,7 @@ public class UIStarter {
 						fileNames[i] = pathPrefix + File.separatorChar + fileNames[i];
 					}
 
-					initiateRenamer(fileNames);
+					TVRenamerInitiator.initiateRenamer(fileNames, UIStarter.this);
 				}
 			}
 		});
@@ -401,7 +388,7 @@ public class UIStarter {
 							}
 						}
 						
-						initiateRenamer(fileNames);
+						TVRenamerInitiator.initiateRenamer(fileNames, UIStarter.this);
 					}
 					
 				}
@@ -569,7 +556,7 @@ public class UIStarter {
 				FileTransfer ft = FileTransfer.getInstance();
 				if (ft.isSupportedType(e.currentDataType)) {
 					fileList = (String[]) e.data;
-					initiateRenamer(fileList);
+					TVRenamerInitiator.initiateRenamer(fileList, UIStarter.this);
 				}
 			}
 		});
@@ -636,47 +623,8 @@ public class UIStarter {
 		}
 	}
 
-	private void initiateRenamer(final String[] fileNames) {
-		final List<String> files = new LinkedList<String>();
-		for (final String fileName : fileNames) {
-			File f = new File(fileName);
-			new FileTraversal() {
-				@Override
-				public void onFile(File f) {
-					// Don't add hidden files - defect 38
-					if(!f.isHidden()) {
-						files.add(f.getAbsolutePath());
-					}
-				}
-			}.traverse(f);
-		}
-		addFiles(files);
-	}
-
-	// class adopted from http://vafer.org/blog/20071112204524
-	public abstract class FileTraversal {
-		public final void traverse(final File f) {
-			if (f.isDirectory()) {
-				onDirectory(f);
-				final File[] children = f.listFiles();
-				for (File child : children) {
-					traverse(child);
-				}
-				return;
-			}
-			onFile(f);
-		}
-
-		public void onDirectory(final File d) {
-
-		}
-
-		public void onFile(final File f) {
-
-		}
-	}
-
-	private void addFiles(final List<String> fileNames) {
+	@Override
+	public void addFiles(final List<String> fileNames) {
 		for (final String fileName : fileNames) {
 			final FileEpisode episode = TVRenamer.parseFilename(fileName);
 			if (episode == null) {
@@ -694,9 +642,9 @@ public class UIStarter {
 						display.asyncExec(new Runnable() {
 							@Override
 							public void run() {
-								if( tableContainsTableItem(item) ) {
-        							item.setText(NEW_FILENAME_COLUMN, episode.getNewFilePath());
-        							item.setImage(STATUS_COLUMN, FileMoveIcon.ADDED.icon);
+								if (tableContainsTableItem(item)) {
+									item.setText(NEW_FILENAME_COLUMN, episode.getNewFilePath());
+									item.setImage(STATUS_COLUMN, FileMoveIcon.ADDED.icon);
 								}
 							}
 						});
@@ -707,10 +655,10 @@ public class UIStarter {
 						display.asyncExec(new Runnable() {
 							@Override
 							public void run() {
-								if( tableContainsTableItem(item) ){
-    								item.setText(NEW_FILENAME_COLUMN, DOWNLOADING_FAILED_MESSAGE);
-    								item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
-    								item.setChecked(false);
+								if (tableContainsTableItem(item)) {
+									item.setText(NEW_FILENAME_COLUMN, DOWNLOADING_FAILED_MESSAGE);
+									item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
+									item.setChecked(false);
 								}
 							}
 						});
@@ -720,12 +668,13 @@ public class UIStarter {
 		}
 	}
 	
-	private boolean tableContainsTableItem (TableItem item) {
-		
-		if ( item == null ) return false;
-		
-		for ( TableItem ti: resultsTable.getItems() ){
-			if( item.equals(ti) ) {
+	private boolean tableContainsTableItem(TableItem item) {
+		if (item == null) {
+			return false;
+		}
+
+		for (TableItem ti : resultsTable.getItems()) {
+			if (item.equals(ti)) {
 				item = null;
 				return true;
 			}
@@ -775,7 +724,43 @@ public class UIStarter {
 					editor.grabHorizontal = true;
 					editor.setEditor(progressLabel, item, STATUS_COLUMN);
 
-					Callable<Boolean> moveCallable = new FileMover(display, episode, newFile, item, progressLabel);
+					FileMoveProgressListener progressListener = new FileMoveProgressListener() {						
+						@Override
+						public void moveStarted() {
+							UIStarter.setTableItemStatus(display, item, FileMoveIcon.RENAMING);
+						}
+						@Override
+						public ProgressObserver moveProgress(long length) {
+							return new FileCopyMonitor(progressLabel, length);							
+						}
+						@Override
+						public void moveSuccess() {
+							UIStarter.setTableItemStatus(display, item, FileMoveIcon.SUCCESS);
+							updateLabel();
+						}
+						
+						@Override
+						public void moveFail() {
+							UIStarter.setTableItemStatus(display, item, FileMoveIcon.FAIL);
+							updateLabel();
+						}
+						
+						private void updateLabel() {
+							if (!display.isDisposed()) {
+								display.asyncExec(new Runnable() {
+									@Override
+									public void run() {
+										if (progressLabel.isDisposed()) {
+											return;
+										}
+										progressLabel.setText("");
+									}
+								});
+							}
+
+						}
+					};
+					Callable<Boolean> moveCallable = new FileMover(episode, newFile, progressListener);
 					futures.add(executor.submit(moveCallable));
 					item.setChecked(false);
 				}
@@ -929,10 +914,15 @@ public class UIStarter {
 	public static void setRenameButtonText() {
 		if (prefs.isMovedEnabled()) {
 			renameSelectedButton.setText("Rename && Move Selected");
+			renameSelectedButton
+				.setToolTipText("Clicking this button will rename and move the selected files to the directory set in preferences (currently "
+					+ prefs.getDestinationDirectory().getAbsolutePath() + ").");
 			shell.changed(new Control[] {renameSelectedButton});
 			shell.layout(false, true);
 		} else {
 			renameSelectedButton.setText("Rename Selected");
+			renameSelectedButton
+				.setToolTipText("Clicking this button will rename the selected files but leave them where they are.");
 			shell.changed(new Control[] {renameSelectedButton});
 			shell.layout(false, true);
 		}
