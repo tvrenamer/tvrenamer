@@ -56,14 +56,12 @@
 	</target>
 
 	<target name="compile" depends="init">
-		<javac srcdir="${src.main}" destdir="${build}" classpathref="classpath"
-				source="1.5" target="1.5" debug="true" debuglevel="lines,vars,source"/>
+		<javac srcdir="${src.main}" destdir="${build}" classpathref="classpath" debug="true" debuglevel="lines,vars,source" includeantruntime="false" />
 	</target>
 
 	<target name="compile.test" depends="compile">
-			<javac srcdir="${src.test}" destdir="${build}" classpathref="classpath.test"
-					source="1.5" target="1.5" debug="true" debuglevel="lines,vars,source"/>
-		</target>
+		<javac srcdir="${src.test}" destdir="${build}" classpathref="classpath.test" debug="true" debuglevel="lines,vars,source" includeantruntime="false" />
+	</target>
 
 	<macrodef name="build.jar" description="Compiles the source then creates an executable jar for the given platform">
 		<attribute name="platform" />
