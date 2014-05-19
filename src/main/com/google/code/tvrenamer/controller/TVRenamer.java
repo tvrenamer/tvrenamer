@@ -11,8 +11,14 @@ import com.google.code.tvrenamer.model.FileEpisode;
 public class TVRenamer {
 	private static Logger logger = Logger.getLogger(TVRenamer.class.getName());
 
-	public static final String[] REGEX = { "(.+?\\d{4}\\W\\D*?)[sS]?(\\d\\d?)\\D*?(\\d\\d).*",
-		"(.+?\\W\\D*?)[sS]?(\\d\\d?)\\D*?(\\d\\d).*" };
+//	public static final String[] REGEX = { "(.+?\\d{4}\\W\\D*?)[sS]?(\\d\\d?)\\D*?(\\d\\d).*",
+//		"(.+?\\W\\D*?)[sS]?(\\d\\d?)\\D*?(\\d\\d).*" };
+    public static final String[] REGEX = {
+    	"(.+?\\d{4}\\W\\D*?)[sS]?(\\d\\d?)\\D*?(\\d\\d).*", // this one works for titles with years
+    	"(.+?\\W\\D*?)[sS](\\d\\d?)[eE](\\d\\d?).*", // this one matches SXXEXX
+    	"(.+?\\W\\D*?)[sS]?(\\d\\d?)\\D*?(\\d\\d).*" // this one matches everything else
+	};
+
 	public static final Pattern[] COMPILED_REGEX = new Pattern[REGEX.length];
 
 	static {
