@@ -10,8 +10,6 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Semaphore;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.code.tvrenamer.controller.ShowInformationListener;
@@ -21,10 +19,8 @@ public class ShowStore {
 
 	private static Logger logger = Logger.getLogger(ShowStore.class.getName());
 
-	private static final Map<String, Show> _shows = new HashMap<String, Show>();
+	private static final Map<String, Show> _shows = Collections.synchronizedMap(new HashMap<String, Show>());
 	private static final Map<String, ShowRegistrations> _showRegistrations = new HashMap<String, ShowRegistrations>();
-
-	private static final Semaphore _showStoreLock = new Semaphore(1);
 
 	private static final ExecutorService threadPool = Executors.newCachedThreadPool();
 
@@ -34,17 +30,7 @@ public class ShowStore {
 	}
 
 	public static Show getShow(String showName) {
-		Show s = null;
-		try {
-			_showStoreLock.acquire();
-			s = _shows.get(showName.toLowerCase());
-		} catch (InterruptedException e) {
-			logger.log(Level.SEVERE,
-					   "Error: interrupted while getting show information '" + showName + "': " + e.getMessage(), e);
-		} finally {
-			_showStoreLock.release();
-		}
-
+		Show s = _shows.get(showName.toLowerCase());
 		if (s == null) {
 			String message = "Show not found for show name: '" + showName + "'";
 			logger.warning(message);
@@ -55,40 +41,39 @@ public class ShowStore {
 
 	}
 
-	/**<p>Download the show details if required, otherwise notify listener.</p>
+	/**
+	 * <p>
+	 * Download the show details if required, otherwise notify listener.
+	 * </p>
 	 * <ul>
-	 *   <li>if we have already downloaded the show (exists in _shows) then just call the method on the listener</li>
-	 *   <li>if we don't have the show, but are in the process of downloading the show (exists in _showRegistrations)
-	 *       then add the listener to the registration</li>
-	 *   <li>if we don't have the show and aren't downloading, then create the registration, add the listener and kick
-	 *       off the download</li>
+	 * <li>if we have already downloaded the show (exists in _shows) then just call the method on the listener</li>
+	 * <li>if we don't have the show, but are in the process of downloading the show (exists in _showRegistrations) then
+	 * add the listener to the registration</li>
+	 * <li>if we don't have the show and aren't downloading, then create the registration, add the listener and kick off
+	 * the download</li>
 	 * </ul>
-	 * @param showName the name of the show
-	 * @param listener the listener to notify or register
+	 * 
+	 * @param showName
+	 *            the name of the show
+	 * @param listener
+	 *            the listener to notify or register
 	 */
 	public static void getShow(String showName, ShowInformationListener listener) {
-		try {
-			_showStoreLock.acquire();
-			Show show = _shows.get(showName.toLowerCase());
-			if (show != null) {
-				listener.downloaded(show);
+		Show show = _shows.get(showName.toLowerCase());
+		if (show != null) {
+			listener.downloaded(show);
+		} else {
+			ShowRegistrations registrations = _showRegistrations.get(showName.toLowerCase());
+			if (registrations != null) {
+				registrations.addListener(listener);
 			} else {
-				ShowRegistrations registrations = _showRegistrations.get(showName.toLowerCase());
-				if (registrations != null) {
-					registrations.addListener(listener);
-				} else {
-					registrations = new ShowRegistrations();
-					registrations.addListener(listener);
-					_showRegistrations.put(showName.toLowerCase(), registrations);
-					downloadShow(showName);
-				}
+				registrations = new ShowRegistrations();
+				registrations.addListener(listener);
+				_showRegistrations.put(showName.toLowerCase(), registrations);
+				downloadShow(showName);
 			}
-		} catch (InterruptedException e) {
-			logger.log(Level.SEVERE,
-					   "Error: interrupted while getting show information '" + showName + "': " + e.getMessage(), e);
-		} finally {
-			_showStoreLock.release();
 		}
+
 	}
 
 	private static void downloadShow(final String showName) {
@@ -101,9 +86,9 @@ public class ShowStore {
 					// ArrayList<Show> options = TheTVDBProvider.getShowOptions(showName);
 					thisShow = options.get(0);
 
-    				TVRageProvider.getShowListing(thisShow);
+					TVRageProvider.getShowListing(thisShow);
 					// TheTVDBProvider.getShowListing(thisShow);
-				} catch(TVRenamerIOException e) {
+				} catch (TVRenamerIOException e) {
 					thisShow = new FailedShow("", showName, "", e);
 				}
 
@@ -120,7 +105,7 @@ public class ShowStore {
 
 		if (registrations != null) {
 			for (ShowInformationListener informationListener : registrations.getListeners()) {
-				if(show instanceof FailedShow) {
+				if (show instanceof FailedShow) {
 					informationListener.downloadFailed(show);
 				} else {
 					informationListener.downloaded(show);
@@ -149,26 +134,22 @@ public class ShowStore {
 		threadPool.shutdownNow();
 	}
 
-	public static void clear() throws InterruptedException {
-		_showStoreLock.acquire();
-
+	public static void clear() {
 		_shows.clear();
 		_showRegistrations.clear();
-
-		_showStoreLock.release();
 	}
 
 	/**
 	 * Add a show to the store, registered by the show name.<br />
 	 * Added this distinct method to enable unit testing
-	 * @param showName the show name
-	 * @param show the {@link Show}
-	 * @throws InterruptedException when there is a problem acquiring or releasing the lock
+	 * 
+	 * @param showName
+	 *            the show name
+	 * @param show
+	 *            the {@link Show}
 	 */
-	static void addShow(String showName, Show show) throws InterruptedException {
-		_showStoreLock.acquire();
+	static void addShow(String showName, Show show) {
 		logger.info("Show listing for '" + show.getName() + "' downloaded");
-
 		_shows.put(showName.toLowerCase(), show);
 		_showStoreLock.release();
 		notifyListeners(showName, show);
@@ -194,14 +175,8 @@ public class ShowStore {
 		season.addEpisode(13, "Heart of Gold", new Date());
 		season.addEpisode(14, "Objects in Space", new Date());
 
-
 		firefly.setSeason(1, season);
 
-		try {
-			addShow("firefly", firefly);
-		} catch (InterruptedException e) {
-			// Should never happen
-			logger.log(Level.SEVERE, "InterruptedException when attempting to add Firefly to cache", e);
-		}
+		addShow("firefly", firefly);
 	}
 }
