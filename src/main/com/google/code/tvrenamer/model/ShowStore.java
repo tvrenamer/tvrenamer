@@ -151,7 +151,6 @@ public class ShowStore {
 	static void addShow(String showName, Show show) {
 		logger.info("Show listing for '" + show.getName() + "' downloaded");
 		_shows.put(showName.toLowerCase(), show);
-		_showStoreLock.release();
 		notifyListeners(showName, show);
 	}
 
