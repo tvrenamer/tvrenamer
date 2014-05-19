@@ -1,241 +1,242 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project name="TVRenamer build script" default="usage">
 
-	<property name="src.main" value="src/main" />
-	<property name="src.test" value="src/test" />
-	<property name="build" value="build" />
-	<property name="lib.main" value="lib/main" />
-	<property name="lib.test" value="lib/test" />
-	<property name="res" value="res" />
-	<property name="rel" value="release" />
+    <property name="src.main" value="src/main" />
+    <property name="src.test" value="src/test" />
+    <property name="build" value="build" />
+    <property name="lib.main" value="lib/main" />
+    <property name="lib.test" value="lib/test" />
+    <property name="res" value="res" />
+    <property name="rel" value="release" />
 
-	<property name="dist" value="dist" />
-	<property name="etc" value="etc" />
+    <property name="dist" value="dist" />
+    <property name="etc" value="etc" />
 
-	<property file="build.properties" />
+    <property file="build.properties" />
 
-	<property name="version.file" value="${src.main}/tvrenamer.version" />
-	<loadfile property="version" srcFile="${version.file}">
-		<filterchain>
-			<striplinebreaks />
-		</filterchain>
-	</loadfile>
+    <property name="version.file" value="${src.main}/tvrenamer.version" />
+    <loadfile property="version" srcFile="${version.file}">
+        <filterchain>
+            <striplinebreaks />
+        </filterchain>
+    </loadfile>
 
-	<property name="rel.name" value="TVRenamer-${version}" />
-	<property name="jar.builtBy" value="https://github.com/tvrenamer/tvrenamer" />
-	<property name="jar.mainClass" value="com.google.code.tvrenamer.view.UIStarter" />
+    <property name="rel.name" value="TVRenamer-${version}" />
+    <property name="jar.builtBy" value="https://github.com/tvrenamer/tvrenamer" />
+    <property name="jar.mainClass" value="com.google.code.tvrenamer.view.UIStarter" />
     <property name="jar.consoleMainClass" value="com.google.code.tvrenamer.controller.ConsoleStarter" />
 
-	<!-- To build, get launch4j, update the path in build.properties -->
-	<taskdef name="launch4j"
+    <!-- To build, get launch4j, update the path in build.properties -->
+    <taskdef name="launch4j"
 			classname="net.sf.launch4j.ant.Launch4jTask"
 			classpath="${launch4j.path}/launch4j.jar:${launch4j.path}/lib/xstream.jar" onerror="report" />
 
-	<path id="classpath">
-		<fileset dir="${lib.main}">
-			<!-- We can compile against any swt version-->
-			<include name="swt-win32*.jar" />
-		</fileset>
-		<fileset dir="${lib.main}" id="classpath.runtime">
-			<include name="xstream-*.jar" />
-			<include name="xpp3_min*.jar" />
-			<include name="jedit-*-IOUtilities.jar" />
-			<include name="commons-codec-*.jar" />
-		</fileset>
-	</path>
+    <path id="classpath">
+        <fileset dir="${lib.main}">
+            <!-- We can compile against any swt version-->
+            <include name="swt-win32*.jar" />
+        </fileset>
+        <fileset dir="${lib.main}" id="classpath.runtime">
+            <include name="xstream-*.jar" />
+            <include name="xpp3_min*.jar" />
+            <include name="jedit-*-IOUtilities.jar" />
+            <include name="commons-codec-*.jar" />
+            <!-- command line args parser -->
+            <include name="jcommander-*.jar" />
+        </fileset>
+    </path>
 
-	<path id="classpath.test">
-		<path refid="classpath" />
-		<fileset dir="${lib.test}" />
+    <path id="classpath.test">
+        <path refid="classpath" />
+        <fileset dir="${lib.test}" />
+        <pathelement location="${build}" />
+    </path>
 
-		<pathelement location="${build}" />
-	</path>
+    <target name="init">
+        <mkdir dir="${build}" />
+        <mkdir dir="${dist}" />
+    </target>
 
-	<target name="init">
-		<mkdir dir="${build}" />
-		<mkdir dir="${dist}" />
-	</target>
+    <target name="compile" depends="init">
+        <javac srcdir="${src.main}" destdir="${build}" classpathref="classpath"
+				debug="true" debuglevel="lines,vars,source" includeantruntime="false"/>
+    </target>
 
-	<target name="compile" depends="init">
-		<javac srcdir="${src.main}" destdir="${build}" classpathref="classpath"
-				source="1.5" target="1.5" debug="true" debuglevel="lines,vars,source"/>
-	</target>
+    <target name="compile.test" depends="compile">
+        <javac srcdir="${src.test}" destdir="${build}" classpathref="classpath.test"
+					debug="true" debuglevel="lines,vars,source" includeantruntime="false"/>
+    </target>
 
-	<target name="compile.test" depends="compile">
-			<javac srcdir="${src.test}" destdir="${build}" classpathref="classpath.test"
-					source="1.5" target="1.5" debug="true" debuglevel="lines,vars,source"/>
-		</target>
-
-	<macrodef name="build.jar" description="Compiles the source then creates an executable jar for the given platform">
-		<attribute name="platform" />
-		<sequential>
-			<mkdir dir="${build}/@{platform}" />
-
-			<!-- Use antcall because macrodef's can't declare dependencies -->
-			<antcall target="compile"/>
-
-			<jar destfile="${build}/@{platform}/tvrenamer.jar" filesetmanifest="mergewithoutmain">
-				<manifest>
-					<attribute name="Built-By" value="${jar.builtBy}" />
-					<attribute name="Main-Class" value="${jar.mainClass}" />
-				</manifest>
-
-				<fileset dir="${build}" />
-
-				<fileset dir="${res}">
-					<include name="icons/tvrenamer.icns" />
-					<include name="icons/tvrenamer.png" />
-
-					<include name="icons/SweetieLegacy/16-circle-blue.png" />
-					<include name="icons/SweetieLegacy/16-clock.png" />
-					<include name="icons/SweetieLegacy/16-em-pencil.png" />
-					<include name="icons/SweetieLegacy/16-em-check.png" />
-					<include name="icons/SweetieLegacy/16-em-cross.png" />
-				</fileset>
-
-				<zipgroupfileset refid="classpath.runtime" />
-				<zipgroupfileset dir="${lib.main}">
-					<include name="swt-@{platform}*.jar" />
-				</zipgroupfileset>
-
-				<fileset file="${version.file}" />
-				<fileset file="etc/logging.properties" />
-			</jar>
-		</sequential>
-	</macrodef>
-    
-    <macrodef name="build-minimal.jar">
+    <macrodef name="build.jar" description="Compiles the source then creates an executable jar for the given platform">
+        <attribute name="platform" />
         <sequential>
-            <antcall target="compile" />
-			<jar destfile="${build}/tvrenamer.jar" filesetmanifest="mergewithoutmain">
-				<manifest>
-					<attribute name="Built-By" value="${jar.builtBy}" />
-					<attribute name="Main-Class" value="${jar.consoleMainClass}" />
-				</manifest>
+            <mkdir dir="${build}/@{platform}" />
 
-				<fileset dir="${build}">
-				    <exclude name="com/google/code/tvrenamer/view/" />
-			    </fileset>
+            <!-- Use antcall because macrodef's can't declare dependencies -->
+            <antcall target="compile"/>
 
-				<zipgroupfileset refid="classpath.runtime" />
+            <jar destfile="${build}/@{platform}/tvrenamer.jar" filesetmanifest="mergewithoutmain">
+                <manifest>
+                    <attribute name="Built-By" value="${jar.builtBy}" />
+                    <attribute name="Main-Class" value="${jar.mainClass}" />
+                </manifest>
 
-				<fileset file="${version.file}" />
-				<fileset file="etc/logging.properties" />
-			</jar>
+                <fileset dir="${build}" />
+
+                <fileset dir="${res}">
+                    <include name="icons/tvrenamer.icns" />
+                    <include name="icons/tvrenamer.png" />
+
+                    <include name="icons/SweetieLegacy/16-circle-blue.png" />
+                    <include name="icons/SweetieLegacy/16-clock.png" />
+                    <include name="icons/SweetieLegacy/16-em-pencil.png" />
+                    <include name="icons/SweetieLegacy/16-em-check.png" />
+                    <include name="icons/SweetieLegacy/16-em-cross.png" />
+                </fileset>
+
+                <zipgroupfileset refid="classpath.runtime" />
+                <zipgroupfileset dir="${lib.main}">
+                    <include name="swt-@{platform}*.jar" />
+                </zipgroupfileset>
+
+                <fileset file="${version.file}" />
+                <fileset file="etc/logging.properties" />
+            </jar>
         </sequential>
     </macrodef>
 
-	<macrodef name="build.linux">
-		<attribute name="platform" />
-		<sequential>
-			<build.jar platform="@{platform}" />
+    <macrodef name="build-minimal.jar">
+        <sequential>
+            <antcall target="compile" />
+            <jar destfile="${build}/tvrenamer.jar" filesetmanifest="mergewithoutmain">
+                <manifest>
+                    <attribute name="Built-By" value="${jar.builtBy}" />
+                    <attribute name="Main-Class" value="${jar.consoleMainClass}" />
+                </manifest>
 
-			<mkdir dir="${build}/@{platform}/${rel.name}" />
+                <fileset dir="${build}">
+                    <exclude name="com/google/code/tvrenamer/view/" />
+                </fileset>
 
-			<mkdir dir="${build}/@{platform}/${rel.name}" />
-			<move file="${build}/@{platform}/tvrenamer.jar" todir="${build}/@{platform}/${rel.name}" />
-			<copy file="${etc}/run-scripts/run-linux.sh" todir="${build}/@{platform}/${rel.name}" />
-			<copy file="LICENSE" todir="${build}/@{platform}/${rel.name}" />
+                <zipgroupfileset refid="classpath.runtime" />
 
-			<zip destfile="${build}/@{platform}/${rel.name}/${rel.name}-@{platform}.zip">
-				<zipfileset dir="${build}/@{platform}" filemode="755" />
-			</zip>
-			<copy file="${build}/@{platform}/${rel.name}/${rel.name}-@{platform}.zip" todir="${dist}" />
+                <fileset file="${version.file}" />
+                <fileset file="etc/logging.properties" />
+            </jar>
+        </sequential>
+    </macrodef>
 
-			<delete dir="${build}/@{platform}/" failonerror="false" />
-		</sequential>
-	</macrodef>
+    <macrodef name="build.linux">
+        <attribute name="platform" />
+        <sequential>
+            <build.jar platform="@{platform}" />
 
-	<macrodef name="build.osx">
-		<attribute name="platform" />
-		<sequential>
-			<build.jar platform="@{platform}" />
+            <mkdir dir="${build}/@{platform}/${rel.name}" />
 
-			<mkdir dir="${build}/@{platform}/${rel.name}.app/Contents/MacOS" />
-			<mkdir dir="${build}/@{platform}/${rel.name}.app/Contents/Resources" />
+            <mkdir dir="${build}/@{platform}/${rel.name}" />
+            <move file="${build}/@{platform}/tvrenamer.jar" todir="${build}/@{platform}/${rel.name}" />
+            <copy file="${etc}/run-scripts/run-linux.sh" todir="${build}/@{platform}/${rel.name}" />
+            <copy file="LICENSE" todir="${build}/@{platform}/${rel.name}" />
 
-			<copy file="${etc}/Info.plist" todir="${build}/@{platform}/${rel.name}.app/Contents/" />
-			<copy file="${etc}/run-scripts/run-mac.sh" todir="${build}/@{platform}/${rel.name}.app/Contents/MacOS" />
-		    <copy file="${etc}/run-scripts/run.sh" todir="${build}/@{platform}/${rel.name}.app/Contents/MacOS" />
-		    <move file="${build}/@{platform}/tvrenamer.jar" todir="${build}/@{platform}/${rel.name}.app/Contents/MacOS" />
-			<chmod file="${build}/@{platform}/${rel.name}.app/Contents/MacOS/run-mac.sh" perm="+x" />
-			<chmod file="${build}/@{platform}/${rel.name}.app/Contents/MacOS/run.sh" perm="+x" />
-			<copy file="${res}/icons/tvrenamer.icns" todir="${build}/@{platform}/${rel.name}.app/Contents/Resources" />
-			<copy file="LICENSE" todir="${build}/@{platform}/${rel.name}.app" />
-		</sequential>
-	</macrodef>
+            <zip destfile="${build}/@{platform}/${rel.name}/${rel.name}-@{platform}.zip">
+                <zipfileset dir="${build}/@{platform}" filemode="755" />
+            </zip>
+            <copy file="${build}/@{platform}/${rel.name}/${rel.name}-@{platform}.zip" todir="${dist}" />
 
-	<macrodef name="build.win">
-		<attribute name="platform" />
-		<sequential>
-			<fail unless="launch4j.path" message="You must set the 'launch4j.path' property in build.properties. Copy, rename build.properties.template and enter the launch4j location" />
+            <delete dir="${build}/@{platform}/" failonerror="false" />
+        </sequential>
+    </macrodef>
 
-			<build.jar platform="@{platform}" />
-			<!-- Create the .exe with launch4j, but first you must uncomment the ant task import above -->
-			<launch4j>
-				<config headerType="gui"
+    <macrodef name="build.osx">
+        <attribute name="platform" />
+        <sequential>
+            <build.jar platform="@{platform}" />
+
+            <mkdir dir="${build}/@{platform}/${rel.name}.app/Contents/MacOS" />
+            <mkdir dir="${build}/@{platform}/${rel.name}.app/Contents/Resources" />
+
+            <copy file="${etc}/Info.plist" todir="${build}/@{platform}/${rel.name}.app/Contents/" />
+            <copy file="${etc}/run-scripts/run-mac.sh" todir="${build}/@{platform}/${rel.name}.app/Contents/MacOS" />
+            <copy file="${etc}/run-scripts/run.sh" todir="${build}/@{platform}/${rel.name}.app/Contents/MacOS" />
+            <move file="${build}/@{platform}/tvrenamer.jar" todir="${build}/@{platform}/${rel.name}.app/Contents/MacOS" />
+            <chmod file="${build}/@{platform}/${rel.name}.app/Contents/MacOS/run-mac.sh" perm="+x" />
+            <chmod file="${build}/@{platform}/${rel.name}.app/Contents/MacOS/run.sh" perm="+x" />
+            <copy file="${res}/icons/tvrenamer.icns" todir="${build}/@{platform}/${rel.name}.app/Contents/Resources" />
+            <copy file="LICENSE" todir="${build}/@{platform}/${rel.name}.app" />
+        </sequential>
+    </macrodef>
+
+    <macrodef name="build.win">
+        <attribute name="platform" />
+        <sequential>
+            <fail unless="launch4j.path" message="You must set the 'launch4j.path' property in build.properties. Copy, rename build.properties.template and enter the launch4j location" />
+
+            <build.jar platform="@{platform}" />
+            <!-- Create the .exe with launch4j, but first you must uncomment the ant task import above -->
+            <launch4j>
+                <config headerType="gui"
 				        outfile="${dist}/${rel.name}-@{platform}.exe"
 				        dontWrapJar="false"
 				        jar="${build}/@{platform}/tvrenamer.jar"
 				        icon="${res}\icons\oldschool-tv-icon.ico"
 				        chdir=".">
-					<jre minVersion="1.5.0" />
-				</config>
-			</launch4j>
+                    <jre minVersion="1.5.0" />
+                </config>
+            </launch4j>
 
-			<delete dir="${build}/@{platform}/" failonerror="false" />
-		</sequential>
-	</macrodef>
-    
-	<target name="dist.win" depends="clean">
-		<build.win platform="win32" />
-		<build.win platform="win64" />
-	</target>
+            <delete dir="${build}/@{platform}/" failonerror="false" />
+        </sequential>
+    </macrodef>
 
-	<target name="dist.linux" depends="clean">
-		<build.linux platform="gtk32" />
-		<build.linux platform="gtk64" />
-	</target>
+    <target name="dist.win" depends="clean">
+        <build.win platform="win32" />
+        <build.win platform="win64" />
+    </target>
 
-	<target name="dist.osx" depends="clean">
-		<build.osx platform="osx32" />
-		<build.osx platform="osx64" />
-	</target>
-    
+    <target name="dist.linux" depends="clean">
+        <build.linux platform="gtk32" />
+        <build.linux platform="gtk64" />
+    </target>
+
+    <target name="dist.osx" depends="clean">
+        <build.osx platform="osx32" />
+        <build.osx platform="osx64" />
+    </target>
+
     <target name="build.console" depends="clean">
         <build-minimal.jar />
     </target>
 
-	<target name="dist.all" depends="clean, dist.win, dist.linux, dist.osx" />
+    <target name="dist.all" depends="clean, dist.win, dist.linux, dist.osx" />
 
-	<target name="clean">
-		<delete includeemptydirs="true" failonerror="false">
-			<fileset dir="${build}" includes="**/*" />
-			<fileset dir="${dist}" includes="**/*" />
-		</delete>
-	</target>
+    <target name="clean">
+        <delete includeemptydirs="true" failonerror="false">
+            <fileset dir="${build}" includes="**/*" />
+            <fileset dir="${dist}" includes="**/*" />
+        </delete>
+    </target>
 
-	<target name="usage">
-		<echo message="Usage: ant dist.{win, linux, osx, all}" />
-		<echo message="       tests {-Dproxy.enabled=true -Dproxy.host=hostname -Dproxy.port=portNumber {-Dproxy.user=username -Dproxy.password=password}}" />
-	</target>
+    <target name="usage">
+        <echo message="Usage: ant dist.{win, linux, osx, all}" />
+        <echo message="       tests {-Dproxy.enabled=true -Dproxy.host=hostname -Dproxy.port=portNumber {-Dproxy.user=username -Dproxy.password=password}}" />
+    </target>
 
-	<target name="proxy" if="proxy.enabled">
-    <setproxy proxyhost="${proxy.host}" proxyport="${proxy.port}"
+    <target name="proxy" if="proxy.enabled">
+        <setproxy proxyhost="${proxy.host}" proxyport="${proxy.port}"
     	proxyuser="${proxy.user}" proxypassword="${proxy.password}"/>
-	</target>
+    </target>
 
-	<target name="test" depends="clean, compile.test, proxy">
-		<copy file="${src.main}/tvrenamer.version" todir="${build}" />
+    <target name="test" depends="clean, compile.test, proxy">
+        <copy file="${src.main}/tvrenamer.version" todir="${build}" />
 
-		<junit haltonerror="true" haltonfailure="true" printsummary="true" fork="no" forkmode="once">
-			<formatter type="plain" usefile="false" />
+        <junit haltonerror="true" haltonfailure="true" printsummary="true" fork="no" forkmode="once">
+            <formatter type="plain" usefile="false" />
 
-			<classpath refid="classpath.test" />
+            <classpath refid="classpath.test" />
 
-			<batchtest>
-				<fileset dir="${src.test}" />
-			</batchtest>
-		</junit>
-	</target>
+            <batchtest>
+                <fileset dir="${src.test}" />
+            </batchtest>
+        </junit>
+    </target>
 </project>

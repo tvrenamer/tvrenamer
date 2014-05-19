@@ -5,6 +5,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class TVRenamerInitiator {
+	
+	public static void initiateRenamer(final List<String> fileNames, FilesAddedListener callback) {
+		initiateRenamer(fileNames.toArray(new String[0]), callback);
+	}
+	
 	public static void initiateRenamer(final String[] fileNames, FilesAddedListener callback) {
 		final List<String> files = new LinkedList<String>();
 		for (final String fileName : fileNames) {
