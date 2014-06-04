@@ -96,6 +96,7 @@ public class UIStarter {
 
 	private Button addFilesButton;
 	private Button addFolderButton;
+    private Button clearFilesButton;
 	private Link updatesAvailableLink;
 	private static Button renameSelectedButton;
 	private static TableColumn destinationColumn;
@@ -147,6 +148,7 @@ public class UIStarter {
 		// Add controls to main shell
 		setupMainWindow();
 		setupAddFilesDialog();
+        setupClearFilesButton();
 		setupMenuBar();
 
 		setupIcons();
@@ -163,6 +165,9 @@ public class UIStarter {
 		
 		addFolderButton = new Button(topButtonsComposite, SWT.PUSH);
 		addFolderButton.setText("Add Folder");
+
+        clearFilesButton = new Button(topButtonsComposite, SWT.PUSH);
+        clearFilesButton.setText("Clear List");
 
 		updatesAvailableLink = new Link(topButtonsComposite, SWT.VERTICAL);
 		//updatesAvailableLink.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, true));
@@ -341,73 +346,82 @@ public class UIStarter {
 	}
 
 	private void setupAddFilesDialog() {
-		final FileDialog fd = new FileDialog(shell, SWT.MULTI);
-		addFilesButton.addSelectionListener(new SelectionAdapter() {
+        final FileDialog fd = new FileDialog(shell, SWT.MULTI);
+        addFilesButton.addSelectionListener(new SelectionAdapter() {
 
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				String pathPrefix = fd.open();
-				if (pathPrefix != null) {
-					File file = new File(pathPrefix);
-					pathPrefix = file.getParent();
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                String pathPrefix = fd.open();
+                if (pathPrefix != null) {
+                    File file = new File(pathPrefix);
+                    pathPrefix = file.getParent();
 
-					String[] fileNames = fd.getFileNames();
-					for (int i = 0; i < fileNames.length; i++) {
-						fileNames[i] = pathPrefix + File.separatorChar + fileNames[i];
-					}
+                    String[] fileNames = fd.getFileNames();
+                    for (int i = 0; i < fileNames.length; i++) {
+                        fileNames[i] = pathPrefix + File.separatorChar + fileNames[i];
+                    }
 
-					initiateRenamer(fileNames);
-				}
-			}
-		});
-		
-		final DirectoryDialog dd = new DirectoryDialog(shell, SWT.SINGLE);
-		addFolderButton.addSelectionListener(new SelectionAdapter() {
-			
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				String directory = dd.open();
-				if ( directory != null ) {
-					// load all of the files in the dir
-					File file = new File(directory);
-					String[] fileNames = file.list();
-					
-					if( fileNames != null ){
-						
-						// Check we are not recursive
-						boolean includeDirs = prefs.isRecursivelyAddFolders();
-						List<String> subDirs = new ArrayList<String>();
-						
-						for( int i = 0; i < fileNames.length; i++ ){
-							String path = directory + File.separatorChar +fileNames[i];
-							
-							// Store the list of directories
-							if( new File(path).isDirectory() ) {
-								subDirs.add(path);
-							}
-							
-							// update the fileName value
-							fileNames[i] = path;
-						}
-						
-						if( !includeDirs ) {
-							for (String subDir : subDirs){
-								for(int i = 0; i < fileNames.length; i++) {
-									if(fileNames[i].startsWith(subDir)){
-										// A safe way of removing the file name
-										fileNames[i] = "";
-									}
-								}
-							}
-						}
-						
-						initiateRenamer(fileNames);
-					}
-					
-				}
-			}
-			
-		});
+                    initiateRenamer(fileNames);
+                }
+            }
+        });
+
+        final DirectoryDialog dd = new DirectoryDialog(shell, SWT.SINGLE);
+        addFolderButton.addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                String directory = dd.open();
+                if (directory != null) {
+                    // load all of the files in the dir
+                    File file = new File(directory);
+                    String[] fileNames = file.list();
+
+                    if (fileNames != null) {
+
+                        // Check we are not recursive
+                        boolean includeDirs = prefs.isRecursivelyAddFolders();
+                        List<String> subDirs = new ArrayList<String>();
+
+                        for (int i = 0; i < fileNames.length; i++) {
+                            String path = directory + File.separatorChar + fileNames[i];
+
+                            // Store the list of directories
+                            if (new File(path).isDirectory()) {
+                                subDirs.add(path);
+                            }
+
+                            // update the fileName value
+                            fileNames[i] = path;
+                        }
+
+                        if (!includeDirs) {
+                            for (String subDir : subDirs) {
+                                for (int i = 0; i < fileNames.length; i++) {
+                                    if (fileNames[i].startsWith(subDir)) {
+                                        // A safe way of removing the file name
+                                        fileNames[i] = "";
+                                    }
+                                }
+                            }
+                        }
+
+                        initiateRenamer(fileNames);
+                    }
+
+                }
+            }
+
+        });
+    }
+
+    private void setupClearFilesButton() {
+
+        clearFilesButton.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                resultsTable.removeAll();
+            }
+        });
 	}
 
 	private void setupResultsTable() {
