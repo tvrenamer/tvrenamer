@@ -7,6 +7,13 @@
 	<name>tvrenamer</name>
 	<url>http://tvrenamer.org</url>
 
+	<repositories>
+		<repository>
+			<id>my-local-repo</id>
+			<url>file://${basedir}/repo</url>
+		</repository>
+	</repositories>
+
 	<build>
 		<plugins>
 			<plugin>
