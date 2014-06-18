@@ -5,11 +5,9 @@ import java.util.Observable;
 import java.util.logging.Logger;
 
 import com.google.code.tvrenamer.controller.UserPreferencesChangeEvent;
-import com.google.code.tvrenamer.controller.UserPreferencesChangeListener;
 import com.google.code.tvrenamer.controller.UserPreferencesPersistence;
 import com.google.code.tvrenamer.controller.util.StringUtils;
 import com.google.code.tvrenamer.model.util.Constants;
-import com.google.code.tvrenamer.view.UIUtils;
 
 public class UserPreferences extends Observable {
 	private static Logger logger = Logger.getLogger(UserPreferences.class.getName());
@@ -88,9 +86,6 @@ public class UserPreferences extends Observable {
 
 		prefs.ensurePath();
 		
-		// add observer
-		prefs.addObserver(new UserPreferencesChangeListener());
-
 		return prefs;
 	}
 	
@@ -252,7 +247,6 @@ public class UserPreferences extends Observable {
 				this.moveEnabled = false;
 				String message = "Couldn't create path: '" + this.destDir.getAbsolutePath() + "'. Move is now disabled";
 				logger.warning(message);
-				UIUtils.showMessageBox(SWTMessageBoxType.ERROR, "Error", message);
 			}
 		}
 	}

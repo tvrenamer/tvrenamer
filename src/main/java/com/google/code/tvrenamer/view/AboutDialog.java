@@ -21,7 +21,6 @@ import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Shell;
 
 import com.google.code.tvrenamer.controller.UpdateChecker;
-import com.google.code.tvrenamer.model.SWTMessageBoxType;
 import com.google.code.tvrenamer.model.util.Constants;
 
 /**
@@ -30,11 +29,6 @@ import com.google.code.tvrenamer.model.util.Constants;
 public class AboutDialog extends Dialog {
 	private static Logger logger = Logger.getLogger(AboutDialog.class.getName());
 
-	private static final String TVRENAMER_REPOSITORY_URL = "http://tvrenamer.org/source";
-	private static final String TVRENAMER_LICENSE_URL = "http://www.gnu.org/licenses/gpl-2.0.html";
-	private static final String TVRENAMER_SUPPORT_EMAIL = "support@tvrenamer.org";
-	public static final String TVRENAMER_PROJECT_URL = "http://tvrenamer.org";
-	private static final String TVRENAMER_PROJECT_ISSUES_URL = TVRENAMER_PROJECT_URL + "/issues";
 	private static Shell aboutShell;
 
 	/**
@@ -112,57 +106,57 @@ public class AboutDialog extends Dialog {
 		descriptionLabel.setText("TVRenamer is a Java GUI utility to rename TV episodes from TV listings");
 
 		final Link licenseLink = new Link(aboutShell, SWT.NONE);
-		licenseLink.setText("Licensed under the <a href=\"" + TVRENAMER_LICENSE_URL
+		licenseLink.setText("Licensed under the <a href=\"" + Constants.TVRENAMER_LICENSE_URL
 			+ "\">GNU General Public License v2</a>");
 		licenseLink.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true));
 
 		licenseLink.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				Program.launch(TVRENAMER_LICENSE_URL);
+				Program.launch(Constants.TVRENAMER_LICENSE_URL);
 			}
 		});
 
 		final Link projectPageLink = new Link(aboutShell, SWT.NONE);
-		projectPageLink.setText("<a href=\"" + TVRENAMER_PROJECT_URL + "\">Project Page</a>");
+		projectPageLink.setText("<a href=\"" + Constants.TVRENAMER_PROJECT_URL + "\">Project Page</a>");
 		projectPageLink.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true));
 
 		projectPageLink.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				Program.launch(TVRENAMER_PROJECT_URL);
+				Program.launch(Constants.TVRENAMER_PROJECT_URL);
 			}
 		});
 
 		final Link issuesLink = new Link(aboutShell, SWT.NONE);
-		issuesLink.setText("<a href=\"" + TVRENAMER_PROJECT_ISSUES_URL + "\">Issue Tracker</a>");
+		issuesLink.setText("<a href=\"" + Constants.TVRENAMER_PROJECT_ISSUES_URL + "\">Issue Tracker</a>");
 		issuesLink.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true));
 
 		issuesLink.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				Program.launch(TVRENAMER_PROJECT_ISSUES_URL);
+				Program.launch(Constants.TVRENAMER_PROJECT_ISSUES_URL);
 			}
 		});
 
 		final Link supportEmailLink = new Link(aboutShell, SWT.NONE);
-    supportEmailLink.setText("<a href=\"mailto:" + TVRENAMER_SUPPORT_EMAIL + "\">Send support email</a>");
+    supportEmailLink.setText("<a href=\"mailto:" + Constants.TVRENAMER_SUPPORT_EMAIL + "\">Send support email</a>");
     supportEmailLink.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true));
     supportEmailLink.addSelectionListener(new SelectionAdapter() {
         @Override
         public void widgetSelected(SelectionEvent arg0) {
-            Program.launch("mailto:" + TVRENAMER_SUPPORT_EMAIL);
+            Program.launch("mailto:" + Constants.TVRENAMER_SUPPORT_EMAIL);
         }
     });
 
 		final Link sourceCodeLink = new Link(aboutShell, SWT.NONE);
-		sourceCodeLink.setText("<a href=\"" + TVRENAMER_REPOSITORY_URL + "\">Source Code</a>");
+		sourceCodeLink.setText("<a href=\"" + Constants.TVRENAMER_REPOSITORY_URL + "\">Source Code</a>");
 		sourceCodeLink.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true));
 
 		sourceCodeLink.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				Program.launch(TVRENAMER_REPOSITORY_URL);
+				Program.launch(Constants.TVRENAMER_REPOSITORY_URL);
 			}
 		});
 
@@ -187,7 +181,7 @@ public class AboutDialog extends Dialog {
 					messageBuilder.append(Constants.VERSION_NUMBER);
 					messageBuilder.append(", but there is an update available\n\n");
 					messageBuilder.append("Please visit ");
-					messageBuilder.append(TVRENAMER_PROJECT_URL);
+					messageBuilder.append(Constants.TVRENAMER_PROJECT_URL);
 					messageBuilder.append(" to download the new version.");
 
 					logger.fine(messageBuilder.toString());
@@ -196,7 +190,7 @@ public class AboutDialog extends Dialog {
 					StringBuilder messageBuilder = new StringBuilder();
 					messageBuilder.append("There is a no new version available\n\n");
 					messageBuilder.append("Please check the website (");
-					messageBuilder.append(TVRENAMER_PROJECT_URL);
+					messageBuilder.append(Constants.TVRENAMER_PROJECT_URL);
 					messageBuilder.append(") for any news or check back later.");
 					UIUtils.showMessageBox(SWTMessageBoxType.WARNING, "No New Version Available",
 										   messageBuilder.toString());

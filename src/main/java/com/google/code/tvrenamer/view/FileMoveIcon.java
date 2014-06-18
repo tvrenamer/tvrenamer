@@ -1,4 +1,4 @@
-package com.google.code.tvrenamer.model;
+package com.google.code.tvrenamer.view;
 
 import java.io.InputStream;
 

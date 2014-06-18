@@ -13,3 +13,4 @@ build.properties
 settings.xml
 preferences.xml
 *.iml
+/target/

@@ -5,12 +5,11 @@ import java.util.logging.Logger;
 
 import com.google.code.tvrenamer.model.TVRenamerIOException;
 import com.google.code.tvrenamer.model.util.Constants;
-import com.google.code.tvrenamer.view.AboutDialog;
 
 public class UpdateChecker {
 	private static Logger logger = Logger.getLogger(UpdateChecker.class.getName());
 
-	private static final String VERSION_URL = AboutDialog.TVRENAMER_PROJECT_URL + "/version";
+	private static final String VERSION_URL = Constants.TVRENAMER_PROJECT_URL + "/version";
 
 	/**
 	 * Checks if a newer version is available.

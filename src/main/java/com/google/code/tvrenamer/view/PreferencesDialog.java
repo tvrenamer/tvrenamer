@@ -39,7 +39,6 @@ import org.eclipse.swt.widgets.Text;
 
 import com.google.code.tvrenamer.model.ProxySettings;
 import com.google.code.tvrenamer.model.ReplacementToken;
-import com.google.code.tvrenamer.model.SWTMessageBoxType;
 import com.google.code.tvrenamer.model.TVRenamerIOException;
 import com.google.code.tvrenamer.model.UserPreferences;
 

@@ -13,6 +13,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -74,25 +76,24 @@ import com.google.code.tvrenamer.controller.TVRenamer;
 import com.google.code.tvrenamer.controller.TVRenamerInitiator;
 import com.google.code.tvrenamer.controller.UpdateChecker;
 import com.google.code.tvrenamer.controller.UpdateCompleteHandler;
+import com.google.code.tvrenamer.controller.UserPreferencesChangeEvent;
 import com.google.code.tvrenamer.model.EpisodeStatus;
 import com.google.code.tvrenamer.model.FileEpisode;
-import com.google.code.tvrenamer.model.FileMoveIcon;
 import com.google.code.tvrenamer.model.NotFoundException;
-import com.google.code.tvrenamer.model.SWTMessageBoxType;
 import com.google.code.tvrenamer.model.Show;
 import com.google.code.tvrenamer.model.ShowStore;
 import com.google.code.tvrenamer.model.UserPreferences;
 import com.google.code.tvrenamer.model.util.Constants;
 import com.google.code.tvrenamer.model.util.Constants.OSType;
 
-public class UIStarter implements FilesAddedListener {
+public class UIStarter implements FilesAddedListener, Observer {
 	private static final String DOWNLOADING_FAILED_MESSAGE = "Downloading show listings failed.  Check internet connection";
 	private static Logger logger = Logger.getLogger(UIStarter.class.getName());
 	private static final int SELECTED_COLUMN = 0;
 	private static final int CURRENT_FILE_COLUMN = 1;
 	private static final int NEW_FILENAME_COLUMN = 2;
 	private static final int STATUS_COLUMN = 3;
-	private static final String TVRENAMER_DOWNLOAD_URL = AboutDialog.TVRENAMER_PROJECT_URL + "/downloads";
+	private static final String TVRENAMER_DOWNLOAD_URL = Constants.TVRENAMER_PROJECT_URL + "/downloads";
 
 	private static Shell shell;
 	private Display display;
@@ -130,6 +131,7 @@ public class UIStarter implements FilesAddedListener {
 	public static void main(String[] args) {
 		setup();
 		UIStarter ui = new UIStarter();
+		prefs.addObserver(ui);
 		ui.init();
 		ui.launch();
 	}
@@ -320,7 +322,7 @@ public class UIStarter implements FilesAddedListener {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				Program.launch(AboutDialog.TVRENAMER_PROJECT_URL);
+				Program.launch(Constants.TVRENAMER_PROJECT_URL);
 			}
 		});
 
@@ -620,6 +622,25 @@ public class UIStarter implements FilesAddedListener {
 			showMessageBox(SWTMessageBoxType.ERROR, "Error", message, exception);
 			logger.log(Level.SEVERE, message, exception);
 			System.exit(1);
+		}
+	}
+	
+	@Override
+	public void update(Observable observable, Object value) {
+		logger.info("Preference change event: " + value);
+
+		if (observable instanceof UserPreferences && value instanceof UserPreferencesChangeEvent) {
+			UserPreferencesChangeEvent upce = (UserPreferencesChangeEvent) value;
+
+			if (upce.getPreference().equals("moveEnabled")) {
+				UIStarter.setRenameButtonText();
+				UIStarter.setColumnDestText();
+			}
+			
+			if (upce.getPreference().equals("proxy")) {
+				// There may be incorrect entries in ShowStore if there is no internet, so clear on proxy change
+				ShowStore.clear();
+			}
 		}
 	}
 
