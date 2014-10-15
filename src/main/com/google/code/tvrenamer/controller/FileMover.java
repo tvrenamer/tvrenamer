@@ -11,6 +11,7 @@ import org.eclipse.swt.widgets.TableItem;
 import com.google.code.tvrenamer.controller.util.FileUtilities;
 import com.google.code.tvrenamer.model.FileEpisode;
 import com.google.code.tvrenamer.model.FileMoveIcon;
+import com.google.code.tvrenamer.model.UserPreferences;
 import com.google.code.tvrenamer.view.FileCopyMonitor;
 import com.google.code.tvrenamer.view.UIStarter;
 
@@ -48,6 +49,7 @@ public class FileMover implements Callable<Boolean> {
 				UIStarter.setTableItemStatus(display, item, FileMoveIcon.SUCCESS);
 				logger.info("Moved " + srcFile.getAbsolutePath() + " to " + destFile.getAbsolutePath());
 				episode.setFile(destFile);
+				this.updateFileModifiedDate(destFile);
 				return true;
 			} else {
 				FileCopyMonitor monitor = new FileCopyMonitor(progressLabel, srcFile.length());
@@ -65,6 +67,7 @@ public class FileMover implements Callable<Boolean> {
 				}
 				if (succeeded) {
 					logger.info("Moved " + srcFile.getAbsolutePath() + " to " + destFile.getAbsolutePath());
+					this.updateFileModifiedDate(destFile);
 					episode.setFile(destFile);
 					UIStarter.setTableItemStatus(display, item, FileMoveIcon.SUCCESS);
 				} else {
@@ -75,6 +78,15 @@ public class FileMover implements Callable<Boolean> {
 			}
 		}
 		return false;
+	}
+	
+	private void updateFileModifiedDate(File file) {
+		// update the modified time on the file, the parent, and the grandparent
+		file.setLastModified(System.currentTimeMillis());
+		if(UserPreferences.getInstance().isMovedEnabled()) {
+			file.getParentFile().setLastModified(System.currentTimeMillis());
+			file.getParentFile().getParentFile().setLastModified(System.currentTimeMillis());
+		}
 	}
 
 	private static boolean areSameDisk(String pathA, String pathB) {
