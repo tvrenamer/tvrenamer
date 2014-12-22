@@ -27,8 +27,7 @@ public class TVRenamerTest {
 		values.add(new TestInput("gossip.girl.s03e15.hdtv.xvid-fqm.avi", "gossip girl", "3", "15"));
 		values.add(new TestInput("smallville.s09e14.hdtv.xvid-xii.avi", "smallville", "9", "14"));
 		values.add(new TestInput("smallville.s09e15.hdtv.xvid-2hd.avi", "smallville", "9", "15"));
-		values
-			.add(new TestInput("the.big.bang.theory.s03e18.720p.hdtv.x264-ctu.mkv", "the big bang theory", "3", "18"));
+		values.add(new TestInput("the.big.bang.theory.s03e18.720p.hdtv.x264-ctu.mkv", "the big bang theory", "3", "18"));
 		values.add(new TestInput("castle.2009.s01e09.720p.hdtv.x264-ctu.mkv", "castle 2009", "1", "9"));
 		values.add(new TestInput("/TV/Dexter/S05E05 First Blood.mkv", "dexter", "5", "5"));
 		values.add(new TestInput("/TV/Lost/Lost [2x07].mkv", "lost", "2", "7"));
@@ -57,6 +56,7 @@ public class TVRenamerTest {
 		values.add(new TestInput("Witches.of.East.End.S01E01.PROPER.HDTV.x264-2HD.mp4", "Witches of East End", "1", "1"));
 		values.add(new TestInput("Warehouse.13.S05E04.HDTV.x264-2HD.mp4", "Warehouse 13", "5", "4"));
 
+		values.add(new TestInput("the.100.208.hdtv-lol.mp4", "The 100", "2", "8")); // issue #79
 	}
 
 	@Test
