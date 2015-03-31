@@ -1,5 +1,7 @@
 package com.google.code.tvrenamer.view;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -59,6 +61,7 @@ public class PreferencesDialog extends Dialog {
 	private Text destDirText;
 	private Text seasonPrefixText;
 	private Text replacementStringText;
+	private Text ignoreWordsText;
 	private Button proxyEnabledCheckbox;
 	private Text proxyHostText;
 	private Text proxyPortText;
@@ -202,6 +205,21 @@ public class PreferencesDialog extends Dialog {
 				toggleEnableControls(moveEnabledCheckbox, destDirText, destDirButton, seasonPrefixText);
 			}
 		});
+		
+		Label ignoreLabel = new Label(generalGroup, SWT.NONE);
+		ignoreLabel.setText("Ignore files containing [?]");
+		ignoreLabel.setToolTipText("Provide comma seperated list of words to ignore in file path and name");
+		
+		ignoreWordsText = new Text(generalGroup, SWT.BORDER);
+		java.util.List<String> ignoreList = prefs.getIgnoreKeywords();
+		String ignoreWords = "";
+		for(String s : ignoreList) {
+			ignoreWords += s;
+			ignoreWords += ",";
+		}
+		ignoreWordsText.setText(ignoreWords);
+		ignoreWordsText.setTextLimit(99);
+		ignoreWordsText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true));
 		
 		recurseFoldersCheckbox = new Button(generalGroup, SWT.CHECK);
 		recurseFoldersCheckbox.setText("Recursively add shows in subdirectories");
@@ -466,6 +484,7 @@ public class PreferencesDialog extends Dialog {
 		prefs.setMovedEnabled(moveEnabledCheckbox.getSelection());
 		prefs.setSeasonPrefix(seasonPrefixText.getText());
 		prefs.setRenameReplacementString(replacementStringText.getText());
+		prefs.setIgnoreKeywords(Arrays.asList(ignoreWordsText.getText().split("\\s*,\\s*")));
 		
 		ProxySettings proxySettings = new ProxySettings();
 		proxySettings.setEnabled(proxyEnabledCheckbox.getSelection());
