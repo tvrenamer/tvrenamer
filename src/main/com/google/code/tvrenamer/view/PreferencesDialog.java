@@ -208,7 +208,7 @@ public class PreferencesDialog extends Dialog {
 		
 		Label ignoreLabel = new Label(generalGroup, SWT.NONE);
 		ignoreLabel.setText("Ignore files containing [?]");
-		ignoreLabel.setToolTipText("Provide comma seperated list of words to ignore in file path and name");
+		ignoreLabel.setToolTipText("Provide comma separated list of words that will cause a file to be ignored if they appear in the file's path or name.");
 		
 		ignoreWordsText = new Text(generalGroup, SWT.BORDER);
 		java.util.List<String> ignoreList = prefs.getIgnoreKeywords();
