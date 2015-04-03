@@ -93,6 +93,7 @@ public class UIStarter {
 	private static Shell shell;
 	private Display display;
 	private static UserPreferences prefs;
+	private static List<String> ignoreKeywords;
 
 	private Button addFilesButton;
 	private Button addFolderButton;
@@ -691,6 +692,9 @@ public class UIStarter {
 	}
 
 	private void addFiles(final List<String> fileNames) {
+		// Update the list of ignored keywords
+		ignoreKeywords = prefs.getIgnoreKeywords();
+		
 		for (final String fileName : fileNames) {
 			final FileEpisode episode = TVRenamer.parseFilename(fileName);
 			if (episode == null) {
@@ -861,8 +865,11 @@ public class UIStarter {
 		TableItem item = new TableItem(tblResults, SWT.NONE);
 		String newFilename = fileName;
 		try {
+			// Set if the item is checked or not according
+			// to a list of banned keywords
+			item.setChecked(!isNameIgnored(newFilename));
+			
 			newFilename = episode.getNewFilename();
-			item.setChecked(true);
 		} catch (NotFoundException e) {
 			newFilename = e.getMessage();
 			item.setChecked(false);
@@ -872,6 +879,15 @@ public class UIStarter {
 		item.setText(NEW_FILENAME_COLUMN, newFilename);
 		item.setImage(STATUS_COLUMN, FileMoveIcon.DOWNLOADING.icon);
 		return item;
+	}
+	
+	private static boolean isNameIgnored(String fileName) {
+		for (int i = 0; i < ignoreKeywords.size(); i++) {
+			if(fileName.toLowerCase().contains(ignoreKeywords.get(i))) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	private void deleteTableItem (int index) {

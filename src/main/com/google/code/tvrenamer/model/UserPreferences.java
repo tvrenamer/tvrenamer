@@ -1,6 +1,8 @@
 package com.google.code.tvrenamer.model;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Observable;
 import java.util.logging.Logger;
 
@@ -24,6 +26,7 @@ public class UserPreferences extends Observable {
 	private ProxySettings proxy;
 	private boolean checkForUpdates;
 	private boolean recursivelyAddFolders;
+	private List<String> ignoreKeywords;
 	
 	private final static UserPreferences INSTANCE = load();
 
@@ -40,6 +43,8 @@ public class UserPreferences extends Observable {
 		this.proxy = new ProxySettings();
 		this.checkForUpdates = true;
 		this.recursivelyAddFolders = true;
+		this.ignoreKeywords = new ArrayList<String>();
+		this.ignoreKeywords.add("sample");
 
 		ensurePath();
 	}
@@ -175,6 +180,20 @@ public class UserPreferences extends Observable {
 	 */
 	public boolean isRecursivelyAddFolders() {
 		return this.recursivelyAddFolders;
+	}
+	
+	public void setIgnoreKeywords(List<String> ignoreKeywords) {
+		if(hasChanged(this.ignoreKeywords, ignoreKeywords)) {
+			// Convert commas into pipes for proper regex, remove periods
+			this.ignoreKeywords = ignoreKeywords;
+			
+			setChanged();
+			notifyObservers(new UserPreferencesChangeEvent("ignoreKeywordsRegex", ignoreKeywords));
+		}
+	}
+	
+	public List<String> getIgnoreKeywords() {
+		return this.ignoreKeywords;
 	}
 
 	public void setSeasonPrefix(String prefix) {
