@@ -21,6 +21,7 @@ public class UserPreferences extends Observable {
 	
 	private File destDir;
 	private String seasonPrefix;
+	private boolean seasonPrefixLeadingZero;
 	private boolean moveEnabled;
 	private String renameReplacementMask;
 	private ProxySettings proxy;
@@ -38,6 +39,7 @@ public class UserPreferences extends Observable {
 
 		this.destDir = new File(Constants.DEFAULT_DESTINATION_DIRECTORY);
 		this.seasonPrefix = Constants.DEFAULT_SEASON_PREFIX;
+		this.seasonPrefixLeadingZero = false;
 		this.moveEnabled = false;
 		this.renameReplacementMask = Constants.DEFAULT_REPLACEMENT_MASK;
 		this.proxy = new ProxySettings();
@@ -214,6 +216,19 @@ public class UserPreferences extends Observable {
 
 	public String getSeasonPrefixForDisplay() {
 		return ("\"" + this.seasonPrefix + "\"");
+	}
+
+	public boolean isSeasonPrefixLeadingZero() {
+		return this.seasonPrefixLeadingZero;
+	}
+
+	public void setSeasonPrefixLeadingZero(boolean seasonPrefixLeadingZero) {
+		if (hasChanged(this.seasonPrefixLeadingZero, seasonPrefixLeadingZero)) {
+			this.seasonPrefixLeadingZero = seasonPrefixLeadingZero;
+
+			setChanged();
+			notifyObservers(new UserPreferencesChangeEvent("seasonPrefixLeadingZero", seasonPrefixLeadingZero));
+		}
 	}
 
 	public void setRenameReplacementString(String renameReplacementMask) {

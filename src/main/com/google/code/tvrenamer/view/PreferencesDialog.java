@@ -1,6 +1,5 @@
 package com.google.code.tvrenamer.view;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -60,6 +59,7 @@ public class PreferencesDialog extends Dialog {
 	private Button moveEnabledCheckbox;
 	private Text destDirText;
 	private Text seasonPrefixText;
+	private Button seasonPrefixLeadingZeroCheckbox;
 	private Text replacementStringText;
 	private Text ignoreWordsText;
 	private Button proxyEnabledCheckbox;
@@ -173,6 +173,12 @@ public class PreferencesDialog extends Dialog {
 		seasonPrefixText.setText(prefs.getSeasonPrefixForDisplay());
 		seasonPrefixText.setTextLimit(99);
 		seasonPrefixText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true, 2, 1));
+
+		seasonPrefixLeadingZeroCheckbox = new Button(generalGroup, SWT.CHECK);
+		seasonPrefixLeadingZeroCheckbox.setText("Season Prefix Leading Zero [?]");
+		seasonPrefixLeadingZeroCheckbox.setSelection(prefs.isSeasonPrefixLeadingZero());
+		seasonPrefixLeadingZeroCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 3, 1));
+		seasonPrefixLeadingZeroCheckbox.setToolTipText("Whether to have a leading zero in the season prefix");
 
 		destDirText.addKeyListener(new KeyListener() {
 
@@ -483,6 +489,7 @@ public class PreferencesDialog extends Dialog {
 		// Update the preferences object from the UI control values
 		prefs.setMovedEnabled(moveEnabledCheckbox.getSelection());
 		prefs.setSeasonPrefix(seasonPrefixText.getText());
+		prefs.setSeasonPrefixLeadingZero(seasonPrefixLeadingZeroCheckbox.getSelection());
 		prefs.setRenameReplacementString(replacementStringText.getText());
 		prefs.setIgnoreKeywords(Arrays.asList(ignoreWordsText.getText().split("\\s*,\\s*")));
 		
