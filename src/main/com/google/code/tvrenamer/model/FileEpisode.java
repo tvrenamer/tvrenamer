@@ -66,7 +66,7 @@ public class FileEpisode {
 
 		// Defect #50: Only add the 'season #' folder if set, otherwise put files in showname root
 		if (StringUtils.isNotBlank(userPrefs.getSeasonPrefix())) {
-			destPath = destPath + userPrefs.getSeasonPrefix() + (userPrefs.isSeasonPrefixLeadingZero() ? "0" : "") + this.seasonNumber + File.separatorChar;
+			destPath = destPath + userPrefs.getSeasonPrefix() + (userPrefs.isSeasonPrefixLeadingZero() && this.seasonNumber < 9 ? "0" : "") + this.seasonNumber + File.separatorChar;
 		}
 		return new File(destPath);
 	}
