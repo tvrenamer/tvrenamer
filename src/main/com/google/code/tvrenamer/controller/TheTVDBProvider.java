@@ -9,6 +9,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -150,8 +151,13 @@ public class TheTVDBProvider {
 				logger.finer("[" + seasonNumNode.getTextContent() + "x" + epNumNode.getTextContent() + "] "
 					+ epNameNode.getTextContent());
 				DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-				season.addEpisode(Integer.parseInt(epNumNode.getTextContent()), epNameNode.getTextContent(),
-								  df.parse(airdateNode.getTextContent()));
+				Date date = null;
+				try {
+					df.parse(airdateNode.getTextContent());
+				} catch (ParseException e) {
+					// just leave the date as null
+				}
+				season.addEpisode(Integer.parseInt(epNumNode.getTextContent()), epNameNode.getTextContent(), date);
 			}
 		} catch (ConnectException e) {
 			logger.log(Level.WARNING, e.getMessage(), e);
@@ -175,9 +181,6 @@ public class TheTVDBProvider {
 			logger.log(Level.WARNING, e.getMessage(), e);
 			throw new TVRenamerIOException(ERROR_PARSING_XML, e);
 		} catch (DOMException e) {
-			logger.log(Level.WARNING, e.getMessage(), e);
-			throw new TVRenamerIOException(ERROR_PARSING_XML, e);
-		} catch (ParseException e) {
 			logger.log(Level.WARNING, e.getMessage(), e);
 			throw new TVRenamerIOException(ERROR_PARSING_XML, e);
 		}
