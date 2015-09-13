@@ -13,6 +13,7 @@ import com.google.code.tvrenamer.controller.ShowInformationListener;
 import com.google.code.tvrenamer.model.Show;
 import com.google.code.tvrenamer.model.ShowStore;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.code.tvrenamer.controller.TVRenamer;
@@ -52,7 +53,7 @@ public class TVRenamerTest {
 		values.add(new TestInput("New.Girl.S03E23.HDTV.x264-LOL.mp4", "new girl", "3", "23", "Cruise"));
 		values.add(new TestInput("Nurse.Jackie.S06E04.HDTV.x264-2HD.mp4", "Nurse Jackie", "6", "4", "Jungle Love"));
 		values.add(new TestInput("Offspring - S05E01.mp4", "Offspring", "5", "1", "Back in the Game"));
-		values.add(new TestInput("Reign.2013.S01E20.HDTV.x264-2HD.mp4", "Reign", "1", "20", "Higher Ground"));
+		values.add(new TestInput("Reign.2013.S01E20.HDTV.x264-2HD.mp4", "Reign 2013", "1", "20", "Higher Ground"));
 		values.add(new TestInput("Robot.Chicken.S07E04.PROPER.HDTV.x264-W4F.mp4", "Robot Chicken", "7", "4", "Rebel Appliance"));
 		values.add(new TestInput("Supernatural.S09E21.HDTV.x264-LOL.mp4", "Supernatural", "9", "21", "King of the Damned"));
 		values.add(new TestInput("The.Americans.2013.S02E10.HDTV.x264-LOL.mp4", "The Americans 2013", "2", "10", "Yousaf"));
@@ -95,6 +96,7 @@ public class TVRenamerTest {
 	@Test
 	public void testWarehouse13() {
 		FileEpisode episode = TVRenamer.parseFilename("Warehouse.13.S05E04.HDTV.x264-2HD.mp4");
+		assertNotNull(episode);
 		assertEquals("warehouse 13", episode.getShowName());
 		assertEquals(5, episode.getSeasonNumber());
 		assertEquals(4, episode.getEpisodeNumber());

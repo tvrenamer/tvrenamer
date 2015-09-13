@@ -1,10 +1,12 @@
 package com.google.code.tvrenamer;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.code.tvrenamer.controller.TVRageProvider;
 import com.google.code.tvrenamer.model.Show;
 
+@Ignore
 public class TVRageProviderTest {
 
 	@Test
