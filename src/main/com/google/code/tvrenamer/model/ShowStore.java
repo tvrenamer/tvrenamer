@@ -2,7 +2,6 @@ package com.google.code.tvrenamer.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,21 +12,16 @@ import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
 import com.google.code.tvrenamer.controller.ShowInformationListener;
-import com.google.code.tvrenamer.controller.TVRageProvider;
+import com.google.code.tvrenamer.controller.TheTVDBProvider;
 
 public class ShowStore {
 
 	private static Logger logger = Logger.getLogger(ShowStore.class.getName());
 
-	private static final Map<String, Show> _shows = Collections.synchronizedMap(new HashMap<String, Show>());
-	private static final Map<String, ShowRegistrations> _showRegistrations = new HashMap<String, ShowRegistrations>();
+	private static final Map<String, Show> _shows = Collections.synchronizedMap(new HashMap<>());
+	private static final Map<String, ShowRegistrations> _showRegistrations = new HashMap<>();
 
 	private static final ExecutorService threadPool = Executors.newCachedThreadPool();
-
-	// static initaliser block as there are static methods
-	static {
-		populateFireflyShow();
-	}
 
 	public static Show getShow(String showName) {
 		Show s = _shows.get(showName.toLowerCase());
@@ -82,12 +76,10 @@ public class ShowStore {
 			public Boolean call() throws InterruptedException {
 				Show thisShow;
 				try {
-					ArrayList<Show> options = TVRageProvider.getShowOptions(showName);
-					// ArrayList<Show> options = TheTVDBProvider.getShowOptions(showName);
+					ArrayList<Show> options = TheTVDBProvider.getShowOptions(showName);
 					thisShow = options.get(0);
 
-					TVRageProvider.getShowListing(thisShow);
-					// TheTVDBProvider.getShowListing(thisShow);
+					TheTVDBProvider.getShowListing(thisShow);
 				} catch (TVRenamerIOException e) {
 					thisShow = new FailedShow("", showName, "", e);
 				}
@@ -118,7 +110,7 @@ public class ShowStore {
 		private final List<ShowInformationListener> _listeners;
 
 		public ShowRegistrations() {
-			this._listeners = new LinkedList<ShowInformationListener>();
+			this._listeners = new LinkedList<>();
 		}
 
 		public void addListener(ShowInformationListener listener) {
@@ -152,30 +144,5 @@ public class ShowStore {
 		logger.info("Show listing for '" + show.getName() + "' downloaded");
 		_shows.put(showName.toLowerCase(), show);
 		notifyListeners(showName, show);
-	}
-
-	private static void populateFireflyShow() {
-		Show firefly = new Show("3548", "Firefly", "http://www.tvrage.com/Firefly");
-
-		Season season = new Season(1);
-
-		season.addEpisode(1, "Serenity", new Date());
-		season.addEpisode(2, "The Train Job", new Date());
-		season.addEpisode(3, "Bushwhacked", new Date());
-		season.addEpisode(4, "Shindig", new Date());
-		season.addEpisode(5, "Safe", new Date());
-		season.addEpisode(6, "Our Mrs Reynolds", new Date());
-		season.addEpisode(7, "Jaynestown", new Date());
-		season.addEpisode(8, "Out of Gas", new Date());
-		season.addEpisode(9, "Ariel", new Date());
-		season.addEpisode(10, "War Stories", new Date());
-		season.addEpisode(11, "Trash", new Date());
-		season.addEpisode(12, "The Message", new Date());
-		season.addEpisode(13, "Heart of Gold", new Date());
-		season.addEpisode(14, "Objects in Space", new Date());
-
-		firefly.setSeason(1, season);
-
-		addShow("firefly", firefly);
 	}
 }
