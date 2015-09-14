@@ -24,6 +24,7 @@ public class TVRenamerTest {
 
 	@BeforeClass
 	public static void setupValues() {
+		values.add(new TestInput("game.of.thrones.6x01.mp4", "Game of Thrones", "6", "1", "Kingsmoot"));
 		values.add(new TestInput("24.s08.e01.720p.hdtv.x264-immerse.mkv", "24", "8", "1", "Day 8: 4:00 P.M. - 5:00 P.M."));
 		values.add(new TestInput("24.S07.E18.720p.BlueRay.x264-SiNNERS.mkv", "24", "7", "18", "Day 7: 1:00 A.M. - 2:00 A.M."));
 		values.add(new TestInput("human.target.2010.s01.e02.720p.hdtv.x264-2hd.mkv", "human target 2010", "1", "2", "Rewind"));

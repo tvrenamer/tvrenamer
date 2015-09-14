@@ -4,6 +4,7 @@ import java.io.File;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -98,7 +99,12 @@ public class FileEpisode {
 
 						try {
 							titleString = season.getTitle(this.episodeNumber);
-							airDate.setTime(season.getAirDate(this.episodeNumber));
+							Date date = season.getAirDate(this.episodeNumber);
+                            if (date != null) {
+                                airDate.setTime(date);
+                            } else {
+                                logger.log(Level.WARNING, "Episode air date not found for '" + this.toString() + "'");
+                            }
 						} catch (EpisodeNotFoundException e) {
 							logger.log(Level.SEVERE, "Episode not found for '" + this.toString() + "'", e);
 						}
