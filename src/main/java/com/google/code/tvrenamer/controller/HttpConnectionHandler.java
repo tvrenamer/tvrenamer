@@ -42,7 +42,7 @@ public class HttpConnectionHandler {
 	 *
 	 * @param url the URL to download
 	 * @return String of the URL contents
-	 * @throws IOException when there is an error connecting or reading the URL
+	 * @throws TVRenamerIOException when there is an error connecting or reading the URL
 	 */
 	public String downloadUrl(URL url) throws TVRenamerIOException {
 		InputStream inputStream = null;
@@ -50,7 +50,7 @@ public class HttpConnectionHandler {
 
 		try {
 			if (url != null) {
-				logger.log(Level.INFO, "Downloading URL {0}", url.toString());
+				logger.log(Level.FINE, "Downloading URL {0}", url.toString());
 
 				HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 

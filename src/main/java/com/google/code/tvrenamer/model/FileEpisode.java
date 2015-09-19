@@ -4,6 +4,7 @@ import java.io.File;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -66,7 +67,7 @@ public class FileEpisode {
 
 		// Defect #50: Only add the 'season #' folder if set, otherwise put files in showname root
 		if (StringUtils.isNotBlank(userPrefs.getSeasonPrefix())) {
-			destPath = destPath + userPrefs.getSeasonPrefix() + this.seasonNumber + File.separatorChar;
+			destPath = destPath + userPrefs.getSeasonPrefix() + (userPrefs.isSeasonPrefixLeadingZero() && this.seasonNumber < 9 ? "0" : "") + this.seasonNumber + File.separatorChar;
 		}
 		return new File(destPath);
 	}
@@ -97,7 +98,12 @@ public class FileEpisode {
 
 						try {
 							titleString = season.getTitle(this.episodeNumber);
-							airDate.setTime(season.getAirDate(this.episodeNumber));
+							Date date = season.getAirDate(this.episodeNumber);
+                            if (date != null) {
+                                airDate.setTime(date);
+                            } else {
+                                logger.log(Level.WARNING, "Episode air date not found for '" + this.toString() + "'");
+                            }
 						} catch (EpisodeNotFoundException e) {
 							logger.log(Level.SEVERE, "Episode not found for '" + this.toString() + "'", e);
 						}

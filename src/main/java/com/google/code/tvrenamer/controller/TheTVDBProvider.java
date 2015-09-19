@@ -9,6 +9,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,153 +35,136 @@ import com.google.code.tvrenamer.model.Show;
 import com.google.code.tvrenamer.model.TVRenamerIOException;
 
 public class TheTVDBProvider {
-	public static final String IMDB_BASE_URL = "http://www.imdb.com/title/";
+    public static final String IMDB_BASE_URL = "http://www.imdb.com/title/";
 
-	private static final String ERROR_PARSING_XML = "Error parsing XML";
-	private static final String ERROR_DOWNLOADING_SHOW_INFORMATION = "Error downloading show information. Check internet or proxy settings";
+    private static final String ERROR_PARSING_XML = "Error parsing XML";
+    private static final String ERROR_DOWNLOADING_SHOW_INFORMATION = "Error downloading show information. Check internet or proxy settings";
 
-	private static Logger logger = Logger.getLogger(TheTVDBProvider.class.getName());
+    private static Logger logger = Logger.getLogger(TheTVDBProvider.class.getName());
 
-	private static final String API_KEY = "4A9560FF0B2670B2";
+    private static final String API_KEY = "4A9560FF0B2670B2";
 
-	private static final String BASE_SEARCH_URL = "http://www.thetvdb.com/api/GetSeries.php?seriesname=";
-	private static final String XPATH_SHOW = "/Data/Series";
-	private static final String XPATH_SHOWID = "seriesid";
-	private static final String XPATH_NAME = "SeriesName";
-	private static final String XPATH_IMDB = "IMDB_ID";
-	private static final String BASE_LIST_URL = "http://thetvdb.com/api/" + API_KEY + "/series/";
-	private static final String BASE_LIST_FILENAME = "/all/en.xml";
-	private static final String XPATH_EPISODE_LIST = "/Data/Episode";
-	private static final String XPATH_SEASON_NUM = "SeasonNumber";
-	private static final String XPATH_EPISODE_NUM = "EpisodeNumber";
-	private static final String XPATH_EPISODE_NAME = "EpisodeName";
-	private static final String XPATH_AIRDATE = "FirstAired";
+    private static final String BASE_SEARCH_URL = "http://www.thetvdb.com/api/GetSeries.php?seriesname=";
+    private static final String XPATH_SHOW = "/Data/Series";
+    private static final String XPATH_SHOWID = "seriesid";
+    private static final String XPATH_NAME = "SeriesName";
+    private static final String XPATH_IMDB = "IMDB_ID";
+    private static final String BASE_LIST_URL = "http://thetvdb.com/api/" + API_KEY + "/series/";
+    private static final String BASE_LIST_FILENAME = "/all/en.xml";
+    private static final String XPATH_EPISODE_LIST = "/Data/Episode";
+    private static final String XPATH_SEASON_NUM = "SeasonNumber";
+    private static final String XPATH_EPISODE_NUM = "EpisodeNumber";
+    private static final String XPATH_EPISODE_NAME = "EpisodeName";
+    private static final String XPATH_AIRDATE = "FirstAired";
 
-	public static ArrayList<Show> getShowOptions(String showName) throws TVRenamerIOException {
-		ArrayList<Show> options = new ArrayList<Show>();
-		String searchURL = BASE_SEARCH_URL + StringUtils.encodeSpecialCharacters(showName);
+    private static final String XPATH_DVD_EPISODE_NUM = "DVD_episodenumber";
 
-		try {
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+    public static ArrayList<Show> getShowOptions(String showName) throws TVRenamerIOException {
+        ArrayList<Show> options = new ArrayList<>();
+        String searchURL = BASE_SEARCH_URL + StringUtils.encodeSpecialCharacters(showName);
 
-			logger.info("About to retrieve search results from " + searchURL);
+        try {
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
-			String searchXml = new HttpConnectionHandler().downloadUrl(searchURL);
+            logger.info("About to retrieve search results from " + searchURL);
 
-			DocumentBuilder db = dbf.newDocumentBuilder();
-			Document doc = db.parse(new InputSource(new StringReader(searchXml)));
+            String searchXml = new HttpConnectionHandler().downloadUrl(searchURL);
 
-			XPathFactory factory = XPathFactory.newInstance();
-			XPath xpath = factory.newXPath();
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            Document doc = db.parse(new InputSource(new StringReader(searchXml)));
 
-			XPathExpression expr = xpath.compile(XPATH_SHOW);
+            XPathFactory factory = XPathFactory.newInstance();
+            XPath xpath = factory.newXPath();
 
-			NodeList shows = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
+            XPathExpression expr = xpath.compile(XPATH_SHOW);
 
-			for (int i = 0; i < shows.getLength(); i++) {
-				Node eNode = shows.item(i);
-				expr = xpath.compile(XPATH_SHOWID);
-				String optionId = ((Node) expr.evaluate(eNode, XPathConstants.NODE)).getTextContent();
-				expr = xpath.compile(XPATH_NAME);
-				String optionName = ((Node) expr.evaluate(eNode, XPathConstants.NODE)).getTextContent();
-				expr = xpath.compile(XPATH_IMDB);
-				String optionUrl = IMDB_BASE_URL + ((Node) expr.evaluate(eNode, XPathConstants.NODE)).getTextContent();
-				options.add(new Show(optionId, optionName, optionUrl));
-			}
-			Collections.sort(options);
-			return options;
-		} catch (ConnectException e) {
-			logger.log(Level.WARNING, e.getMessage(), e);
-			throw new TVRenamerIOException(ERROR_DOWNLOADING_SHOW_INFORMATION, e);
-		} catch (UnknownHostException e) {
-			logger.log(Level.WARNING, e.getMessage(), e);
-			throw new TVRenamerIOException(ERROR_DOWNLOADING_SHOW_INFORMATION, e);
-		} catch (ParserConfigurationException e) {
-			logger.log(Level.WARNING, e.getMessage(), e);
-			throw new TVRenamerIOException(ERROR_PARSING_XML, e);
-		} catch (XPathExpressionException e) {
-			logger.log(Level.WARNING, e.getMessage(), e);
-			throw new TVRenamerIOException(ERROR_PARSING_XML, e);
-		} catch (SAXException e) {
-			logger.log(Level.WARNING, e.getMessage(), e);
-			throw new TVRenamerIOException(ERROR_PARSING_XML, e);
-		} catch (IOException e) {
-			logger.log(Level.WARNING, e.getMessage(), e);
-			throw new TVRenamerIOException(ERROR_PARSING_XML, e);
-		}
-	}
+            NodeList shows = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
 
-	public static void getShowListing(Show show) throws TVRenamerIOException {
-		String showURL = BASE_LIST_URL + show.getId() + BASE_LIST_FILENAME;
+            for (int i = 0; i < shows.getLength(); i++) {
+                Node eNode = shows.item(i);
+                expr = xpath.compile(XPATH_SHOWID);
+                String optionId = ((Node) expr.evaluate(eNode, XPathConstants.NODE)).getTextContent();
+                expr = xpath.compile(XPATH_NAME);
+                String optionName = ((Node) expr.evaluate(eNode, XPathConstants.NODE)).getTextContent();
+                expr = xpath.compile(XPATH_IMDB);
+                Node exprNode = (Node) expr.evaluate(eNode, XPathConstants.NODE);
+                String optionUrl = "";
+                if (exprNode != null) {
+                    optionUrl = IMDB_BASE_URL + exprNode.getTextContent();
+                }
+                options.add(new Show(optionId, optionName, optionUrl));
+            }
+            return options;
+        } catch (ConnectException | UnknownHostException e) {
+            logger.log(Level.WARNING, e.getMessage(), e);
+            throw new TVRenamerIOException(ERROR_DOWNLOADING_SHOW_INFORMATION, e);
+        } catch (ParserConfigurationException | XPathExpressionException | SAXException | IOException e) {
+            logger.log(Level.WARNING, e.getMessage(), e);
+            throw new TVRenamerIOException(ERROR_PARSING_XML, e);
+        }
+    }
 
-		logger.info("Retrieving episode listing from " + showURL);
+    public static void getShowListing(Show show) throws TVRenamerIOException {
+        String showURL = BASE_LIST_URL + show.getId() + BASE_LIST_FILENAME;
 
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		String showXml;
-		try {
-			showXml = new HttpConnectionHandler().downloadUrl(showURL);
+        logger.info("Retrieving episode listing from " + showURL);
 
-			DocumentBuilder db = dbf.newDocumentBuilder();
-			Document doc = db.parse(new InputSource(new StringReader(showXml)));
-			XPathFactory factory = XPathFactory.newInstance();
-			XPath xpath = factory.newXPath();
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        String showXml;
+        try {
+            showXml = new HttpConnectionHandler().downloadUrl(showURL);
 
-			XPathExpression expr = xpath.compile(XPATH_EPISODE_LIST);
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            Document doc = db.parse(new InputSource(new StringReader(showXml)));
+            XPathFactory factory = XPathFactory.newInstance();
+            XPath xpath = factory.newXPath();
 
-			NodeList episodes = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
+            XPathExpression expr = xpath.compile(XPATH_EPISODE_LIST);
 
-			for (int i = 0; i < episodes.getLength(); i++) {
-				Node eNode = episodes.item(i);
-				expr = xpath.compile(XPATH_SEASON_NUM);
-				Node seasonNumNode = (Node) expr.evaluate(eNode, XPathConstants.NODE);
+            NodeList episodes = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
 
-				int seasonNum = Integer.parseInt(seasonNumNode.getTextContent());
-				Season season = show.getSeason(seasonNum);
-				if (season == null) {
-					season = new Season(seasonNum);
-					show.setSeason(seasonNum, season);
-				}
+            for (int i = 0; i < episodes.getLength(); i++) {
+                Node eNode = episodes.item(i);
+                expr = xpath.compile(XPATH_SEASON_NUM);
+                Node seasonNumNode = (Node) expr.evaluate(eNode, XPathConstants.NODE);
 
-				expr = xpath.compile(XPATH_EPISODE_NUM);
-				Node epNumNode = (Node) expr.evaluate(eNode, XPathConstants.NODE);
-				expr = xpath.compile(XPATH_EPISODE_NAME);
-				Node epNameNode = (Node) expr.evaluate(eNode, XPathConstants.NODE);
-				expr = xpath.compile(XPATH_AIRDATE);
-				Node airdateNode = (Node) expr.evaluate(eNode, XPathConstants.NODE);
-				logger.finer("[" + seasonNumNode.getTextContent() + "x" + epNumNode.getTextContent() + "] "
-					+ epNameNode.getTextContent());
-				DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-				season.addEpisode(Integer.parseInt(epNumNode.getTextContent()), epNameNode.getTextContent(),
-								  df.parse(airdateNode.getTextContent()));
-			}
-		} catch (ConnectException e) {
-			logger.log(Level.WARNING, e.getMessage(), e);
-			throw new TVRenamerIOException(ERROR_DOWNLOADING_SHOW_INFORMATION, e);
-		} catch (UnknownHostException e) {
-			logger.log(Level.WARNING, e.getMessage(), e);
-			throw new TVRenamerIOException(ERROR_DOWNLOADING_SHOW_INFORMATION, e);
-		} catch (ParserConfigurationException e) {
-			logger.log(Level.WARNING, e.getMessage(), e);
-			throw new TVRenamerIOException(ERROR_PARSING_XML, e);
-		} catch (XPathExpressionException e) {
-			logger.log(Level.WARNING, e.getMessage(), e);
-			throw new TVRenamerIOException(ERROR_PARSING_XML, e);
-		} catch (SAXException e) {
-			logger.log(Level.WARNING, e.getMessage(), e);
-			throw new TVRenamerIOException(ERROR_PARSING_XML, e);
-		} catch (IOException e) {
-			logger.log(Level.WARNING, e.getMessage(), e);
-			throw new TVRenamerIOException(ERROR_PARSING_XML, e);
-		} catch (NumberFormatException e) {
-			logger.log(Level.WARNING, e.getMessage(), e);
-			throw new TVRenamerIOException(ERROR_PARSING_XML, e);
-		} catch (DOMException e) {
-			logger.log(Level.WARNING, e.getMessage(), e);
-			throw new TVRenamerIOException(ERROR_PARSING_XML, e);
-		} catch (ParseException e) {
-			logger.log(Level.WARNING, e.getMessage(), e);
-			throw new TVRenamerIOException(ERROR_PARSING_XML, e);
-		}
-	}
+                int seasonNum = Integer.parseInt(seasonNumNode.getTextContent());
+                Season season = show.getSeason(seasonNum);
+                if (season == null) {
+                    season = new Season(seasonNum);
+                    show.setSeason(seasonNum, season);
+                }
+
+                String epNum = "";
+
+                expr = xpath.compile(XPATH_DVD_EPISODE_NUM);
+                Node epNumNodeDvd = (Node) expr.evaluate(eNode, XPathConstants.NODE);
+                if (epNumNodeDvd != null) {
+                    epNum = epNumNodeDvd.getTextContent();
+                }
+                if (epNum.length() == 0) {
+                    expr = xpath.compile(XPATH_EPISODE_NUM);
+                    Node epNumNode = (Node) expr.evaluate(eNode, XPathConstants.NODE);
+                    epNum = epNumNode.getTextContent();
+                }
+                expr = xpath.compile(XPATH_EPISODE_NAME);
+                Node epNameNode = (Node) expr.evaluate(eNode, XPathConstants.NODE);
+                expr = xpath.compile(XPATH_AIRDATE);
+                Node airdateNode = (Node) expr.evaluate(eNode, XPathConstants.NODE);
+                logger.finer("[" + seasonNumNode.getTextContent() + "x" + Double.valueOf(epNum).intValue() + "] " + epNameNode.getTextContent());
+                DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+                Date date = null;
+                try {
+                    date = df.parse(airdateNode.getTextContent());
+                } catch (ParseException e) {
+                    // just leave the date as null
+                }
+                season.addEpisode(Double.valueOf(epNum).intValue(), epNameNode.getTextContent(), date);
+            }
+        } catch (ParserConfigurationException | XPathExpressionException | SAXException | IOException | NumberFormatException | DOMException e) {
+            logger.log(Level.WARNING, e.getMessage(), e);
+            throw new TVRenamerIOException(ERROR_PARSING_XML, e);
+        }
+    }
 
 }

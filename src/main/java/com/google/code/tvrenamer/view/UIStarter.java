@@ -98,9 +98,11 @@ public class UIStarter implements FilesAddedListener, Observer {
 	private static Shell shell;
 	private Display display;
 	private static UserPreferences prefs;
+	private static List<String> ignoreKeywords;
 
 	private Button addFilesButton;
 	private Button addFolderButton;
+    private Button clearFilesButton;
 	private Link updatesAvailableLink;
 	private static Button renameSelectedButton;
 	private static TableColumn destinationColumn;
@@ -153,6 +155,7 @@ public class UIStarter implements FilesAddedListener, Observer {
 		// Add controls to main shell
 		setupMainWindow();
 		setupAddFilesDialog();
+        setupClearFilesButton();
 		setupMenuBar();
 
 		setupIcons();
@@ -169,6 +172,9 @@ public class UIStarter implements FilesAddedListener, Observer {
 		
 		addFolderButton = new Button(topButtonsComposite, SWT.PUSH);
 		addFolderButton.setText("Add Folder");
+
+        clearFilesButton = new Button(topButtonsComposite, SWT.PUSH);
+        clearFilesButton.setText("Clear List");
 
 		updatesAvailableLink = new Link(topButtonsComposite, SWT.VERTICAL);
 		//updatesAvailableLink.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, true));
@@ -330,73 +336,82 @@ public class UIStarter implements FilesAddedListener, Observer {
 	}
 
 	private void setupAddFilesDialog() {
-		final FileDialog fd = new FileDialog(shell, SWT.MULTI);
-		addFilesButton.addSelectionListener(new SelectionAdapter() {
+        final FileDialog fd = new FileDialog(shell, SWT.MULTI);
+        addFilesButton.addSelectionListener(new SelectionAdapter() {
 
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				String pathPrefix = fd.open();
-				if (pathPrefix != null) {
-					File file = new File(pathPrefix);
-					pathPrefix = file.getParent();
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                String pathPrefix = fd.open();
+                if (pathPrefix != null) {
+                    File file = new File(pathPrefix);
+                    pathPrefix = file.getParent();
 
-					String[] fileNames = fd.getFileNames();
-					for (int i = 0; i < fileNames.length; i++) {
-						fileNames[i] = pathPrefix + File.separatorChar + fileNames[i];
-					}
+                    String[] fileNames = fd.getFileNames();
+                    for (int i = 0; i < fileNames.length; i++) {
+                        fileNames[i] = pathPrefix + File.separatorChar + fileNames[i];
+                    }
 
-					TVRenamerInitiator.initiateRenamer(fileNames, UIStarter.this);
-				}
-			}
-		});
-		
-		final DirectoryDialog dd = new DirectoryDialog(shell, SWT.SINGLE);
-		addFolderButton.addSelectionListener(new SelectionAdapter() {
-			
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				String directory = dd.open();
-				if ( directory != null ) {
-					// load all of the files in the dir
-					File file = new File(directory);
-					String[] fileNames = file.list();
-					
-					if( fileNames != null ){
-						
-						// Check we are not recursive
-						boolean includeDirs = prefs.isRecursivelyAddFolders();
-						List<String> subDirs = new ArrayList<String>();
-						
-						for( int i = 0; i < fileNames.length; i++ ){
-							String path = directory + File.separatorChar +fileNames[i];
-							
-							// Store the list of directories
-							if( new File(path).isDirectory() ) {
-								subDirs.add(path);
-							}
-							
-							// update the fileName value
-							fileNames[i] = path;
-						}
-						
-						if( !includeDirs ) {
-							for (String subDir : subDirs){
-								for(int i = 0; i < fileNames.length; i++) {
-									if(fileNames[i].startsWith(subDir)){
-										// A safe way of removing the file name
-										fileNames[i] = "";
-									}
-								}
-							}
-						}
-						
+                    TVRenamerInitiator.initiateRenamer(fileNames, UIStarter.this);
+                }
+            }
+        });
+
+        final DirectoryDialog dd = new DirectoryDialog(shell, SWT.SINGLE);
+        addFolderButton.addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                String directory = dd.open();
+                if (directory != null) {
+                    // load all of the files in the dir
+                    File file = new File(directory);
+                    String[] fileNames = file.list();
+
+                    if (fileNames != null) {
+
+                        // Check we are not recursive
+                        boolean includeDirs = prefs.isRecursivelyAddFolders();
+                        List<String> subDirs = new ArrayList<String>();
+
+                        for (int i = 0; i < fileNames.length; i++) {
+                            String path = directory + File.separatorChar + fileNames[i];
+
+                            // Store the list of directories
+                            if (new File(path).isDirectory()) {
+                                subDirs.add(path);
+                            }
+
+                            // update the fileName value
+                            fileNames[i] = path;
+                        }
+
+                        if (!includeDirs) {
+                            for (String subDir : subDirs) {
+                                for (int i = 0; i < fileNames.length; i++) {
+                                    if (fileNames[i].startsWith(subDir)) {
+                                        // A safe way of removing the file name
+                                        fileNames[i] = "";
+                                    }
+                                }
+                            }
+                        }
+
 						TVRenamerInitiator.initiateRenamer(fileNames, UIStarter.this);
-					}
-					
-				}
-			}
-			
-		});
+                    }
+
+                }
+            }
+
+        });
+    }
+
+    private void setupClearFilesButton() {
+
+        clearFilesButton.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                resultsTable.removeAll();
+            }
+        });
 	}
 
 	private void setupResultsTable() {
@@ -413,9 +428,9 @@ public class UIStarter implements FilesAddedListener, Observer {
 		selectedColumn.setText("Selected");
 		selectedColumn.setWidth(60);
 
-		final TableColumn sourceColum = new TableColumn(resultsTable, SWT.LEFT);
-		sourceColum.setText("Current File");
-		sourceColum.setWidth(550);
+		final TableColumn sourceColumn = new TableColumn(resultsTable, SWT.LEFT);
+		sourceColumn.setText("Current File");
+		sourceColumn.setWidth(550);
 
 		destinationColumn = new TableColumn(resultsTable, SWT.LEFT);
 		setColumnDestText();
@@ -456,12 +471,12 @@ public class UIStarter implements FilesAddedListener, Observer {
 			}
 		});
 
-		sourceColum.addSelectionListener(new SelectionAdapter() {
+		sourceColumn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				resultsTable.setSortDirection(resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN);
-				sortTable(sourceColum, CURRENT_FILE_COLUMN);
-				resultsTable.setSortColumn(sourceColum);
+				sortTable(sourceColumn, CURRENT_FILE_COLUMN);
+				resultsTable.setSortColumn(sourceColumn);
 			}
 		});
 
@@ -644,8 +659,10 @@ public class UIStarter implements FilesAddedListener, Observer {
 		}
 	}
 
-	@Override
 	public void addFiles(final List<String> fileNames) {
+		// Update the list of ignored keywords
+		ignoreKeywords = prefs.getIgnoreKeywords();
+		
 		for (final String fileName : fileNames) {
 			final FileEpisode episode = TVRenamer.parseFilename(fileName);
 			if (episode == null) {
@@ -853,8 +870,11 @@ public class UIStarter implements FilesAddedListener, Observer {
 		TableItem item = new TableItem(tblResults, SWT.NONE);
 		String newFilename = fileName;
 		try {
+			// Set if the item is checked or not according
+			// to a list of banned keywords
+			item.setChecked(!isNameIgnored(newFilename));
+			
 			newFilename = episode.getNewFilename();
-			item.setChecked(true);
 		} catch (NotFoundException e) {
 			newFilename = e.getMessage();
 			item.setChecked(false);
@@ -864,6 +884,15 @@ public class UIStarter implements FilesAddedListener, Observer {
 		item.setText(NEW_FILENAME_COLUMN, newFilename);
 		item.setImage(STATUS_COLUMN, FileMoveIcon.DOWNLOADING.icon);
 		return item;
+	}
+	
+	private static boolean isNameIgnored(String fileName) {
+		for (int i = 0; i < ignoreKeywords.size(); i++) {
+			if(fileName.toLowerCase().contains(ignoreKeywords.get(i))) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	private void deleteTableItem (int index) {

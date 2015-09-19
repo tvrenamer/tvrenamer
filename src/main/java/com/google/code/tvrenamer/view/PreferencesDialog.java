@@ -1,5 +1,6 @@
 package com.google.code.tvrenamer.view;
 
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -30,11 +31,12 @@ import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
 
 import com.google.code.tvrenamer.model.ProxySettings;
@@ -42,23 +44,23 @@ import com.google.code.tvrenamer.model.ReplacementToken;
 import com.google.code.tvrenamer.model.TVRenamerIOException;
 import com.google.code.tvrenamer.model.UserPreferences;
 
-/**
- * The Preferences Dialog box.
- */
 public class PreferencesDialog extends Dialog {
-
+	
 	private static final String REPLACEMENT_OPTIONS_LIST_ENTRY_REGEX = "(.*) :.*";
 	private static Logger logger = Logger.getLogger(PreferencesDialog.class.getName());
 	private static Shell preferencesShell;
 	private static int DND_OPERATIONS = DND.DROP_MOVE;
+	private TabFolder tabFolder;
 	
 	private final UserPreferences prefs;
-
+	
 	// The controls to save
 	private Button moveEnabledCheckbox;
 	private Text destDirText;
 	private Text seasonPrefixText;
+	private Button seasonPrefixLeadingZeroCheckbox;
 	private Text replacementStringText;
+	private Text ignoreWordsText;
 	private Button proxyEnabledCheckbox;
 	private Text proxyHostText;
 	private Text proxyPortText;
@@ -67,7 +69,7 @@ public class PreferencesDialog extends Dialog {
 	private Text proxyPasswordText;
 	private Button checkForUpdatesCheckbox;
 	private Button recurseFoldersCheckbox;
-
+	
 	/**
 	 * PreferencesDialog constructor
 	 * 
@@ -78,7 +80,7 @@ public class PreferencesDialog extends Dialog {
 		super(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 		this.prefs = UserPreferences.getInstance();
 	}
-
+	
 	public void open() {
 		// Create the dialog window
 		preferencesShell = new Shell(getParent(), getStyle());
@@ -96,60 +98,54 @@ public class PreferencesDialog extends Dialog {
 			}
 		}
 	}
-
-	/**
-	 * Creates the dialog's contents.
-	 * 
-	 * @param preferencesShell
-	 *            the dialog window
-	 */
+	
 	private void createContents() {
 		GridLayout shellGridLayout = new GridLayout(3, false);
 		preferencesShell.setLayout(shellGridLayout);
-
+		
 		Label helpLabel = new Label(preferencesShell, SWT.NONE);
 		helpLabel.setText("Hover mouse over [?] to get help");
 		helpLabel.setLayoutData(new GridData(SWT.END, SWT.CENTER, true, true, shellGridLayout.numColumns, 1));
-
-		createMoveGroup();
-
-		createRenameGroup();
 		
-		createProxyGroup();
+		tabFolder = new TabFolder(preferencesShell, getStyle());
+		tabFolder.setLayoutData(new GridData(SWT.END, SWT.CENTER, true, true, shellGridLayout.numColumns, 1));
 		
-		createCheckForUpdatesGroup();
+		createGeneralTab();
+		createRenameTab();
+		createProxyTab();
 		
-		createAddFolderGroup();
-
 		createActionButtonGroup();
 	}
-
-	private void createMoveGroup() {
-		Group moveGroup = new Group(preferencesShell, SWT.NONE);
-		moveGroup.setText("Move To TV Folder [?]");
-		moveGroup.setLayout(new GridLayout(3, false));
-		moveGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 3, 1));
-		moveGroup
+	
+	
+	private void createGeneralTab() {
+		TabItem item = new TabItem(tabFolder, SWT.NULL);
+		item.setText("General");
+		
+		Composite generalGroup= new Composite(tabFolder, SWT.NONE);
+		generalGroup.setLayout(new GridLayout(3, false));
+		generalGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 3, 1));
+		generalGroup
 			.setToolTipText(" - TVRenamer will automatically move the files to your 'TV' folder if you want it to.  \n"
 				+ " - It will move the file to <tv directory>/<show name>/<season prefix> #/ \n"
 				+ " - Once enabled, set the location below.");
 
-		moveEnabledCheckbox = new Button(moveGroup, SWT.CHECK);
+		moveEnabledCheckbox = new Button(generalGroup, SWT.CHECK);
 		moveEnabledCheckbox.setText("Move Enabled [?]");
 		moveEnabledCheckbox.setSelection(prefs.isMovedEnabled());
 		moveEnabledCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 3, 1));
 		moveEnabledCheckbox.setToolTipText("Whether the 'move to TV location' functionality is enabled");
 
-		Label destDirLabel = new Label(moveGroup, SWT.NONE);
+		Label destDirLabel = new Label(generalGroup, SWT.NONE);
 		destDirLabel.setText("TV Directory [?]");
 		destDirLabel.setToolTipText("The location of your 'TV' folder");
 
-		destDirText = new Text(moveGroup, SWT.BORDER);
+		destDirText = new Text(generalGroup, SWT.BORDER);
 		destDirText.setText(prefs.getDestinationDirectory().toString());
 		destDirText.setTextLimit(99);
 		destDirText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true));
 
-		final Button destDirButton = new Button(moveGroup, SWT.PUSH);
+		final Button destDirButton = new Button(generalGroup, SWT.PUSH);
 		destDirButton.setText("Select directory");
 		destDirButton.addListener(SWT.Selection, new Listener() {
 			@Override
@@ -166,16 +162,22 @@ public class PreferencesDialog extends Dialog {
 			}
 		});
 		
-		Label seasonPrefixLabel = new Label(moveGroup, SWT.NONE);
+		Label seasonPrefixLabel = new Label(generalGroup, SWT.NONE);
 		seasonPrefixLabel.setText("Season Prefix [?]");
 		seasonPrefixLabel.setToolTipText(" - The prefix of the season when renaming and moving the file.  It is usually \"Season \" or \"s'\"." +
 			"\n - If no value is entered (or \"\"), the season folder will not be created, putting all files in the show name folder" +
 			"\n - The \" will not be included, just displayed here to show whitespace");
 
-		seasonPrefixText = new Text(moveGroup, SWT.BORDER);
+		seasonPrefixText = new Text(generalGroup, SWT.BORDER);
 		seasonPrefixText.setText(prefs.getSeasonPrefixForDisplay());
 		seasonPrefixText.setTextLimit(99);
 		seasonPrefixText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true, 2, 1));
+
+		seasonPrefixLeadingZeroCheckbox = new Button(generalGroup, SWT.CHECK);
+		seasonPrefixLeadingZeroCheckbox.setText("Season Prefix Leading Zero [?]");
+		seasonPrefixLeadingZeroCheckbox.setSelection(prefs.isSeasonPrefixLeadingZero());
+		seasonPrefixLeadingZeroCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 3, 1));
+		seasonPrefixLeadingZeroCheckbox.setToolTipText("Whether to have a leading zero in the season prefix");
 
 		destDirText.addKeyListener(new KeyListener() {
 
@@ -208,11 +210,40 @@ public class PreferencesDialog extends Dialog {
 				toggleEnableControls(moveEnabledCheckbox, destDirText, destDirButton, seasonPrefixText);
 			}
 		});
+		
+		Label ignoreLabel = new Label(generalGroup, SWT.NONE);
+		ignoreLabel.setText("Ignore files containing [?]");
+		ignoreLabel.setToolTipText("Provide comma separated list of words that will cause a file to be ignored if they appear in the file's path or name.");
+		
+		ignoreWordsText = new Text(generalGroup, SWT.BORDER);
+		java.util.List<String> ignoreList = prefs.getIgnoreKeywords();
+		String ignoreWords = "";
+		for(String s : ignoreList) {
+			ignoreWords += s;
+			ignoreWords += ",";
+		}
+		ignoreWordsText.setText(ignoreWords);
+		ignoreWordsText.setTextLimit(99);
+		ignoreWordsText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true));
+		
+		recurseFoldersCheckbox = new Button(generalGroup, SWT.CHECK);
+		recurseFoldersCheckbox.setText("Recursively add shows in subdirectories");
+		recurseFoldersCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 3, 1));
+		recurseFoldersCheckbox.setSelection(prefs.isRecursivelyAddFolders());
+		
+		checkForUpdatesCheckbox = new Button(generalGroup, SWT.CHECK);
+		checkForUpdatesCheckbox.setText("Check for Updates at startup");
+		checkForUpdatesCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 3, 1));
+		checkForUpdatesCheckbox.setSelection(prefs.checkForUpdates());
+		
+		item.setControl(generalGroup);
 	}
-
-	private void createRenameGroup() {
-		Group replacementGroup = new Group(preferencesShell, SWT.NONE);
-		replacementGroup.setText("Rename Options");
+	
+	private void createRenameTab() {
+		TabItem item = new TabItem(tabFolder, SWT.NULL);
+		item.setText("Renaming");
+		
+		Composite replacementGroup = new Composite(tabFolder, SWT.NONE);
 		replacementGroup.setLayout(new GridLayout(3, false));
 		replacementGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 3, 1));
 
@@ -248,6 +279,8 @@ public class PreferencesDialog extends Dialog {
 		
 		createDragSource(renameTokensList);
 		createDropTarget(replacementStringText);
+		
+		item.setControl(replacementGroup);
 	}
 	
 	private static void createDragSource(final List sourceList) {
@@ -323,11 +356,13 @@ public class PreferencesDialog extends Dialog {
 		});
 	}
 	
-	private void createProxyGroup() {
+	private void createProxyTab() {
 		ProxySettings proxy = prefs.getProxy();
 		
-		Group proxyGroup = new Group(preferencesShell, SWT.NONE);
-		proxyGroup.setText("Proxy Settings [?]");
+		TabItem item = new TabItem(tabFolder, SWT.NULL);
+		item.setText("Proxy");
+		
+		Composite proxyGroup = new Composite(tabFolder, SWT.NONE);
 		proxyGroup.setLayout(new GridLayout(3, false));
 		proxyGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 3, 1));
 		proxyGroup.setToolTipText("If you connect to the internet via a proxy server, enable and set the properties");
@@ -400,35 +435,13 @@ public class PreferencesDialog extends Dialog {
 				toggleEnableControls(proxyAuthenticationRequiredCheckbox, proxyUsernameText, proxyPasswordText);
 			}
 		});
+		
+		item.setControl(proxyGroup);
 	}
 	
-	private void createCheckForUpdatesGroup() {
-		Group checkForUpdateGroup = new Group(preferencesShell, SWT.FILL);
-		checkForUpdateGroup.setText("Check for Updates");
-		checkForUpdateGroup.setLayout(new GridLayout(3, false));
-		checkForUpdateGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 3, 1));
-		
-		checkForUpdatesCheckbox = new Button(checkForUpdateGroup, SWT.CHECK);
-		checkForUpdatesCheckbox.setText("Check for Updates at startup");
-		checkForUpdatesCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 3, 1));
-		checkForUpdatesCheckbox.setSelection(prefs.checkForUpdates());
-	}
-	
-	private void createAddFolderGroup() {
-		Group createAddFolderGroup = new Group( preferencesShell, SWT.FILL);
-		createAddFolderGroup.setText("Adding Folders");
-		createAddFolderGroup.setLayout(new GridLayout(3, false));
-		createAddFolderGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 3, 1));
-		
-		recurseFoldersCheckbox = new Button(createAddFolderGroup, SWT.CHECK);
-		recurseFoldersCheckbox.setText("Recursively add shows in subdirectories");
-		recurseFoldersCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 3, 1));
-		recurseFoldersCheckbox.setSelection(prefs.isRecursivelyAddFolders());
-		
-	}
-
 	private void createActionButtonGroup() {
 		Composite bottomButtonsComposite = new Composite(preferencesShell, SWT.FILL);
+		bottomButtonsComposite.setLayoutData(new GridData(SWT.END, SWT.CENTER, true, true, 0, 1));
 		bottomButtonsComposite.setLayout(new GridLayout(2, false));
 		GridData bottomButtonsCompositeGridData = new GridData(SWT.FILL, SWT.CENTER, true, true, 2, 1);
 		bottomButtonsComposite.setLayoutData(bottomButtonsCompositeGridData);
@@ -475,7 +488,9 @@ public class PreferencesDialog extends Dialog {
 		// Update the preferences object from the UI control values
 		prefs.setMovedEnabled(moveEnabledCheckbox.getSelection());
 		prefs.setSeasonPrefix(seasonPrefixText.getText());
+		prefs.setSeasonPrefixLeadingZero(seasonPrefixLeadingZeroCheckbox.getSelection());
 		prefs.setRenameReplacementString(replacementStringText.getText());
+		prefs.setIgnoreKeywords(Arrays.asList(ignoreWordsText.getText().split("\\s*,\\s*")));
 		
 		ProxySettings proxySettings = new ProxySettings();
 		proxySettings.setEnabled(proxyEnabledCheckbox.getSelection());
@@ -503,7 +518,8 @@ public class PreferencesDialog extends Dialog {
 	}
 	
 	/**
-	 * Toggle whether the or not the listed {@link Control}s are enabled, based off the of the selection value of the checkbox
+	 * Toggle whether the or not the listed {@link Control}s are enabled, based off the of 
+	 * the selection value of the checkbox
 	 * @param decidingCheckbox the checkbox the enable flag is taken off
 	 * @param controls the list of controls to update
 	 */
@@ -513,4 +529,6 @@ public class PreferencesDialog extends Dialog {
 		}
 		preferencesShell.redraw();
 	}
+	
+
 }
