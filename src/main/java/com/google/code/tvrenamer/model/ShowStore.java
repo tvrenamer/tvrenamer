@@ -18,7 +18,7 @@ public class ShowStore {
 
 	private static Logger logger = Logger.getLogger(ShowStore.class.getName());
 
-	private static final Map<String, Show> _shows = Collections.synchronizedMap(new HashMap<>());
+	private static final Map<String, Show> _shows = Collections.synchronizedMap(new HashMap<String, Show>());
 	private static final Map<String, ShowRegistrations> _showRegistrations = new HashMap<>();
 
 	private static final ExecutorService threadPool = Executors.newCachedThreadPool();

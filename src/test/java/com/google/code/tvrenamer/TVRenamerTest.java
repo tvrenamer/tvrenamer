@@ -107,11 +107,11 @@ public class TVRenamerTest {
 	public void testDownloadAndRename() throws Exception {
 		for (TestInput testInput : values) {
 			if (testInput.episodeTitle != null) {
-				FileEpisode fileEpisode = TVRenamer.parseFilename(testInput.input);
+				final FileEpisode fileEpisode = TVRenamer.parseFilename(testInput.input);
 				assertNotNull(fileEpisode);
 				String showName = fileEpisode.getShowName();
 
-				CompletableFuture<String> future = new CompletableFuture<>();
+				final CompletableFuture<String> future = new CompletableFuture<>();
 				ShowStore.getShow(showName, new ShowInformationListener() {
 					@Override
 					public void downloaded(Show show) {
