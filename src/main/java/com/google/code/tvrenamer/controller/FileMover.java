@@ -9,8 +9,6 @@ import org.gjt.sp.util.ProgressObserver;
 import com.google.code.tvrenamer.controller.util.FileUtilities;
 import com.google.code.tvrenamer.model.FileEpisode;
 import com.google.code.tvrenamer.model.UserPreferences;
-import com.google.code.tvrenamer.view.FileCopyMonitor;
-import com.google.code.tvrenamer.view.UIStarter;
 
 public class FileMover implements Callable<Boolean> {
 	private static Logger logger = Logger.getLogger(FileMover.class.getName());
