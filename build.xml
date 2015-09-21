@@ -160,7 +160,7 @@
 				        jar="${build}/@{platform}/tvrenamer.jar"
 				        icon="${res}\icons\oldschool-tv-icon.ico"
 				        chdir=".">
-					<jre minVersion="1.5.0" />
+					<jre minVersion="1.7.0" />
 				</config>
 			</launch4j>
 
