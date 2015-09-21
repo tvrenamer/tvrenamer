@@ -2,16 +2,17 @@
 [![Build Status](https://travis-ci.org/tvrenamer/tvrenamer.png)](https://travis-ci.org/tvrenamer/tvrenamer)
 ## About
 TVRenamer is a Java GUI utility to rename TV episodes from TV listings  
-Basically, it will take an ugly filename like **Lost.S06E05.DD51.720p.WEB-DL.AVC-FUSiON.mkv** and rename it to **Lost [6x05] Lighthouse.mkv**
+It will take an ugly filename like **Lost.S06E05.DD51.720p.WEB-DL.AVC-FUSiON.mkv** and rename it to **Lost [6x05] Lighthouse.mkv**
 
 ## Connectivity Issues
-If you are receiving errors about "unable to connect to internet" please try the latest version: https://github.com/tvrenamer/tvrenamer/releases/tag/0.7. Note that Java 8 is required: https://java.com/en/download.
+If you are receiving errors about "unable to connect to internet" please [download version 0.7](http://tvrenamer.github.com). Note that [Java 8](https://java.com/en/download) is now required.
 
 ## Features
- * Rename many different shows at once
+ * Rename many different shows at once from information from [TheTVDB](http://thetvdb.com/)
  * Customise the format and content of the resulting filename
  * Native look & feel for your operating system
  * Drag & Drop or standard 'add file' interface
+ * Optionally move renamed files, i.e. a NAS or external HDD
 
 ## Usage & Download
 [Download](http://tvrenamer.github.com) the correct version for your operating system (OSX, Windows, Linux) and architecture (32 or 64 bit)
@@ -35,23 +36,20 @@ If you are receiving errors about "unable to connect to internet" please try the
     
 ## Common Problems
 ### Java version issues
-Ensure that you have Java version 5 or 6 installed.  Type `java -version` into your terminal and ensure that the output is similar to:
+*Java version 8* is required..  Type `java -version` into your terminal and ensure that the output is similar to:
 
-    java version "1.6.0_14"
-    Java(TM) SE Runtime Environment (build 1.6.0_14-b08)
-    Java HotSpot(TM) 64-Bit Server VM (build 14.0-b16, mixed mode)
+    $ java -version
+    java version "1.8.0_60"
+    Java(TM) SE Runtime Environment (build 1.8.0_60-b27)
+    Java HotSpot(TM) 64-Bit Server VM (build 25.60-b23, mixed mode)
+   
+### x86/ 64 bit architecture version
+Ensure that you are running the same architecture of TVRenamer as Java. `java -version` displays the version on the last line, as above. If you don't have it right, you get an unhelpful error message on startup (when running on the terminal), like below:
+    Exception in thread "main" java.lang.UnsatisfiedLinkError: Cannot load 32-bit SWT libraries on 64-bit JVM
 
-### TVRenamer version issues
- Ensure that you are running the correct version of TVRenamer for the version of Java you are running.  If you don't have it right, you get a helpful error message on startup (when running on the terminal), like below:  
-        Exception in thread "main" java.lang.UnsatisfiedLinkError: Cannot load 32-bit SWT libraries on 64-bit JVM
-To fix this, see the output of `java -version`, the last line will say if you are running 64-bit Java or not.  Then [download](http://tvrenamer.github.com) the appropriate version.
-
-### "TVRenamer can't be opened because it's from an unidentified developer" error message on Mountain Lion
+### "TVRenamer can't be opened because it's from an unidentified developer" error message on OSX Mountain Lion or above.
 This is because we have not signed the application with Apple (and because we use Java, they won't allow us to). To get around this, just right-click the app in Finder and select Open. You only need to do this once.  
 [More information from iMore](http://www.imore.com/how-open-apps-unidentified-developer-os-x-mountain-lion)
-
-## Getting Support and Submitting Bug Reports
-[View past bug reports](https://github.com/tvrenamer/tvrenamer/issues) and if that is no help then [submit a new one](https://github.com/tvrenamer/tvrenamer/issues/new), but please add labels appropriately.  The developers will be notified and you should hear back shortly.
 
 ## Running in debug mode
 If the application crashes it helps us greatly if you can provide us a stacktrace of what went wrong.  In order to do this, you just need to run the application in the terminal, then copy the output into [a new bug report](https://github.com/tvrenamer/tvrenamer/issues/new).
@@ -59,7 +57,7 @@ If the application crashes it helps us greatly if you can provide us a stacktrac
 If the application doesn't start with a java error, [ensure that your JAVA_HOME environment variable is set correctly](http://www.oracle.com/technology/sample_code/tech/java/sqlj_jdbc/files/9i_jdbc/EnvSetup.html).
 
   * On Windows:
-    1. Open the Windows Command Prompt (Windows key + r, then type cmd and push enter)
+    1. Open the Windows Command Prompt (Windows + r, then type `cmd` and push enter)
     1. Navigate to where the TVRenamer application is.
     1. Execute `java -jar TVRenamer-<version>.exe`
   * On OSX:
