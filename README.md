@@ -8,7 +8,7 @@ It will take an ugly filename like **Lost.S06E05.DD51.720p.WEB-DL.AVC-FUSiON.mkv
 ![Screenshot](https://dl.dropboxusercontent.com/u/554441/Screenshots/tvrenamer-0.7.png)
 
 ## Connectivity Issues
-If you are receiving errors about "unable to connect to internet" please [download version 0.7](http://tvrenamer.github.com). Note that [Java 8](https://java.com/en/download) is now required.
+If you are receiving errors about "unable to connect to internet" please [download version 0.7.1](http://tvrenamer.github.com). Note that [Java 7](https://java.com/en/download) is required.
 
 ## Features
  * Rename many different shows at once from information from [TheTVDB](http://thetvdb.com/)
@@ -39,12 +39,12 @@ If you are receiving errors about "unable to connect to internet" please [downlo
     
 ## Common Problems
 ### Java version issues
-*Java version 8* is required..  Type `java -version` into your terminal and ensure that the output is similar to:
+*Java version 7* is required..  Type `java -version` into your terminal and ensure that the output is similar to:
 
     $ java -version
-    java version "1.8.0_60"
-    Java(TM) SE Runtime Environment (build 1.8.0_60-b27)
-    Java HotSpot(TM) 64-Bit Server VM (build 25.60-b23, mixed mode)
+    java version "1.7.0_71"
+    Java(TM) SE Runtime Environment (build 1.7.0_71-b14)
+    Java HotSpot(TM) 64-Bit Server VM (build 24.71-b01, mixed mode)
    
 ### x86/ 64 bit architecture version
 Ensure that you are running the same architecture of TVRenamer as Java. `java -version` displays the version on the last line, as above. If you don't have it right, you get an unhelpful error message on startup (when running on the terminal), like below:
@@ -73,6 +73,8 @@ If the application doesn't start with a java error, [ensure that your JAVA_HOME 
     1. Execute the run script via `./TVRenamer-<version>/run-linux.sh`
 
 ## Contributions
-The development team numbers just 2, so anything from Java code patches to UI/UX recommendations would be gratefully received.  
-To contribute to the code side of things you should know Java and it would be helpful if you know some SWT and git.  The easiest way to submit changes is via a [guthub pull request](http://help.github.com/forking/) based off the [devel branch](http://github.com/tvrenamer/tvrenamer/tree/devel).  
-If you anything else (feature requests, comments, fanmail!), [create a new issue](https://github.com/tvrenamer/tvrenamer/issues/new) and set the label to be 'Type-Enhancement'.
+The development team is just a couple of blokes, so anything from Java code patches to UI/UX recommendations would be gratefully received.
+
+To contribute to the code side of things you should know Java and it would be helpful if you know some SWT and git. The easiest way to submit changes is via a [guthub pull request](http://help.github.com/forking/) based off the [master branch](http://github.com/tvrenamer/tvrenamer/tree/master).
+
+For anything else (feature requests, comments, fanmail!), [create a new issue](https://github.com/tvrenamer/tvrenamer/issues/new) and set the label to 'Type-Enhancement'.
