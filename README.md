@@ -65,12 +65,11 @@ If the application doesn't start with a java error, [ensure that your JAVA_HOME 
   * On OSX:
     1. Open the Terminal application (at /Applications/Utilities/Terminal.app)
     1. Navigate to where the TVRenamer application is.
-    1. Execute it via `./TVRenamer-<version>.app`
+    1. Execute it via `./TVRenamer-<version>.app/Contents/MacOS/run-mac.sh`
   * On Linux:
     1. Open the Terminal application (from the Gnome Applications menu)
     1. Navigate to where the TVRenamer application is.
-    2. 
-    1. Execute the run script via `./TVRenamer-<version>.app/Contents/MacOS/run-mac.sh`
+    1. Execute the run script via `./TVRenamer-<version>/run-linux.sh`
 
 ## Contributions
 The development team numbers just 2, so anything from Java code patches to UI/UX recommendations would be gratefully received.  
