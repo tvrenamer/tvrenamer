@@ -3,7 +3,7 @@
 
 	<property name="src.main" value="src/main" />
 	<property name="src.test" value="src/test" />
-	<property name="build" value="build" />
+	<property name="build" value="out" />
 	<property name="lib.main" value="lib/main" />
 	<property name="lib.test" value="lib/test" />
 	<property name="res" value="res" />
@@ -29,6 +29,9 @@
 	<taskdef name="launch4j"
 			classname="net.sf.launch4j.ant.Launch4jTask"
 			classpath="${launch4j.path}/launch4j.jar:${launch4j.path}/lib/xstream.jar" onerror="report" />
+
+	<!-- for creating OS X app bundles -->
+	<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" />
 
 	<path id="classpath">
 		<fileset dir="${lib.main}">
@@ -56,7 +59,7 @@
 	</target>
 
 	<target name="compile" depends="init">
-		<javac srcdir="${src.main}" destdir="${build}" classpathref="classpath" debug="true" debuglevel="lines,vars,source" includeantruntime="false" />
+		<javac srcdir="${src.main}" destdir="${build}" classpathref="classpath" debug="true" debuglevel="lines,vars,source" includeantruntime="false" target="1.7" source="1.7" />
 	</target>
 
 	<target name="compile.test" depends="compile">
@@ -127,16 +130,21 @@
 		<sequential>
 			<build.jar platform="@{platform}" />
 
-			<mkdir dir="${build}/@{platform}/${rel.name}.app/Contents/MacOS" />
-			<mkdir dir="${build}/@{platform}/${rel.name}.app/Contents/Resources" />
+			<bundleapp
+				jvmrequired="1.7"
+				jrepreferred="true"
+				outputdirectory="${build}/@{platform}"
+				name="${rel.name}"
+				displayname="${rel.name}"
+				identifier="com.google.code.tvrenamer"
+				version="${version}"
+				icon="${res}/icons/tvrenamer.icns"
+				mainclassname="${jar.mainClass}">
+				<classpath file="${build}/@{platform}/tvrenamer.jar" />
+				<option value="-XstartOnFirstThread" />
+			</bundleapp>
 
-			<copy file="${etc}/Info.plist" todir="${build}/@{platform}/${rel.name}.app/Contents/" />
-			<copy file="${etc}/run-scripts/run-mac.sh" todir="${build}/@{platform}/${rel.name}.app/Contents/MacOS" />
-			<move file="${build}/@{platform}/tvrenamer.jar" todir="${build}/@{platform}/${rel.name}.app/Contents/MacOS" />
-			<chmod file="${build}/@{platform}/${rel.name}.app/Contents/MacOS/run-mac.sh" perm="+x" />
-			<copy file="${res}/icons/tvrenamer.icns" todir="${build}/@{platform}/${rel.name}.app/Contents/Resources" />
-			<copy file="LICENSE" todir="${build}/@{platform}/${rel.name}.app" />
-
+			<delete file="${build}/@{platform}/tvrenamer.jar" />
 			<zip destfile="${build}/@{platform}/${rel.name}-@{platform}.zip">
 				<zipfileset dir="${build}/@{platform}" filemode="755" />
 			</zip>
