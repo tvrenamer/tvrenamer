@@ -1,5 +1,4 @@
 bin
-build
 dist
 out
 
@@ -16,3 +15,6 @@ preferences.xml
 *.iml
 
 .idea
+
+# bazel build system ignores
+bazel-*
