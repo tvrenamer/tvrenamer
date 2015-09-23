@@ -31,7 +31,7 @@
 			classpath="${launch4j.path}/launch4j.jar:${launch4j.path}/lib/xstream.jar" onerror="report" />
 
 	<!-- for creating OS X app bundles -->
-	<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" />
+	<taskdef name="bundleapp" classpath="appbundler-1.0ea.jar" classname="com.oracle.appbundler.AppBundlerTask" />
 
 	<path id="classpath">
 		<fileset dir="${lib.main}">
