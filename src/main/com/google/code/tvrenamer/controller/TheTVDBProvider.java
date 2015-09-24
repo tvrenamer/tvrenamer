@@ -2,6 +2,7 @@ package com.google.code.tvrenamer.controller;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.math.BigDecimal;
 import java.net.ConnectException;
 import java.net.UnknownHostException;
 import java.text.DateFormat;
@@ -135,23 +136,39 @@ public class TheTVDBProvider {
                     show.setSeason(seasonNum, season);
                 }
 
-                String epNum = "";
+                int epNum = Integer.MIN_VALUE;
 
                 expr = xpath.compile(XPATH_DVD_EPISODE_NUM);
                 Node epNumNodeDvd = (Node) expr.evaluate(eNode, XPathConstants.NODE);
                 if (epNumNodeDvd != null) {
-                    epNum = epNumNodeDvd.getTextContent();
+                    try {
+                        BigDecimal bd = new BigDecimal(epNumNodeDvd.getTextContent());
+                        epNum = bd.intValueExact();
+                    } catch (ArithmeticException e) {
+                        // not an integer, fall back to episode number
+                    } catch (NumberFormatException e) {
+                        // not a number, fall back to episode number
+                    }
                 }
-                if (epNum.length() == 0) {
+                if (epNum == Integer.MIN_VALUE) {
                     expr = xpath.compile(XPATH_EPISODE_NUM);
                     Node epNumNode = (Node) expr.evaluate(eNode, XPathConstants.NODE);
-                    epNum = epNumNode.getTextContent();
+                    BigDecimal bd = new BigDecimal(epNumNode.getTextContent());
+                    try {
+                        epNum = bd.intValueExact();
+                    } catch (ArithmeticException e) {
+                        // not an integer, need to skip this episode?
+                        continue;
+                    } catch (NumberFormatException e) {
+                        // not a number, need to skip this episode?
+                        continue;
+                    }
                 }
                 expr = xpath.compile(XPATH_EPISODE_NAME);
                 Node epNameNode = (Node) expr.evaluate(eNode, XPathConstants.NODE);
                 expr = xpath.compile(XPATH_AIRDATE);
                 Node airdateNode = (Node) expr.evaluate(eNode, XPathConstants.NODE);
-                logger.finer("[" + seasonNumNode.getTextContent() + "x" + Double.valueOf(epNum).intValue() + "] " + epNameNode.getTextContent());
+                logger.finer("[" + seasonNumNode.getTextContent() + "x" + epNum + "] " + epNameNode.getTextContent());
                 DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
                 Date date = null;
                 try {
@@ -159,7 +176,7 @@ public class TheTVDBProvider {
                 } catch (ParseException e) {
                     // just leave the date as null
                 }
-                season.addEpisode(Double.valueOf(epNum).intValue(), epNameNode.getTextContent(), date);
+                season.addEpisode(epNum, epNameNode.getTextContent(), date);
             }
         } catch (ParserConfigurationException | XPathExpressionException | SAXException | IOException | NumberFormatException | DOMException e) {
             logger.log(Level.WARNING, e.getMessage(), e);

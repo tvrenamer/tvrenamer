@@ -7,6 +7,7 @@ import static org.junit.Assert.fail;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import com.google.code.tvrenamer.controller.ShowInformationListener;
@@ -20,10 +21,10 @@ import com.google.code.tvrenamer.controller.TVRenamer;
 import com.google.code.tvrenamer.model.FileEpisode;
 
 public class TVRenamerTest {
-	public static final List<TestInput> values = new LinkedList<>();
+    public static final List<TestInput> values = new LinkedList<>();
 
-	@BeforeClass
-	public static void setupValues() {
+    @BeforeClass
+    public static void setupValues() {
 		values.add(new TestInput("game.of.thrones.5x01.mp4", "Game of Thrones", "5", "1", "The Wars to Come"));
 		values.add(new TestInput("24.s08.e01.720p.hdtv.x264-immerse.mkv", "24", "8", "1", "Day 8: 4:00 P.M. - 5:00 P.M."));
 		values.add(new TestInput("24.S07.E18.720p.BlueRay.x264-SiNNERS.mkv", "24", "7", "18", "Day 7: 1:00 A.M. - 2:00 A.M."));
@@ -81,74 +82,82 @@ public class TVRenamerTest {
 		values.add(new TestInput("firefly.1x12.hdtv-lol.mp4", "Firefly", "1", "12", "The Message"));
 		values.add(new TestInput("firefly.1x13.hdtv-lol.mp4", "Firefly", "1", "13", "Heart of Gold"));
 		values.add(new TestInput("firefly.1x14.hdtv-lol.mp4", "Firefly", "1", "14", "Objects in Space"));
-	}
 
-	@Test
-	public void testParseFileName() {
-		for (TestInput testInput : values) {
-			FileEpisode retval = TVRenamer.parseFilename(testInput.input);
-			assertNotNull(retval);
-			assertEquals(testInput.input, testInput.show, retval.getShowName());
-			assertEquals(testInput.input, Integer.parseInt(testInput.season), retval.getSeasonNumber());
-			assertEquals(testInput.input, Integer.parseInt(testInput.episode), retval.getEpisodeNumber());
-		}
-	}
+        values.add(new TestInput("Strike.Back.S01E01.Mini.720p.HDTV.DD5.1.x264.mkv", "Strike Back", "1", "1", "Chris Ryan's " +
+                "Strike Back, Episode 1"));
+    }
 
-	@Test
-	public void testWarehouse13() {
-		FileEpisode episode = TVRenamer.parseFilename("Warehouse.13.S05E04.HDTV.x264-2HD.mp4");
-		assertNotNull(episode);
-		assertEquals("warehouse 13", episode.getShowName());
-		assertEquals(5, episode.getSeasonNumber());
-		assertEquals(4, episode.getEpisodeNumber());
-	}
+    @Test
+    public void testParseFileName() {
+        for (TestInput testInput : values) {
+            FileEpisode retval = TVRenamer.parseFilename(testInput.input);
+            assertNotNull(retval);
+            assertEquals(testInput.input, testInput.show, retval.getShowName());
+            assertEquals(testInput.input, Integer.parseInt(testInput.season), retval.getSeasonNumber());
+            assertEquals(testInput.input, Integer.parseInt(testInput.episode), retval.getEpisodeNumber());
+        }
+    }
 
-	@Test
-	public void testDownloadAndRename() throws Exception {
-		for (TestInput testInput : values) {
-			if (testInput.episodeTitle != null) {
-				final FileEpisode fileEpisode = TVRenamer.parseFilename(testInput.input);
-				assertNotNull(fileEpisode);
-				String showName = fileEpisode.getShowName();
+    @Test
+    public void testWarehouse13() {
+        FileEpisode episode = TVRenamer.parseFilename("Warehouse.13.S05E04.HDTV.x264-2HD.mp4");
+        assertNotNull(episode);
+        assertEquals("warehouse 13", episode.getShowName());
+        assertEquals(5, episode.getSeasonNumber());
+        assertEquals(4, episode.getEpisodeNumber());
+    }
 
-				final CompletableFuture<String> future = new CompletableFuture<>();
-				ShowStore.getShow(showName, new ShowInformationListener() {
-					@Override
-					public void downloaded(Show show) {
-						future.complete(show.getSeason(fileEpisode.getSeasonNumber()).getTitle(fileEpisode.getEpisodeNumber()));
-					}
+    @Test
+    public void testDownloadAndRename() {
+        try {
+            for (TestInput testInput : values) {
+                if (testInput.episodeTitle != null) {
+                    final FileEpisode fileEpisode = TVRenamer.parseFilename(testInput.input);
+                    assertNotNull(fileEpisode);
+                    String showName = fileEpisode.getShowName();
 
-					@Override
-					public void downloadFailed(Show show) {
-						fail();
-					}
-				});
+                    final CompletableFuture<String> future = new CompletableFuture<>();
+                    ShowStore.getShow(showName, new ShowInformationListener() {
+                        @Override
+                        public void downloaded(Show show) {
+                            future.complete(show.getSeason(fileEpisode.getSeasonNumber()).getTitle(fileEpisode.getEpisodeNumber()));
+                        }
 
-				String got = future.get();
-				assertEquals(testInput.episodeTitle, got);
-			}
-		}
-	}
+                        @Override
+                        public void downloadFailed(Show show) {
+                            fail();
+                        }
+                    });
 
-	private static class TestInput {
-		public final String input;
-		public final String show;
-		public final String season;
-		public final String episode;
+                    String got = future.get();
+                    assertEquals(testInput.episodeTitle, got);
+                }
+            }
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
+    }
 
-		public final String episodeTitle;
+    private static class TestInput {
+        public final String input;
+        public final String show;
+        public final String season;
+        public final String episode;
 
-		public TestInput(String input, String show, String season, String episode) {
-			this(input, show, season, episode, null);
-		}
-		public TestInput(String input, String show, String season, String episode, String episodeTitle) {
-			this.input = input;
-			this.show = show.toLowerCase();
-			this.season = season;
-			this.episode = episode;
+        public final String episodeTitle;
 
-			this.episodeTitle = episodeTitle;
-		}
-	}
+        public TestInput(String input, String show, String season, String episode) {
+            this(input, show, season, episode, null);
+        }
+
+        public TestInput(String input, String show, String season, String episode, String episodeTitle) {
+            this.input = input;
+            this.show = show.toLowerCase();
+            this.season = season;
+            this.episode = episode;
+
+            this.episodeTitle = episodeTitle;
+        }
+    }
 
 }
