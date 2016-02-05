@@ -16,7 +16,7 @@ public class TVRenamer {
 		"(.+?\\W\\D*?)[sS](\\d\\d?)[eE](\\d\\d?).*", // this one matches SXXEXX
 		"(.+\\W\\D*?)[sS](\\d\\d?)\\D*?[eE](\\d\\d).*", // this one matches sXX.eXX
 		"(.+\\W\\D*?)(\\d\\d?)\\D+(\\d\\d).*", // this one matches everything else
-		"(.+\\W*)(\\d\\d?)(\\d\\d).*" // truly last resort
+		"(.+\\W+)(\\d\\d?)(\\d\\d).*" // truly last resort
 };
 
 	public static final Pattern[] COMPILED_REGEX = new Pattern[REGEX.length];

@@ -24,7 +24,11 @@ public class StringUtils {
 	}
 
 	public static String replacePunctuation(String s) {
-		s = s.replaceAll("\\p{Punct}"," ");
+		// borrowed from http://stackoverflow.com/a/17099039
+		// replaces punctuation (",", ".", etc) with spaces while condensing acronyms (S.H.I.E.L.D. -> SHIELD)
+		s = s.replaceAll(
+				"(?<=(^|[.])[\\S&&\\D])[.](?=[\\S&&\\D]([.]|$))", "")
+				.replaceAll("\\p{Punct}", " ");
 		return s;
 	}
 

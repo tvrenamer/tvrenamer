@@ -85,6 +85,12 @@ public class TVRenamerTest {
 
         values.add(new TestInput("Strike.Back.S01E01.Mini.720p.HDTV.DD5.1.x264.mkv", "Strike Back", "1", "1", "Chris Ryan's " +
                 "Strike Back, Episode 1"));
+
+        values.add(new TestInput("law.and.order.svu.1705.hdtv-lol", "Law and Order SVU", "17", "05", "Community Policing"));
+        values.add(new TestInput("ncis.1304.hdtv-lol", "NCIS", "13", "04", "Double Trouble"));
+        values.add(new TestInput("Marvels.Agents.of.S.H.I.E.L.D.S03E03.HDTV.x264-FLEET", "marvels agents of shield", "3", "3", "A Wanted (Inhu)man"));
+        values.add(new TestInput("Marvels.Agents.of.S.H.I.E.L.D.S03E10.HDTV.x264-KILLERS", "marvels agents of shield", "3", "10", "Maveth"));
+        values.add(new TestInput("Nip.Tuck.S06E01.720p.HDTV.X264-DIMENSION.mkv", "nip tuck", "6", "1", "Don Hoberman"));
     }
 
     @Test
