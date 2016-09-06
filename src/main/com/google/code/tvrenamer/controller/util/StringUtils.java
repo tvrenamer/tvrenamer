@@ -23,14 +23,32 @@ public class StringUtils {
 		return title;
 	}
 
-	public static String replacePunctuation(String s) {
-		// borrowed from http://stackoverflow.com/a/17099039
-		// replaces punctuation (",", ".", etc) with spaces while condensing acronyms (S.H.I.E.L.D. -> SHIELD)
-		s = s.replaceAll(
-				"(?<=(^|[.])[\\S&&\\D])[.](?=[\\S&&\\D]([.]|$))", "")
-				.replaceAll("\\p{Punct}", " ");
-		return s;
-	}
+  public static String replacePunctuation(String s) {
+    String rval = s;
+
+    // condenses acronyms (S.H.I.E.L.D. -> SHIELD)
+    rval = rval.replaceAll("(\\p{Upper})[.]", "$1");
+                           
+    // The apostrophe is kind of different, because it's often found within a word, including
+    // in show titles: "Bob's Burgers", "The Real O'Neals", "What's Happening", "Don't Trust..."
+    // For these, replacing the apostrophe with a space confuses the database; it's much better
+    // to simply remove the apostrophe.
+    rval = rval.replaceAll("'", "");
+
+    // A hyphen in the middle of a word also should not be broken up into two words
+    rval = rval.replaceAll("(\\p{Lower})-(\\p{Lower})", "$1$2");
+
+    // replaces remaining punctuation (",", ".", etc) with spaces
+    rval = rval.replaceAll("\\p{Punct}", " ");
+
+    // transform "CamelCaps" => "Camel Caps"
+    rval = rval.replaceAll("(\\p{Lower})(\\p{Upper})", "$1 $2");
+
+    // get rid of superfluous whitespace
+    rval = rval.trim();
+
+    return rval;
+  }
 
 	public static String getExtension(String filename) {
 		int dot = filename.lastIndexOf('.');
