@@ -45,7 +45,7 @@ public class StringUtils {
     rval = rval.replaceAll("(\\p{Lower})(\\p{Upper})", "$1 $2");
 
     // get rid of superfluous whitespace
-    rval = rval.trim();
+    rval = rval.replaceAll(" [ ]+", " ").trim();
 
     return rval;
   }
