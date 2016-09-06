@@ -98,6 +98,8 @@ public class UIStarter {
 	private Button addFilesButton;
 	private Button addFolderButton;
     private Button clearFilesButton;
+	private Button selectAllButton;
+	private Button deselectAllButton;
 	private Link updatesAvailableLink;
 	private static Button renameSelectedButton;
 	private static TableColumn destinationColumn;
@@ -150,6 +152,7 @@ public class UIStarter {
 		setupMainWindow();
 		setupAddFilesDialog();
         setupClearFilesButton();
+		setupSelectButtons();
 		setupMenuBar();
 
 		setupIcons();
@@ -169,6 +172,12 @@ public class UIStarter {
 
         clearFilesButton = new Button(topButtonsComposite, SWT.PUSH);
         clearFilesButton.setText("Clear List");
+
+		selectAllButton = new Button(topButtonsComposite, SWT.PUSH);
+		selectAllButton.setText("Select All");
+
+		deselectAllButton = new Button(topButtonsComposite, SWT.PUSH);
+		deselectAllButton.setText("Deselect All");
 
 		updatesAvailableLink = new Link(topButtonsComposite, SWT.VERTICAL);
 		//updatesAvailableLink.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, true));
@@ -425,8 +434,25 @@ public class UIStarter {
         });
 	}
 
+		private void setupSelectButtons() {
+			selectAllButton.addSelectionListener(new SelectionAdapter() {
+				public void widgetSelected(SelectionEvent e) {
+					for (final TableItem item : resultsTable.getItems()) {
+						item.setChecked(true);
+					}
+				}
+			});
+			deselectAllButton.addSelectionListener(new SelectionAdapter() {
+				public void widgetSelected(SelectionEvent e) {
+					for (final TableItem item : resultsTable.getItems()) {
+						item.setChecked(false);
+					}
+				}
+			});
+		}
+
 	private void setupResultsTable() {
-		resultsTable = new Table(shell, SWT.CHECK | SWT.FULL_SELECTION);
+		resultsTable = new Table(shell, SWT.CHECK | SWT.FULL_SELECTION | SWT.MULTI);
 		resultsTable.setHeaderVisible(true);
 		resultsTable.setLinesVisible(true);
 		GridData gridData = new GridData(GridData.FILL_BOTH);
@@ -571,6 +597,22 @@ public class UIStarter {
 			}
 		};
 		//resultsTable.addListener(SWT.MouseDown, tblEditListener);
+		resultsTable.addListener(SWT.Selection, new Listener() {
+				public void handleEvent(Event event) {
+					if (event.detail == SWT.CHECK) {
+						TableItem eventItem = (TableItem) event.item;
+						// This assumes that the current status of the TableItem
+						// already reflects its toggled state, which appears to
+						// be the case.
+						boolean checked = eventItem.getChecked();
+
+						for (final TableItem item : resultsTable.getSelection()) {
+							item.setChecked(checked);
+						}
+					}
+					// else, it's a SELECTED event, which we just don't care about
+				}
+			});
 	}
 
 	private void setupTableDragDrop() {
