@@ -40,7 +40,7 @@ public class TVRenamer {
 			matcher = COMPILED_REGEX[idx++].matcher(fName);
 			if (matcher.matches() && matcher.groupCount() == 3) {
 				String show = matcher.group(1);
-				show = StringUtils.replacePunctuation(show).trim().toLowerCase();
+				show = StringUtils.replacePunctuation(show).toLowerCase();
 
 				int season = Integer.parseInt(matcher.group(2));
 				int episode = Integer.parseInt(matcher.group(3));
