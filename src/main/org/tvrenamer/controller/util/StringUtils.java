@@ -1,5 +1,6 @@
 package org.tvrenamer.controller.util;
 
+import java.math.BigDecimal;
 import java.util.logging.Logger;
 
 public class StringUtils {
@@ -144,5 +145,24 @@ public class StringUtils {
      */
     public static boolean isNotBlank(String str) {
         return !StringUtils.isBlank(str);
+    }
+
+    /**
+     * Parses a numeric string and returns an integer value or null.
+     *
+     * @param strValue
+     *            numeric string to parse
+     * @return integer value of string, or null
+     */
+    public static Integer stringToInt(String strValue) {
+        if (isNotBlank(strValue)) {
+            try {
+                BigDecimal bd = new BigDecimal(strValue);
+                return bd.intValueExact();
+            } catch (ArithmeticException | NumberFormatException e) {
+                // not an integer
+            }
+        }
+        return null;
     }
 }
