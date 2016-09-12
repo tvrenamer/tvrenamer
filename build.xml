@@ -41,10 +41,11 @@
 		</fileset>
 		<fileset dir="${lib.dl}" id="classpath.runtime">
 			<include name="commons-codec-*.jar" />
+			<include name="xstream-*.jar" />
+			<include name="xmlpull-*.jar" />
 			<include name="xpp3_min*.jar" />
 		</fileset>
 		<fileset dir="${lib.main}" id="classpath.runtime">
-			<include name="xstream-*.jar" />
 			<include name="jedit-*-IOUtilities.jar" />
 		</fileset>
 	</path>
