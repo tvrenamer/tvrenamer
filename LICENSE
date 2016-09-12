@@ -11,12 +11,12 @@ Website: http://www.eclipse.org/swt
 License: Eclipse Public License (EPL)
 License website: http://www.eclipse.org/legal/index.php
 
-Codehaus XStream
+Thoughtworks XStream (formerly Codehaus)
 =========================================
 Description: XStream is a simple library to serialize objects to XML and back again.
-Website: http://xstream.codehaus.org
-License: GNU GENERAL PUBLIC LICENSE (GPL)
-License website: http://xstream.codehaus.org/license.html
+Website: http://x-stream.github.io/
+License: Berkeley Software Distribution v2.0 (BSD)
+License website: http://x-stream.github.io/license.html
 
 XmlPull
 =========================================
