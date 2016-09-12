@@ -8,6 +8,7 @@
     <!-- Therefore, its jars are simply checked into the source code. -->
 
     <dependency org="commons-codec" name="commons-codec" rev="1.4" />
+    <dependency org="xpp3" name="xpp3_min" rev="1.1.4c" />
     <!-- junit dependency -->
     <dependency org="junit" name="junit" rev="4.12" />
     <dependency org="org.hamcrest" name="hamcrest-core" rev="1.3" />
