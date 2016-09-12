@@ -1,0 +1,19 @@
+<ivy-module version="2.0">
+  <info organisation="org.tvrenamer" module="TVRenamer"/>
+  <configurations defaultconfmapping="findbugs->default">
+    <conf name="findbugs"/>
+  </configurations>
+  <dependencies>
+    <!-- The main dependency, SWT, is not made available through the central repository. -->
+    <!-- Therefore, its jars are simply checked into the source code. -->
+
+    <dependency org="commons-codec" name="commons-codec" rev="1.4" />
+    <!-- junit dependency -->
+    <dependency org="junit" name="junit" rev="4.12" />
+    <dependency org="org.hamcrest" name="hamcrest-core" rev="1.3" />
+    <!-- checkstyle -->
+    <dependency org="com.puppycrawl.tools" name="checkstyle" rev="7.1.1" />
+    <!-- findbugs -->
+    <dependency org="com.google.code.findbugs" name="findbugs" rev="3.0.1" conf="findbugs"/>
+  </dependencies>
+</ivy-module>
