@@ -11,7 +11,7 @@
     <dependency org="xpp3" name="xpp3_min" rev="1.1.4c" />
     <!-- junit dependency -->
     <dependency org="junit" name="junit" rev="4.12" />
-    <dependency org="org.hamcrest" name="hamcrest-core" rev="1.3" />
+    <dependency org="org.mockito" name="mockito-all" rev="1.8.5" />
     <!-- checkstyle -->
     <dependency org="com.puppycrawl.tools" name="checkstyle" rev="7.1.1" />
     <!-- findbugs -->
