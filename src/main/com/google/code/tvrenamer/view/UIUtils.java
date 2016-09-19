@@ -16,7 +16,7 @@ import com.google.code.tvrenamer.model.util.Constants.OSType;
 
 public class UIUtils {
 
-	private static Logger logger = Logger.getLogger(UIStarter.class.getName());
+	private static Logger logger = Logger.getLogger(UIUtils.class.getName());
 	private static Shell shell;
 
 	/**
