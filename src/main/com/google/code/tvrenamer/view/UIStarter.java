@@ -907,7 +907,7 @@ public class UIStarter {
 		item.setChecked(wasChecked);
 		item.setText(CURRENT_FILE_COLUMN, oldItem.getText(CURRENT_FILE_COLUMN));
 		item.setText(NEW_FILENAME_COLUMN, oldItem.getText(NEW_FILENAME_COLUMN));
-		item.setChecked(wasChecked);
+		item.setImage(STATUS_COLUMN, oldItem.getImage(STATUS_COLUMN));
 
 		oldItem.dispose();
 	}
