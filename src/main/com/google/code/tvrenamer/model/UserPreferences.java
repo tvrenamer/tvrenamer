@@ -185,10 +185,26 @@ public class UserPreferences extends Observable {
 	}
 	
 	public void setIgnoreKeywords(List<String> ignoreKeywords) {
-		if(hasChanged(this.ignoreKeywords, ignoreKeywords)) {
-			// Convert commas into pipes for proper regex, remove periods
-			this.ignoreKeywords = ignoreKeywords;
-			
+		if (hasChanged(this.ignoreKeywords, ignoreKeywords)) {
+			this.ignoreKeywords.clear();
+			// We need to be careful what we accept as "ignorable".  If we ignore the empty
+			// string, then it matches every string, and we find every filename ignorable.
+			// This problem could also be handled in PreferencesDialog, where we interpret
+			// what the user has entered, but it's good to protect against it no matter where
+			// it comes from.
+			//   Since I was editing this, I decided it probably makes sense to reject more
+			// than just the empty string.  Even a one-character string doesn't make much
+			// sense, so ignore any of those, too.
+			for (String ignorable : ignoreKeywords) {
+				if (ignorable.length() > 1) {
+					// TODO: Convert commas into pipes for proper regex, remove periods
+					this.ignoreKeywords.add(ignorable);
+				} else {
+					logger.warning("keywords to ignore must be at least two characters.");
+					logger.warning("not adding \"" + ignorable + "\"");
+				}
+			}
+
 			setChanged();
 			notifyObservers(new UserPreferencesChangeEvent("ignoreKeywordsRegex", ignoreKeywords));
 		}
