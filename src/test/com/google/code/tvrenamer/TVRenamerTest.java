@@ -88,6 +88,14 @@ public class TVRenamerTest {
         values.add(new TestInput("Marvels.Agents.of.S.H.I.E.L.D.S03E03.HDTV.x264-FLEET", "marvels agents of shield", "3", "3", "A Wanted (Inhu)man", ""));
         values.add(new TestInput("Marvels.Agents.of.S.H.I.E.L.D.S03E10.HDTV.x264-KILLERS", "marvels agents of shield", "3", "10", "Maveth", ""));
         values.add(new TestInput("Nip.Tuck.S06E01.720p.HDTV.X264-DIMENSION.mkv", "nip tuck", "6", "1", "Don Hoberman", "720p"));
+
+        values.add(new TestInput("The.Big.Bang.Theory.S10E04.720p.HDTV.X264-DIMENSION[ettv].mkv", "The Big Bang Theory", "10", "4", "The Cohabitation Experimentation", "720p"));
+        values.add(new TestInput("Lucifer.S02E03.720p.HDTV.X264-DIMENSION[ettv].mkv", "Lucifer", "2", "3", "Sin-Eater", "720p"));
+        values.add(new TestInput("Marvels.Agents.of.S.H.I.E.L.D.S04E03.1080p.HDTV.x264-KILLERS[ettv].mkv", "Marvels Agents of SHIELD", "4", "3", "Uprising", "1080p"));
+        values.add(new TestInput("Supernatural.S11E22.1080p.HDTV.X264-DIMENSION[ettv].mkv", "Supernatural", "11", "22", "We Happy Few", "1080p"));
+        values.add(new TestInput("Supernatural.S11E22.HDTV.X264-DIMENSION.720p.[ettv].mkv", "Supernatural", "11", "22", "We Happy Few", "720p"));
+        values.add(new TestInput("Channel.Zero.S01E01.480p.HDTV.X264-DIMENSION[ettv].mkv", "Channel Zero", "1", "1", "You Have to Go Inside", "480p"));
+        values.add(new TestInput("NCIS.S14E04.720p.HDTV.X264-DIMENSION[ettv].mkv", "NCIS", "14", "4", "Love Boat", "720p"));
     }
 
     @Test
