@@ -19,7 +19,7 @@ public class TVRenamer {
 			"(.+\\W+)(\\d\\d?)(\\d\\d).*\\D(\\d+[pk]).*" // truly last resort
 	};
 
-	public static final Pattern[] COMPILED_REGEX = new Pattern[REGEX.length];
+	public static final Pattern[] COMPILED_REGEX = new Pattern[REGEX.length * 2];
 
 	static {
 		for (int i = 0; i < REGEX.length * 2; i++) {

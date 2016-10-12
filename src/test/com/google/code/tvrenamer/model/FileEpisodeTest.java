@@ -46,6 +46,7 @@ public class FileEpisodeTest {
         String title = "$pringfield";
         int seasonNum = 5;
         int episodeNum = 10;
+        String resolution = "";
         File file = new File(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator")
                 + "the.simpsons.5.10.avi");
         createFile(file);
@@ -58,7 +59,7 @@ public class FileEpisodeTest {
 
         Mockito.when(prefs.getRenameReplacementString()).thenReturn("%S [%sx%e] %t");
 
-        FileEpisode episode = new FileEpisode(showName, seasonNum, episodeNum, file);
+        FileEpisode episode = new FileEpisode(showName, seasonNum, episodeNum, resolution, file);
         episode.setStatus(EpisodeStatus.DOWNLOADED);
 
         String newFilename = episode.getNewFilename();
@@ -76,6 +77,7 @@ public class FileEpisodeTest {
         String title = "The Way of the Gun";
         int seasonNum = 1;
         int episodeNum = 1;
+        String resolution = "";
         File file = new File(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator")
                 + "steven.segal.lawman.1.01.avi");
         createFile(file);
@@ -86,7 +88,7 @@ public class FileEpisodeTest {
         show.setSeason(seasonNum, season1);
         ShowStore.addShow(showName, show);
 
-        FileEpisode fileEpisode = new FileEpisode(showName, seasonNum, episodeNum, file);
+        FileEpisode fileEpisode = new FileEpisode(showName, seasonNum, episodeNum, resolution, file);
         fileEpisode.setStatus(EpisodeStatus.RENAMED);
 
         String newFilename = fileEpisode.getNewFilename();
