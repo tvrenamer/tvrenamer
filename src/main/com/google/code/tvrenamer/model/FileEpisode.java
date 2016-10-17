@@ -19,15 +19,17 @@ public class FileEpisode {
 	private final String showName;
 	private final int seasonNumber;
 	private final int episodeNumber;
+	private final String episodeResolution;
 	private File file;
 
 	private UserPreferences userPrefs = UserPreferences.getInstance();
 	private EpisodeStatus status;
 
-	public FileEpisode(String name, int season, int episode, File f) {
+	public FileEpisode(String name, int season, int episode, String resolution, File f) {
 		showName = name;
 		seasonNumber = season;
 		episodeNumber = episode;
+		episodeResolution = resolution;
 		file = f;
 		status = EpisodeStatus.ADDED;
 	}
@@ -127,6 +129,7 @@ public class FileEpisode {
 				String episodeNumberWithLeadingZeros = new DecimalFormat("#00").format(this.episodeNumber);
 				String episodeTitleNoSpaces = titleString.replaceAll(" ", ".");
 				String seasonNumberWithLeadingZero = new DecimalFormat("00").format(this.seasonNumber);
+				String episodeResolution = this.episodeResolution;
 
 				newFilename = newFilename.replaceAll(ReplacementToken.SHOW_NAME.getToken(), showName);
 				newFilename = newFilename.replaceAll(ReplacementToken.SEASON_NUM.getToken(), seasonNum);
@@ -138,6 +141,8 @@ public class FileEpisode {
 				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_TITLE.getToken(), titleString);
 				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_TITLE_NO_SPACES.getToken(),
 													 episodeTitleNoSpaces);
+				newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_RESOLUTION.getToken(),
+													 episodeResolution);
 
 				// Date and times
 				newFilename = newFilename

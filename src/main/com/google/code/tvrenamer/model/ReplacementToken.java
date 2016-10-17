@@ -10,6 +10,7 @@ public enum ReplacementToken {
 	EPISODE_NUM_LEADING_ZERO("%0e", "Episode Number (with leading 0s)"), 
 	EPISODE_TITLE("%t", "Episode Title"), 
 	EPISODE_TITLE_NO_SPACES("%T", "Episode Title (<space> replaced with '.')"),
+	EPISODE_RESOLUTION("%r", "Episode resolution"),
 	
 	DATE_YEAR_FULL("%yyyy", "Year e.g. 2012"),
 	DATE_YEAR_MIN ("%yy", "Short year e.g. 12"),
