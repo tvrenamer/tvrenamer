@@ -293,7 +293,7 @@ public class UIStarter {
 		if (getOSType() == OSType.MAC) {
 			// Add the special Mac OSX Preferences, About and Quit menus.
 			CocoaUIEnhancer enhancer = new CocoaUIEnhancer(Constants.APPLICATION_NAME);
-			enhancer.hookApplicationMenu(shell.getDisplay(), quitListener, aboutListener, preferencesListener);
+			enhancer.hookApplicationMenu(display, quitListener, aboutListener, preferencesListener);
 
 			setupHelpMenuBar(menuBarMenu);
 		} else {
@@ -617,10 +617,9 @@ public class UIStarter {
 	}
 
 	private void launch() {
-		Display display = null;
 		try {
 			// place the window in the centre of the primary monitor
-			Monitor primary = Display.getCurrent().getPrimaryMonitor();
+			Monitor primary = display.getPrimaryMonitor();
 			Rectangle bounds = primary.getBounds();
 			Rectangle rect = shell.getBounds();
 			int x = bounds.x + (bounds.width - rect.width) / 2;
@@ -631,7 +630,6 @@ public class UIStarter {
 			shell.pack();
 			shell.open();
 
-			display = shell.getDisplay();
 			while (!shell.isDisposed()) {
 				if (!display.readAndDispatch()) {
 					display.sleep();
@@ -907,7 +905,7 @@ public class UIStarter {
 		item.setChecked(wasChecked);
 		item.setText(CURRENT_FILE_COLUMN, oldItem.getText(CURRENT_FILE_COLUMN));
 		item.setText(NEW_FILENAME_COLUMN, oldItem.getText(NEW_FILENAME_COLUMN));
-		item.setChecked(wasChecked);
+		item.setImage(STATUS_COLUMN, oldItem.getImage(STATUS_COLUMN));
 
 		oldItem.dispose();
 	}

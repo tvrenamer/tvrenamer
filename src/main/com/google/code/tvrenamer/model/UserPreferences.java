@@ -185,10 +185,19 @@ public class UserPreferences extends Observable {
 	}
 	
 	public void setIgnoreKeywords(List<String> ignoreKeywords) {
-		if(hasChanged(this.ignoreKeywords, ignoreKeywords)) {
-			// Convert commas into pipes for proper regex, remove periods
-			this.ignoreKeywords = ignoreKeywords;
-			
+		if (hasChanged(this.ignoreKeywords, ignoreKeywords)) {
+			this.ignoreKeywords.clear();
+			for (String ignorable : ignoreKeywords) {
+				// Be careful not to allow empty string as a "keyword."
+				if (ignorable.length() > 1) {
+					// TODO: Convert commas into pipes for proper regex, remove periods
+					this.ignoreKeywords.add(ignorable);
+				} else {
+					logger.warning("keywords to ignore must be at least two characters.");
+					logger.warning("not adding \"" + ignorable + "\"");
+				}
+			}
+
 			setChanged();
 			notifyObservers(new UserPreferencesChangeEvent("ignoreKeywordsRegex", ignoreKeywords));
 		}
