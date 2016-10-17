@@ -25,6 +25,7 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.SWTException;
 import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DropTarget;
@@ -88,6 +89,7 @@ public class UIStarter {
 	private static final int CURRENT_FILE_COLUMN = 1;
 	private static final int NEW_FILENAME_COLUMN = 2;
 	private static final int STATUS_COLUMN = 3;
+	private static final int ITEM_NOT_IN_TABLE = -1;
 	private static final String TVRENAMER_DOWNLOAD_URL = AboutDialog.TVRENAMER_PROJECT_URL + "/downloads";
 
 	private static Shell shell;
@@ -293,7 +295,7 @@ public class UIStarter {
 		if (getOSType() == OSType.MAC) {
 			// Add the special Mac OSX Preferences, About and Quit menus.
 			CocoaUIEnhancer enhancer = new CocoaUIEnhancer(Constants.APPLICATION_NAME);
-			enhancer.hookApplicationMenu(shell.getDisplay(), quitListener, aboutListener, preferencesListener);
+			enhancer.hookApplicationMenu(display, quitListener, aboutListener, preferencesListener);
 
 			setupHelpMenuBar(menuBarMenu);
 		} else {
@@ -425,8 +427,40 @@ public class UIStarter {
         });
 	}
 
+    private void setupSelectionListener() {
+        resultsTable.addListener
+            (SWT.Selection,
+             new Listener() {
+                 public void handleEvent(Event event) {
+                     if (event.detail == SWT.CHECK) {
+                         TableItem eventItem = (TableItem) event.item;
+                         // This assumes that the current status of the TableItem
+                         // already reflects its toggled state, which appears to
+                         // be the case.
+                         boolean checked = eventItem.getChecked();
+                         boolean isSelected = false;
+
+                         for (final TableItem item : resultsTable.getSelection()) {
+                             if (item == eventItem) {
+                                 isSelected = true;
+                                 break;
+                             }
+                         }
+                         if (isSelected) {
+                             for (final TableItem item : resultsTable.getSelection()) {
+                                 item.setChecked(checked);
+                             }
+                         } else {
+                             resultsTable.deselectAll();
+                         }
+                     }
+                     // else, it's a SELECTED event, which we just don't care about
+                 }
+             });
+    }
+
 	private void setupResultsTable() {
-		resultsTable = new Table(shell, SWT.CHECK | SWT.FULL_SELECTION);
+		resultsTable = new Table(shell, SWT.CHECK | SWT.FULL_SELECTION | SWT.MULTI);
 		resultsTable.setHeaderVisible(true);
 		resultsTable.setLinesVisible(true);
 		GridData gridData = new GridData(GridData.FILL_BOTH);
@@ -461,12 +495,12 @@ public class UIStarter {
 					
 					// backspace
 					case '\u0008':
-						deleteTableItem(resultsTable.getSelectionIndex());
+						deleteSelectedTableItems();
 						break;
 						
 					// delete
 					case '\u007F':
-						deleteTableItem(resultsTable.getSelectionIndex());
+						deleteSelectedTableItems();
 						break;
 				}
 					
@@ -571,6 +605,7 @@ public class UIStarter {
 			}
 		};
 		//resultsTable.addListener(SWT.MouseDown, tblEditListener);
+        setupSelectionListener();
 	}
 
 	private void setupTableDragDrop() {
@@ -617,10 +652,9 @@ public class UIStarter {
 	}
 
 	private void launch() {
-		Display display = null;
 		try {
 			// place the window in the centre of the primary monitor
-			Monitor primary = Display.getCurrent().getPrimaryMonitor();
+			Monitor primary = display.getPrimaryMonitor();
 			Rectangle bounds = primary.getBounds();
 			Rectangle rect = shell.getBounds();
 			int x = bounds.x + (bounds.width - rect.width) / 2;
@@ -631,7 +665,6 @@ public class UIStarter {
 			shell.pack();
 			shell.open();
 
-			display = shell.getDisplay();
 			while (!shell.isDisposed()) {
 				if (!display.readAndDispatch()) {
 					display.sleep();
@@ -738,17 +771,17 @@ public class UIStarter {
 		}
 	}
 	
-	private boolean tableContainsTableItem (TableItem item) {
-		
-		if ( item == null ) return false;
-		
-		for ( TableItem ti: resultsTable.getItems() ){
-			if( item.equals(ti) ) {
-				item = null;
-				return true;
-			}
+	private int getTableItemIndex(TableItem item) {
+		try {
+			return resultsTable.indexOf(item);
+		} catch (IllegalArgumentException | SWTException ignored) {
+			// We'll just fall through and return the sentinel.
 		}
-		return false;
+		return ITEM_NOT_IN_TABLE;
+	}
+
+	private boolean tableContainsTableItem(TableItem item) {
+		return (ITEM_NOT_IN_TABLE != getTableItemIndex(item));
 	}
 
 	private void renameFiles() {
@@ -890,12 +923,22 @@ public class UIStarter {
 		return false;
 	}
 	
-	private void deleteTableItem (int index) {
-		if( resultsTable.getItems().length > 0 ) {
-    		files.remove(resultsTable.getItem(index).getText(CURRENT_FILE_COLUMN));
-    		resultsTable.remove(index);
-    		resultsTable.select(index > 0 ? index - 1 : 0);
+	private void deleteSelectedTableItems() {
+		int index = ITEM_NOT_IN_TABLE;
+		for (final TableItem item : resultsTable.getSelection()) {
+			index = getTableItemIndex(item);
+			if (ITEM_NOT_IN_TABLE == index) {
+				logger.info("error: somehow selected item not found in table");
+				continue;
+			}
+
+			String filename = item.getText(CURRENT_FILE_COLUMN);
+			files.remove(filename);
+
+			resultsTable.remove(index);
+			item.dispose();
 		}
+        resultsTable.deselectAll();
 	}
 
 	private void setSortedItem(int i, int j) {
@@ -907,7 +950,7 @@ public class UIStarter {
 		item.setChecked(wasChecked);
 		item.setText(CURRENT_FILE_COLUMN, oldItem.getText(CURRENT_FILE_COLUMN));
 		item.setText(NEW_FILENAME_COLUMN, oldItem.getText(NEW_FILENAME_COLUMN));
-		item.setChecked(wasChecked);
+		item.setImage(STATUS_COLUMN, oldItem.getImage(STATUS_COLUMN));
 
 		oldItem.dispose();
 	}
