@@ -158,16 +158,11 @@ public class TVRenamerTest {
         public final String episodeTitle;
         public final String episodeResolution;
 
-        public TestInput(String input, String show, String season, String episode) {
-            this(input, show, season, episode, null, null);
-        }
-
         public TestInput(String input, String show, String season, String episode, String episodeTitle, String episodeResolution) {
             this.input = input;
             this.show = show.toLowerCase();
             this.season = season;
             this.episode = episode;
-
             this.episodeTitle = episodeTitle;
             this.episodeResolution = episodeResolution;
         }

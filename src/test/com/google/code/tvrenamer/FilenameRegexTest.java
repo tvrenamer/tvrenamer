@@ -1,15 +1,22 @@
 package com.google.code.tvrenamer;
 
-import java.text.DecimalFormat;
-import java.util.regex.Matcher;
-
-import org.junit.Test;
-
 import com.google.code.tvrenamer.controller.TVRenamer;
-import com.google.code.tvrenamer.controller.util.StringUtils;
+import com.google.code.tvrenamer.model.FileEpisode;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
+import java.util.Arrays;
+
+import static org.junit.Assert.assertNotNull;
+
+
+@RunWith(Parameterized.class)
 public class FilenameRegexTest {
-    private final String[] testFilenames = {
+    @Parameters
+    public static final Iterable<? extends Object> data() {
+        return Arrays.asList(
             "24.s08.e01.720p.hdtv.x264-immerse.mkv",
             "24.S07.E18.720p.BlueRay.x264-SiNNERS.mkv",
             "human.target.2010.s01.e02.720p.hdtv.x264-2hd.mkv",
@@ -24,20 +31,18 @@ public class FilenameRegexTest {
             "the.big.bang.theory.s03e18.720p.hdtv.x264-ctu.mkv",
             "castle.2009.s01e09.720p.hdtv.x264-ctu.mkv",
             "Marvels.Agents.of.S.H.I.E.L.D.S03E03.HDTV.x264-FLEET"
-    };
+        );
+    }
 
-	@Test
-	public void testRegex() {
-		for (int i = 0; i < testFilenames.length; i++) {
-			Matcher matcher = TVRenamer.COMPILED_REGEX[1].matcher(testFilenames[i]);
-			System.out.print(testFilenames[i] + " -> ");
-			if (matcher.matches()) {
-				System.out.println(StringUtils.replacePunctuation(matcher.group(1)).trim() + " ["
-					+ Integer.parseInt(matcher.group(2)) + "x"
-					+ new DecimalFormat("00").format(Integer.parseInt(matcher.group(3))) + "]");
-			} else {
-				System.out.println("no match");
-			}
-		}
-	}
+    private String input;
+
+    public FilenameRegexTest(String input) {
+        this.input = input;
+    }
+
+    @Test
+    public void testRegex() {
+        FileEpisode result = TVRenamer.parseFilename(input);
+        assertNotNull(result);
+    }
 }

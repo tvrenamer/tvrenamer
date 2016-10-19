@@ -4,12 +4,17 @@ import com.google.code.tvrenamer.controller.TheTVDBProvider;
 import com.google.code.tvrenamer.model.Show;
 import org.junit.Test;
 
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+
 public class TheTVDBProviderTest {
 
     @Test
     public void testGetShowOptions() throws Exception {
         for (Show show : TheTVDBProvider.getShowOptions("Gossip Girl")) {
-            System.out.println(show.getId() + " -> " + show.getName());
+            assertNotNull(show);
+            assertNotEquals(0, show.getId().length());
+            assertNotEquals(0, show.getName().length());
         }
     }
 
