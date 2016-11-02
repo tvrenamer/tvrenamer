@@ -21,7 +21,7 @@ public class UIUtils {
 
     /**
      * Constructor.
-     * 
+     *
      * @param shell
      *            the shell to use.
      */
@@ -31,7 +31,7 @@ public class UIUtils {
 
     /**
      * Determine the system default font
-     * 
+     *
      * @param shell
      *            the shell to get the font from
      * @return the system default font
@@ -46,7 +46,7 @@ public class UIUtils {
 
         return defaultFont;
     }
-    
+
     public static void showMessageBox(final SWTMessageBoxType type, final String title, final String message, final Exception exception) {
         if(shell == null) {
             // Shell not established yet, try using JOPtionPane instead
@@ -58,19 +58,19 @@ public class UIUtils {
                 return;
             }
         }
-        
+
         Display.getDefault().syncExec(new Runnable() {
             @Override
-            public void run() {            
+            public void run() {
                 MessageBox msgBox = new MessageBox(shell, type.swtIconValue);
                 msgBox.setText(title);
-                
+
                 if(exception == null) {
                     msgBox.setMessage(message);
                 } else {
                     msgBox.setMessage(message + "/n" + exception.getLocalizedMessage());
                 }
-                
+
                 msgBox.open();
             }
         });
@@ -78,7 +78,7 @@ public class UIUtils {
 
     /**
      * Show a message box of the given type with the given message content and window title.
-     * 
+     *
      * @param type the {@link SWTMessageBoxType} to create
      * @param title the window title
      * @param message the message content
@@ -93,7 +93,7 @@ public class UIUtils {
         logger.log(Level.WARNING, message, exception);
         showMessageBox(SWTMessageBoxType.ERROR, "Error", message);
     }
-    
+
     public static OSType getOSType() {
         if (System.getProperty("os.name").contains("Mac")) {
             return OSType.MAC;

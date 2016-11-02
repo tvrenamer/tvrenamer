@@ -32,10 +32,10 @@ import org.tvrenamer.model.TVRenamerIOException;
 
 /**
  * This class encapsulates the interactions between the application and the TVRage XML Feeds
- * 
+ *
  * @author Vipul Delwadia
  * @author Dave Harris
- * 
+ *
  */
 public class TVRageProvider {
     private static final String ERROR_PARSING_TV_RAGE_XML = "Error parsing TVRage XML";
@@ -63,7 +63,7 @@ public class TVRageProvider {
     /**
      * Uses the TVRage search tool to retrieve a list of possible shows based on the show name. The list returned is in
      * the order returned by the TVRage search.
-     * 
+     *
      * @param showName
      *            the show to search for
      * @return a list of matching shows in the order returned by the TVRage search.
@@ -81,7 +81,7 @@ public class TVRageProvider {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
             logger.info("About to retrieve search results from " + searchURL);
-            
+
             String searchXml = new HttpConnectionHandler().downloadUrl(searchURL);
 
             DocumentBuilder db = dbf.newDocumentBuilder();
@@ -128,7 +128,7 @@ public class TVRageProvider {
 
     /**
      * Uses the TVRage episode listings to populate the Show object with Season and Episode Data
-     * 
+     *
      * @param show
      *            the Show object to populate with season and episode data
      */
@@ -141,7 +141,7 @@ public class TVRageProvider {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         try {
             String showXml = new HttpConnectionHandler().downloadUrl(showURL);
-            
+
             DocumentBuilder db = dbf.newDocumentBuilder();
             Document doc = db.parse(new InputSource(new StringReader(showXml)));
             XPathFactory factory = XPathFactory.newInstance();
@@ -169,7 +169,7 @@ public class TVRageProvider {
                     Node airdateNode = (Node) expr.evaluate(eNode, XPathConstants.NODE);
                     logger.finer("[" + sNum + "x" + epNumNode.getTextContent() + "] " + epTitleNode.getTextContent());
                     DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-                    season.addEpisode(Integer.parseInt(epNumNode.getTextContent()), 
+                    season.addEpisode(Integer.parseInt(epNumNode.getTextContent()),
                                       epTitleNode.getTextContent(),
                                       df.parse(airdateNode.getTextContent()));
                 }

@@ -88,7 +88,7 @@ public class CocoaUIEnhancer {
 
     /**
      * Construct a new CocoaUIEnhancer.
-     * 
+     *
      * @param appName
      *            The name of the application. It will be used to customize the About and Quit menu
      *            items. If you do not wish to customize the About and Quit menu items, just pass
@@ -101,7 +101,7 @@ public class CocoaUIEnhancer {
     /**
      * Hook the given Listener to the Mac OS X application Quit menu and the IActions to the About
      * and Preferences menus.
-     * 
+     *
      * @param display
      *            The Display to use.
      * @param quitListener

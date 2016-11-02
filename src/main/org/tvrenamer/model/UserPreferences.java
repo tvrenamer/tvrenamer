@@ -18,7 +18,7 @@ public class UserPreferences extends Observable {
 
     public static File prefsFile = new File(System.getProperty("user.home") + File.separatorChar
                                             + Constants.PREFERENCES_FILE);
-    
+
     private File destDir;
     private String seasonPrefix;
     private boolean seasonPrefixLeadingZero;
@@ -28,7 +28,7 @@ public class UserPreferences extends Observable {
     private boolean checkForUpdates;
     private boolean recursivelyAddFolders;
     private List<String> ignoreKeywords;
-    
+
     private final static UserPreferences INSTANCE = load();
 
     /**
@@ -50,11 +50,11 @@ public class UserPreferences extends Observable {
 
         ensurePath();
     }
-    
+
     public static UserPreferences getInstance() {
         return INSTANCE;
     }
-    
+
     /**
      * Load preferences from xml file
      */
@@ -66,41 +66,41 @@ public class UserPreferences extends Observable {
             logger.finer("Sucessfully read preferences from: " + prefsFile.getAbsolutePath());
             logger.info("Sucessfully read preferences: " + prefs.toString());
         } else {
-            
+
             // Look in the legacy location, if not, create new
             File legacyPrefsFile = new File(System.getProperty("user.home") + File.separatorChar
                                             + Constants.PREFERENCES_FILE_LEGACY);
-            
+
             prefs = UserPreferencesPersistence.retrieve(legacyPrefsFile);
-            
+
             if( prefs != null ) {
                 logger.finer("Sucessfully read legacy preferences from: " + prefsFile.getAbsolutePath());
                 logger.info("Sucessfully read legacy preferences: " + prefs.toString());
-                
+
                 // Delete the old file, then store into the new file
                 legacyPrefsFile.delete();
                 store(prefs);
-                
+
                 logger.info("Deleted legacy prefs file in favour of the new file");
-            
+
             } else {
                 prefs = new UserPreferences();
             }
         }
-        
+
         // apply the proxy configuration
         if (prefs.getProxy() != null) {
             prefs.getProxy().apply();
         }
 
         prefs.ensurePath();
-        
+
         // add observer
         prefs.addObserver(new UserPreferencesChangeListener());
 
         return prefs;
     }
-    
+
     public static void store(UserPreferences prefs) {
         UserPreferencesPersistence.persist(prefs, prefsFile);
         logger.fine("Sucessfully saved/updated preferences");
@@ -109,7 +109,7 @@ public class UserPreferences extends Observable {
     /**
      * Sets the directory to move renamed files to. Must be an absolute path, and the entire path will be created if it
      * doesn't exist.
-     * 
+     *
      * @param dir
      * @return True if the path was created successfully, false otherwise.
      */
@@ -125,7 +125,7 @@ public class UserPreferences extends Observable {
 
     /**
      * Sets the directory to move renamed files to. The entire path will be created if it doesn't exist.
-     * 
+     *
      * @param dir
      * @return True if the path was created successfully, false otherwise.
      */
@@ -141,7 +141,7 @@ public class UserPreferences extends Observable {
 
     /**
      * Gets the directory set to move renamed files to.
-     * 
+     *
      * @return File object representing the directory.
      */
     public File getDestinationDirectory() {
@@ -159,31 +159,31 @@ public class UserPreferences extends Observable {
 
     /**
      * Get the status of of move support
-     * 
+     *
      * @return true if selected destination exists, false otherwise
      */
     public boolean isMovedEnabled() {
         return this.moveEnabled;
     }
-    
+
     public void setRecursivelyAddFolders(boolean recursivelyAddFolders) {
         if(hasChanged(this.recursivelyAddFolders, recursivelyAddFolders)) {
             this.recursivelyAddFolders = recursivelyAddFolders;
-            
+
             setChanged();
             notifyObservers(new UserPreferencesChangeEvent("recursivelyAddFolders", recursivelyAddFolders));
         }
     }
-    
+
     /**
      * Get the status of recursively adding files within a directory
-     * 
+     *
      * @return true if adding subdirectories, false otherwise
      */
     public boolean isRecursivelyAddFolders() {
         return this.recursivelyAddFolders;
     }
-    
+
     public void setIgnoreKeywords(List<String> ignoreKeywords) {
         if (hasChanged(this.ignoreKeywords, ignoreKeywords)) {
             this.ignoreKeywords.clear();
@@ -202,7 +202,7 @@ public class UserPreferences extends Observable {
             notifyObservers(new UserPreferencesChangeEvent("ignoreKeywordsRegex", ignoreKeywords));
         }
     }
-    
+
     public List<String> getIgnoreKeywords() {
         return this.ignoreKeywords;
     }

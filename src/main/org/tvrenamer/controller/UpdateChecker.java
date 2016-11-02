@@ -14,7 +14,7 @@ public class UpdateChecker {
 
     /**
      * Checks if a newer version is available.
-     * 
+     *
      * @return the new version number as a string if available, empty string if no new version or null if an error has
      *         occurred
      */

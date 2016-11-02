@@ -9,12 +9,12 @@ public class UserPreferencesChangeEvent {
     private String preference;
     /** The new value of the preference */
     private Object newValue;
-    
+
     public UserPreferencesChangeEvent(String preference, Object newValue) {
         this.preference = preference;
         this.newValue = newValue;
     }
-    
+
     public String getPreference() {
         return preference;
     }

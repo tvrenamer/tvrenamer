@@ -15,10 +15,10 @@ import org.apache.commons.codec.binary.Base64;
 
 public class CryptographyUtils {
     private static Logger logger = Logger.getLogger(CryptographyUtils.class.getName());
-    
+
     private static final String SECRET_KEY_METHOD = "PBEWithMD5AndDES";
     private static final Base64 base64 = new Base64(76, "".getBytes());
-    
+
     // A little bit of a security flaw having the password and salt in clear text, but securing the password in the settings file is more important
     private static final char[] PASSWORD = "sai;fdug213j,09ah2kfd/sa92n]sdf'65a".toCharArray();
     private static final byte[] SALT = {
@@ -37,7 +37,7 @@ public class CryptographyUtils {
         catch(GeneralSecurityException gse) {
             logger.log(Level.WARNING, "Exception when encrypting value", gse);
         }
-        
+
         return null;
     }
 
@@ -57,7 +57,7 @@ public class CryptographyUtils {
         } catch(IOException ioe) {
             logger.log(Level.WARNING, "Exception when encrypting value", ioe);
         }
-        
+
         return null;
     }
 

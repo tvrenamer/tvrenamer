@@ -16,7 +16,7 @@ import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider
 
 public class UserPreferencesPersistence {
     private static Logger logger = Logger.getLogger(UserPreferencesPersistence.class.getName());
-    
+
     // Use reflection provider so the default constructor is called, thus calling the superclass constructor
     private static final XStream xstream = new XStream(new PureJavaReflectionProvider());
 
@@ -35,11 +35,11 @@ public class UserPreferencesPersistence {
     public static void persist(UserPreferences prefs, File file) {
         String xml = xstream.toXML(prefs);
         BufferedWriter writer = null;
-        
+
         try {
             writer = new BufferedWriter(new FileWriter(file));
             writer.write(xml);
-            
+
         } catch (IOException e) {
             logger.log(Level.SEVERE, "Exception occoured when writing preferences file", e);
         } finally {
@@ -61,7 +61,7 @@ public class UserPreferencesPersistence {
     public static UserPreferences retrieve(File file) {
         // Instantiate the object so the Observable superclass is called corrected
         UserPreferences preferences = null;
-        
+
         try {
             preferences = (UserPreferences) xstream.fromXML(new FileInputStream(file));
         } catch (FileNotFoundException e) {
@@ -69,7 +69,7 @@ public class UserPreferencesPersistence {
             logger.log(Level.FINER, "Preferences file '" + file.getAbsolutePath() + "' does not exist - assuming defaults");
             preferences = UserPreferences.getInstance();
         }
-        
+
         return preferences;
     }
 }

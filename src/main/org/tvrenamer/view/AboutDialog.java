@@ -39,7 +39,7 @@ public class AboutDialog extends Dialog {
 
     /**
      * AboutDialog constructor
-     * 
+     *
      * @param parent
      *            the parent {@link Shell}
      */
@@ -67,7 +67,7 @@ public class AboutDialog extends Dialog {
 
     /**
      * Creates the dialog's contents.
-     * 
+     *
      * @param aboutShell
      *            the dialog window
      */
