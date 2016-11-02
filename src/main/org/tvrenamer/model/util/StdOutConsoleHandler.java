@@ -14,32 +14,32 @@ import java.util.logging.StreamHandler;
  */
 public class StdOutConsoleHandler extends StreamHandler {
 
-	private Formatter formatter = super.getFormatter();
+    private Formatter formatter = super.getFormatter();
 
-	@Override
-	public synchronized void publish(LogRecord logRecord) {
-		// Write the formatted log record to stdout
-		System.out.println(formatter.format(logRecord));
-	}
+    @Override
+    public synchronized void publish(LogRecord logRecord) {
+        // Write the formatted log record to stdout
+        System.out.println(formatter.format(logRecord));
+    }
 
-	@Override
-	public synchronized void close() throws SecurityException {
-		// We don't want the logger to close the stdout stream
-	}
+    @Override
+    public synchronized void close() throws SecurityException {
+        // We don't want the logger to close the stdout stream
+    }
 
-	@Override
-	public synchronized void flush() {
-		super.flush();
-	}
+    @Override
+    public synchronized void flush() {
+        super.flush();
+    }
 
-	@Override
-	public boolean isLoggable(LogRecord record) {
-		return true;
-	}
+    @Override
+    public boolean isLoggable(LogRecord record) {
+        return true;
+    }
 
-	@Override
-	protected synchronized void setOutputStream(OutputStream arg0) throws SecurityException {
-		super.setOutputStream(arg0);
-	}
+    @Override
+    protected synchronized void setOutputStream(OutputStream arg0) throws SecurityException {
+        super.setOutputStream(arg0);
+    }
 
 }
