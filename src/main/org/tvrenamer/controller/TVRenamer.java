@@ -38,7 +38,7 @@ public class TVRenamer {
 	public static FileEpisode parse (final String fileName){
 		FileEpisode ep = null;
 
-		if (fileName.matches(".*\\W[_]?(\\d\\d\\d\\d?)[_]?\\W.*")){
+		if (fileName.matches(".*\\W[_]?(\\d\\d\\d\\d?)[_]?\\W.*") || fileName.matches(".*\\D[_]?(\\d\\d\\d\\d?)[_]?\\D.*")){
 			System.out.println (fileName);
 			ep = TVRenamerSeasonless.parseFilename(fileName);
 		} else {
