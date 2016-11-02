@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Represents a TV Show, with a name, url and list of seasons. 
+ * Represents a TV Show, with a name, url and list of seasons.
  */
 public class Show implements Comparable<Show> {
     private final String id;
@@ -45,7 +45,7 @@ public class Show implements Comparable<Show> {
     public String toString() {
         return "Show [id=" + id + ", name=" + name + ", url=" + url + ", seasons=" + seasons + "]";
     }
-    
+
     @Override
     public int compareTo(Show other) {
         return Integer.parseInt(other.id) - Integer.parseInt(this.id);

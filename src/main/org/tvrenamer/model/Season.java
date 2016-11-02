@@ -27,7 +27,7 @@ public class Season {
             throw new EpisodeNotFoundException("Episode #" + epNum + " not found for season #" + this.num);
         return e.getTitle();
     }
-    
+
     public Date getAirDate(int epNum) {
         Episode e = episodes.get(epNum);
         if (e == null)
@@ -39,5 +39,5 @@ public class Season {
     public String toString() {
         return "Season [num=" + num + ", episodes=" + episodes + "]";
     }
-    
+
 }

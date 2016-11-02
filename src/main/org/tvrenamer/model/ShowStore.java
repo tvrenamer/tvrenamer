@@ -46,7 +46,7 @@ public class ShowStore {
      * <li>if we don't have the show and aren't downloading, then create the registration, add the listener and kick off
      * the download</li>
      * </ul>
-     * 
+     *
      * @param showName
      *            the name of the show
      * @param listener
@@ -134,7 +134,7 @@ public class ShowStore {
     /**
      * Add a show to the store, registered by the show name.<br />
      * Added this distinct method to enable unit testing
-     * 
+     *
      * @param showName
      *            the show name
      * @param show

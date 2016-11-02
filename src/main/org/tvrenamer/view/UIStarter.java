@@ -109,7 +109,7 @@ public class UIStarter {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private Map<String, FileEpisode> files = new HashMap<String, FileEpisode>();
-    
+
     // Static initalisation block
     static {
         // Find logging.properties file inside jar
@@ -165,7 +165,7 @@ public class UIStarter {
 
         addFilesButton = new Button(topButtonsComposite, SWT.PUSH);
         addFilesButton.setText("Add files");
-        
+
         addFolderButton = new Button(topButtonsComposite, SWT.PUSH);
         addFolderButton.setText("Add Folder");
 
@@ -191,7 +191,7 @@ public class UIStarter {
                 if (prefs.checkForUpdates()) {
                     final boolean updatesAvailable = UpdateChecker.isUpdateAvailable();
 
-                    if (updatesAvailable) {                        
+                    if (updatesAvailable) {
                         display.asyncExec(new Runnable() {
                             @Override
                             public void run() {
@@ -484,7 +484,7 @@ public class UIStarter {
         final TableColumn statusColumn = new TableColumn(resultsTable, SWT.LEFT);
         statusColumn.setText("Status");
         statusColumn.setWidth(60);
-        
+
         // Allow deleting of elements
         resultsTable.addKeyListener(new KeyAdapter() {
             @Override
@@ -492,18 +492,18 @@ public class UIStarter {
                 super.keyReleased(e);
 
                 switch(e.keyCode){
-                    
+
                     // backspace
                     case '\u0008':
                         deleteSelectedTableItems();
                         break;
-                        
+
                     // delete
                     case '\u007F':
                         deleteSelectedTableItems();
                         break;
                 }
-                    
+
             }
         });
 
@@ -727,7 +727,7 @@ public class UIStarter {
     private void addFiles(final List<String> fileNames) {
         // Update the list of ignored keywords
         ignoreKeywords = prefs.getIgnoreKeywords();
-        
+
         for (final String fileName : fileNames) {
             final FileEpisode episode = TVRenamer.parseFilename(fileName);
             if (episode == null) {
@@ -770,7 +770,7 @@ public class UIStarter {
             }
         }
     }
-    
+
     private int getTableItemIndex(TableItem item) {
         try {
             return resultsTable.indexOf(item);
@@ -796,7 +796,7 @@ public class UIStarter {
                 final FileEpisode episode = files.get(fileName);
                 String currentName = currentFile.getName();
                 String newName = item.getText(NEW_FILENAME_COLUMN);
-                
+
                 // Skip files not successfully downloaded
                 if(episode.getStatus() != EpisodeStatus.DOWNLOADED) {
                     continue;
@@ -901,7 +901,7 @@ public class UIStarter {
             // Set if the item is checked or not according
             // to a list of banned keywords
             item.setChecked(!isNameIgnored(newFilename));
-            
+
             newFilename = episode.getNewFilename();
         } catch (NotFoundException e) {
             newFilename = e.getMessage();
@@ -913,7 +913,7 @@ public class UIStarter {
         item.setImage(STATUS_COLUMN, FileMoveIcon.DOWNLOADING.icon);
         return item;
     }
-    
+
     private static boolean isNameIgnored(String fileName) {
         for (int i = 0; i < ignoreKeywords.size(); i++) {
             if(fileName.toLowerCase().contains(ignoreKeywords.get(i))) {
@@ -922,7 +922,7 @@ public class UIStarter {
         }
         return false;
     }
-    
+
     private void deleteSelectedTableItems() {
         int index = ITEM_NOT_IN_TABLE;
         for (final TableItem item : resultsTable.getSelection()) {

@@ -54,10 +54,10 @@ public class StringUtils {
         int dot = filename.lastIndexOf('.');
         return filename.substring(dot + 1);
     }
-    
+
     /**
      * Replaces unsafe HTML Characters with HTML Entities
-     * 
+     *
      * @param input
      *            string to encode
      * @return HTML safe representation of input
@@ -70,7 +70,7 @@ public class StringUtils {
         // TODO: determine other characters that need to be replaced (eg "'", "-")
         logger.finest("Input before encoding: [" + input + "]");
         input = input.replaceAll("& ", "&amp; ");
-        
+
         // Don't encode string within xml data strings
         if(!input.startsWith("<?xml")) {
             input = input.replaceAll(" ", "%20");
@@ -78,14 +78,14 @@ public class StringUtils {
         logger.finest("Input after encoding: [" + input + "]");
         return input;
     }
-    
+
     /**
      * <p>Checks if a String is whitespace, empty ("") or null.</p>
-     * Copied from 
+     * Copied from
      * <a href="http://commons.apache.org/lang/api-2.5/org/apache/commons/lang/StringUtils.html#isBlank(java.lang.String)">
      *   Apache Commons Lang StringUtils
      * </a>
-     * 
+     *
      * @param str the String to check, may be null
      * @return <code>true</code> if the String is null, empty or whitespace
      */
@@ -101,10 +101,10 @@ public class StringUtils {
         }
         return true;
     }
-    
+
     /**
      * <p>Checks if a String is not empty (""), not null and not whitespace only.</p>
-     * Copied from 
+     * Copied from
      * <a href="http://commons.apache.org/lang/api-2.5/org/apache/commons/lang/StringUtils.html#isNotBlank(java.lang.String)">
      *   Apache Commons Lang StringUtils
      * </a>

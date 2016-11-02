@@ -46,15 +46,15 @@ import org.tvrenamer.model.TVRenamerIOException;
 import org.tvrenamer.model.UserPreferences;
 
 public class PreferencesDialog extends Dialog {
-    
+
     private static final String REPLACEMENT_OPTIONS_LIST_ENTRY_REGEX = "(.*) :.*";
     private static Logger logger = Logger.getLogger(PreferencesDialog.class.getName());
     private static Shell preferencesShell;
     private static int DND_OPERATIONS = DND.DROP_MOVE;
     private TabFolder tabFolder;
-    
+
     private final UserPreferences prefs;
-    
+
     // The controls to save
     private Button moveEnabledCheckbox;
     private Text destDirText;
@@ -70,10 +70,10 @@ public class PreferencesDialog extends Dialog {
     private Text proxyPasswordText;
     private Button checkForUpdatesCheckbox;
     private Button recurseFoldersCheckbox;
-    
+
     /**
      * PreferencesDialog constructor
-     * 
+     *
      * @param parent
      *            the parent {@link Shell}
      */
@@ -81,7 +81,7 @@ public class PreferencesDialog extends Dialog {
         super(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
         this.prefs = UserPreferences.getInstance();
     }
-    
+
     public void open() {
         // Create the dialog window
         preferencesShell = new Shell(getParent(), getStyle());
@@ -99,30 +99,30 @@ public class PreferencesDialog extends Dialog {
             }
         }
     }
-    
+
     private void createContents() {
         GridLayout shellGridLayout = new GridLayout(3, false);
         preferencesShell.setLayout(shellGridLayout);
-        
+
         Label helpLabel = new Label(preferencesShell, SWT.NONE);
         helpLabel.setText("Hover mouse over [?] to get help");
         helpLabel.setLayoutData(new GridData(SWT.END, SWT.CENTER, true, true, shellGridLayout.numColumns, 1));
-        
+
         tabFolder = new TabFolder(preferencesShell, getStyle());
         tabFolder.setLayoutData(new GridData(SWT.END, SWT.CENTER, true, true, shellGridLayout.numColumns, 1));
-        
+
         createGeneralTab();
         createRenameTab();
         createProxyTab();
-        
+
         createActionButtonGroup();
     }
-    
-    
+
+
     private void createGeneralTab() {
         TabItem item = new TabItem(tabFolder, SWT.NULL);
         item.setText("General");
-        
+
         Composite generalGroup= new Composite(tabFolder, SWT.NONE);
         generalGroup.setLayout(new GridLayout(3, false));
         generalGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 3, 1));
@@ -162,7 +162,7 @@ public class PreferencesDialog extends Dialog {
                 }
             }
         });
-        
+
         Label seasonPrefixLabel = new Label(generalGroup, SWT.NONE);
         seasonPrefixLabel.setText("Season Prefix [?]");
         seasonPrefixLabel.setToolTipText(" - The prefix of the season when renaming and moving the file.  It is usually \"Season \" or \"s'\"." +
@@ -211,11 +211,11 @@ public class PreferencesDialog extends Dialog {
                 toggleEnableControls(moveEnabledCheckbox, destDirText, destDirButton, seasonPrefixText);
             }
         });
-        
+
         Label ignoreLabel = new Label(generalGroup, SWT.NONE);
         ignoreLabel.setText("Ignore files containing [?]");
         ignoreLabel.setToolTipText("Provide comma separated list of words that will cause a file to be ignored if they appear in the file's path or name.");
-        
+
         ignoreWordsText = new Text(generalGroup, SWT.BORDER);
         java.util.List<String> ignoreList = prefs.getIgnoreKeywords();
         String ignoreWords = "";
@@ -226,24 +226,24 @@ public class PreferencesDialog extends Dialog {
         ignoreWordsText.setText(ignoreWords);
         ignoreWordsText.setTextLimit(99);
         ignoreWordsText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true));
-        
+
         recurseFoldersCheckbox = new Button(generalGroup, SWT.CHECK);
         recurseFoldersCheckbox.setText("Recursively add shows in subdirectories");
         recurseFoldersCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 3, 1));
         recurseFoldersCheckbox.setSelection(prefs.isRecursivelyAddFolders());
-        
+
         checkForUpdatesCheckbox = new Button(generalGroup, SWT.CHECK);
         checkForUpdatesCheckbox.setText("Check for Updates at startup");
         checkForUpdatesCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 3, 1));
         checkForUpdatesCheckbox.setSelection(prefs.checkForUpdates());
-        
+
         item.setControl(generalGroup);
     }
-    
+
     private void createRenameTab() {
         TabItem item = new TabItem(tabFolder, SWT.NULL);
         item.setText("Renaming");
-        
+
         Composite replacementGroup = new Composite(tabFolder, SWT.NONE);
         replacementGroup.setLayout(new GridLayout(3, false));
         replacementGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 3, 1));
@@ -278,13 +278,13 @@ public class PreferencesDialog extends Dialog {
         replacementStringText.setText(prefs.getRenameReplacementString());
         replacementStringText.setTextLimit(99);
         replacementStringText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true, 2, 1));
-        
+
         createDragSource(renameTokensList);
         createDropTarget(replacementStringText);
-        
+
         item.setControl(replacementGroup);
     }
-    
+
     private static void createDragSource(final List sourceList) {
         Transfer[] types = new Transfer[] { TextTransfer.getInstance() };
         DragSource dragSource = new DragSource(sourceList, DND_OPERATIONS);
@@ -302,7 +302,7 @@ public class PreferencesDialog extends Dialog {
             public void dragSetData(DragSourceEvent event) {
                 String listEntry = sourceList.getItem(sourceList.getSelectionIndex());
                 String token;
-                
+
                 Matcher tokenMatcher =  Pattern.compile(REPLACEMENT_OPTIONS_LIST_ENTRY_REGEX).matcher(listEntry);
                 if(tokenMatcher.matches()) {
                     token = tokenMatcher.group(1);
@@ -357,13 +357,13 @@ public class PreferencesDialog extends Dialog {
             }
         });
     }
-    
+
     private void createProxyTab() {
         ProxySettings proxy = prefs.getProxy();
-        
+
         TabItem item = new TabItem(tabFolder, SWT.NULL);
         item.setText("Proxy");
-        
+
         Composite proxyGroup = new Composite(tabFolder, SWT.NONE);
         proxyGroup.setLayout(new GridLayout(3, false));
         proxyGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 3, 1));
@@ -373,7 +373,7 @@ public class PreferencesDialog extends Dialog {
         proxyEnabledCheckbox.setText("Proxy Enabled");
         proxyEnabledCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 3, 1));
         proxyEnabledCheckbox.setSelection(proxy.isEnabled());
-        
+
         Label proxyHostLabel = new Label(proxyGroup, SWT.NONE);
         proxyHostLabel.setText("Proxy Host [?]");
         proxyHostLabel.setToolTipText("The hostname or IP address of your proxy");
@@ -382,7 +382,7 @@ public class PreferencesDialog extends Dialog {
         proxyHostText.setText(proxy.getHostname());
         proxyHostText.setTextLimit(99);
         proxyHostText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true, 2, 1));
-        
+
         Label proxyPortLabel = new Label(proxyGroup, SWT.NONE);
         proxyPortLabel.setText("Proxy Port [?]");
         proxyPortLabel.setToolTipText("The port of your proxy");
@@ -391,12 +391,12 @@ public class PreferencesDialog extends Dialog {
         proxyPortText.setText(proxy.getPort());
         proxyPortText.setTextLimit(99);
         proxyPortText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true, 2, 1));
-        
+
         proxyAuthenticationRequiredCheckbox = new Button(proxyGroup, SWT.CHECK);
         proxyAuthenticationRequiredCheckbox.setText("Proxy Authentication Required");
         proxyAuthenticationRequiredCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 3, 1));
         proxyAuthenticationRequiredCheckbox.setSelection(proxy.isAuthenticationRequired());
-        
+
         Label proxyUsernameLabel = new Label(proxyGroup, SWT.NONE);
         proxyUsernameLabel.setText("Proxy Username [?]");
         proxyUsernameLabel.setToolTipText("If you connect to a windows domain enter domain\\username");
@@ -405,7 +405,7 @@ public class PreferencesDialog extends Dialog {
         proxyUsernameText.setText(proxy.getUsername());
         proxyUsernameText.setTextLimit(99);
         proxyUsernameText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true, 2, 1));
-        
+
         Label proxyPasswordLabel = new Label(proxyGroup, SWT.NONE);
         proxyPasswordLabel.setText("Proxy Password");
 
@@ -414,11 +414,11 @@ public class PreferencesDialog extends Dialog {
         proxyPasswordText.setText(proxy.getDecryptedPassword());
         proxyPasswordText.setTextLimit(99);
         proxyPasswordText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true, 2, 1));
-        
+
         // Setup initial enabling controls
         toggleEnableControls(proxyEnabledCheckbox, proxyHostText, proxyPortText, proxyAuthenticationRequiredCheckbox);
         toggleEnableControls(proxyAuthenticationRequiredCheckbox, proxyUsernameText, proxyPasswordText);
-        
+
         // Setup listeners
         proxyEnabledCheckbox.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -430,31 +430,31 @@ public class PreferencesDialog extends Dialog {
                 }
             }
         });
-        
+
         proxyAuthenticationRequiredCheckbox.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 toggleEnableControls(proxyAuthenticationRequiredCheckbox, proxyUsernameText, proxyPasswordText);
             }
         });
-        
+
         item.setControl(proxyGroup);
     }
-    
+
     private void createActionButtonGroup() {
         Composite bottomButtonsComposite = new Composite(preferencesShell, SWT.FILL);
         bottomButtonsComposite.setLayoutData(new GridData(SWT.END, SWT.CENTER, true, true, 0, 1));
         bottomButtonsComposite.setLayout(new GridLayout(2, false));
         GridData bottomButtonsCompositeGridData = new GridData(SWT.FILL, SWT.CENTER, true, true, 2, 1);
         bottomButtonsComposite.setLayoutData(bottomButtonsCompositeGridData);
-        
+
         Button cancelButton = new Button(bottomButtonsComposite, SWT.PUSH);
         GridData cancelButtonGridData = new GridData(GridData.BEGINNING, GridData.CENTER, false, false);
         cancelButtonGridData.minimumWidth = 150;
         cancelButtonGridData.widthHint = 150;
         cancelButton.setLayoutData(cancelButtonGridData);
         cancelButton.setText("Cancel");
-        
+
         cancelButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
@@ -493,19 +493,19 @@ public class PreferencesDialog extends Dialog {
         prefs.setSeasonPrefixLeadingZero(seasonPrefixLeadingZeroCheckbox.getSelection());
         prefs.setRenameReplacementString(replacementStringText.getText());
         prefs.setIgnoreKeywords(Arrays.asList(ignoreWordsText.getText().split("\\s*,\\s*")));
-        
+
         ProxySettings proxySettings = new ProxySettings();
         proxySettings.setEnabled(proxyEnabledCheckbox.getSelection());
-        
+
         proxySettings.setHostname(proxyHostText.getText());
         proxySettings.setPort(proxyPortText.getText());
-        
+
         proxySettings.setAuthenticationRequired(proxyAuthenticationRequiredCheckbox.getSelection());
         proxySettings.setUsername(proxyUsernameText.getText());
         proxySettings.setPlainTextPassword(proxyPasswordText.getText());
-        
+
         prefs.setProxy(proxySettings);
-        
+
         prefs.setCheckForUpdates(checkForUpdatesCheckbox.getSelection());
         prefs.setRecursivelyAddFolders(recurseFoldersCheckbox.getSelection());
 
@@ -518,19 +518,19 @@ public class PreferencesDialog extends Dialog {
         }
         UserPreferences.store(prefs);
     }
-    
+
     /**
-     * Toggle whether the or not the listed {@link Control}s are enabled, based off the of 
+     * Toggle whether the or not the listed {@link Control}s are enabled, based off the of
      * the selection value of the checkbox
      * @param decidingCheckbox the checkbox the enable flag is taken off
      * @param controls the list of controls to update
      */
-    private void toggleEnableControls(Button decidingCheckbox, Control... controls) {    
+    private void toggleEnableControls(Button decidingCheckbox, Control... controls) {
         for(Control control : controls) {
             control.setEnabled(decidingCheckbox.getSelection());
         }
         preferencesShell.redraw();
     }
-    
+
 
 }
