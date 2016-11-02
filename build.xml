@@ -23,7 +23,7 @@
 
 	<property name="rel.name" value="TVRenamer-${version}" />
 	<property name="jar.builtBy" value="https://github.com/tvrenamer/tvrenamer" />
-	<property name="jar.mainClass" value="com.google.code.tvrenamer.view.UIStarter" />
+	<property name="jar.mainClass" value="org.tvrenamer.view.UIStarter" />
 
 	<!-- To build, get launch4j, update the path in build.properties -->
 	<taskdef name="launch4j"
@@ -136,7 +136,7 @@
 				outputdirectory="${build}/@{platform}"
 				name="${rel.name}"
 				displayname="${rel.name}"
-				identifier="com.google.code.tvrenamer"
+				identifier="org.tvrenamer"
 				version="${version}"
 				icon="${res}/icons/tvrenamer.icns"
 				mainclassname="${jar.mainClass}">
