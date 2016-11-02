@@ -55,10 +55,14 @@ public class TheTVDBProvider {
     private static final String XPATH_EPISODE_LIST = "/Data/Episode";
     private static final String XPATH_SEASON_NUM = "SeasonNumber";
     private static final String XPATH_EPISODE_NUM = "EpisodeNumber";
+    private static final String XPATH_EPISODE_NUM_ABS = "absolute_number";
     private static final String XPATH_EPISODE_NAME = "EpisodeName";
     private static final String XPATH_AIRDATE = "FirstAired";
 
     private static final String XPATH_DVD_EPISODE_NUM = "DVD_episodenumber";
+
+    // sets whether or not to prefer DVD episode number from TVDB listings over plain episode number
+    private static boolean preferDVDEpNum = true;
 
     public static ArrayList<Show> getShowOptions(String showName) throws TVRenamerIOException {
         ArrayList<Show> options = new ArrayList<>();
@@ -138,23 +142,12 @@ public class TheTVDBProvider {
 
                 int epNum = Integer.MIN_VALUE;
 
-                expr = xpath.compile(XPATH_DVD_EPISODE_NUM);
-                Node epNumNodeDvd = (Node) expr.evaluate(eNode, XPathConstants.NODE);
-                if (epNumNodeDvd != null) {
+                // check for the plain episode number
+                expr = xpath.compile(XPATH_EPISODE_NUM);
+                Node epNumNode = (Node) expr.evaluate(eNode, XPathConstants.NODE);
+                if (epNumNode != null){
                     try {
-                        BigDecimal bd = new BigDecimal(epNumNodeDvd.getTextContent());
-                        epNum = bd.intValueExact();
-                    } catch (ArithmeticException e) {
-                        // not an integer, fall back to episode number
-                    } catch (NumberFormatException e) {
-                        // not a number, fall back to episode number
-                    }
-                }
-                if (epNum == Integer.MIN_VALUE) {
-                    expr = xpath.compile(XPATH_EPISODE_NUM);
-                    Node epNumNode = (Node) expr.evaluate(eNode, XPathConstants.NODE);
-                    BigDecimal bd = new BigDecimal(epNumNode.getTextContent());
-                    try {
+                        BigDecimal bd = new BigDecimal(epNumNode.getTextContent());
                         epNum = bd.intValueExact();
                     } catch (ArithmeticException e) {
                         // not an integer, need to skip this episode?
@@ -164,6 +157,30 @@ public class TheTVDBProvider {
                         continue;
                     }
                 }
+
+                int dvdEpNum = Integer.MIN_VALUE;
+
+                // check for dvd episode number
+                expr = xpath.compile(XPATH_DVD_EPISODE_NUM);
+                Node epNumNodeDvd = (Node) expr.evaluate(eNode, XPathConstants.NODE);
+                if (epNumNodeDvd != null) {
+                    try {
+                        BigDecimal bd = new BigDecimal(epNumNodeDvd.getTextContent());
+                        dvdEpNum = bd.intValueExact();
+                    } catch (ArithmeticException e) {
+                        // not an integer, fall back to episode number
+                    } catch (NumberFormatException e) {
+                        // not a number, fall back to episode number
+                    }
+                }
+
+                if (dvdEpNum != epNum){
+                    if (preferDVDEpNum){
+                        // if dvdEpNum is not int min, then set epNum to dvdEpNum
+                        epNum = dvdEpNum == Integer.MIN_VALUE ? epNum : dvdEpNum;
+                    }
+                }
+
                 expr = xpath.compile(XPATH_EPISODE_NAME);
                 Node epNameNode = (Node) expr.evaluate(eNode, XPathConstants.NODE);
                 expr = xpath.compile(XPATH_AIRDATE);
@@ -176,7 +193,23 @@ public class TheTVDBProvider {
                 } catch (ParseException e) {
                     // just leave the date as null
                 }
-                season.addEpisode(epNum, epNameNode.getTextContent(), date);
+
+                int epNumAbs = Integer.MIN_VALUE;
+                expr = xpath.compile(XPATH_EPISODE_NUM_ABS);
+                Node absEpNumber = (Node) expr.evaluate(eNode, XPathConstants.NODE);
+
+                if (absEpNumber != null) {
+                    try {
+                        BigDecimal bd = new BigDecimal(absEpNumber.getTextContent());
+                        epNumAbs = bd.intValueExact();
+                    } catch (ArithmeticException e) {
+                        // not an integer, fall back to episode number
+                    } catch (NumberFormatException e) {
+                        // not a number, fall back to episode number
+                    }
+                }
+
+                season.addEpisode(epNum, epNumAbs, epNameNode.getTextContent(), date);
             }
         } catch (ParserConfigurationException | XPathExpressionException | SAXException | IOException | NumberFormatException | DOMException e) {
             logger.log(Level.WARNING, e.getMessage(), e);
@@ -184,4 +217,12 @@ public class TheTVDBProvider {
         }
     }
 
+    /**
+     * Sets whether or not prefer the DVD episode number from TVDB over the plain episode number.
+     *
+     * @param preferDVDEpNum TRUE or FALSE depending upon preferences of DVD number over plain episode number.
+     */
+    public static void setPreferDVDEpNum(boolean preferDVDEpNum) {
+        TheTVDBProvider.preferDVDEpNum = preferDVDEpNum;
+    }
 }

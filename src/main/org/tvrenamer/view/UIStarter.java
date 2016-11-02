@@ -729,7 +729,7 @@ public class UIStarter {
 		ignoreKeywords = prefs.getIgnoreKeywords();
 		
 		for (final String fileName : fileNames) {
-			final FileEpisode episode = TVRenamer.parseFilename(fileName);
+			final FileEpisode episode = TVRenamer.parse(fileName);
 			if (episode == null) {
 				logger.severe("Couldn't parse file: " + fileName);
 			} else {
