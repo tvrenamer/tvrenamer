@@ -3,8 +3,7 @@ package org.tvrenamer.model;
 import java.io.File;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -85,36 +84,65 @@ public class FileEpisode {
 				String seasonNum = "";
 				String titleString = "";
 				Calendar airDate = Calendar.getInstance();
-				;
 
-				try {
-					Show show = ShowStore.getShow(this.showName);
+				Show show = ShowStore.getShow(this.showName);
+
+				if (this.seasonNumber == 0){
 					showName = show.getName();
 
-					Season season = show.getSeason(this.seasonNumber);
-					if (season == null) {
-						seasonNum = String.valueOf(this.seasonNumber);
-						logger.log(Level.SEVERE, "Season #" + this.seasonNumber + " not found for show '"
-							+ this.showName + "'");
-					} else {
-						seasonNum = String.valueOf(season.getNumber());
+					for (int i = 0; i < show.getSeasonNum(); i++){
+						if (i == 0){ continue; }
 
-						try {
-							titleString = season.getTitle(this.episodeNumber);
-							Date date = season.getAirDate(this.episodeNumber);
-                            if (date != null) {
-                                airDate.setTime(date);
-                            } else {
-                                logger.log(Level.WARNING, "Episode air date not found for '" + this.toString() + "'");
-                            }
-						} catch (EpisodeNotFoundException e) {
-							logger.log(Level.SEVERE, "Episode not found for '" + this.toString() + "'", e);
+						Season s = show.getSeason(i);
+
+						// creating new HasMap prevents changes propagating to episodes
+						Map<Integer, Episode> episodes = new HashMap<>(s.getEpisodes());
+						Iterator it = episodes.entrySet().iterator();
+
+						while (it.hasNext()) {
+							Map.Entry pair = (Map.Entry)it.next();
+
+							if (((Episode)pair.getValue()).getEpNumAbs() == episodeNumber){
+								titleString = s.getTitle((Integer) pair.getKey());
+								Date date = s.getAirDate((Integer) pair.getKey());
+								if (date != null) {
+									airDate.setTime(date);
+								} else {
+									logger.log(Level.WARNING, "Episode air date not found for '" + this.toString() + "'");
+								}
+							}
+							it.remove(); // avoids a ConcurrentModificationException
 						}
 					}
+				} else {
+					try {
+						showName = show.getName();
 
-				} catch (ShowNotFoundException e) {
-					showName = this.showName;
-					logger.log(Level.SEVERE, "Show not found for '" + this.toString() + "'", e);
+						Season season = show.getSeason(this.seasonNumber);
+						if (season == null) {
+							seasonNum = String.valueOf(this.seasonNumber);
+							logger.log(Level.SEVERE, "Season #" + this.seasonNumber + " not found for show '"
+									+ this.showName + "'");
+						} else {
+							seasonNum = String.valueOf(season.getNumber());
+
+							try {
+								titleString = season.getTitle(this.episodeNumber);
+								Date date = season.getAirDate(this.episodeNumber);
+								if (date != null) {
+									airDate.setTime(date);
+								} else {
+									logger.log(Level.WARNING, "Episode air date not found for '" + this.toString() + "'");
+								}
+							} catch (EpisodeNotFoundException e) {
+								logger.log(Level.SEVERE, "Episode not found for '" + this.toString() + "'", e);
+							}
+						}
+
+					} catch (ShowNotFoundException e) {
+						showName = this.showName;
+						logger.log(Level.SEVERE, "Show not found for '" + this.toString() + "'", e);
+					}
 				}
 
 				String newFilename = userPrefs.getRenameReplacementString();
