@@ -170,7 +170,8 @@ public class TVRageProvider {
 					logger.finer("[" + sNum + "x" + epNumNode.getTextContent() + "] " + epTitleNode.getTextContent());
 					DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 					season.addEpisode(Integer.parseInt(epNumNode.getTextContent()), 
-					                  epTitleNode.getTextContent(),
+					                  0,
+										epTitleNode.getTextContent(),
 					                  df.parse(airdateNode.getTextContent()));
 				}
 			}
