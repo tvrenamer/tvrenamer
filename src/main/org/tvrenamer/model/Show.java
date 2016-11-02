@@ -49,6 +49,10 @@ public class Show implements Comparable<Show> {
         return seasons.get(sNum);
     }
 
+    public int getSeasonCount() {
+        return seasons.size();
+    }
+
     @Override
     public String toString() {
         return "Show [" + name + ", id=" + id + ", url=" + url + ", " + seasons.size() + " seasons]";
