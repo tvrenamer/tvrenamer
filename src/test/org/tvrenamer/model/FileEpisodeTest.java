@@ -53,7 +53,7 @@ public class FileEpisodeTest {
 
         Show show = new Show("1", showName, "http://www.tvrage.com/shows/id-6190");
         Season season5 = new Season(seasonNum);
-        season5.addEpisode(episodeNum, title, new Date());
+        season5.addEpisode(episodeNum, 0, title, new Date());
         show.setSeason(seasonNum, season5);
         ShowStore.addShow(showName, show);
 
@@ -84,7 +84,7 @@ public class FileEpisodeTest {
 
         Show show = new Show("1", showName, "http://www.tvrage.com/shows/id-20664");
         Season season1 = new Season(seasonNum);
-        season1.addEpisode(episodeNum, title, new Date());
+        season1.addEpisode(episodeNum, 0, title, new Date());
         show.setSeason(seasonNum, season1);
         ShowStore.addShow(showName, show);
 
