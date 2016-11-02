@@ -17,8 +17,8 @@ public class Season {
 		return num;
 	}
 
-	public void addEpisode(int epNum, String title, Date airDate) {
-		episodes.put(epNum, new Episode(title,airDate));
+	public void addEpisode(int epNum, int epNumAbs, String title, Date airDate) {
+		episodes.put(epNum, new Episode(title, epNumAbs, airDate));
 	}
 
 	public String getTitle(int epNum) {
@@ -34,6 +34,8 @@ public class Season {
 			throw new EpisodeNotFoundException("Episode #" + epNum + " not found for season #" + this.num);
 		return e.getAirDate();
 	}
+
+	public Map<Integer, Episode> getEpisodes (){return episodes;}
 
 	@Override
 	public String toString() {
