@@ -84,8 +84,9 @@ public class FileUtilities {
                 IOUtilities.closeQuietly(fis);
             }
 
-            if (ok && deleteOnSuccess)
+            if (ok && deleteOnSuccess) {
                 source.delete();
+            }
         }
         return ok;
     }

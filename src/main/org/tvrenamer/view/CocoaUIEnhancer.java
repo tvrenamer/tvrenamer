@@ -261,16 +261,17 @@ public class CocoaUIEnhancer {
             Class<?>[] signature = new Class<?>[args.length];
             for ( int i = 0; i < args.length; i++ ) {
                 Class<?> thisClass = args[i].getClass();
-                if ( thisClass == Integer.class )
+                if ( thisClass == Integer.class ) {
                     signature[i] = int.class;
-                else if ( thisClass == Long.class )
+                } else if ( thisClass == Long.class ) {
                     signature[i] = long.class;
-                else if ( thisClass == Byte.class )
+                } else if ( thisClass == Byte.class ) {
                     signature[i] = byte.class;
-                else if ( thisClass == Boolean.class )
+                } else if ( thisClass == Boolean.class ) {
                     signature[i] = boolean.class;
-                else
+                } else {
                     signature[i] = thisClass;
+                }
             }
             Method method = clazz.getMethod( methodName, signature );
             return method.invoke( target, args );
