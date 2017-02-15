@@ -105,18 +105,18 @@ public class ShowStore {
     }
 
     private static class ShowRegistrations {
-        private final List<ShowInformationListener> _listeners;
+        private final List<ShowInformationListener> mListeners;
 
         public ShowRegistrations() {
-            this._listeners = new LinkedList<>();
+            this.mListeners = new LinkedList<>();
         }
 
         public void addListener(ShowInformationListener listener) {
-            this._listeners.add(listener);
+            this.mListeners.add(listener);
         }
 
         public List<ShowInformationListener> getListeners() {
-            return Collections.unmodifiableList(_listeners);
+            return Collections.unmodifiableList(mListeners);
         }
     }
 
