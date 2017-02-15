@@ -99,8 +99,7 @@ public class FileMover implements Callable<Boolean> {
             if (pathA.startsWith(rootPath)) {
                 if (pathB.startsWith(rootPath)) {
                     return true;
-                }
-                else {
+                } else {
                     return false;
                 }
             }
