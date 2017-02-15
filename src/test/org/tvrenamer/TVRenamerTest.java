@@ -80,8 +80,8 @@ public class TVRenamerTest {
         values.add(new TestInput("firefly.1x13.hdtv-lol.mp4", "Firefly", "1", "13", "Heart of Gold", ""));
         values.add(new TestInput("firefly.1x14.hdtv-lol.mp4", "Firefly", "1", "14", "Objects in Space", ""));
 
-        values.add(new TestInput("Strike.Back.S01E01.Mini.720p.HDTV.DD5.1.x264.mkv", "Strike Back", "1", "1", "Chris Ryan's " +
-                "Strike Back, Episode 1", "720p"));
+        values.add(new TestInput("Strike.Back.S01E01.Mini.720p.HDTV.DD5.1.x264.mkv", "Strike Back", "1", "1",
+                                 "Chris Ryan's Strike Back, Episode 1", "720p"));
 
         values.add(new TestInput("law.and.order.svu.1705.hdtv-lol", "Law and Order SVU", "17", "05", "Community Policing", ""));
         values.add(new TestInput("ncis.1304.hdtv-lol", "NCIS", "13", "04", "Double Trouble", ""));

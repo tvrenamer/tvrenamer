@@ -174,9 +174,9 @@ public class PreferencesDialog extends Dialog {
 
         Label seasonPrefixLabel = new Label(generalGroup, SWT.NONE);
         seasonPrefixLabel.setText("Season Prefix [?]");
-        seasonPrefixLabel.setToolTipText(" - The prefix of the season when renaming and moving the file.  It is usually \"Season \" or \"s'\"." +
-            "\n - If no value is entered (or \"\"), the season folder will not be created, putting all files in the show name folder" +
-            "\n - The \" will not be included, just displayed here to show whitespace");
+        seasonPrefixLabel.setToolTipText(" - The prefix of the season when renaming and moving the file.  It is usually \"Season \" or \"s'\"."
+            + "\n - If no value is entered (or \"\"), the season folder will not be created, putting all files in the show name folder"
+            + "\n - The \" will not be included, just displayed here to show whitespace");
 
         seasonPrefixText = new Text(generalGroup, SWT.BORDER);
         seasonPrefixText.setText(prefs.getSeasonPrefixForDisplay());
@@ -259,8 +259,8 @@ public class PreferencesDialog extends Dialog {
 
         Label renameTokensLabel = new Label(replacementGroup, SWT.NONE);
         renameTokensLabel.setText("Rename Tokens [?]");
-        renameTokensLabel.setToolTipText(" - These are the possible tokens to make up the 'Rename Format' below." +
-                "\n - You can drag and drop tokens to the 'Rename Format' text box below");
+        renameTokensLabel.setToolTipText(" - These are the possible tokens to make up the 'Rename Format' below."
+                + "\n - You can drag and drop tokens to the 'Rename Format' text box below");
 
         List renameTokensList = new List(replacementGroup, SWT.SINGLE);
         renameTokensList.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 2, 1));
