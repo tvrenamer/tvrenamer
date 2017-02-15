@@ -615,7 +615,7 @@ public class UIStarter {
 
             @Override
             public void drop(DropTargetEvent e) {
-                String fileList[] = null;
+                String[] fileList = null;
                 FileTransfer ft = FileTransfer.getInstance();
                 if (ft.isSupportedType(e.currentDataType)) {
                     fileList = (String[]) e.data;
