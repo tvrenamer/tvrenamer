@@ -23,7 +23,7 @@ public class TVRenamer {
 
     static {
         for (int i = 0; i < REGEX.length * 2; i++) {
-            if (i / REGEX.length == 0){
+            if (i / REGEX.length == 0) {
                 COMPILED_REGEX[i] = Pattern.compile(REGEX[i]);
             } else {
                 COMPILED_REGEX[i] = Pattern.compile(REGEX[i - REGEX.length].replace(".*\\D(\\d+[pk])", ""));
@@ -52,7 +52,7 @@ public class TVRenamer {
 
                 FileEpisode ep = new FileEpisode(show, season, episode, resolution, f);
                 return ep;
-            } else if (matcher.matches() && matcher.groupCount() == 3){
+            } else if (matcher.matches() && matcher.groupCount() == 3) {
                 String show = matcher.group(1);
                 show = StringUtils.replacePunctuation(show).toLowerCase();
 

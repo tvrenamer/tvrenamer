@@ -33,7 +33,7 @@ public class CryptographyUtils {
             Cipher pbeCipher = Cipher.getInstance(SECRET_KEY_METHOD);
             pbeCipher.init(Cipher.ENCRYPT_MODE, key, new PBEParameterSpec(SALT, 20));
             return base64Encode(pbeCipher.doFinal(value.getBytes()));
-        } catch(GeneralSecurityException gse) {
+        } catch (GeneralSecurityException gse) {
             logger.log(Level.WARNING, "Exception when encrypting value", gse);
         }
 
@@ -51,9 +51,9 @@ public class CryptographyUtils {
             Cipher pbeCipher = Cipher.getInstance(SECRET_KEY_METHOD);
             pbeCipher.init(Cipher.DECRYPT_MODE, key, new PBEParameterSpec(SALT, 20));
             return new String(pbeCipher.doFinal(base64Decode(value)));
-        } catch(GeneralSecurityException gse) {
+        } catch (GeneralSecurityException gse) {
             logger.log(Level.WARNING, "Exception when encrypting value", gse);
-        } catch(IOException ioe) {
+        } catch (IOException ioe) {
             logger.log(Level.WARNING, "Exception when encrypting value", ioe);
         }
 

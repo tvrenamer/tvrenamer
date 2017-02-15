@@ -75,7 +75,7 @@ public class UserPreferences extends Observable {
 
             prefs = UserPreferencesPersistence.retrieve(legacyPrefsFile);
 
-            if( prefs != null ) {
+            if ( prefs != null ) {
                 logger.finer("Sucessfully read legacy preferences from: " + prefsFile.getAbsolutePath());
                 logger.info("Sucessfully read legacy preferences: " + prefs.toString());
 
@@ -187,7 +187,7 @@ public class UserPreferences extends Observable {
     }
 
     public void setRecursivelyAddFolders(boolean recursivelyAddFolders) {
-        if(hasChanged(this.recursivelyAddFolders, recursivelyAddFolders)) {
+        if (hasChanged(this.recursivelyAddFolders, recursivelyAddFolders)) {
             this.recursivelyAddFolders = recursivelyAddFolders;
 
             setChanged();

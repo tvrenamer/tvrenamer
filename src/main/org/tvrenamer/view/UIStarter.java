@@ -490,7 +490,7 @@ public class UIStarter {
             public void keyReleased(KeyEvent e) {
                 super.keyReleased(e);
 
-                switch(e.keyCode){
+                switch (e.keyCode) {
 
                     // backspace
                     case '\u0008':
@@ -691,7 +691,7 @@ public class UIStarter {
                 @Override
                 public void onFile(File f) {
                     // Don't add hidden files - defect 38
-                    if(!f.isHidden()) {
+                    if (!f.isHidden()) {
                         files.add(f.getAbsolutePath());
                     }
                 }
@@ -744,7 +744,7 @@ public class UIStarter {
                         display.asyncExec(new Runnable() {
                             @Override
                             public void run() {
-                                if( tableContainsTableItem(item) ) {
+                                if ( tableContainsTableItem(item) ) {
                                     item.setText(NEW_FILENAME_COLUMN, episode.getNewFilePath());
                                     item.setImage(STATUS_COLUMN, FileMoveIcon.ADDED.icon);
                                 }
@@ -757,7 +757,7 @@ public class UIStarter {
                         display.asyncExec(new Runnable() {
                             @Override
                             public void run() {
-                                if( tableContainsTableItem(item) ){
+                                if ( tableContainsTableItem(item) ) {
                                     item.setText(NEW_FILENAME_COLUMN, DOWNLOADING_FAILED_MESSAGE);
                                     item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
                                     item.setChecked(false);
@@ -797,7 +797,7 @@ public class UIStarter {
                 String newName = item.getText(NEW_FILENAME_COLUMN);
 
                 // Skip files not successfully downloaded
-                if(episode.getStatus() != EpisodeStatus.DOWNLOADED) {
+                if (episode.getStatus() != EpisodeStatus.DOWNLOADED) {
                     continue;
                 }
 
@@ -915,7 +915,7 @@ public class UIStarter {
 
     private static boolean isNameIgnored(String fileName) {
         for (int i = 0; i < ignoreKeywords.size(); i++) {
-            if(fileName.toLowerCase().contains(ignoreKeywords.get(i))) {
+            if (fileName.toLowerCase().contains(ignoreKeywords.get(i))) {
                 return true;
             }
         }

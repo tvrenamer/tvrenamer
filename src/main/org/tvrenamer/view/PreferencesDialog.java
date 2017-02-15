@@ -228,7 +228,7 @@ public class PreferencesDialog extends Dialog {
         ignoreWordsText = new Text(generalGroup, SWT.BORDER);
         java.util.List<String> ignoreList = prefs.getIgnoreKeywords();
         String ignoreWords = "";
-        for(String s : ignoreList) {
+        for (String s : ignoreList) {
             ignoreWords += s;
             ignoreWords += ",";
         }
@@ -313,7 +313,7 @@ public class PreferencesDialog extends Dialog {
                 String token;
 
                 Matcher tokenMatcher =  Pattern.compile(REPLACEMENT_OPTIONS_LIST_ENTRY_REGEX).matcher(listEntry);
-                if(tokenMatcher.matches()) {
+                if (tokenMatcher.matches()) {
                     token = tokenMatcher.group(1);
                     event.data = token;
                 }
@@ -432,7 +432,7 @@ public class PreferencesDialog extends Dialog {
         proxyEnabledCheckbox.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                if(proxyEnabledCheckbox.getSelection()) {
+                if (proxyEnabledCheckbox.getSelection()) {
                     toggleEnableControls(proxyEnabledCheckbox, proxyHostText, proxyPortText, proxyAuthenticationRequiredCheckbox);
                 } else {
                     toggleEnableControls(proxyEnabledCheckbox, proxyHostText, proxyPortText, proxyAuthenticationRequiredCheckbox, proxyUsernameText, proxyPasswordText);
@@ -536,7 +536,7 @@ public class PreferencesDialog extends Dialog {
      * @param controls the list of controls to update
      */
     private void toggleEnableControls(Button decidingCheckbox, Control... controls) {
-        for(Control control : controls) {
+        for (Control control : controls) {
             control.setEnabled(decidingCheckbox.getSelection());
         }
         preferencesShell.redraw();
