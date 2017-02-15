@@ -9,9 +9,9 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.tvrenamer.model.GlobalOverrides;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider;
+import org.tvrenamer.model.GlobalOverrides;
 
 public class GlobalOverridesPersistence {
     private static Logger logger = Logger.getLogger(GlobalOverridesPersistence.class.getName());

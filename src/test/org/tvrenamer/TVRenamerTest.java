@@ -8,14 +8,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import org.tvrenamer.controller.ShowInformationListener;
-import org.tvrenamer.model.Show;
-import org.tvrenamer.model.ShowStore;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import org.tvrenamer.controller.ShowInformationListener;
 import org.tvrenamer.controller.TVRenamer;
 import org.tvrenamer.model.FileEpisode;
+import org.tvrenamer.model.Show;
+import org.tvrenamer.model.ShowStore;
 
 public class TVRenamerTest {
     public static final List<TestInput> values = new LinkedList<>();

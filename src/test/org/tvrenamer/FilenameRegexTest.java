@@ -1,15 +1,16 @@
 package org.tvrenamer;
 
-import org.tvrenamer.controller.TVRenamer;
-import org.tvrenamer.model.FileEpisode;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.Arrays;
 
-import static org.junit.Assert.assertNotNull;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized.Parameters;
+import org.junit.runners.Parameterized;
+
+import org.tvrenamer.controller.TVRenamer;
+import org.tvrenamer.model.FileEpisode;
 
 
 @RunWith(Parameterized.class)

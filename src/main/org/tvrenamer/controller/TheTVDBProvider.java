@@ -22,17 +22,17 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.tvrenamer.controller.util.StringUtils;
+import org.tvrenamer.model.Season;
+import org.tvrenamer.model.Show;
+import org.tvrenamer.model.TVRenamerIOException;
+
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-
-import org.tvrenamer.controller.util.StringUtils;
-import org.tvrenamer.model.Season;
-import org.tvrenamer.model.Show;
-import org.tvrenamer.model.TVRenamerIOException;
 
 public class TheTVDBProvider {
     public static final String IMDB_BASE_URL = "http://www.imdb.com/title/";

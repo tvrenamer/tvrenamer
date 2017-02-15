@@ -10,9 +10,9 @@ import java.util.Observable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.tvrenamer.model.UserPreferences;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider;
+import org.tvrenamer.model.UserPreferences;
 
 public class UserPreferencesPersistence {
     private static Logger logger = Logger.getLogger(UserPreferencesPersistence.class.getName());
