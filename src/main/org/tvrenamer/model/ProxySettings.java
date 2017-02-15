@@ -88,7 +88,7 @@ public class ProxySettings {
     public String getDecryptedPassword() {
         String decrypted = CryptographyUtils.decrypt(encryptedPassword);
         // logger.fine("Decrypting [" + encryptedPassword + "] into [" + decrypted + "]"); // Disable logging of
-// sensitive information, but helps debug
+                                                                       // sensitive information, but helps debug
         return decrypted;
     }
 
@@ -100,7 +100,7 @@ public class ProxySettings {
     public void setPlainTextPassword(String passwordToEncyrypt) {
         String encrypted = CryptographyUtils.encrypt(passwordToEncyrypt);
         // logger.fine("Encrypting [" + passwordToEncyrypt + "] into [" + encrypted + "]"); // Disable logging of
-// sensitive information, but helps debug
+                                                                        // sensitive information, but helps debug
         this.encryptedPassword = encrypted;
         setupAuthenticator();
     }

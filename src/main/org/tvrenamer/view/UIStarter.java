@@ -428,35 +428,34 @@ public class UIStarter {
     }
 
     private void setupSelectionListener() {
-        resultsTable.addListener
-            (SWT.Selection,
-             new Listener() {
-                 public void handleEvent(Event event) {
-                     if (event.detail == SWT.CHECK) {
-                         TableItem eventItem = (TableItem) event.item;
-                         // This assumes that the current status of the TableItem
-                         // already reflects its toggled state, which appears to
-                         // be the case.
-                         boolean checked = eventItem.getChecked();
-                         boolean isSelected = false;
+        resultsTable.addListener(SWT.Selection,
+            new Listener() {
+                public void handleEvent(Event event) {
+                    if (event.detail == SWT.CHECK) {
+                        TableItem eventItem = (TableItem) event.item;
+                        // This assumes that the current status of the TableItem
+                        // already reflects its toggled state, which appears to
+                        // be the case.
+                        boolean checked = eventItem.getChecked();
+                        boolean isSelected = false;
 
-                         for (final TableItem item : resultsTable.getSelection()) {
-                             if (item == eventItem) {
-                                 isSelected = true;
-                                 break;
-                             }
-                         }
-                         if (isSelected) {
-                             for (final TableItem item : resultsTable.getSelection()) {
-                                 item.setChecked(checked);
-                             }
-                         } else {
-                             resultsTable.deselectAll();
-                         }
-                     }
-                     // else, it's a SELECTED event, which we just don't care about
-                 }
-             });
+                        for (final TableItem item : resultsTable.getSelection()) {
+                            if (item == eventItem) {
+                                isSelected = true;
+                                break;
+                            }
+                        }
+                        if (isSelected) {
+                            for (final TableItem item : resultsTable.getSelection()) {
+                                item.setChecked(checked);
+                            }
+                        } else {
+                            resultsTable.deselectAll();
+                        }
+                    }
+                    // else, it's a SELECTED event, which we just don't care about
+                }
+            });
     }
 
     private void setupResultsTable() {

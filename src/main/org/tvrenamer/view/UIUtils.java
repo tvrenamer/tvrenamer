@@ -97,7 +97,8 @@ public class UIUtils {
     public static OSType getOSType() {
         if (System.getProperty("os.name").contains("Mac")) {
             return OSType.MAC;
-        } if (System.getProperty("os.name").contains("Windows")) {
+        }
+        if (System.getProperty("os.name").contains("Windows")) {
             return OSType.WINDOWS;
         }
         return OSType.LINUX;

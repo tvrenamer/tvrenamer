@@ -146,14 +146,14 @@ public class AboutDialog extends Dialog {
         });
 
         final Link supportEmailLink = new Link(aboutShell, SWT.NONE);
-    supportEmailLink.setText("<a href=\"mailto:" + TVRENAMER_SUPPORT_EMAIL + "\">Send support email</a>");
-    supportEmailLink.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true));
-    supportEmailLink.addSelectionListener(new SelectionAdapter() {
-        @Override
-        public void widgetSelected(SelectionEvent arg0) {
-            Program.launch("mailto:" + TVRENAMER_SUPPORT_EMAIL);
-        }
-    });
+        supportEmailLink.setText("<a href=\"mailto:" + TVRENAMER_SUPPORT_EMAIL + "\">Send support email</a>");
+        supportEmailLink.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true));
+        supportEmailLink.addSelectionListener(new SelectionAdapter() {
+                @Override
+                public void widgetSelected(SelectionEvent arg0) {
+                    Program.launch("mailto:" + TVRENAMER_SUPPORT_EMAIL);
+                }
+            });
 
         final Link sourceCodeLink = new Link(aboutShell, SWT.NONE);
         sourceCodeLink.setText("<a href=\"" + TVRENAMER_REPOSITORY_URL + "\">Source Code</a>");

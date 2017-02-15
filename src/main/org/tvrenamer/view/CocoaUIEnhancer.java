@@ -175,15 +175,15 @@ public class CocoaUIEnhancer {
 
         // Add the action callbacks for Preferences and About menu items.
         invoke( osCls, "class_addMethod", new Object[] {
-                                                        wrapPointer( cls ),
-                                                        wrapPointer( sel_preferencesMenuItemSelected_ ),
-                                                        wrapPointer( proc3 ),
-                                                        "@:@" } ); //$NON-NLS-1$
+                wrapPointer( cls ),
+                wrapPointer( sel_preferencesMenuItemSelected_ ),
+                wrapPointer( proc3 ),
+                "@:@" } ); //$NON-NLS-1$
         invoke( osCls, "class_addMethod", new Object[] {
-                                                        wrapPointer( cls ),
-                                                        wrapPointer( sel_aboutMenuItemSelected_ ),
-                                                        wrapPointer( proc3 ),
-                                                        "@:@" } ); //$NON-NLS-1$
+                wrapPointer( cls ),
+                wrapPointer( sel_aboutMenuItemSelected_ ),
+                wrapPointer( proc3 ),
+                "@:@" } ); //$NON-NLS-1$
 
         // Get the Mac OS X Application menu.
         Object sharedApplication = invoke( nsapplicationCls, "sharedApplication" );
