@@ -44,7 +44,7 @@ public class CocoaUIEnhancer {
     static long sel_aboutMenuItemSelected_;
     static Callback proc3Args;
 
-    final private String appName;
+    private final String appName;
 
     /**
      * Class invoked via the Callback object to run the about and preferences actions.

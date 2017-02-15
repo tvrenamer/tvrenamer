@@ -30,7 +30,7 @@ public class UserPreferences extends Observable {
     private boolean recursivelyAddFolders;
     private List<String> ignoreKeywords;
 
-    private final static UserPreferences INSTANCE = load();
+    private static final UserPreferences INSTANCE = load();
 
     /**
      * UserPreferences constructor which uses the defaults from {@link Constants}

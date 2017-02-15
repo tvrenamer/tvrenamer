@@ -14,7 +14,7 @@ public class GlobalOverrides {
     public static File overridesFile = new File(System.getProperty("user.home") + File.separatorChar
         + Constants.OVERRIDES_FILE);
 
-    private final static GlobalOverrides INSTANCE = load();
+    private static final GlobalOverrides INSTANCE = load();
 
     private Map<String, String> showNames;
 
