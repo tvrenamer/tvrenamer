@@ -66,7 +66,8 @@ public class FileUtilities {
     } // }}}
 
     private static boolean doAction(File source, File dest, ProgressObserver observer, boolean canStop,
-        boolean deleteOnSuccess) {
+        boolean deleteOnSuccess)
+    {
         boolean ok = false;
 
         if ((dest.exists() && dest.canWrite()) || (!dest.exists() && dest.getParentFile().canWrite())) {

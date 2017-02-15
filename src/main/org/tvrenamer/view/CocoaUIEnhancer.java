@@ -112,7 +112,8 @@ public class CocoaUIEnhancer {
      *            The action to run when the Preferences menu is invoked.
      */
     public void hookApplicationMenu( Display display, Listener quitListener, Listener aboutAction,
-                                     Listener preferencesAction ) {
+                                     Listener preferencesAction )
+    {
         // This is our callbackObject whose 'actionProc' method will be called when the About or
         // Preferences menuItem is invoked.
         MenuHookObject target = new MenuHookObject( aboutAction, preferencesAction );
@@ -139,8 +140,8 @@ public class CocoaUIEnhancer {
     }
 
     private void initialize( Object callbackObject )
-            throws Exception {
-
+            throws Exception
+    {
         Class<?> osCls = classForName( "org.eclipse.swt.internal.cocoa.OS" );
 
         // Register names in objective-c.
@@ -224,7 +225,8 @@ public class CocoaUIEnhancer {
 
     private long registerName( Class<?> osCls, String name )
             throws IllegalArgumentException, SecurityException, IllegalAccessException,
-            InvocationTargetException, NoSuchMethodException {
+            InvocationTargetException, NoSuchMethodException
+    {
         Object object = invoke( osCls, "sel_registerName", new Object[] { name } );
         return convertToLong( object );
     }

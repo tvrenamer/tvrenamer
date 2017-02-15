@@ -18,7 +18,8 @@ public class ProgressBarUpdater implements Runnable {
     private final ProgressProxy proxy;
 
     public ProgressBarUpdater(ProgressProxy proxy, int total, Queue<Future<Boolean>> futures,
-        UpdateCompleteHandler updateComplete) {
+        UpdateCompleteHandler updateComplete)
+    {
         this.proxy = proxy;
         this.totalNumFiles = total;
         this.futures = futures;

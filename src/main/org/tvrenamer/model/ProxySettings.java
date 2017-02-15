@@ -140,7 +140,8 @@ public class ProxySettings {
 
         if (this.enabled == rhs.enabled && this.hostname.equals(rhs.hostname) && this.port.equals(rhs.port)
             && this.authenticationRequired == rhs.authenticationRequired && this.username.equals(rhs.username)
-            && this.encryptedPassword.equals(rhs.encryptedPassword)) {
+            && this.encryptedPassword.equals(rhs.encryptedPassword))
+        {
             return true;
         }
         return false;
