@@ -182,5 +182,4 @@ public class TheTVDBProvider {
             throw new TVRenamerIOException(ERROR_PARSING_XML, e);
         }
     }
-
 }

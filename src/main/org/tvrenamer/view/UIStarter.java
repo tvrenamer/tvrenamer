@@ -751,6 +751,7 @@ public class UIStarter {
                             }
                         });
                     }
+
                     @Override
                     public void downloadFailed(Show show) {
                         episode.setStatus(EpisodeStatus.BROKEN);

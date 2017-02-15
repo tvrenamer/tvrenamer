@@ -1,4 +1,5 @@
 // Turn the @formatter:off so we don't change the 3rd party source layout
+
 package org.tvrenamer.view;
 
 import java.lang.reflect.InvocationTargetException;

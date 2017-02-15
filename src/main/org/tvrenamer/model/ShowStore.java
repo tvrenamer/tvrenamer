@@ -32,7 +32,6 @@ public class ShowStore {
         }
 
         return s;
-
     }
 
     /**
@@ -67,7 +66,6 @@ public class ShowStore {
                 downloadShow(showName);
             }
         }
-
     }
 
     private static void downloadShow(final String showName) {

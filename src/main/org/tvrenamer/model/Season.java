@@ -41,5 +41,4 @@ public class Season {
     public String toString() {
         return "Season [num=" + num + ", episodes=" + episodes + "]";
     }
-
 }

@@ -541,6 +541,4 @@ public class PreferencesDialog extends Dialog {
         }
         preferencesShell.redraw();
     }
-
-
 }
