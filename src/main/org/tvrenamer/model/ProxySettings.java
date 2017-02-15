@@ -1,10 +1,10 @@
 package org.tvrenamer.model;
 
+import org.tvrenamer.model.util.CryptographyUtils;
+
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.util.logging.Logger;
-
-import org.tvrenamer.model.util.CryptographyUtils;
 
 public class ProxySettings {
     @SuppressWarnings("unused")

@@ -1,5 +1,8 @@
 package org.tvrenamer.model;
 
+import org.tvrenamer.controller.ShowInformationListener;
+import org.tvrenamer.controller.TheTVDBProvider;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -10,9 +13,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
-
-import org.tvrenamer.controller.ShowInformationListener;
-import org.tvrenamer.controller.TheTVDBProvider;
 
 public class ShowStore {
 

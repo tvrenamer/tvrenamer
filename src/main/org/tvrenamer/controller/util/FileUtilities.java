@@ -1,15 +1,15 @@
 package org.tvrenamer.controller.util;
 
+import org.gjt.sp.util.IOUtilities;
+import org.gjt.sp.util.Log;
+import org.gjt.sp.util.ProgressObserver;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import org.gjt.sp.util.IOUtilities;
-import org.gjt.sp.util.Log;
-import org.gjt.sp.util.ProgressObserver;
 
 /**
  *

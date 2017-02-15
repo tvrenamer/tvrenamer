@@ -1,11 +1,5 @@
 package org.tvrenamer.view;
 
-import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DragSource;
@@ -44,6 +38,12 @@ import org.tvrenamer.model.ReplacementToken;
 import org.tvrenamer.model.SWTMessageBoxType;
 import org.tvrenamer.model.TVRenamerIOException;
 import org.tvrenamer.model.UserPreferences;
+
+import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class PreferencesDialog extends Dialog {
 

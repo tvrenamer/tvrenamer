@@ -1,5 +1,7 @@
 package org.tvrenamer.model.util;
 
+import org.apache.commons.codec.binary.Base64;
+
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.logging.Level;
@@ -10,8 +12,6 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
-
-import org.apache.commons.codec.binary.Base64;
 
 public class CryptographyUtils {
     private static Logger logger = Logger.getLogger(CryptographyUtils.class.getName());

@@ -2,9 +2,6 @@ package org.tvrenamer.view;
 
 import static org.tvrenamer.view.UIUtils.getDefaultSystemFont;
 
-import java.io.InputStream;
-import java.util.logging.Logger;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -23,6 +20,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.tvrenamer.controller.UpdateChecker;
 import org.tvrenamer.model.SWTMessageBoxType;
 import org.tvrenamer.model.util.Constants;
+
+import java.io.InputStream;
+import java.util.logging.Logger;
 
 /**
  * The About Dialog box.

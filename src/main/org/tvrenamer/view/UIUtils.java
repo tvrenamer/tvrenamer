@@ -1,11 +1,5 @@
 package org.tvrenamer.view;
 
-import java.awt.HeadlessException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.swing.JOptionPane;
-
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
@@ -13,6 +7,12 @@ import org.eclipse.swt.widgets.Shell;
 
 import org.tvrenamer.model.SWTMessageBoxType;
 import org.tvrenamer.model.util.Constants.OSType;
+
+import java.awt.HeadlessException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.swing.JOptionPane;
 
 public class UIUtils {
 

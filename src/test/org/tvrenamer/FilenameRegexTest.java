@@ -2,8 +2,6 @@ package org.tvrenamer;
 
 import static org.junit.Assert.assertNotNull;
 
-import java.util.Arrays;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized.Parameters;
@@ -12,6 +10,7 @@ import org.junit.runners.Parameterized;
 import org.tvrenamer.controller.TVRenamer;
 import org.tvrenamer.model.FileEpisode;
 
+import java.util.Arrays;
 
 @RunWith(Parameterized.class)
 public class FilenameRegexTest {

@@ -1,9 +1,5 @@
 package org.tvrenamer.controller;
 
-import java.io.File;
-import java.util.concurrent.Callable;
-import java.util.logging.Logger;
-
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TableItem;
@@ -14,6 +10,10 @@ import org.tvrenamer.model.FileMoveIcon;
 import org.tvrenamer.model.UserPreferences;
 import org.tvrenamer.view.FileCopyMonitor;
 import org.tvrenamer.view.UIStarter;
+
+import java.io.File;
+import java.util.concurrent.Callable;
+import java.util.logging.Logger;
 
 public class FileMover implements Callable<Boolean> {
     private static Logger logger = Logger.getLogger(FileMover.class.getName());

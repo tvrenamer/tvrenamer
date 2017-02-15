@@ -1,12 +1,12 @@
 package org.tvrenamer.model;
 
+import org.tvrenamer.controller.GlobalOverridesPersistence;
+import org.tvrenamer.model.util.Constants;
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
-
-import org.tvrenamer.controller.GlobalOverridesPersistence;
-import org.tvrenamer.model.util.Constants;
 
 public class GlobalOverrides {
     private static Logger logger = Logger.getLogger(UserPreferences.class.getName());

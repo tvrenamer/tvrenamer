@@ -1,5 +1,9 @@
 package org.tvrenamer.controller;
 
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider;
+import org.tvrenamer.model.GlobalOverrides;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -8,10 +12,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider;
-import org.tvrenamer.model.GlobalOverrides;
 
 public class GlobalOverridesPersistence {
     private static Logger logger = Logger.getLogger(GlobalOverridesPersistence.class.getName());

@@ -1,12 +1,12 @@
 package org.tvrenamer.controller;
 
+import org.tvrenamer.controller.util.StringUtils;
+import org.tvrenamer.model.FileEpisode;
+
 import java.io.File;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.tvrenamer.controller.util.StringUtils;
-import org.tvrenamer.model.FileEpisode;
 
 public class TVRenamer {
     private static Logger logger = Logger.getLogger(TVRenamer.class.getName());

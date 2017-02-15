@@ -1,5 +1,7 @@
 package org.tvrenamer.model;
 
+import org.tvrenamer.controller.util.StringUtils;
+
 import java.io.File;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -8,8 +10,6 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
-
-import org.tvrenamer.controller.util.StringUtils;
 
 public class FileEpisode {
     private static Logger logger = Logger.getLogger(FileEpisode.class.getName());

@@ -1,17 +1,17 @@
 package org.tvrenamer.model;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Observable;
-import java.util.logging.Logger;
-
 import org.tvrenamer.controller.UserPreferencesChangeEvent;
 import org.tvrenamer.controller.UserPreferencesChangeListener;
 import org.tvrenamer.controller.UserPreferencesPersistence;
 import org.tvrenamer.controller.util.StringUtils;
 import org.tvrenamer.model.util.Constants;
 import org.tvrenamer.view.UIUtils;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Observable;
+import java.util.logging.Logger;
 
 public class UserPreferences extends Observable {
     private static Logger logger = Logger.getLogger(UserPreferences.class.getName());
