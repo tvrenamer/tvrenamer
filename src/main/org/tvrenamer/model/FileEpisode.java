@@ -171,8 +171,8 @@ public class FileEpisode {
     }
 
     private String formatDate(Calendar cal, String format) {
-        SimpleDateFormat date_format = new SimpleDateFormat(format);
-        return date_format.format(cal.getTime());
+        SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+        return dateFormat.format(cal.getTime());
     }
 
     /**
