@@ -20,6 +20,7 @@ public class UserPreferences extends Observable {
                                             + Constants.PREFERENCES_FILE);
 
     private File destDir;
+    private String preloadFolder;
     private String seasonPrefix;
     private boolean seasonPrefixLeadingZero;
     private boolean moveEnabled;
@@ -39,6 +40,7 @@ public class UserPreferences extends Observable {
         super();
 
         this.destDir = new File(Constants.DEFAULT_DESTINATION_DIRECTORY);
+        this.preloadFolder = null;
         this.seasonPrefix = Constants.DEFAULT_SEASON_PREFIX;
         this.seasonPrefixLeadingZero = false;
         this.moveEnabled = false;
@@ -148,6 +150,15 @@ public class UserPreferences extends Observable {
      */
     public File getDestinationDirectory() {
         return this.destDir;
+    }
+
+    /**
+     * Gets the name of the directory to preload into the table.
+     *
+     * @return String naming the directory.
+     */
+    public String getPreloadFolder() {
+        return preloadFolder;
     }
 
     public void setMoveEnabled(boolean moveEnabled) {

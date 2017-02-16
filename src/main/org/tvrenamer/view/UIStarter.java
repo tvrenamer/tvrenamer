@@ -664,6 +664,13 @@ public class UIStarter {
             shell.pack();
             shell.open();
 
+            String preloadFolderName = prefs.getPreloadFolder();
+            if (preloadFolderName != null) {
+                String[] preload = new String[1];
+                preload[0] = preloadFolderName;
+                initiateRenamer(preload);
+            }
+
             while (!shell.isDisposed()) {
                 if (!display.readAndDispatch()) {
                     display.sleep();
