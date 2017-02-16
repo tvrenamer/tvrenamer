@@ -472,9 +472,9 @@ public class UIStarter {
         selectedColumn.setText("Selected");
         selectedColumn.setWidth(60);
 
-        final TableColumn sourceColum = new TableColumn(resultsTable, SWT.LEFT);
-        sourceColum.setText("Current File");
-        sourceColum.setWidth(550);
+        final TableColumn sourceColumn = new TableColumn(resultsTable, SWT.LEFT);
+        sourceColumn.setText("Current File");
+        sourceColumn.setWidth(550);
 
         destinationColumn = new TableColumn(resultsTable, SWT.LEFT);
         setColumnDestText();
@@ -515,12 +515,12 @@ public class UIStarter {
             }
         });
 
-        sourceColum.addSelectionListener(new SelectionAdapter() {
+        sourceColumn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 resultsTable.setSortDirection(resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN);
-                sortTable(sourceColum, CURRENT_FILE_COLUMN);
-                resultsTable.setSortColumn(sourceColum);
+                sortTable(sourceColumn, CURRENT_FILE_COLUMN);
+                resultsTable.setSortColumn(sourceColumn);
             }
         });
 
