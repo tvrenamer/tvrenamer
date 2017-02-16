@@ -16,7 +16,7 @@ public class StdOutConsoleFormatter extends Formatter {
         StringBuffer buffer = new StringBuffer(1000);
 
         // Date
-        String formatString = "[dd/MM/yy kk:mm:ss,SSS] ";
+        String formatString = "[yyyy/MM/dd kk:mm:ss,SSS] ";
         ZoneId zone = ZoneId.systemDefault();
         DateTimeFormatter sdf = DateTimeFormatter.ofPattern(formatString).withZone(zone);
         Instant date = Instant.ofEpochMilli(rec.getMillis());
