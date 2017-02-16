@@ -7,7 +7,6 @@ import static org.mockito.Mockito.mock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import org.tvrenamer.controller.ShowInformationListener;
 
@@ -29,7 +28,10 @@ public class FileEpisodeTest {
     @Before
     public void setUp() throws Exception {
         testFiles = new ArrayList<>();
-        prefs = Mockito.mock(UserPreferences.class);
+        prefs = UserPreferences.getInstance();
+        prefs.setRenameReplacementString("%S [%sx%e] %t");
+        prefs.setMoveEnabled(false);
+        prefs.setRenameEnabled(true);
         mockListener = mock(ShowInformationListener.class);
     }
 
@@ -53,8 +55,6 @@ public class FileEpisodeTest {
         season5.addEpisode(episodeNum, title, LocalDate.now());
         show.setSeason(seasonNum, season5);
         ShowStore.addShow(showName, show);
-
-        Mockito.when(prefs.getRenameReplacementString()).thenReturn("%S [%sx%e] %t");
 
         FileEpisode episode = new FileEpisode(showName, seasonNum, episodeNum, resolution, file);
         episode.setStatus(EpisodeStatus.DOWNLOADED);
