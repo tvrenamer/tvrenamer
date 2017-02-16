@@ -3,7 +3,6 @@ package org.tvrenamer.controller;
 import org.tvrenamer.model.ShowStore;
 import org.tvrenamer.model.UserPreference;
 import org.tvrenamer.model.UserPreferences;
-import org.tvrenamer.view.UIStarter;
 
 import java.util.Observable;
 import java.util.Observer;
@@ -21,11 +20,6 @@ public class UserPreferencesChangeListener implements Observer {
 
         if (observable instanceof UserPreferences && value instanceof UserPreference) {
             UserPreference upref = (UserPreference) value;
-
-            if (upref == UserPreference.MOVE_ENABLED) {
-                UIStarter.setRenameButtonText();
-                UIStarter.setColumnDestText();
-            }
 
             if (upref == UserPreference.PROXY) {
                 // There may be incorrect entries in ShowStore if there is no internet, so clear on proxy change

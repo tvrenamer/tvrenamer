@@ -56,6 +56,7 @@ import org.tvrenamer.model.NotFoundException;
 import org.tvrenamer.model.SWTMessageBoxType;
 import org.tvrenamer.model.Show;
 import org.tvrenamer.model.ShowStore;
+import org.tvrenamer.model.UserPreference;
 import org.tvrenamer.model.UserPreferences;
 import org.tvrenamer.model.util.Constants;
 import org.tvrenamer.model.util.Environment;
@@ -70,6 +71,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -81,7 +84,7 @@ import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 
-public class UIStarter {
+public class UIStarter implements Observer {
     private static final String DOWNLOADING_FAILED_MESSAGE = "Downloading show listings failed.  Check internet connection";
     private static Logger logger = Logger.getLogger(UIStarter.class.getName());
     private static final int SELECTED_COLUMN = 0;
@@ -93,7 +96,6 @@ public class UIStarter {
 
     private static Shell shell;
     private Display display;
-    private static UserPreferences prefs;
     private static List<String> ignoreKeywords;
 
     private Button addFilesButton;
@@ -107,6 +109,7 @@ public class UIStarter {
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
+    private UserPreferences prefs;
     private Map<String, FileEpisode> episodeMap = new HashMap<>();
 
     // Static initalisation block
@@ -133,6 +136,7 @@ public class UIStarter {
     private void init() {
         // load preferences
         prefs = UserPreferences.getInstance();
+        prefs.addObserver(this);
 
         // Setup display and shell
         GridLayout shellGridLayout = new GridLayout(3, false);
@@ -1004,7 +1008,7 @@ public class UIStarter {
         }
     }
 
-    public static void setRenameButtonText() {
+    private void setRenameButtonText() {
         if (prefs.isMoveEnabled()) {
             renameSelectedButton.setText("Rename && Move Selected");
             shell.changed(new Control[] {renameSelectedButton});
@@ -1016,11 +1020,42 @@ public class UIStarter {
         }
     }
 
-    public static void setColumnDestText() {
+    private void setColumnDestText() {
         if (prefs.isMoveEnabled()) {
             destinationColumn.setText("Proposed File Path");
         } else {
             destinationColumn.setText("Proposed File Name");
+        }
+    }
+
+    private void updateUserPreferences(UserPreferences observed, UserPreference upref) {
+        logger.info("Preference change event: " + upref);
+
+        if ((upref == UserPreference.MOVE_ENABLED)
+            || (upref == UserPreference.RENAME_ENABLED))
+        {
+            setColumnDestText();
+            setRenameButtonText();
+        }
+        if ((upref == UserPreference.REPLACEMENT_MASK)
+            || (upref == UserPreference.MOVE_ENABLED)
+            || (upref == UserPreference.RENAME_ENABLED)
+            || (upref == UserPreference.DEST_DIR)
+            || (upref == UserPreference.SEASON_PREFIX)
+            || (upref == UserPreference.LEADING_ZERO))
+        {
+            refreshTable();
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see java.util.Observer#update(java.util.Observable, java.lang.Object)
+     */
+    @Override
+    public void update(Observable observable, Object value) {
+        if (observable instanceof UserPreferences && value instanceof UserPreference) {
+            updateUserPreferences((UserPreferences) observable,
+                                  (UserPreference) value);
         }
     }
 
