@@ -12,6 +12,37 @@ import org.tvrenamer.model.FileEpisode;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * There are three major steps to turning a filename into real show information.
+ *
+ * First is we parse the filename, and attempt to identify the parts of the
+ * filename that represent the show name, the season number, the episode
+ * number, and possibly the screen resolution.  For the substring that we think
+ * identifies the show name, we normalize it somewhat.  We replace punctuation
+ * and lower-case the name.
+ *
+ * The method "testParseFileName" in this file tests that functionality.  Each
+ * line of the test input has a filename, and the expected values for show
+ * name, season number, episode number, and resolution.  The method parses
+ * the filename and verifies the values are as expected.
+ *
+ * The next step is to take the normalized string and send it to the
+ * provider to try to figure out which show this is actually referring to.
+ * The provider might return any number of results, including zero.  If
+ * it returns more than one, we try to select the right one.
+ *
+ * Once we have identified the actual show, then we use the season and
+ * episode information to look up the actual episode.
+ *
+ * The method testDownloadAndRename tests the second and third steps.  The
+ * static data provided includes the expected episode title, and the test
+ * obtains the episode title from the provider and verifies that it is as
+ * we expected.
+ *
+ * (A potential fourth step would be to actually rename the file based on
+ * the information from the provider.  Despite the name of the test, this
+ * file does not test the actual renaming.)
+ */
 public class TVRenamerTest {
     private static final List<EpisodeTestData> values = new LinkedList<>();
 
