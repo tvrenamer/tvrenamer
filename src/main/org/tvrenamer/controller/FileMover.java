@@ -83,7 +83,7 @@ public class FileMover implements Callable<Boolean> {
     private void updateFileModifiedDate(File file) {
         // update the modified time on the file, the parent, and the grandparent
         file.setLastModified(System.currentTimeMillis());
-        if (UserPreferences.getInstance().isMovedEnabled()) {
+        if (UserPreferences.getInstance().isMoveEnabled()) {
             file.getParentFile().setLastModified(System.currentTimeMillis());
             file.getParentFile().getParentFile().setLastModified(System.currentTimeMillis());
         }

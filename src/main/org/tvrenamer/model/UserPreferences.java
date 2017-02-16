@@ -150,7 +150,7 @@ public class UserPreferences extends Observable {
         return this.destDir;
     }
 
-    public void setMovedEnabled(boolean moveEnabled) {
+    public void setMoveEnabled(boolean moveEnabled) {
         if (hasChanged(this.moveEnabled, moveEnabled)) {
             this.moveEnabled = moveEnabled;
 
@@ -164,7 +164,7 @@ public class UserPreferences extends Observable {
      *
      * @return true if selected destination exists, false otherwise
      */
-    public boolean isMovedEnabled() {
+    public boolean isMoveEnabled() {
         return this.moveEnabled;
     }
 

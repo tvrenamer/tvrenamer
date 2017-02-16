@@ -226,7 +226,7 @@ public class UIStarter {
         GridData renameSelectedButtonGridData = new GridData(GridData.END, GridData.CENTER, false, false);
         renameSelectedButton.setLayoutData(renameSelectedButtonGridData);
 
-        if (prefs != null && prefs.isMovedEnabled()) {
+        if (prefs != null && prefs.isMoveEnabled()) {
             setupMoveButtonText();
         } else {
             setupRenameButtonText();
@@ -804,7 +804,7 @@ public class UIStarter {
 
                 File newFile = null;
 
-                if (prefs != null && prefs.isMovedEnabled()) {
+                if (prefs != null && prefs.isMoveEnabled()) {
                     // If move is enabled, the full path is in the table already
                     newFile = new File(newName);
                 } else {
@@ -1000,7 +1000,7 @@ public class UIStarter {
     }
 
     public static void setRenameButtonText() {
-        if (prefs.isMovedEnabled()) {
+        if (prefs.isMoveEnabled()) {
             renameSelectedButton.setText("Rename && Move Selected");
             shell.changed(new Control[] {renameSelectedButton});
             shell.layout(false, true);
@@ -1012,7 +1012,7 @@ public class UIStarter {
     }
 
     public static void setColumnDestText() {
-        if (prefs.isMovedEnabled()) {
+        if (prefs.isMoveEnabled()) {
             destinationColumn.setText("Proposed File Path");
         } else {
             destinationColumn.setText("Proposed File Name");

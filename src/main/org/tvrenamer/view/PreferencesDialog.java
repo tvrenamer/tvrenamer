@@ -134,7 +134,7 @@ public class PreferencesDialog extends Dialog {
 
         moveEnabledCheckbox = new Button(generalGroup, SWT.CHECK);
         moveEnabledCheckbox.setText("Move Enabled [?]");
-        moveEnabledCheckbox.setSelection(prefs.isMovedEnabled());
+        moveEnabledCheckbox.setSelection(prefs.isMoveEnabled());
         moveEnabledCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 2, 1));
         moveEnabledCheckbox.setToolTipText("Whether the 'move to TV location' functionality is enabled");
 
@@ -497,7 +497,7 @@ public class PreferencesDialog extends Dialog {
      */
     private void savePreferences() {
         // Update the preferences object from the UI control values
-        prefs.setMovedEnabled(moveEnabledCheckbox.getSelection());
+        prefs.setMoveEnabled(moveEnabledCheckbox.getSelection());
         prefs.setSeasonPrefix(seasonPrefixText.getText());
         prefs.setSeasonPrefixLeadingZero(seasonPrefixLeadingZeroCheckbox.getSelection());
         prefs.setRenameReplacementString(replacementStringText.getText());

@@ -180,7 +180,7 @@ public class FileEpisode {
     public String getNewFilePath() {
         String filename = getNewFilename();
 
-        if (userPrefs.isMovedEnabled()) {
+        if (userPrefs.isMoveEnabled()) {
             return getDestinationDirectory().getAbsolutePath().concat(File.separator).concat(filename);
         }
         return filename;
