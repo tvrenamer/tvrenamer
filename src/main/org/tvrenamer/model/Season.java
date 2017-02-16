@@ -10,7 +10,7 @@ public class Season {
 
     public Season(int num) {
         this.num = num;
-        episodes = new HashMap<Integer, Episode>();
+        episodes = new HashMap<>();
     }
 
     public int getNumber() {

@@ -18,7 +18,7 @@ public class Show implements Comparable<Show> {
         this.name = name;
         this.url = url;
 
-        seasons = new HashMap<Integer, Season>();
+        seasons = new HashMap<>();
     }
 
     public String getId() {

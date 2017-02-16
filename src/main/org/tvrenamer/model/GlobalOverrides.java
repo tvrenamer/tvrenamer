@@ -19,7 +19,7 @@ public class GlobalOverrides {
     private Map<String, String> showNames;
 
     private GlobalOverrides() {
-        showNames = new HashMap<String, String>();
+        showNames = new HashMap<>();
         showNames.put("Archer (2009)", "Archer");
         showNames.put("The Newsroom (2012)", "The Newsroom");
         showNames.put("House of Cards (2013)", "House of Cards");

@@ -47,7 +47,7 @@ public class UserPreferences extends Observable {
         this.proxy = new ProxySettings();
         this.checkForUpdates = true;
         this.recursivelyAddFolders = true;
-        this.ignoreKeywords = new ArrayList<String>();
+        this.ignoreKeywords = new ArrayList<>();
         this.ignoreKeywords.add("sample");
 
         ensurePath();

@@ -108,7 +108,7 @@ public class UIStarter {
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    private Map<String, FileEpisode> files = new HashMap<String, FileEpisode>();
+    private Map<String, FileEpisode> files = new HashMap<>();
 
     // Static initalisation block
     static {
@@ -384,7 +384,7 @@ public class UIStarter {
 
                         // Check we are not recursive
                         boolean includeDirs = prefs.isRecursivelyAddFolders();
-                        List<String> subDirs = new ArrayList<String>();
+                        List<String> subDirs = new ArrayList<>();
 
                         for (int i = 0; i < fileNames.length; i++) {
                             String path = directory + File.separatorChar + fileNames[i];
@@ -684,7 +684,7 @@ public class UIStarter {
     }
 
     private void initiateRenamer(final String[] fileNames) {
-        final List<String> files = new LinkedList<String>();
+        final List<String> files = new LinkedList<>();
         for (final String fileName : fileNames) {
             File f = new File(fileName);
             new FileTraversal() {
@@ -785,7 +785,7 @@ public class UIStarter {
     }
 
     private void renameFiles() {
-        final Queue<Future<Boolean>> futures = new LinkedList<Future<Boolean>>();
+        final Queue<Future<Boolean>> futures = new LinkedList<>();
         int count = 0;
 
         for (final TableItem item : resultsTable.getItems()) {
