@@ -110,8 +110,13 @@ public class ProxySettings {
             Authenticator.setDefault(new Authenticator() {
                 @Override
                 protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(username.replace("\\", "\\\\"), CryptographyUtils
-                        .decrypt(encryptedPassword).toCharArray());
+                    String decrypted = CryptographyUtils.decrypt(encryptedPassword);
+                    if (decrypted == null) {
+                        // TODO: throw exception?
+                        return null;
+                    }
+                    return new PasswordAuthentication(username.replace("\\", "\\\\"),
+                                                      decrypted.toCharArray());
                 }
             });
         }
