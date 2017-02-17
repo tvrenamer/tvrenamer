@@ -57,6 +57,13 @@ public class StringUtilsTest {
     }
 
     @Test
+    public void testGetExtension() {
+        assertEquals("mkv", StringUtils.getExtension("dexter.407.720p.hdtv.x264-sys.mkv"));
+        assertEquals("avi", StringUtils.getExtension("Marvels.Agents.of.S.H.I.E.L.D.S04E03.1080p.HDTV.x264-KILLERS[ettv].avi"));
+        assertEquals("mp4", StringUtils.getExtension("/TV/Dexter/S05E05 First Blood.mp4"));
+    }
+
+    @Test
     public void testReplacePunctuation() {
         assertEquals("Marvels Agents of SHIELD", StringUtils.replacePunctuation("Marvel's Agents of S.H.I.E.L.D."));
         assertEquals("Star Trek The Next Generation", StringUtils.replacePunctuation("Star Trek: The Next Generation"));
