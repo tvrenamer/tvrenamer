@@ -310,7 +310,7 @@ public class UserPreferences extends Observable {
      * Create the directory if it doesn't exist.
      */
     public void ensurePath() {
-        if (this != null && this.moveEnabled && !this.destDir.mkdirs()) {
+        if (this.moveEnabled && !this.destDir.mkdirs()) {
             if (!this.destDir.exists()) {
                 this.moveEnabled = false;
                 String message = "Couldn't create path: '" + this.destDir.getAbsolutePath() + "'. Move is now disabled";
