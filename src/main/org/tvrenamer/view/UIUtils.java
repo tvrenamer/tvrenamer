@@ -32,8 +32,6 @@ public class UIUtils {
     /**
      * Determine the system default font
      *
-     * @param shell
-     *            the shell to get the font from
      * @return the system default font
      */
     public static FontData getDefaultSystemFont() {

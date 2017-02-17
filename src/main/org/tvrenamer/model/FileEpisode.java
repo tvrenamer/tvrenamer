@@ -176,8 +176,6 @@ public class FileEpisode {
     }
 
     /**
-     * @param prefs
-     *            the User Preferences
      * @return the new full file path (for table display) using {@link #getNewFilename()} and the destination directory
      */
     public String getNewFilePath() {

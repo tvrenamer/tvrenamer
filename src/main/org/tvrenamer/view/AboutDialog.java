@@ -68,8 +68,6 @@ public class AboutDialog extends Dialog {
     /**
      * Creates the dialog's contents.
      *
-     * @param aboutShell
-     *            the dialog window
      */
     private void createContents() {
         GridLayout shellGridLayout = new GridLayout();
