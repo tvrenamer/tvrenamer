@@ -196,7 +196,7 @@ public class FileEpisode {
                                                      formatDate(airDate, "yy"));
 
                 String fileBaseName = path.getFileName().toString();
-                String resultingFilename = newFilename.concat(".").concat(StringUtils.getExtension(fileBaseName));
+                String resultingFilename = newFilename.concat(StringUtils.getExtension(fileBaseName));
                 return StringUtils.sanitiseTitle(resultingFilename);
             }
             case BROKEN:
