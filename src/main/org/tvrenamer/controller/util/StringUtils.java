@@ -50,6 +50,26 @@ public class StringUtils {
         return rval;
     }
 
+    /**
+     * Transform a string which we believe represents a show name, to the string we will
+     * use for the query.
+     *
+     * For the internal data structures used by this class, the keys should always be
+     * the result of this method.  It's not up to callers to worry about; they can pass
+     * in show names however they have them, and the methods here will be sure to
+     * normalize them in preparation for querying.
+     *
+     * @param text
+     *            the String that we want to normalize; we assume it is:
+     *            the substring of the file path that we think represents the show name
+     * @return a version of the show name that is more suitable for a query; this may
+     *         include case normalization, removal of superfluous whitepsace and
+     *         punctuation, etc.
+     */
+    public static String makeQueryString(String text) {
+        return replacePunctuation(text).toLowerCase();
+    }
+
     public static String getExtension(String filename) {
         int dot = filename.lastIndexOf('.');
         return filename.substring(dot + 1);

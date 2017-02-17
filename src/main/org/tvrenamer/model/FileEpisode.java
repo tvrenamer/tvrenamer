@@ -41,7 +41,8 @@ public class FileEpisode {
             }
         };
 
-    private final String showName;
+    private final String filenameShow;
+    private final String queryString;
     private final int seasonNumber;
     private final int episodeNumber;
     private final String episodeResolution;
@@ -51,7 +52,8 @@ public class FileEpisode {
     private EpisodeStatus status;
 
     public FileEpisode(String name, int season, int episode, String resolution, Path p) {
-        showName = name;
+        filenameShow = name;
+        queryString = StringUtils.makeQueryString(name);
         seasonNumber = season;
         episodeNumber = episode;
         episodeResolution = resolution;
@@ -59,8 +61,8 @@ public class FileEpisode {
         status = EpisodeStatus.ADDED;
     }
 
-    public String getShowName() {
-        return showName;
+    public String getQueryString() {
+        return queryString;
     }
 
     public int getSeasonNumber() {
@@ -96,7 +98,7 @@ public class FileEpisode {
     }
 
     private String getDestinationDirectoryName() {
-        String show = ShowStore.getShow(showName).getName();
+        String show = ShowStore.getShow(queryString).getName();
         String sanitised = StringUtils.sanitiseTitle(show);
         String destPath = userPrefs.getDestinationDirectoryName();
         destPath = destPath + FILE_SEPARATOR_STRING + sanitised;
@@ -128,14 +130,14 @@ public class FileEpisode {
                 LocalDate airDate = null;
 
                 try {
-                    Show show = ShowStore.getShow(this.showName);
+                    Show show = ShowStore.getShow(queryString);
                     showName = show.getName();
 
                     Season season = show.getSeason(seasonNumber);
                     if (season == null) {
                         seasonNum = String.valueOf(seasonNumber);
                         logger.log(Level.SEVERE, "Season #" + seasonNumber + " not found for show '"
-                            + this.showName + "'");
+                            + filenameShow + "'");
                     } else {
                         seasonNum = String.valueOf(season.getNumber());
 
@@ -149,9 +151,8 @@ public class FileEpisode {
                             logger.log(Level.SEVERE, "Episode not found for '" + toString() + "'", e);
                         }
                     }
-
                 } catch (ShowNotFoundException e) {
-                    showName = this.showName;
+                    showName = filenameShow;
                     logger.log(Level.SEVERE, "Show not found for '" + toString() + "'", e);
                 }
 
@@ -227,7 +228,7 @@ public class FileEpisode {
 
     @Override
     public String toString() {
-        return "FileEpisode { title:" + showName + ", season:" + seasonNumber + ", episode:" + episodeNumber
+        return "FileEpisode { title:" + filenameShow + ", season:" + seasonNumber + ", episode:" + episodeNumber
             + ", file:" + path.getFileName() + " }";
     }
 
