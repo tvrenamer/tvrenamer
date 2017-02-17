@@ -1,5 +1,7 @@
 package org.tvrenamer.model;
 
+import static org.tvrenamer.controller.util.StringUtils.makeQueryString;
+
 import org.tvrenamer.controller.ShowInformationListener;
 import org.tvrenamer.controller.TheTVDBProvider;
 
@@ -24,7 +26,7 @@ public class ShowStore {
     private static final ExecutorService threadPool = Executors.newCachedThreadPool();
 
     public static Show getShow(String showName) {
-        Show s = _shows.get(showName.toLowerCase());
+        Show s = _shows.get(makeQueryString(showName));
         if (s == null) {
             String message = "Show not found for show name: '" + showName + "'";
             logger.warning(message);
@@ -52,17 +54,18 @@ public class ShowStore {
      *            the listener to notify or register
      */
     public static void getShow(String showName, ShowInformationListener listener) {
-        Show show = _shows.get(showName.toLowerCase());
+        String showKey = makeQueryString(showName);
+        Show show = _shows.get(showKey);
         if (show != null) {
             listener.downloaded(show);
         } else {
-            ShowRegistrations registrations = _showRegistrations.get(showName.toLowerCase());
+            ShowRegistrations registrations = _showRegistrations.get(showKey);
             if (registrations != null) {
                 registrations.addListener(listener);
             } else {
                 registrations = new ShowRegistrations();
                 registrations.addListener(listener);
-                _showRegistrations.put(showName.toLowerCase(), registrations);
+                _showRegistrations.put(showKey, registrations);
                 downloadShow(showName);
             }
         }
@@ -90,8 +93,8 @@ public class ShowStore {
         threadPool.submit(showFetcher);
     }
 
-    private static void notifyListeners(String showName, Show show) {
-        ShowRegistrations registrations = _showRegistrations.get(showName.toLowerCase());
+    private static void notifyListeners(String showKey, Show show) {
+        ShowRegistrations registrations = _showRegistrations.get(showKey);
 
         if (registrations != null) {
             for (ShowInformationListener informationListener : registrations.getListeners()) {
@@ -140,7 +143,8 @@ public class ShowStore {
      */
     static void addShow(String showName, Show show) {
         logger.fine("Show listing for '" + show.getName() + "' downloaded");
-        _shows.put(showName.toLowerCase(), show);
-        notifyListeners(showName, show);
+        String showKey = makeQueryString(showName);
+        _shows.put(showKey, show);
+        notifyListeners(showKey, show);
     }
 }

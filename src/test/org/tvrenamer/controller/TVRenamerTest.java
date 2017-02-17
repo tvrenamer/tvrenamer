@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import org.tvrenamer.controller.util.StringUtils;
 import org.tvrenamer.model.FileEpisode;
 
 import java.util.LinkedList;
@@ -135,7 +136,7 @@ public class TVRenamerTest {
         for (TestInput testInput : values) {
             FileEpisode retval = TVRenamer.parseFilename(testInput.input);
             assertNotNull(retval);
-            assertEquals(testInput.input, testInput.show, retval.getShowName());
+            assertEquals(testInput.input, testInput.queryString, retval.getQueryString());
             assertEquals(testInput.input, Integer.parseInt(testInput.season), retval.getSeasonNumber());
             assertEquals(testInput.input, Integer.parseInt(testInput.episode), retval.getEpisodeNumber());
             assertEquals(testInput.input, testInput.episodeResolution, retval.getEpisodeResolution());
@@ -146,23 +147,23 @@ public class TVRenamerTest {
     public void testWarehouse13() {
         FileEpisode episode = TVRenamer.parseFilename("Warehouse.13.S05E04.HDTV.x264-2HD.mp4");
         assertNotNull(episode);
-        assertEquals("warehouse 13", episode.getShowName());
+        assertEquals("warehouse 13", episode.getQueryString());
         assertEquals(5, episode.getSeasonNumber());
         assertEquals(4, episode.getEpisodeNumber());
     }
 
     private static class TestInput {
         public final String input;
-        public final String show;
+        public final String queryString;
         public final String season;
         public final String episode;
         public final String episodeResolution;
 
-        public TestInput(String input, String show, String season, String episode,
+        public TestInput(String input, String showName, String season, String episode,
                          String episodeResolution)
         {
             this.input = input;
-            this.show = show.toLowerCase();
+            this.queryString = StringUtils.makeQueryString(showName);
             this.season = season;
             this.episode = episode;
             this.episodeResolution = episodeResolution;
