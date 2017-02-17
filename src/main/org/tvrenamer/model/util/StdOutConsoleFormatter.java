@@ -13,7 +13,7 @@ public class StdOutConsoleFormatter extends Formatter {
 
     @Override
     public String format(LogRecord rec) {
-        StringBuffer buffer = new StringBuffer(1000);
+        StringBuilder buffer = new StringBuilder(1000);
 
         // Date
         String formatString = "[yyyy/MM/dd kk:mm:ss,SSS] ";
@@ -26,12 +26,12 @@ public class StdOutConsoleFormatter extends Formatter {
         if (rec.getLevel() == Level.WARNING) {
             buffer.append("WARN ");
         } else {
-            buffer.append(rec.getLevel() + " ");
+            buffer.append(rec.getLevel()).append(" ");
         }
 
         // Class name (not package), method name
-        buffer.append(rec.getSourceClassName().substring(rec.getSourceClassName().lastIndexOf(".") + 1) + "#");
-        buffer.append(rec.getSourceMethodName() + " ");
+        buffer.append(rec.getSourceClassName().substring(rec.getSourceClassName().lastIndexOf(".") + 1)).append("#");
+        buffer.append(rec.getSourceMethodName()).append(" ");
 
         // Message
         buffer.append(rec.getMessage());
@@ -41,7 +41,7 @@ public class StdOutConsoleFormatter extends Formatter {
         if (throwable != null) {
             StringWriter sink = new StringWriter();
             throwable.printStackTrace(new PrintWriter(sink, true));
-            buffer.append("\n" + sink.toString());
+            buffer.append("\n").append(sink.toString());
         }
 
         // Note: No need to add a newline as that is added by the Handler
