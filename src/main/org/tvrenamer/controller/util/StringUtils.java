@@ -72,7 +72,10 @@ public class StringUtils {
 
     public static String getExtension(String filename) {
         int dot = filename.lastIndexOf('.');
-        return filename.substring(dot + 1);
+        if (dot >= 0) {
+            return filename.substring(dot + 1);
+        }
+        return "";
     }
 
     /**
