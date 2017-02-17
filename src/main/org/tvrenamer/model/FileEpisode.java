@@ -89,7 +89,6 @@ public class FileEpisode {
                 String seasonNum = "";
                 String titleString = "";
                 Calendar airDate = Calendar.getInstance();
-                ;
 
                 try {
                     Show show = ShowStore.getShow(this.showName);

@@ -43,5 +43,5 @@ public class Constants {
 
     public static final String DEFAULT_SEASON_PREFIX = "Season ";
 
-    public enum OSType { WINDOWS, LINUX, MAC };
+    public enum OSType { WINDOWS, LINUX, MAC }
 }
