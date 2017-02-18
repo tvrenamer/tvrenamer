@@ -1,10 +1,9 @@
 package org.tvrenamer.controller;
 
+import org.tvrenamer.model.EpisodeStatus;
 import org.tvrenamer.model.FileEpisode;
 
 import java.nio.file.Path;
-
-import java.nio.file.Paths;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,11 +35,12 @@ public class TVRenamer {
         // singleton
     }
 
-    public static FileEpisode parsePathName(final Path filePath) {
+    public static boolean parseFilename(final FileEpisode episode) {
+        Path filePath = episode.getPath();
         String withShowName = insertShowNameIfNeeded(filePath);
         String strippedName = stripJunk(withShowName);
         int idx = 0;
-        Matcher matcher = null;
+        Matcher matcher;
         while (idx < COMPILED_REGEX.length) {
             matcher = COMPILED_REGEX[idx++].matcher(strippedName);
             if (matcher.matches()) {
@@ -52,20 +52,17 @@ public class TVRenamer {
                     // an error if it does, but not important.
                     continue;
                 }
-                String show = matcher.group(1);
-                int season = Integer.parseInt(matcher.group(2));
-                int episode = Integer.parseInt(matcher.group(3));
+                episode.setFilenameShow(matcher.group(1));
+                episode.setSeasonNum(Integer.parseInt(matcher.group(2)));
+                episode.setEpisodeNum(Integer.parseInt(matcher.group(3)));
+                episode.setFilenameResolution(resolution);
+                episode.setStatus(EpisodeStatus.ADDED);
 
-                FileEpisode ep = new FileEpisode(show, season, episode, resolution, filePath);
-                return ep;
+                return true;
             }
         }
 
-        return null;
-    }
-
-    public static FileEpisode parseFilename(final String filepath) {
-        return parsePathName(Paths.get(filepath));
+        return false;
     }
 
     private static String stripJunk(String input) {

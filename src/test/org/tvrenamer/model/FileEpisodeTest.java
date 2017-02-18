@@ -64,7 +64,11 @@ public class FileEpisodeTest {
         show.setSeason(seasonNum, season5);
         ShowStore.addShow(showName, show);
 
-        FileEpisode episode = new FileEpisode(showName, seasonNum, episodeNum, resolution, path);
+        FileEpisode episode = new FileEpisode(path);
+        episode.setFilenameShow(showName);
+        episode.setSeasonNum(seasonNum);
+        episode.setEpisodeNum(episodeNum);
+        episode.setFilenameResolution(resolution);
         episode.setStatus(EpisodeStatus.DOWNLOADED);
 
         String newFilename = episode.getNewFilename();
@@ -96,10 +100,14 @@ public class FileEpisodeTest {
         show.setSeason(seasonNum, season1);
         ShowStore.addShow(showName, show);
 
-        FileEpisode fileEpisode = new FileEpisode(showName, seasonNum, episodeNum, resolution, path);
-        fileEpisode.setStatus(EpisodeStatus.RENAMED);
+        FileEpisode episode = new FileEpisode(path);
+        episode.setFilenameShow(showName);
+        episode.setSeasonNum(seasonNum);
+        episode.setEpisodeNum(episodeNum);
+        episode.setFilenameResolution(resolution);
+        episode.setStatus(EpisodeStatus.DOWNLOADED);
 
-        String newFilename = fileEpisode.getNewFilename();
+        String newFilename = episode.getNewFilename();
 
         assertFalse("Resulting filename must not contain a ':' as it breaks Windows", newFilename.contains(":"));
     }
