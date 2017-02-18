@@ -12,11 +12,11 @@ public class Episode {
     }
 
     public String getTitle() {
-        return this.title;
+        return title;
     }
 
     public Date getAirDate() {
-        return this.airDate;
+        return airDate;
     }
 
     @Override

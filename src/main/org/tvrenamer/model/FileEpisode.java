@@ -55,11 +55,11 @@ public class FileEpisode {
     }
 
     public EpisodeStatus getStatus() {
-        return this.status;
+        return status;
     }
 
     public void setStatus(EpisodeStatus newStatus) {
-        this.status = newStatus;
+        status = newStatus;
     }
 
     private File getDestinationDirectory() {
@@ -69,13 +69,13 @@ public class FileEpisode {
 
         // Defect #50: Only add the 'season #' folder if set, otherwise put files in showname root
         if (StringUtils.isNotBlank(userPrefs.getSeasonPrefix())) {
-            destPath = destPath + userPrefs.getSeasonPrefix() + (userPrefs.isSeasonPrefixLeadingZero() && this.seasonNumber < 9 ? "0" : "") + this.seasonNumber + File.separatorChar;
+            destPath = destPath + userPrefs.getSeasonPrefix() + (userPrefs.isSeasonPrefixLeadingZero() && seasonNumber < 9 ? "0" : "") + seasonNumber + File.separatorChar;
         }
         return new File(destPath);
     }
 
     public String getNewFilename() {
-        switch (this.status) {
+        switch (status) {
             case ADDED: {
                 return ADDED_PLACEHOLDER_FILENAME;
             }
@@ -94,30 +94,30 @@ public class FileEpisode {
                     Show show = ShowStore.getShow(this.showName);
                     showName = show.getName();
 
-                    Season season = show.getSeason(this.seasonNumber);
+                    Season season = show.getSeason(seasonNumber);
                     if (season == null) {
-                        seasonNum = String.valueOf(this.seasonNumber);
-                        logger.log(Level.SEVERE, "Season #" + this.seasonNumber + " not found for show '"
+                        seasonNum = String.valueOf(seasonNumber);
+                        logger.log(Level.SEVERE, "Season #" + seasonNumber + " not found for show '"
                             + this.showName + "'");
                     } else {
                         seasonNum = String.valueOf(season.getNumber());
 
                         try {
-                            titleString = season.getTitle(this.episodeNumber);
-                            Date date = season.getAirDate(this.episodeNumber);
+                            titleString = season.getTitle(episodeNumber);
+                            Date date = season.getAirDate(episodeNumber);
                             if (date != null) {
                                 airDate.setTime(date);
                             } else {
-                                logger.log(Level.WARNING, "Episode air date not found for '" + this.toString() + "'");
+                                logger.log(Level.WARNING, "Episode air date not found for '" + toString() + "'");
                             }
                         } catch (EpisodeNotFoundException e) {
-                            logger.log(Level.SEVERE, "Episode not found for '" + this.toString() + "'", e);
+                            logger.log(Level.SEVERE, "Episode not found for '" + toString() + "'", e);
                         }
                     }
 
                 } catch (ShowNotFoundException e) {
                     showName = this.showName;
-                    logger.log(Level.SEVERE, "Show not found for '" + this.toString() + "'", e);
+                    logger.log(Level.SEVERE, "Show not found for '" + toString() + "'", e);
                 }
 
                 String newFilename = userPrefs.getRenameReplacementString();
@@ -128,11 +128,10 @@ public class FileEpisode {
                 titleString = Matcher.quoteReplacement(titleString);
 
                 // Make whatever modifications are required
-                String episodeNumberString = new DecimalFormat("##0").format(this.episodeNumber);
-                String episodeNumberWithLeadingZeros = new DecimalFormat("#00").format(this.episodeNumber);
+                String episodeNumberString = new DecimalFormat("##0").format(episodeNumber);
+                String episodeNumberWithLeadingZeros = new DecimalFormat("#00").format(episodeNumber);
                 String episodeTitleNoSpaces = titleString.replaceAll(" ", ".");
-                String seasonNumberWithLeadingZero = new DecimalFormat("00").format(this.seasonNumber);
-                String episodeResolution = this.episodeResolution;
+                String seasonNumberWithLeadingZero = new DecimalFormat("00").format(seasonNumber);
 
                 newFilename = newFilename.replaceAll(ReplacementToken.SHOW_NAME.getToken(), showName);
                 newFilename = newFilename.replaceAll(ReplacementToken.SEASON_NUM.getToken(), seasonNum);
