@@ -1,7 +1,7 @@
 package org.tvrenamer.controller;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -134,22 +134,22 @@ public class TVRenamerTest {
     @Test
     public void testParseFileName() {
         for (TestInput testInput : values) {
-            FileEpisode retval = TVRenamer.parseFilename(testInput.input);
-            assertNotNull(retval);
+            FileEpisode retval = new FileEpisode(testInput.input);
+            assertTrue(TVRenamer.parseFilename(retval));
             assertEquals(testInput.input, testInput.queryString, retval.getQueryString());
-            assertEquals(testInput.input, Integer.parseInt(testInput.season), retval.getSeasonNumber());
-            assertEquals(testInput.input, Integer.parseInt(testInput.episode), retval.getEpisodeNumber());
-            assertEquals(testInput.input, testInput.episodeResolution, retval.getEpisodeResolution());
+            assertEquals(testInput.input, Integer.parseInt(testInput.season), retval.getSeasonNum());
+            assertEquals(testInput.input, Integer.parseInt(testInput.episode), retval.getEpisodeNum());
+            assertEquals(testInput.input, testInput.episodeResolution, retval.getFilenameResolution());
         }
     }
 
     @Test
     public void testWarehouse13() {
-        FileEpisode episode = TVRenamer.parseFilename("Warehouse.13.S05E04.HDTV.x264-2HD.mp4");
-        assertNotNull(episode);
+        FileEpisode episode = new FileEpisode("Warehouse.13.S05E04.HDTV.x264-2HD.mp4");
+        assertTrue(TVRenamer.parseFilename(episode));
         assertEquals("warehouse 13", episode.getQueryString());
-        assertEquals(5, episode.getSeasonNumber());
-        assertEquals(4, episode.getEpisodeNumber());
+        assertEquals(5, episode.getSeasonNum());
+        assertEquals(4, episode.getEpisodeNum());
     }
 
     private static class TestInput {

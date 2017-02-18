@@ -1,8 +1,16 @@
+// FileEpisode - represents a file on disk which is presumed to contain a single
+//   episode of a TV show.
+//
+// This is a very mutable class.  It is initially created with just a filename,
+// and then information comes streaming in.
+//
+
 package org.tvrenamer.model;
 
 import org.tvrenamer.controller.util.StringUtils;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -41,40 +49,101 @@ public class FileEpisode {
             }
         };
 
-    private final String filenameShow;
-    private final String queryString;
-    private final int seasonNumber;
-    private final int episodeNumber;
-    private final String episodeResolution;
+    private static final int NO_SEASON = -1;
+    private static final int NO_EPISODE = 0;
+
+    // These four fields reflect the information derived from the filename.  In particular,
+    // filenameShow is based on the part of the filename we "guessed" represented the name
+    // of the show, and which we use to query the provider.  Note that the actual show name
+    // that we get back from the provider will likely differ from what we have here.
+    private String filenameShow = "";
+    private String filenameSeason = "";
+    private String filenameEpisode = "";
+    private String filenameResolution = "";
+    private String queryString = "";
+
+    private int seasonNum = NO_SEASON;
+    private int episodeNum = NO_EPISODE;
+
     private Path path;
 
+    // This class actually figures out the proposed new name for the file, so we need
+    // a link to the user preferences to know how the user wants the file renamed.
     private UserPreferences userPrefs = UserPreferences.getInstance();
     private EpisodeStatus status;
 
-    public FileEpisode(String name, int season, int episode, String resolution, Path p) {
-        filenameShow = name;
-        queryString = StringUtils.makeQueryString(name);
-        seasonNumber = season;
-        episodeNumber = episode;
-        episodeResolution = resolution;
+    // Initially we create the FileEpisode with nothing more than the path.
+    // Other information will flow in.
+    public FileEpisode(Path p) {
         path = p;
-        status = EpisodeStatus.ADDED;
+        status = EpisodeStatus.UNPARSED;
+    }
+
+    public FileEpisode(String filename) {
+        this(Paths.get(filename));
     }
 
     public String getQueryString() {
         return queryString;
     }
 
-    public int getSeasonNumber() {
-        return seasonNumber;
+    public void setFilenameShow(String filenameShow) {
+        this.filenameShow = filenameShow;
+        queryString = StringUtils.makeQueryString(filenameShow);
     }
 
-    public int getEpisodeNumber() {
-        return episodeNumber;
+    public int getSeasonNum() {
+        return seasonNum;
     }
 
-    public String getEpisodeResolution() {
-        return episodeResolution;
+    public String getFilenameSeason() {
+        return filenameSeason;
+    }
+
+    public void setSeasonNum(int seasonNum) {
+        this.seasonNum = seasonNum;
+    }
+
+    public void setFilenameSeason(String filenameSeason) {
+        this.filenameSeason = filenameSeason;
+        try {
+            seasonNum = Integer.parseInt(filenameSeason);
+        } catch (Exception e) {
+            seasonNum = NO_SEASON;
+        }
+    }
+
+    public int getEpisodeNum() {
+        return episodeNum;
+    }
+
+    public String getFilenameEpisode() {
+        return filenameEpisode;
+    }
+
+    public void setEpisodeNum(int episodeNum) {
+        this.episodeNum = episodeNum;
+    }
+
+    public void setFilenameEpisode(String filenameEpisode) {
+        this.filenameEpisode = filenameEpisode;
+        try {
+            episodeNum = Integer.parseInt(filenameEpisode);
+        } catch (Exception e) {
+            episodeNum = NO_EPISODE;
+        }
+    }
+
+    public String getFilenameResolution() {
+        return filenameResolution;
+    }
+
+    public void setFilenameResolution(String filenameResolution) {
+        if (filenameResolution == null) {
+            this.filenameResolution = "";
+        } else {
+            this.filenameResolution = filenameResolution;
+        }
     }
 
     public String getFilepath() {
@@ -105,8 +174,8 @@ public class FileEpisode {
         String seasonPrefix = userPrefs.getSeasonPrefix();
         // Defect #50: Only add the 'season #' folder if set, otherwise put files in showname root
         if (StringUtils.isNotBlank(seasonPrefix)) {
-            String padding = (userPrefs.isSeasonPrefixLeadingZero() && seasonNumber < 9 ? "0" : "");
-            String seasonFolderName = seasonPrefix + padding + seasonNumber;
+            String padding = (userPrefs.isSeasonPrefixLeadingZero() && seasonNum < 9 ? "0" : "");
+            String seasonFolderName = seasonPrefix + padding + seasonNum;
             destPath = destPath + FILE_SEPARATOR_STRING + seasonFolderName;
         }
         return destPath;
@@ -124,7 +193,6 @@ public class FileEpisode {
                 }
 
                 String showName = "";
-                String seasonNum = "";
                 String titleString = "";
                 LocalDate airDate = null;
 
@@ -132,17 +200,14 @@ public class FileEpisode {
                     Show show = ShowStore.getShow(queryString);
                     showName = show.getName();
 
-                    Season season = show.getSeason(seasonNumber);
+                    Season season = show.getSeason(seasonNum);
                     if (season == null) {
-                        seasonNum = String.valueOf(seasonNumber);
-                        logger.log(Level.SEVERE, "Season #" + seasonNumber + " not found for show '"
+                        logger.log(Level.SEVERE, "Season #" + seasonNum + " not found for show '"
                             + filenameShow + "'");
                     } else {
-                        seasonNum = String.valueOf(season.getNumber());
-
                         try {
-                            titleString = season.getTitle(episodeNumber);
-                            airDate = season.getAirDate(episodeNumber);
+                            titleString = season.getTitle(episodeNum);
+                            airDate = season.getAirDate(episodeNum);
                             if (airDate == null) {
                                 logger.log(Level.WARNING, "Episode air date not found for '" + toString() + "'");
                             }
@@ -163,23 +228,25 @@ public class FileEpisode {
                 titleString = Matcher.quoteReplacement(titleString);
 
                 // Make whatever modifications are required
-                String episodeNumberString = DIGITS.get().format(episodeNumber);
-                String episodeNumberWithLeadingZeros = TWO_OR_THREE.get().format(episodeNumber);
+                String episodeNumberString = DIGITS.get().format(episodeNum);
+                String episodeNumberWithLeadingZeros = TWO_OR_THREE.get().format(episodeNum);
                 String episodeTitleNoSpaces = titleString.replaceAll(" ", ".");
-                String seasonNumberWithLeadingZero = TWO_DIGITS.get().format(seasonNumber);
+                String seasonNumberWithLeadingZero = TWO_DIGITS.get().format(seasonNum);
 
                 newFilename = newFilename.replaceAll(ReplacementToken.SHOW_NAME.getToken(), showName);
-                newFilename = newFilename.replaceAll(ReplacementToken.SEASON_NUM.getToken(), seasonNum);
+                newFilename = newFilename.replaceAll(ReplacementToken.SEASON_NUM.getToken(),
+                                                     String.valueOf(seasonNum));
                 newFilename = newFilename.replaceAll(ReplacementToken.SEASON_NUM_LEADING_ZERO.getToken(),
                                                      seasonNumberWithLeadingZero);
-                newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_NUM.getToken(), episodeNumberString);
+                newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_NUM.getToken(),
+                                                     episodeNumberString);
                 newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_NUM_LEADING_ZERO.getToken(),
                                                      episodeNumberWithLeadingZeros);
                 newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_TITLE.getToken(), titleString);
                 newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_TITLE_NO_SPACES.getToken(),
                                                      episodeTitleNoSpaces);
                 newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_RESOLUTION.getToken(),
-                                                     episodeResolution);
+                                                     filenameResolution);
 
                 // Date and times
                 newFilename = newFilename
@@ -199,6 +266,7 @@ public class FileEpisode {
                 String resultingFilename = newFilename.concat(StringUtils.getExtension(fileBaseName));
                 return StringUtils.sanitiseTitle(resultingFilename);
             }
+            case UNPARSED:
             case BROKEN:
             default:
                 return BROKEN_PLACEHOLDER_FILENAME;
@@ -214,7 +282,8 @@ public class FileEpisode {
     }
 
     /**
-     * @return the new full file path (for table display) using {@link #getNewFilename()} and the destination directory
+     * @return the new full file path (for table display) using {@link #getNewFilename()} and
+     *          the destination directory
      */
     public String getNewFilePath() {
         String filename = getNewFilename();
@@ -227,8 +296,7 @@ public class FileEpisode {
 
     @Override
     public String toString() {
-        return "FileEpisode { title:" + filenameShow + ", season:" + seasonNumber + ", episode:" + episodeNumber
+        return "FileEpisode { title:" + filenameShow + ", season:" + seasonNum + ", episode:" + episodeNum
             + ", file:" + path.getFileName() + " }";
     }
-
 }
