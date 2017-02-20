@@ -41,6 +41,10 @@ public class Season {
 
     @Override
     public String toString() {
+        return "Season [num=" + num + ", " + episodes.size() + " episodes]";
+    }
+
+    public String toLongString() {
         return "Season [num=" + num + ", episodes=" + episodes + "]";
     }
 }
