@@ -59,7 +59,7 @@ public class FileEpisodeTest {
         String resolution = "720p";
 
         Show show = new Show("1", showName, "http://thetvdb.com/?tab=series&id=71663");
-        Season season5 = new Season(seasonNum);
+        Season season5 = new Season(show, seasonNum);
         season5.addEpisode(episodeNum, title, LocalDate.now());
         show.setSeason(seasonNum, season5);
         ShowStore.addShow(showName, show);
@@ -91,7 +91,7 @@ public class FileEpisodeTest {
         String resolution = "";
 
         Show show = new Show("1", showName, "http://thetvdb.com/?tab=series&id=126841&lid=7");
-        Season season1 = new Season(seasonNum);
+        Season season1 = new Season(show, seasonNum);
         season1.addEpisode(episodeNum, title, LocalDate.now());
         show.setSeason(seasonNum, season1);
         ShowStore.addShow(showName, show);

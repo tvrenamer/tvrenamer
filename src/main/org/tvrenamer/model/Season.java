@@ -5,10 +5,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Season {
+    private final Show show;
     private final int num;
     private final Map<Integer, Episode> episodes;
 
-    public Season(int num) {
+    public Season(Show show, int num) {
+        this.show = show;
         this.num = num;
         episodes = new HashMap<>();
     }
@@ -18,7 +20,7 @@ public class Season {
     }
 
     public void addEpisode(int epNum, String title, LocalDate airDate) {
-        episodes.put(epNum, new Episode(title,airDate));
+        episodes.put(epNum, new Episode(this, num, epNum, title, airDate));
     }
 
     public String getTitle(int epNum) {
