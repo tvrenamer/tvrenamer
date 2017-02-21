@@ -18,6 +18,9 @@ public class Episode {
     private final String airDateString;
     private LocalDate firstAired = null;
 
+    // This object does not have an opinion of its place within the series ordering.
+    // It does serve as a useful place to hang information about such questions, as
+    // we do, below.  But it's up to the Show to decide what the "real" answer is.
     private final String seasonNumber;
     private final String episodeNumber;
     private final String dvdSeason;
