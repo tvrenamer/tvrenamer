@@ -98,10 +98,9 @@ public class FileEpisode {
     }
 
     private String getDestinationDirectoryName() {
-        String show = ShowStore.getShow(queryString).getName();
-        String sanitised = StringUtils.sanitiseTitle(show);
+        String dirname = ShowStore.getShow(queryString).getDirName();
         String destPath = userPrefs.getDestinationDirectoryName();
-        destPath = destPath + FILE_SEPARATOR_STRING + sanitised;
+        destPath = destPath + FILE_SEPARATOR_STRING + dirname;
 
         String seasonPrefix = userPrefs.getSeasonPrefix();
         // Defect #50: Only add the 'season #' folder if set, otherwise put files in showname root
