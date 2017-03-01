@@ -1046,6 +1046,10 @@ public class UIStarter implements Observer {
         {
             refreshTable();
         }
+
+        if (upref == UserPreference.IGNORE_REGEX) {
+            ignoreKeywords = observed.getIgnoreKeywords();
+        }
     }
 
     /* (non-Javadoc)
