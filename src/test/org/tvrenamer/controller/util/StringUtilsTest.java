@@ -28,7 +28,7 @@ public class StringUtilsTest {
 
     @Test
     public void testSanitiseTitleAsterisk() {
-        assertEquals(StringUtils.sanitiseTitle("Test*"), "Test");
+        assertEquals(StringUtils.sanitiseTitle("Test*"), "Test-");
     }
 
     @Test
