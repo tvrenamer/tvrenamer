@@ -17,13 +17,13 @@ public class ProgressBarUpdater implements Runnable {
 
     private final ProgressProxy proxy;
 
-    public ProgressBarUpdater(ProgressProxy proxy, int total, Queue<Future<Boolean>> futures,
-        UpdateCompleteHandler updateComplete)
+    public ProgressBarUpdater(ProgressProxy proxy, Queue<Future<Boolean>> futures,
+                              UpdateCompleteHandler updateComplete)
     {
         this.proxy = proxy;
-        this.totalNumFiles = total;
+        totalNumFiles = futures.size();
         this.futures = futures;
-        this.updateCompleteHandler = updateComplete;
+        updateCompleteHandler = updateComplete;
     }
 
     @Override
@@ -39,7 +39,8 @@ public class ProgressBarUpdater implements Runnable {
 
             try {
                 Future<Boolean> future = futures.remove();
-                logger.info("future returned: " + future.get());
+                Boolean success = future.get();
+                logger.info("future returned: " + success);
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }

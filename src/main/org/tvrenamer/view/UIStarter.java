@@ -705,7 +705,6 @@ public class UIStarter implements Observer,  AddEpisodeListener {
 
     private void renameFiles() {
         final Queue<Future<Boolean>> futures = new LinkedList<>();
-        int count = 0;
 
         for (final TableItem item : resultsTable.getItems()) {
             if (item.getChecked()) {
@@ -716,13 +715,12 @@ public class UIStarter implements Observer,  AddEpisodeListener {
                     continue;
                 }
 
-                count++;
                 final Path currentFile = Paths.get(fileName);
                 String newName = item.getText(NEW_FILENAME_COLUMN);
 
                 Path newFile = null;
 
-                if (prefs != null && prefs.isMoveEnabled()) {
+                if (prefs.isMoveEnabled()) {
                     // If move is enabled, let the File constructor parse the path
                     newFile = Paths.get(newName);
                 } else {
@@ -787,7 +785,7 @@ public class UIStarter implements Observer,  AddEpisodeListener {
                         }
                     });
                 }
-            }, count, futures, new UpdateCompleteHandler() {
+            }, futures, new UpdateCompleteHandler() {
                 @Override
                 public void onUpdateComplete() {
                     display.asyncExec(new Runnable() {
