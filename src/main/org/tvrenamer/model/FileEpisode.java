@@ -62,6 +62,9 @@ public class FileEpisode {
     private String filenameResolution = "";
     private String queryString = "";
 
+    private String baseForRename = null;
+    private String filenameSuffix = null;
+
     private int seasonNum = NO_SEASON;
     private int episodeNum = NO_EPISODE;
 
@@ -261,9 +264,11 @@ public class FileEpisode {
         newFilename = newFilename.replaceAll(ReplacementToken.DATE_YEAR_MIN.getToken(),
                                              formatDate(airDate, "yy"));
 
-        String fileBaseName = path.getFileName().toString();
-        String resultingFilename = newFilename.concat(StringUtils.getExtension(fileBaseName));
-        return StringUtils.sanitiseTitle(resultingFilename);
+        // Note, these are instance variables, not local variables.
+        baseForRename = StringUtils.sanitiseTitle(newFilename);
+        filenameSuffix = StringUtils.getExtension(path.getFileName().toString());
+
+        return baseForRename + filenameSuffix;
     }
 
     public String getNewFilename() {
