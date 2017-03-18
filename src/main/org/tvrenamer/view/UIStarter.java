@@ -743,6 +743,7 @@ public class UIStarter implements Observer,  AddEpisodeListener {
                 if (Files.exists(newFile)) {
                     String message = "File " + dstPathstring + " already exists.\n"
                         + srcPathstring + " was not renamed!";
+                    logger.warning(message);
                     showMessageBox(SWTMessageBoxType.ERROR, "Rename Failed", message);
                 } else {
                     // progress label
