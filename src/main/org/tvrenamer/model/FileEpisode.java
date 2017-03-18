@@ -436,10 +436,7 @@ public class FileEpisode {
         }
     }
 
-    private String formatDate(LocalDate date, String format) {
-        if (date == null) {
-            return "";
-        }
+    private static String formatDate(final LocalDate date, final String format) {
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(format);
         return dateFormat.format(date);
     }
@@ -464,7 +461,7 @@ public class FileEpisode {
             }
             airDate = actualEpisode.getAirDate();
             if (airDate == null) {
-                logger.log(Level.WARNING, "Episode air date not found for '" + toString() + "'");
+                logger.log(Level.WARNING, "Episode air date not found for '" + this + "'");
             }
         }
 
@@ -500,19 +497,29 @@ public class FileEpisode {
                         filenameResolution);
 
         // Date and times
-        newFilename = newFilename
-            .replaceAll(ReplacementToken.DATE_DAY_NUM.getToken(),
-                        formatDate(airDate, "d"))
-            .replaceAll(ReplacementToken.DATE_DAY_NUMLZ.getToken(),
-                        formatDate(airDate, "dd"))
-            .replaceAll(ReplacementToken.DATE_MONTH_NUM.getToken(),
-                        formatDate(airDate, "M"))
-            .replaceAll(ReplacementToken.DATE_MONTH_NUMLZ.getToken(),
-                        formatDate(airDate, "MM"))
-            .replaceAll(ReplacementToken.DATE_YEAR_FULL.getToken(),
-                        formatDate(airDate, "yyyy"))
-            .replaceAll(ReplacementToken.DATE_YEAR_MIN.getToken(),
-                        formatDate(airDate, "yy"));
+        if (airDate == null) {
+            newFilename = newFilename
+                .replaceAll(ReplacementToken.DATE_DAY_NUM.getToken(), "")
+                .replaceAll(ReplacementToken.DATE_DAY_NUMLZ.getToken(), "")
+                .replaceAll(ReplacementToken.DATE_MONTH_NUM.getToken(), "")
+                .replaceAll(ReplacementToken.DATE_MONTH_NUMLZ.getToken(), "")
+                .replaceAll(ReplacementToken.DATE_YEAR_FULL.getToken(), "")
+                .replaceAll(ReplacementToken.DATE_YEAR_MIN.getToken(), "");
+        } else {
+            newFilename = newFilename
+                .replaceAll(ReplacementToken.DATE_DAY_NUM.getToken(),
+                            formatDate(airDate, "d"))
+                .replaceAll(ReplacementToken.DATE_DAY_NUMLZ.getToken(),
+                            formatDate(airDate, "dd"))
+                .replaceAll(ReplacementToken.DATE_MONTH_NUM.getToken(),
+                            formatDate(airDate, "M"))
+                .replaceAll(ReplacementToken.DATE_MONTH_NUMLZ.getToken(),
+                            formatDate(airDate, "MM"))
+                .replaceAll(ReplacementToken.DATE_YEAR_FULL.getToken(),
+                            formatDate(airDate, "yyyy"))
+                .replaceAll(ReplacementToken.DATE_YEAR_MIN.getToken(),
+                            formatDate(airDate, "yy"));
+        }
 
         // Note, this is an instance variable, not a local variable.
         baseForRename = StringUtils.sanitiseTitle(newFilename);
