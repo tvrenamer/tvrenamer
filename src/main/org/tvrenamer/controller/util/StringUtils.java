@@ -5,6 +5,13 @@ import java.util.logging.Logger;
 public class StringUtils {
     private static Logger logger = Logger.getLogger(StringUtils.class.getName());
 
+    public static String makeDotTitle(String titleString) {
+        String pass1 = titleString.replaceAll("(\\w)\\s+(\\w)", "$1.$2");
+        String pass2 = pass1.replaceAll("(\\w)\\s+(\\w)", "$1.$2");
+        String pass3 = pass2.replaceAll("\\s", "");
+        return pass3;
+    }
+
     public static String sanitiseTitle(String title) {
         // anything that's not valid in Windows will be replaced
         // this list is: \ / : * ? " < > |

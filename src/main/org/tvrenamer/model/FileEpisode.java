@@ -223,13 +223,14 @@ public class FileEpisode {
         // Ensure that all special characters in the replacement are quoted
         showName = Matcher.quoteReplacement(showName);
         showName = GlobalOverrides.getInstance().getShowName(showName);
-        titleString = Matcher.quoteReplacement(titleString);
 
         // Make whatever modifications are required
         String episodeNumberString = DIGITS.get().format(episodeNum);
         String episodeNumberWithLeadingZeros = TWO_OR_THREE.get().format(episodeNum);
-        String episodeTitleNoSpaces = titleString.replaceAll(" ", ".");
+        String episodeTitleNoSpaces = Matcher.quoteReplacement(StringUtils.makeDotTitle(titleString));
         String seasonNumberWithLeadingZero = TWO_DIGITS.get().format(seasonNum);
+
+        titleString = Matcher.quoteReplacement(titleString);
 
         newFilename = newFilename.replaceAll(ReplacementToken.SHOW_NAME.getToken(), showName);
         newFilename = newFilename.replaceAll(ReplacementToken.SEASON_NUM.getToken(),
