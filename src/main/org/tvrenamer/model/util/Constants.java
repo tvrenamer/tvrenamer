@@ -53,6 +53,8 @@ public class Constants {
     public static final String DEVELOPER_DEFAULT_OVERRIDES_FILENAME = "etc/default-overrides.xml";
 
     public static final String ERROR_LABEL = "Error";
+    public static final String EXIT_LABEL = "Exit";
+    public static final String PREFERENCES_LABEL = "Preferences";
     public static final String MOVE_TOOLTIP_1 = "Clicking this button will rename and move "
         + "the selected files to the directory set in preferences (currently ";
     public static final String MOVE_TOOLTIP_2 = ").";

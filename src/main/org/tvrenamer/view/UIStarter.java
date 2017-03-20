@@ -263,6 +263,18 @@ public class UIStarter implements Observer,  AddEpisodeListener {
 
     }
 
+    private MenuItem makeMenuItem(Menu parent, String text, Listener listener, char shortcut) {
+        MenuItem newItem = new MenuItem(parent, SWT.PUSH);
+        newItem.setText(text + "\tCtrl+" + shortcut);
+        newItem.addListener(SWT.Selection, listener);
+        newItem.setAccelerator(SWT.CONTROL | shortcut);
+
+        // We return the item so callers have the option, but by virtue of creating it
+        // with the proper parent in the first place, there's likely nothing else that
+        // needs to be done.
+        return newItem;
+    }
+
     private void setupMenuBar() {
         Menu menuBarMenu = new Menu(shell, SWT.BAR);
         Menu helpMenu;
@@ -309,6 +321,9 @@ public class UIStarter implements Observer,  AddEpisodeListener {
             MenuItem fileExitItem = new MenuItem(fileMenu, SWT.PUSH);
             fileExitItem.setText("Exit");
             fileExitItem.addListener(SWT.Selection, quitListener);
+
+            makeMenuItem(fileMenu, PREFERENCES_LABEL, preferencesListener, 'P');
+            makeMenuItem(fileMenu, EXIT_LABEL, quitListener, 'Q');
 
             helpMenu = setupHelpMenuBar(menuBarMenu);
 
