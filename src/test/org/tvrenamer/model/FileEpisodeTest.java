@@ -35,7 +35,6 @@ public class FileEpisodeTest {
     public void setUp() throws Exception {
         testFiles = new ArrayList<>();
         prefs = UserPreferences.getInstance();
-        prefs.setRenameReplacementString("%S [%sx%e] %t");
         prefs.setMoveEnabled(false);
         prefs.setRenameEnabled(true);
         mockListener = mock(ShowInformationListener.class);
@@ -47,7 +46,9 @@ public class FileEpisodeTest {
      */
     @Test
     public void testGetNewFilenameSpecialRegexChars() throws Exception {
-        String filename = "the.simpsons.5.10.avi";
+        prefs.setRenameReplacementString("%S [%sx%e] %t %r");
+
+        String filename = "the.simpsons.5.10.720p.avi";
         Path path = TEMP_DIR.resolve(filename);
         createFile(path);
 
@@ -55,7 +56,7 @@ public class FileEpisodeTest {
         String title = "$pringfield";
         int seasonNum = 5;
         int episodeNum = 10;
-        String resolution = "";
+        String resolution = "720p";
 
         Show show = new Show("1", showName, "http://thetvdb.com/?tab=series&id=71663");
         Season season5 = new Season(seasonNum);
@@ -68,7 +69,7 @@ public class FileEpisodeTest {
 
         String newFilename = episode.getNewFilename();
 
-        assertEquals("The Simpsons [5x10] $pringfield.avi", newFilename);
+        assertEquals("The Simpsons [5x10] $pringfield 720p.avi", newFilename);
     }
 
     /**
@@ -77,6 +78,8 @@ public class FileEpisodeTest {
      */
     @Test
     public void testColon() throws Exception {
+        prefs.setRenameReplacementString("%S [%sx%e] %t");
+
         String filename = "steven.segal.lawman.1.01.avi";
         Path path = TEMP_DIR.resolve(filename);
         createFile(path);
