@@ -23,6 +23,7 @@ public class UserPreferences extends Observable {
     private String seasonPrefix;
     private boolean seasonPrefixLeadingZero;
     private boolean moveEnabled;
+    private boolean renameEnabled;
     private String renameReplacementMask;
     private ProxySettings proxy;
     private boolean checkForUpdates;
@@ -41,6 +42,7 @@ public class UserPreferences extends Observable {
         this.seasonPrefix = Constants.DEFAULT_SEASON_PREFIX;
         this.seasonPrefixLeadingZero = false;
         this.moveEnabled = false;
+        this.renameEnabled = true;
         this.renameReplacementMask = Constants.DEFAULT_REPLACEMENT_MASK;
         this.proxy = new ProxySettings();
         this.checkForUpdates = true;
@@ -164,6 +166,24 @@ public class UserPreferences extends Observable {
      */
     public boolean isMovedEnabled() {
         return this.moveEnabled;
+    }
+
+    public void setRenameEnabled(boolean renameEnabled) {
+        if (hasChanged(this.renameEnabled, renameEnabled)) {
+            this.renameEnabled = renameEnabled;
+
+            setChanged();
+            notifyObservers(new UserPreferencesChangeEvent("renameEnabled", renameEnabled));
+        }
+    }
+
+    /**
+     * Get the status of of rename support
+     *
+     * @return true if selected destination exists, false otherwise
+     */
+    public boolean isRenameEnabled() {
+        return this.renameEnabled;
     }
 
     public void setRecursivelyAddFolders(boolean recursivelyAddFolders) {
@@ -302,8 +322,9 @@ public class UserPreferences extends Observable {
 
     @Override
     public String toString() {
-        return "UserPreferences [destDir=" + destDir + ", seasonPrefix=" + seasonPrefix + ", moveEnabled="
-            + moveEnabled + ", renameReplacementMask=" + renameReplacementMask + ", proxy=" + proxy
+        return "UserPreferences [destDir=" + destDir + ", seasonPrefix=" + seasonPrefix
+            + ", moveEnabled=" + moveEnabled + ", renameEnabled=" + renameEnabled
+            + ", renameReplacementMask=" + renameReplacementMask + ", proxy=" + proxy
             + ", checkForUpdates=" + checkForUpdates + ", setRecursivelyAddFolders=" + recursivelyAddFolders + "]";
     }
 
