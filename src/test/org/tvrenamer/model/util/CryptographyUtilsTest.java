@@ -1,12 +1,16 @@
 package org.tvrenamer.model.util;
 
-import junit.framework.Assert;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class CryptographyUtilsTest {
 
@@ -17,10 +21,10 @@ public class CryptographyUtilsTest {
     public void testTwoWay() {
         String password = "password";
         String encryptedPassword = CryptographyUtils.encrypt(password);
-        Assert.assertNotSame(password, encryptedPassword);  // Ensure it did something
+        assertNotEquals(password, encryptedPassword);  // Ensure it did something
 
         String decryptedEncryptedPassword = CryptographyUtils.decrypt(encryptedPassword);
-        Assert.assertEquals(password, decryptedEncryptedPassword);  // Ensure that we are back where we started
+        assertEquals(password, decryptedEncryptedPassword);  // Ensure that we are back where we started
     }
 
     /**
@@ -34,21 +38,24 @@ public class CryptographyUtilsTest {
         String encryptedPassword = CryptographyUtils.encrypt(password);
 
         // Write the encrypted password to a file
-        File tempFile = File.createTempFile("encrypted-password-", ".txt");
+        Path tempFile = Files.createTempFile("encrypted-password-", ".txt");
 
-        FileOutputStream fileOutputStream = new FileOutputStream(tempFile);
-        fileOutputStream.write(encryptedPassword.getBytes());
-        fileOutputStream.close();
+        try (OutputStream fileOutputStream = Files.newOutputStream(tempFile)) {
+            fileOutputStream.write(encryptedPassword.getBytes());
+        } catch (IOException ioe) {
+            fail("could not encrypted password output file");
+        }
 
-        byte[] buffer = new byte[(int) tempFile.length()];
-        FileInputStream f = new FileInputStream(tempFile);
-        f.read(buffer);
-        f.close();
+        long outputSize = Files.size(tempFile);
+        byte[] buffer = new byte[(int) outputSize];
+        try (InputStream f = Files.newInputStream(tempFile)) {
+            f.read(buffer);
+        }
         String encryptedPasswordFromFile = new String(buffer);
 
         String decryptedEncryptedPasswordFromFile = CryptographyUtils.decrypt(encryptedPasswordFromFile);
 
-        Assert.assertEquals(password, decryptedEncryptedPasswordFromFile);
-        tempFile.delete();
+        assertEquals(password, decryptedEncryptedPasswordFromFile);
+        Files.delete(tempFile);
     }
 }
