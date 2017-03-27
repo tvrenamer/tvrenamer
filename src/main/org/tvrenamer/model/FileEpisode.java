@@ -81,6 +81,10 @@ public class FileEpisode {
             }
             case DOWNLOADED:
             case RENAMED: {
+                if (!userPrefs.isRenameEnabled()) {
+                    return file.getName();
+                }
+
                 String showName = "";
                 String seasonNum = "";
                 String titleString = "";

@@ -57,6 +57,7 @@ public class PreferencesDialog extends Dialog {
 
     // The controls to save
     private Button moveEnabledCheckbox;
+    private Button renameEnabledCheckbox;
     private Text destDirText;
     private Text seasonPrefixText;
     private Button seasonPrefixLeadingZeroCheckbox;
@@ -134,8 +135,16 @@ public class PreferencesDialog extends Dialog {
         moveEnabledCheckbox = new Button(generalGroup, SWT.CHECK);
         moveEnabledCheckbox.setText("Move Enabled [?]");
         moveEnabledCheckbox.setSelection(prefs.isMovedEnabled());
-        moveEnabledCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 3, 1));
+        moveEnabledCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 2, 1));
         moveEnabledCheckbox.setToolTipText("Whether the 'move to TV location' functionality is enabled");
+
+        renameEnabledCheckbox = new Button(generalGroup, SWT.CHECK);
+        renameEnabledCheckbox.setText("Rename Enabled [?]");
+        renameEnabledCheckbox.setSelection(prefs.isRenameEnabled());
+        renameEnabledCheckbox.setLayoutData(new GridData(GridData.END, GridData.CENTER, true, true, 1, 1));
+        renameEnabledCheckbox.setToolTipText("Whether the 'rename' functionality is enabled.\n"
+                                             + "You can move a file into a folder based on its show\n"
+                                             + "without actually renaming the file");
 
         Label destDirLabel = new Label(generalGroup, SWT.NONE);
         destDirLabel.setText("TV Directory [?]");
@@ -493,6 +502,7 @@ public class PreferencesDialog extends Dialog {
         prefs.setSeasonPrefixLeadingZero(seasonPrefixLeadingZeroCheckbox.getSelection());
         prefs.setRenameReplacementString(replacementStringText.getText());
         prefs.setIgnoreKeywords(Arrays.asList(ignoreWordsText.getText().split("\\s*,\\s*")));
+        prefs.setRenameEnabled(renameEnabledCheckbox.getSelection());
 
         ProxySettings proxySettings = new ProxySettings();
         proxySettings.setEnabled(proxyEnabledCheckbox.getSelection());
