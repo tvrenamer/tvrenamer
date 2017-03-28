@@ -177,6 +177,7 @@ public class ShowName {
      * Instance variables
      */
     private final String foundName;
+    private final String sanitised;
     private final QueryString queryString;
 
     private final List<ShowOption> showOptions;
@@ -258,6 +259,7 @@ public class ShowName {
      */
     private ShowName(String foundName) {
         this.foundName = foundName;
+        sanitised = StringUtils.sanitiseTitle(foundName);
         queryString = QueryString.lookupQueryString(foundName);
 
         showOptions = new LinkedList<>();
@@ -354,6 +356,19 @@ public class ShowName {
      */
     public String getFoundName() {
         return foundName;
+    }
+
+    /**
+     * Get this ShowName's "sanitised" attribute.
+     *
+     * @return sanitised
+     *            the name of the show after being run through the
+     *            "sanitising" filter.  The value should be appropriate
+     *            for any supported filesystem (free from illegal characters)
+     */
+    @SuppressWarnings("unused")
+    public String getSanitised() {
+        return sanitised;
     }
 
     /**
