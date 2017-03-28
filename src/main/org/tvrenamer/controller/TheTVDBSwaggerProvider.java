@@ -1,5 +1,7 @@
 package org.tvrenamer.controller;
 
+import static org.tvrenamer.model.util.Constants.*;
+
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import okhttp3.MediaType;
@@ -16,6 +18,8 @@ import org.tvrenamer.model.ShowName;
 import org.tvrenamer.model.TVRenamerIOException;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -89,7 +93,10 @@ public class TheTVDBSwaggerProvider {
         return token;
     }
 
-    private static String get(final String url) throws IOException {
+    private static String get(final String url, final Path path) throws IOException {
+        if (Files.exists(path)) {
+            return new String(Files.readAllBytes(path), TVDB_CHARSET);
+        }
         String jwt = AppData.getInstance().getApiToken();
         if (jwt == null) {
             jwt = login();
@@ -105,7 +112,7 @@ public class TheTVDBSwaggerProvider {
             case 401:
             case 403:
                 login();
-                return get(url);
+                return get(url, path);
             default:
                 ResponseBody responseBody = response.body();
                 if (responseBody == null) {
@@ -113,16 +120,20 @@ public class TheTVDBSwaggerProvider {
                                 + response.code() + " on get " + url);
                     return "";
                 }
-                return responseBody.string();
+                String json = responseBody.string();
+                Files.write(path, json.getBytes(TVDB_CHARSET));
+                return json;
         }
     }
 
     public static void getSeriesOptions(final ShowName showName) throws TVRenamerIOException {
-        String searchUrl = SEARCH_URL + showName.getQueryString();
         String foundName = showName.getFoundName();
+        String queryName = showName.getQueryString();
+        Path outfile = THE_TVDB_DL_DIR.resolve(queryName + JSON_SUFFIX);
+        String searchUrl = SEARCH_URL + queryName;
         String responseJSON = "";
         try {
-            responseJSON = get(searchUrl);
+            responseJSON = get(searchUrl, outfile);
             if (responseJSON != null) {
                 Moshi moshi = new Moshi.Builder().build();
                 JsonAdapter<SeriesSearchResponse> adapter = moshi.adapter(SeriesSearchResponse.class);
@@ -172,11 +183,13 @@ public class TheTVDBSwaggerProvider {
     }
 
     private static String getSeriesEpisodes(final Integer id, final Integer page) throws IOException {
-        return get(LISTINGS_URL + id + EPISODES + "?page=" + page);
+        Path outfile = THE_TVDB_DL_DIR.resolve("" + id + "-" + page + JSON_SUFFIX);
+        return get(LISTINGS_URL + id + EPISODES + "?page=" + page, outfile);
     }
 
     private static String getSeriesEpisodes(final Integer id) throws IOException {
-        return get(LISTINGS_URL + id + EPISODES);
+        Path outfile = THE_TVDB_DL_DIR.resolve("" + id + JSON_SUFFIX);
+        return get(LISTINGS_URL + id + EPISODES, outfile);
     }
 
     private static void readEpisodesFromSearchResponse(final String response, final Series series)

@@ -175,6 +175,7 @@ public class UserPreferences extends Observable {
             }
         }
         setUpOverrides();
+        FileUtilities.ensureWritableDirectory(THE_TVDB_DL_DIR);
     }
 
     /**
