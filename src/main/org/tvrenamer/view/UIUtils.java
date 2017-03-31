@@ -66,7 +66,7 @@ public class UIUtils {
                 if (exception == null) {
                     msgBox.setMessage(message);
                 } else {
-                    msgBox.setMessage(message + "/n" + exception.getLocalizedMessage());
+                    msgBox.setMessage(message + "\n" + exception.getLocalizedMessage());
                 }
 
                 msgBox.open();
