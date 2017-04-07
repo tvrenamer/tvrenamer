@@ -127,12 +127,6 @@ public class UIStarter implements Observer,  AddEpisodeListener {
         }
     }
 
-    public static void main(String[] args) {
-        UIStarter ui = new UIStarter();
-        ui.init();
-        ui.launch();
-    }
-
     private void init() {
         // load preferences
         prefs = UserPreferences.getInstance();
@@ -646,6 +640,11 @@ public class UIStarter implements Observer,  AddEpisodeListener {
             logger.log(Level.SEVERE, message, exception);
             System.exit(1);
         }
+    }
+
+    public void run() {
+        init();
+        launch();
     }
 
     @Override

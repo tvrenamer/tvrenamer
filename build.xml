@@ -24,7 +24,7 @@
 
 	<property name="rel.name" value="TVRenamer-${version}" />
 	<property name="jar.builtBy" value="https://github.com/tvrenamer/tvrenamer" />
-	<property name="jar.mainClass" value="org.tvrenamer.view.UIStarter" />
+	<property name="jar.mainClass" value="org.tvrenamer.controller.Launcher" />
 
 	<!-- To build, get launch4j, update the path in build.properties -->
 	<taskdef name="launch4j"
