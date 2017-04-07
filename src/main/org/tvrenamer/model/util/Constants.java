@@ -20,6 +20,9 @@ public class Constants {
     public static final String TVRENAMER_ISSUES_URL = TVRENAMER_PROJECT_URL + "/issues";
     public static final String TVRENAMER_VERSION_URL = TVRENAMER_PROJECT_URL + "/version";
 
+    public static final String LOGGING_PROPERTIES = "/logging.properties";
+    public static final String DEVELOPER_DEFAULT_OVERRIDES_FILENAME = "etc/default-overrides.xml";
+
     public static final String ERROR_LABEL = "Error";
 
     public static final String DEFAULT_REPLACEMENT_MASK = "%S [%sx%0e] %t";
@@ -29,8 +32,6 @@ public class Constants {
     private static final String CONFIGURATION_DIRECTORY_NAME = ".tvrenamer";
     private static final String PREFERENCES_FILENAME = "prefs.xml";
     private static final String OVERRIDES_FILENAME = "overrides.xml";
-
-    public static final String DEVELOPER_DEFAULT_OVERRIDES_FILENAME = "etc/default-overrides.xml";
 
     public static final Path USER_HOME_DIR = Paths.get(Environment.USER_HOME);
     public static final Path WORKING_DIRECTORY = Paths.get(Environment.USER_DIR);
