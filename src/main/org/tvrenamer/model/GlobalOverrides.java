@@ -1,18 +1,15 @@
 package org.tvrenamer.model;
 
-import org.tvrenamer.controller.GlobalOverridesPersistence;
-import org.tvrenamer.model.util.Constants;
+import static org.tvrenamer.model.util.Constants.*;
 
-import java.io.File;
+import org.tvrenamer.controller.GlobalOverridesPersistence;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
 public class GlobalOverrides {
-    private static Logger logger = Logger.getLogger(UserPreferences.class.getName());
-
-    public static File overridesFile = new File(System.getProperty("user.home") + File.separatorChar
-        + Constants.OVERRIDES_FILE);
+    private static Logger logger = Logger.getLogger(GlobalOverrides.class.getName());
 
     private static final GlobalOverrides INSTANCE = load();
 
@@ -20,9 +17,6 @@ public class GlobalOverrides {
 
     private GlobalOverrides() {
         showNames = new HashMap<>();
-        showNames.put("Archer (2009)", "Archer");
-        showNames.put("The Newsroom (2012)", "The Newsroom");
-        showNames.put("House of Cards (2013)", "House of Cards");
     }
 
     public static GlobalOverrides getInstance() {
@@ -30,10 +24,10 @@ public class GlobalOverrides {
     }
 
     private static GlobalOverrides load() {
-        GlobalOverrides overrides = GlobalOverridesPersistence.retrieve(overridesFile);
+        GlobalOverrides overrides = GlobalOverridesPersistence.retrieve(OVERRIDES_FILE);
 
         if (overrides != null) {
-            logger.finer("Sucessfully read overrides from: " + overridesFile.getAbsolutePath());
+            logger.finer("Sucessfully read overrides from: " + OVERRIDES_FILE.toAbsolutePath());
             logger.info("Sucessfully read overrides: " + overrides.toString());
         } else {
             overrides = new GlobalOverrides();
@@ -44,7 +38,7 @@ public class GlobalOverrides {
     }
 
     public static void store(GlobalOverrides overrides) {
-        GlobalOverridesPersistence.persist(overrides, overridesFile);
+        GlobalOverridesPersistence.persist(overrides, OVERRIDES_FILE);
         logger.fine("Sucessfully saved/updated overrides");
     }
 
