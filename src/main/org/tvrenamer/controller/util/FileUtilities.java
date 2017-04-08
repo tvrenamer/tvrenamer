@@ -10,6 +10,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -18,6 +23,8 @@ import java.io.OutputStream;
  *
  */
 public class FileUtilities {
+    private static Logger logger = Logger.getLogger(FileUtilities.class.getName());
+
     // {{{ moveFile() method, based on the moveFile() method in gjt
     /**
      * Moves the source file to the destination.
@@ -86,5 +93,67 @@ public class FileUtilities {
             }
         }
         return false;
+    }
+
+    public static boolean mkdirs(final Path dir) {
+        try {
+            Files.createDirectories(dir);
+        } catch (IOException ioe) {
+            logger.log(Level.WARNING, "exception trying to create directory " + dir, ioe);
+            return false;
+        }
+        if (Files.exists(dir)) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean isDirEmpty(final Path dir) {
+        try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(dir)) {
+            return !dirStream.iterator().hasNext();
+        } catch (IOException ioe) {
+            logger.log(Level.WARNING, "exception checking directory " + dir, ioe);
+            return false;
+        }
+    }
+
+    public static boolean rmdir(final Path dir) {
+        try {
+            Files.delete(dir);
+        } catch (IOException ioe) {
+            logger.log(Level.WARNING, "exception trying to remove directory " + dir, ioe);
+            return false;
+        }
+        if (Files.notExists(dir)) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean removeWhileEmpty(final Path dir) {
+        if (dir == null) {
+            return false;
+        }
+        if (Files.notExists(dir)) {
+            return false;
+        }
+        if (!Files.isDirectory(dir)) {
+            return false;
+        }
+        if (!isDirEmpty(dir)) {
+            // If the directory is not empty, then doing nothing is correct,
+            // and we have succeeded.
+            return true;
+        }
+
+        Path parent = dir.getParent();
+        boolean success = rmdir(dir);
+        if (success) {
+            logger.info("removed empty directory " + dir);
+            if (parent != null) {
+                return removeWhileEmpty(parent);
+            }
+        }
+        return success;
     }
 }
