@@ -67,6 +67,29 @@ public class StringUtilsTest {
     }
 
     @Test
+    public void testRemoveLast() {
+        // Straighforward removal; note does not remove punctuation/separators
+        assertEquals("foo..baz", StringUtils.removeLast("foo.bar.baz", "bar"));
+
+        // Implementation detail, but the match is required to be all lower-case,
+        // while the input doesn't
+        assertEquals("Foo..Baz", StringUtils.removeLast("Foo.Bar.Baz", "bar"));
+
+        // Like the name says, the method only removes the last instance
+        assertEquals("bar.foo..baz", StringUtils.removeLast("bar.foo.bar.baz", "bar"));
+
+        // Doesn't have to be delimited
+        assertEquals("emassment", StringUtils.removeLast("embarassment", "bar"));
+
+        // Doesn't necessarily replace anything
+        assertEquals("Foo.Schmar.baz", StringUtils.removeLast("Foo.Schmar.baz", "bar"));
+
+        // This frankly is probably a bug, but this is currently the expected behavior.
+        // If the match is not all lower-case to begin with, nothing will be matched.
+        assertEquals("Foo.Bar.Baz", StringUtils.removeLast("Foo.Bar.Baz", "Bar"));
+    }
+
+    @Test
     public void testGetExtension() {
         assertEquals(".mkv", StringUtils.getExtension("dexter.407.720p.hdtv.x264-sys.mkv"));
         assertEquals(".avi", StringUtils.getExtension("Marvels.Agents.of.S.H.I.E.L.D.S04E03.1080p.HDTV.x264-KILLERS[ettv].avi"));

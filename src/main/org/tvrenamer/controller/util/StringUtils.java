@@ -46,6 +46,15 @@ public class StringUtils {
         return pass3;
     }
 
+    public static String removeLast(String input, String match) {
+        int idx = input.toLowerCase().lastIndexOf(match);
+        if (idx > 0) {
+            input = input.substring(0, idx)
+                + input.substring(idx + match.length(), input.length());
+        }
+        return input;
+    }
+
     public static String sanitiseTitle(String title) {
         // anything that's not valid in Windows will be replaced
         // this list is: \ / : * ? " < > |

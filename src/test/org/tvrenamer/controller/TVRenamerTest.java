@@ -110,29 +110,6 @@ public class TVRenamerTest {
     }
 
     @Test
-    public void testRemoveLast() {
-        // Straighforward removal; note does not remove punctuation/separators
-        assertEquals("foo..baz", TVRenamer.removeLast("foo.bar.baz", "bar"));
-
-        // Implementation detail, but the match is required to be all lower-case,
-        // while the input doesn't
-        assertEquals("Foo..Baz", TVRenamer.removeLast("Foo.Bar.Baz", "bar"));
-
-        // Like the name says, the method only removes the last instance
-        assertEquals("bar.foo..baz", TVRenamer.removeLast("bar.foo.bar.baz", "bar"));
-
-        // Doesn't have to be delimited
-        assertEquals("emassment", TVRenamer.removeLast("embarassment", "bar"));
-
-        // Doesn't necessarily replace anything
-        assertEquals("Foo.Schmar.baz", TVRenamer.removeLast("Foo.Schmar.baz", "bar"));
-
-        // This frankly is probably a bug, but this is currently the expected behavior.
-        // If the match is not all lower-case to begin with, nothing will be matched.
-        assertEquals("Foo.Bar.Baz", TVRenamer.removeLast("Foo.Bar.Baz", "Bar"));
-    }
-
-    @Test
     public void testParseFileName() {
         for (TestInput testInput : values) {
             FileEpisode retval = new FileEpisode(testInput.input);
