@@ -1,5 +1,6 @@
 package org.tvrenamer.controller;
 
+import org.tvrenamer.controller.util.StringUtils;
 import org.tvrenamer.model.FileEpisode;
 
 import java.nio.file.Path;
@@ -67,19 +68,9 @@ public class TVRenamer {
 
     private static String stripJunk(String input) {
         String output = input;
-        output = removeLast(output, "hdtv");
-        output = removeLast(output, "dvdrip");
+        output = StringUtils.removeLast(output, "hdtv");
+        output = StringUtils.removeLast(output, "dvdrip");
         return output;
-
-    }
-
-    public static String removeLast(String input, String match) {
-        int idx = input.toLowerCase().lastIndexOf(match);
-        if (idx > 0) {
-            input = input.substring(0, idx)
-                + input.substring(idx + match.length(), input.length());
-        }
-        return input;
     }
 
     static String insertShowNameIfNeeded(final Path filePath) {
