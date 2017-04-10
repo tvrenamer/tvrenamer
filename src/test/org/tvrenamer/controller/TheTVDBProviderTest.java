@@ -1,10 +1,9 @@
-package org.tvrenamer;
+package org.tvrenamer.controller;
 
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
-import org.tvrenamer.controller.TheTVDBProvider;
 import org.tvrenamer.model.Show;
 
 public class TheTVDBProviderTest {
