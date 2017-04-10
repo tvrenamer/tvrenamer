@@ -1,5 +1,8 @@
 package org.tvrenamer.model;
 
+import org.tvrenamer.controller.ShowInformationListener;
+import org.tvrenamer.controller.TheTVDBProvider;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -10,9 +13,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
-
-import org.tvrenamer.controller.ShowInformationListener;
-import org.tvrenamer.controller.TheTVDBProvider;
 
 public class ShowStore {
 
@@ -32,7 +32,6 @@ public class ShowStore {
         }
 
         return s;
-
     }
 
     /**
@@ -67,7 +66,6 @@ public class ShowStore {
                 downloadShow(showName);
             }
         }
-
     }
 
     private static void downloadShow(final String showName) {
@@ -107,18 +105,18 @@ public class ShowStore {
     }
 
     private static class ShowRegistrations {
-        private final List<ShowInformationListener> _listeners;
+        private final List<ShowInformationListener> mListeners;
 
         public ShowRegistrations() {
-            this._listeners = new LinkedList<>();
+            this.mListeners = new LinkedList<>();
         }
 
         public void addListener(ShowInformationListener listener) {
-            this._listeners.add(listener);
+            this.mListeners.add(listener);
         }
 
         public List<ShowInformationListener> getListeners() {
-            return Collections.unmodifiableList(_listeners);
+            return Collections.unmodifiableList(mListeners);
         }
     }
 

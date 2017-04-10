@@ -3,27 +3,6 @@ package org.tvrenamer.view;
 import static org.tvrenamer.view.UIUtils.getOSType;
 import static org.tvrenamer.view.UIUtils.showMessageBox;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.Collator;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Queue;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
-
-import javax.swing.JOptionPane;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.custom.TableEditor;
@@ -82,6 +61,27 @@ import org.tvrenamer.model.UserPreferences;
 import org.tvrenamer.model.util.Constants;
 import org.tvrenamer.model.util.Constants.OSType;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.Collator;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
+
+import javax.swing.JOptionPane;
+
 public class UIStarter {
     private static final String DOWNLOADING_FAILED_MESSAGE = "Downloading show listings failed.  Check internet connection";
     private static Logger logger = Logger.getLogger(UIStarter.class.getName());
@@ -108,7 +108,7 @@ public class UIStarter {
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    private Map<String, FileEpisode> files = new HashMap<String, FileEpisode>();
+    private Map<String, FileEpisode> files = new HashMap<>();
 
     // Static initalisation block
     static {
@@ -226,7 +226,7 @@ public class UIStarter {
         GridData renameSelectedButtonGridData = new GridData(GridData.END, GridData.CENTER, false, false);
         renameSelectedButton.setLayoutData(renameSelectedButtonGridData);
 
-        if (prefs != null && prefs.isMovedEnabled()) {
+        if (prefs != null && prefs.isMoveEnabled()) {
             setupMoveButtonText();
         } else {
             setupRenameButtonText();
@@ -384,7 +384,7 @@ public class UIStarter {
 
                         // Check we are not recursive
                         boolean includeDirs = prefs.isRecursivelyAddFolders();
-                        List<String> subDirs = new ArrayList<String>();
+                        List<String> subDirs = new ArrayList<>();
 
                         for (int i = 0; i < fileNames.length; i++) {
                             String path = directory + File.separatorChar + fileNames[i];
@@ -428,35 +428,34 @@ public class UIStarter {
     }
 
     private void setupSelectionListener() {
-        resultsTable.addListener
-            (SWT.Selection,
-             new Listener() {
-                 public void handleEvent(Event event) {
-                     if (event.detail == SWT.CHECK) {
-                         TableItem eventItem = (TableItem) event.item;
-                         // This assumes that the current status of the TableItem
-                         // already reflects its toggled state, which appears to
-                         // be the case.
-                         boolean checked = eventItem.getChecked();
-                         boolean isSelected = false;
+        resultsTable.addListener(SWT.Selection,
+            new Listener() {
+                public void handleEvent(Event event) {
+                    if (event.detail == SWT.CHECK) {
+                        TableItem eventItem = (TableItem) event.item;
+                        // This assumes that the current status of the TableItem
+                        // already reflects its toggled state, which appears to
+                        // be the case.
+                        boolean checked = eventItem.getChecked();
+                        boolean isSelected = false;
 
-                         for (final TableItem item : resultsTable.getSelection()) {
-                             if (item == eventItem) {
-                                 isSelected = true;
-                                 break;
-                             }
-                         }
-                         if (isSelected) {
-                             for (final TableItem item : resultsTable.getSelection()) {
-                                 item.setChecked(checked);
-                             }
-                         } else {
-                             resultsTable.deselectAll();
-                         }
-                     }
-                     // else, it's a SELECTED event, which we just don't care about
-                 }
-             });
+                        for (final TableItem item : resultsTable.getSelection()) {
+                            if (item == eventItem) {
+                                isSelected = true;
+                                break;
+                            }
+                        }
+                        if (isSelected) {
+                            for (final TableItem item : resultsTable.getSelection()) {
+                                item.setChecked(checked);
+                            }
+                        } else {
+                            resultsTable.deselectAll();
+                        }
+                    }
+                    // else, it's a SELECTED event, which we just don't care about
+                }
+            });
     }
 
     private void setupResultsTable() {
@@ -473,9 +472,9 @@ public class UIStarter {
         selectedColumn.setText("Selected");
         selectedColumn.setWidth(60);
 
-        final TableColumn sourceColum = new TableColumn(resultsTable, SWT.LEFT);
-        sourceColum.setText("Current File");
-        sourceColum.setWidth(550);
+        final TableColumn sourceColumn = new TableColumn(resultsTable, SWT.LEFT);
+        sourceColumn.setText("Current File");
+        sourceColumn.setWidth(550);
 
         destinationColumn = new TableColumn(resultsTable, SWT.LEFT);
         setColumnDestText();
@@ -491,7 +490,7 @@ public class UIStarter {
             public void keyReleased(KeyEvent e) {
                 super.keyReleased(e);
 
-                switch(e.keyCode){
+                switch (e.keyCode) {
 
                     // backspace
                     case '\u0008':
@@ -516,12 +515,12 @@ public class UIStarter {
             }
         });
 
-        sourceColum.addSelectionListener(new SelectionAdapter() {
+        sourceColumn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 resultsTable.setSortDirection(resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN);
-                sortTable(sourceColum, CURRENT_FILE_COLUMN);
-                resultsTable.setSortColumn(sourceColum);
+                sortTable(sourceColumn, CURRENT_FILE_COLUMN);
+                resultsTable.setSortColumn(sourceColumn);
             }
         });
 
@@ -615,7 +614,7 @@ public class UIStarter {
 
             @Override
             public void drop(DropTargetEvent e) {
-                String fileList[] = null;
+                String[] fileList = null;
                 FileTransfer ft = FileTransfer.getInstance();
                 if (ft.isSupportedType(e.currentDataType)) {
                     fileList = (String[]) e.data;
@@ -685,14 +684,14 @@ public class UIStarter {
     }
 
     private void initiateRenamer(final String[] fileNames) {
-        final List<String> files = new LinkedList<String>();
+        final List<String> files = new LinkedList<>();
         for (final String fileName : fileNames) {
             File f = new File(fileName);
             new FileTraversal() {
                 @Override
                 public void onFile(File f) {
                     // Don't add hidden files - defect 38
-                    if(!f.isHidden()) {
+                    if (!f.isHidden()) {
                         files.add(f.getAbsolutePath());
                     }
                 }
@@ -745,20 +744,21 @@ public class UIStarter {
                         display.asyncExec(new Runnable() {
                             @Override
                             public void run() {
-                                if( tableContainsTableItem(item) ) {
+                                if ( tableContainsTableItem(item) ) {
                                     item.setText(NEW_FILENAME_COLUMN, episode.getNewFilePath());
                                     item.setImage(STATUS_COLUMN, FileMoveIcon.ADDED.icon);
                                 }
                             }
                         });
                     }
+
                     @Override
                     public void downloadFailed(Show show) {
                         episode.setStatus(EpisodeStatus.BROKEN);
                         display.asyncExec(new Runnable() {
                             @Override
                             public void run() {
-                                if( tableContainsTableItem(item) ){
+                                if ( tableContainsTableItem(item) ) {
                                     item.setText(NEW_FILENAME_COLUMN, DOWNLOADING_FAILED_MESSAGE);
                                     item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
                                     item.setChecked(false);
@@ -785,7 +785,7 @@ public class UIStarter {
     }
 
     private void renameFiles() {
-        final Queue<Future<Boolean>> futures = new LinkedList<Future<Boolean>>();
+        final Queue<Future<Boolean>> futures = new LinkedList<>();
         int count = 0;
 
         for (final TableItem item : resultsTable.getItems()) {
@@ -798,13 +798,13 @@ public class UIStarter {
                 String newName = item.getText(NEW_FILENAME_COLUMN);
 
                 // Skip files not successfully downloaded
-                if(episode.getStatus() != EpisodeStatus.DOWNLOADED) {
+                if (episode.getStatus() != EpisodeStatus.DOWNLOADED) {
                     continue;
                 }
 
                 File newFile = null;
 
-                if (prefs != null && prefs.isMovedEnabled()) {
+                if (prefs != null && prefs.isMoveEnabled()) {
                     // If move is enabled, the full path is in the table already
                     newFile = new File(newName);
                 } else {
@@ -916,7 +916,7 @@ public class UIStarter {
 
     private static boolean isNameIgnored(String fileName) {
         for (int i = 0; i < ignoreKeywords.size(); i++) {
-            if(fileName.toLowerCase().contains(ignoreKeywords.get(i))) {
+            if (fileName.toLowerCase().contains(ignoreKeywords.get(i))) {
                 return true;
             }
         }
@@ -1000,7 +1000,7 @@ public class UIStarter {
     }
 
     public static void setRenameButtonText() {
-        if (prefs.isMovedEnabled()) {
+        if (prefs.isMoveEnabled()) {
             renameSelectedButton.setText("Rename && Move Selected");
             shell.changed(new Control[] {renameSelectedButton});
             shell.layout(false, true);
@@ -1012,7 +1012,7 @@ public class UIStarter {
     }
 
     public static void setColumnDestText() {
-        if (prefs.isMovedEnabled()) {
+        if (prefs.isMoveEnabled()) {
             destinationColumn.setText("Proposed File Path");
         } else {
             destinationColumn.setText("Proposed File Name");

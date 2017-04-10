@@ -18,15 +18,19 @@ public class UserPreferencesChangeEvent {
     public String getPreference() {
         return preference;
     }
+
     public void setPreference(String preference) {
         this.preference = preference;
     }
+
     public Object getNewValue() {
         return newValue;
     }
+
     public void setNewValue(Object newValue) {
         this.newValue = newValue;
     }
+
     @Override
     public String toString() {
         return "UserPreferencesChangeEvent [preference=" + preference + ", newValue=" + newValue + "]";

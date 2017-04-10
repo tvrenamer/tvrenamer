@@ -6,17 +6,17 @@ public class Episode {
     private final String title;
     private final Date airDate;
 
-    public Episode (String title, Date airDate) {
+    public Episode(String title, Date airDate) {
         this.title = title;
         this.airDate = airDate;
     }
 
     public String getTitle() {
-        return this.title;
+        return title;
     }
 
     public Date getAirDate() {
-        return this.airDate;
+        return airDate;
     }
 
     @Override

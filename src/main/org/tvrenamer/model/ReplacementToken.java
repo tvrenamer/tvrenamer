@@ -31,7 +31,6 @@ public enum ReplacementToken {
         return token;
     }
 
-
     /**
      * @return text to display, currently %token, %description
      */

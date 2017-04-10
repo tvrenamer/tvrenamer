@@ -1,11 +1,5 @@
 package org.tvrenamer.view;
 
-import java.awt.HeadlessException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.swing.JOptionPane;
-
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
@@ -13,6 +7,12 @@ import org.eclipse.swt.widgets.Shell;
 
 import org.tvrenamer.model.SWTMessageBoxType;
 import org.tvrenamer.model.util.Constants.OSType;
+
+import java.awt.HeadlessException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.swing.JOptionPane;
 
 public class UIUtils {
 
@@ -32,8 +32,6 @@ public class UIUtils {
     /**
      * Determine the system default font
      *
-     * @param shell
-     *            the shell to get the font from
      * @return the system default font
      */
     public static FontData getDefaultSystemFont() {
@@ -48,12 +46,12 @@ public class UIUtils {
     }
 
     public static void showMessageBox(final SWTMessageBoxType type, final String title, final String message, final Exception exception) {
-        if(shell == null) {
+        if (shell == null) {
             // Shell not established yet, try using JOPtionPane instead
             try {
                 JOptionPane.showMessageDialog(null, message);
                 return;
-            } catch(HeadlessException he) {
+            } catch (HeadlessException he) {
                 logger.warning("Could not show message graphically: " + message);
                 return;
             }
@@ -65,10 +63,10 @@ public class UIUtils {
                 MessageBox msgBox = new MessageBox(shell, type.swtIconValue);
                 msgBox.setText(title);
 
-                if(exception == null) {
+                if (exception == null) {
                     msgBox.setMessage(message);
                 } else {
-                    msgBox.setMessage(message + "/n" + exception.getLocalizedMessage());
+                    msgBox.setMessage(message + "\n" + exception.getLocalizedMessage());
                 }
 
                 msgBox.open();
@@ -97,7 +95,8 @@ public class UIUtils {
     public static OSType getOSType() {
         if (System.getProperty("os.name").contains("Mac")) {
             return OSType.MAC;
-        } if (System.getProperty("os.name").contains("Windows")) {
+        }
+        if (System.getProperty("os.name").contains("Windows")) {
             return OSType.WINDOWS;
         }
         return OSType.LINUX;

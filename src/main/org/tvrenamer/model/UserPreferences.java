@@ -1,17 +1,17 @@
 package org.tvrenamer.model;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Observable;
-import java.util.logging.Logger;
-
 import org.tvrenamer.controller.UserPreferencesChangeEvent;
 import org.tvrenamer.controller.UserPreferencesChangeListener;
 import org.tvrenamer.controller.UserPreferencesPersistence;
 import org.tvrenamer.controller.util.StringUtils;
 import org.tvrenamer.model.util.Constants;
 import org.tvrenamer.view.UIUtils;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Observable;
+import java.util.logging.Logger;
 
 public class UserPreferences extends Observable {
     private static Logger logger = Logger.getLogger(UserPreferences.class.getName());
@@ -30,7 +30,7 @@ public class UserPreferences extends Observable {
     private boolean recursivelyAddFolders;
     private List<String> ignoreKeywords;
 
-    private final static UserPreferences INSTANCE = load();
+    private static final UserPreferences INSTANCE = load();
 
     /**
      * UserPreferences constructor which uses the defaults from {@link Constants}
@@ -47,7 +47,7 @@ public class UserPreferences extends Observable {
         this.proxy = new ProxySettings();
         this.checkForUpdates = true;
         this.recursivelyAddFolders = true;
-        this.ignoreKeywords = new ArrayList<String>();
+        this.ignoreKeywords = new ArrayList<>();
         this.ignoreKeywords.add("sample");
 
         ensurePath();
@@ -75,7 +75,7 @@ public class UserPreferences extends Observable {
 
             prefs = UserPreferencesPersistence.retrieve(legacyPrefsFile);
 
-            if( prefs != null ) {
+            if ( prefs != null ) {
                 logger.finer("Sucessfully read legacy preferences from: " + prefsFile.getAbsolutePath());
                 logger.info("Sucessfully read legacy preferences: " + prefs.toString());
 
@@ -150,7 +150,7 @@ public class UserPreferences extends Observable {
         return this.destDir;
     }
 
-    public void setMovedEnabled(boolean moveEnabled) {
+    public void setMoveEnabled(boolean moveEnabled) {
         if (hasChanged(this.moveEnabled, moveEnabled)) {
             this.moveEnabled = moveEnabled;
 
@@ -164,7 +164,7 @@ public class UserPreferences extends Observable {
      *
      * @return true if selected destination exists, false otherwise
      */
-    public boolean isMovedEnabled() {
+    public boolean isMoveEnabled() {
         return this.moveEnabled;
     }
 
@@ -187,7 +187,7 @@ public class UserPreferences extends Observable {
     }
 
     public void setRecursivelyAddFolders(boolean recursivelyAddFolders) {
-        if(hasChanged(this.recursivelyAddFolders, recursivelyAddFolders)) {
+        if (hasChanged(this.recursivelyAddFolders, recursivelyAddFolders)) {
             this.recursivelyAddFolders = recursivelyAddFolders;
 
             setChanged();
@@ -310,7 +310,7 @@ public class UserPreferences extends Observable {
      * Create the directory if it doesn't exist.
      */
     public void ensurePath() {
-        if (this != null && this.moveEnabled && !this.destDir.mkdirs()) {
+        if (this.moveEnabled && !this.destDir.mkdirs()) {
             if (!this.destDir.exists()) {
                 this.moveEnabled = false;
                 String message = "Couldn't create path: '" + this.destDir.getAbsolutePath() + "'. Move is now disabled";

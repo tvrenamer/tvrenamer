@@ -1,5 +1,8 @@
 package org.tvrenamer.controller;
 
+import org.tvrenamer.controller.util.StringUtils;
+import org.tvrenamer.model.TVRenamerIOException;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,9 +15,6 @@ import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
-
-import org.tvrenamer.controller.util.StringUtils;
-import org.tvrenamer.model.TVRenamerIOException;
 
 public class HttpConnectionHandler {
 

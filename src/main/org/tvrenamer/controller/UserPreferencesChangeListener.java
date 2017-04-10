@@ -1,12 +1,12 @@
 package org.tvrenamer.controller;
 
-import java.util.Observable;
-import java.util.Observer;
-import java.util.logging.Logger;
-
 import org.tvrenamer.model.ShowStore;
 import org.tvrenamer.model.UserPreferences;
 import org.tvrenamer.view.UIStarter;
+
+import java.util.Observable;
+import java.util.Observer;
+import java.util.logging.Logger;
 
 public class UserPreferencesChangeListener implements Observer {
     private static Logger logger = Logger.getLogger(UserPreferencesChangeListener.class.getName());

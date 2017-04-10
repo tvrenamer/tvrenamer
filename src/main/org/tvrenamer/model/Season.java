@@ -10,7 +10,7 @@ public class Season {
 
     public Season(int num) {
         this.num = num;
-        episodes = new HashMap<Integer, Episode>();
+        episodes = new HashMap<>();
     }
 
     public int getNumber() {
@@ -23,15 +23,17 @@ public class Season {
 
     public String getTitle(int epNum) {
         Episode e = episodes.get(epNum);
-        if (e == null)
+        if (e == null) {
             throw new EpisodeNotFoundException("Episode #" + epNum + " not found for season #" + this.num);
+        }
         return e.getTitle();
     }
 
     public Date getAirDate(int epNum) {
         Episode e = episodes.get(epNum);
-        if (e == null)
+        if (e == null) {
             throw new EpisodeNotFoundException("Episode #" + epNum + " not found for season #" + this.num);
+        }
         return e.getAirDate();
     }
 
@@ -39,5 +41,4 @@ public class Season {
     public String toString() {
         return "Season [num=" + num + ", episodes=" + episodes + "]";
     }
-
 }

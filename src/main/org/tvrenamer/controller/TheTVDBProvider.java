@@ -1,5 +1,17 @@
 package org.tvrenamer.controller;
 
+import org.tvrenamer.controller.util.StringUtils;
+import org.tvrenamer.model.Season;
+import org.tvrenamer.model.Show;
+import org.tvrenamer.model.TVRenamerIOException;
+
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.math.BigDecimal;
@@ -9,7 +21,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,18 +33,6 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
-import org.tvrenamer.controller.util.StringUtils;
-import org.tvrenamer.model.Season;
-import org.tvrenamer.model.Show;
-import org.tvrenamer.model.TVRenamerIOException;
 
 public class TheTVDBProvider {
     public static final String IMDB_BASE_URL = "http://www.imdb.com/title/";
@@ -183,5 +182,4 @@ public class TheTVDBProvider {
             throw new TVRenamerIOException(ERROR_PARSING_XML, e);
         }
     }
-
 }

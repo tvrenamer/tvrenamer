@@ -1,10 +1,10 @@
 package org.tvrenamer.model;
 
+import org.tvrenamer.model.util.CryptographyUtils;
+
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.util.logging.Logger;
-
-import org.tvrenamer.model.util.CryptographyUtils;
 
 public class ProxySettings {
     @SuppressWarnings("unused")
@@ -88,7 +88,7 @@ public class ProxySettings {
     public String getDecryptedPassword() {
         String decrypted = CryptographyUtils.decrypt(encryptedPassword);
         // logger.fine("Decrypting [" + encryptedPassword + "] into [" + decrypted + "]"); // Disable logging of
-// sensitive information, but helps debug
+                                                                       // sensitive information, but helps debug
         return decrypted;
     }
 
@@ -100,7 +100,7 @@ public class ProxySettings {
     public void setPlainTextPassword(String passwordToEncyrypt) {
         String encrypted = CryptographyUtils.encrypt(passwordToEncyrypt);
         // logger.fine("Encrypting [" + passwordToEncyrypt + "] into [" + encrypted + "]"); // Disable logging of
-// sensitive information, but helps debug
+                                                                        // sensitive information, but helps debug
         this.encryptedPassword = encrypted;
         setupAuthenticator();
     }
@@ -129,18 +129,22 @@ public class ProxySettings {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null)
+        if (obj == null) {
             return false;
-        if (obj == this)
+        }
+        if (obj == this) {
             return true;
-        if (obj.getClass() != getClass())
+        }
+        if (obj.getClass() != getClass()) {
             return false;
+        }
 
         ProxySettings rhs = (ProxySettings) obj;
 
         if (this.enabled == rhs.enabled && this.hostname.equals(rhs.hostname) && this.port.equals(rhs.port)
             && this.authenticationRequired == rhs.authenticationRequired && this.username.equals(rhs.username)
-            && this.encryptedPassword.equals(rhs.encryptedPassword)) {
+            && this.encryptedPassword.equals(rhs.encryptedPassword))
+        {
             return true;
         }
         return false;

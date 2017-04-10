@@ -1,12 +1,12 @@
 package org.tvrenamer.controller;
 
+import org.tvrenamer.controller.util.StringUtils;
+import org.tvrenamer.model.FileEpisode;
+
 import java.io.File;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.tvrenamer.controller.util.StringUtils;
-import org.tvrenamer.model.FileEpisode;
 
 public class TVRenamer {
     private static Logger logger = Logger.getLogger(TVRenamer.class.getName());
@@ -23,7 +23,7 @@ public class TVRenamer {
 
     static {
         for (int i = 0; i < REGEX.length * 2; i++) {
-            if (i / REGEX.length == 0){
+            if (i / REGEX.length == 0) {
                 COMPILED_REGEX[i] = Pattern.compile(REGEX[i]);
             } else {
                 COMPILED_REGEX[i] = Pattern.compile(REGEX[i - REGEX.length].replace(".*\\D(\\d+[pk])", ""));
@@ -52,7 +52,7 @@ public class TVRenamer {
 
                 FileEpisode ep = new FileEpisode(show, season, episode, resolution, f);
                 return ep;
-            } else if (matcher.matches() && matcher.groupCount() == 3){
+            } else if (matcher.matches() && matcher.groupCount() == 3) {
                 String show = matcher.group(1);
                 show = StringUtils.replacePunctuation(show).toLowerCase();
 

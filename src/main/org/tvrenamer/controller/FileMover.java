@@ -1,9 +1,5 @@
 package org.tvrenamer.controller;
 
-import java.io.File;
-import java.util.concurrent.Callable;
-import java.util.logging.Logger;
-
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TableItem;
@@ -14,6 +10,10 @@ import org.tvrenamer.model.FileMoveIcon;
 import org.tvrenamer.model.UserPreferences;
 import org.tvrenamer.view.FileCopyMonitor;
 import org.tvrenamer.view.UIStarter;
+
+import java.io.File;
+import java.util.concurrent.Callable;
+import java.util.logging.Logger;
 
 public class FileMover implements Callable<Boolean> {
     private static Logger logger = Logger.getLogger(FileMover.class.getName());
@@ -83,7 +83,7 @@ public class FileMover implements Callable<Boolean> {
     private void updateFileModifiedDate(File file) {
         // update the modified time on the file, the parent, and the grandparent
         file.setLastModified(System.currentTimeMillis());
-        if(UserPreferences.getInstance().isMovedEnabled()) {
+        if (UserPreferences.getInstance().isMoveEnabled()) {
             file.getParentFile().setLastModified(System.currentTimeMillis());
             file.getParentFile().getParentFile().setLastModified(System.currentTimeMillis());
         }
@@ -99,8 +99,7 @@ public class FileMover implements Callable<Boolean> {
             if (pathA.startsWith(rootPath)) {
                 if (pathB.startsWith(rootPath)) {
                     return true;
-                }
-                else {
+                } else {
                     return false;
                 }
             }

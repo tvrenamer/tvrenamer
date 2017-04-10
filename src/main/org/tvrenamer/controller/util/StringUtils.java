@@ -72,7 +72,7 @@ public class StringUtils {
         input = input.replaceAll("& ", "&amp; ");
 
         // Don't encode string within xml data strings
-        if(!input.startsWith("<?xml")) {
+        if (!input.startsWith("<?xml")) {
             input = input.replaceAll(" ", "%20");
         }
         logger.finest("Input after encoding: [" + input + "]");

@@ -1,14 +1,15 @@
 // Turn the @formatter:off so we don't change the 3rd party source layout
-package org.tvrenamer.view;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+package org.tvrenamer.view;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.internal.C;
 import org.eclipse.swt.internal.Callback;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Listener;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * Provide a hook to connecting the Preferences, About and Quit menu items of the Mac OS X
@@ -44,7 +45,7 @@ public class CocoaUIEnhancer {
     static long sel_aboutMenuItemSelected_;
     static Callback proc3Args;
 
-    final private String appName;
+    private final String appName;
 
     /**
      * Class invoked via the Callback object to run the about and preferences actions.
@@ -112,7 +113,8 @@ public class CocoaUIEnhancer {
      *            The action to run when the Preferences menu is invoked.
      */
     public void hookApplicationMenu( Display display, Listener quitListener, Listener aboutAction,
-                                     Listener preferencesAction ) {
+                                     Listener preferencesAction )
+    {
         // This is our callbackObject whose 'actionProc' method will be called when the About or
         // Preferences menuItem is invoked.
         MenuHookObject target = new MenuHookObject( aboutAction, preferencesAction );
@@ -139,8 +141,8 @@ public class CocoaUIEnhancer {
     }
 
     private void initialize( Object callbackObject )
-            throws Exception {
-
+            throws Exception
+    {
         Class<?> osCls = classForName( "org.eclipse.swt.internal.cocoa.OS" );
 
         // Register names in objective-c.
@@ -175,15 +177,15 @@ public class CocoaUIEnhancer {
 
         // Add the action callbacks for Preferences and About menu items.
         invoke( osCls, "class_addMethod", new Object[] {
-                                                        wrapPointer( cls ),
-                                                        wrapPointer( sel_preferencesMenuItemSelected_ ),
-                                                        wrapPointer( proc3 ),
-                                                        "@:@" } ); //$NON-NLS-1$
+                wrapPointer( cls ),
+                wrapPointer( sel_preferencesMenuItemSelected_ ),
+                wrapPointer( proc3 ),
+                "@:@" } ); //$NON-NLS-1$
         invoke( osCls, "class_addMethod", new Object[] {
-                                                        wrapPointer( cls ),
-                                                        wrapPointer( sel_aboutMenuItemSelected_ ),
-                                                        wrapPointer( proc3 ),
-                                                        "@:@" } ); //$NON-NLS-1$
+                wrapPointer( cls ),
+                wrapPointer( sel_aboutMenuItemSelected_ ),
+                wrapPointer( proc3 ),
+                "@:@" } ); //$NON-NLS-1$
 
         // Get the Mac OS X Application menu.
         Object sharedApplication = invoke( nsapplicationCls, "sharedApplication" );
@@ -224,7 +226,8 @@ public class CocoaUIEnhancer {
 
     private long registerName( Class<?> osCls, String name )
             throws IllegalArgumentException, SecurityException, IllegalAccessException,
-            InvocationTargetException, NoSuchMethodException {
+            InvocationTargetException, NoSuchMethodException
+    {
         Object object = invoke( osCls, "sel_registerName", new Object[] { name } );
         return convertToLong( object );
     }
@@ -242,8 +245,8 @@ public class CocoaUIEnhancer {
     }
 
     private static Object wrapPointer( long value ) {
-        Class<?> PTR_CLASS = C.PTR_SIZEOF == 8 ? long.class : int.class;
-        if ( PTR_CLASS == long.class ) {
+        Class<?> ptrClass = C.PTR_SIZEOF == 8 ? long.class : int.class;
+        if ( ptrClass == long.class ) {
             return new Long( value );
         } else {
             return new Integer( (int) value );
@@ -259,16 +262,17 @@ public class CocoaUIEnhancer {
             Class<?>[] signature = new Class<?>[args.length];
             for ( int i = 0; i < args.length; i++ ) {
                 Class<?> thisClass = args[i].getClass();
-                if ( thisClass == Integer.class )
+                if ( thisClass == Integer.class ) {
                     signature[i] = int.class;
-                else if ( thisClass == Long.class )
+                } else if ( thisClass == Long.class ) {
                     signature[i] = long.class;
-                else if ( thisClass == Byte.class )
+                } else if ( thisClass == Byte.class ) {
                     signature[i] = byte.class;
-                else if ( thisClass == Boolean.class )
+                } else if ( thisClass == Boolean.class ) {
                     signature[i] = boolean.class;
-                else
+                } else {
                     signature[i] = thisClass;
+                }
             }
             Method method = clazz.getMethod( methodName, signature );
             return method.invoke( target, args );

@@ -1,12 +1,12 @@
 package org.tvrenamer.model.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-
 import junit.framework.Assert;
 
 import org.junit.Test;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 
 public class CryptographyUtilsTest {
 

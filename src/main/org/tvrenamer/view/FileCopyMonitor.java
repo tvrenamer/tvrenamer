@@ -1,10 +1,10 @@
 package org.tvrenamer.view;
 
-import java.text.NumberFormat;
-
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.gjt.sp.util.ProgressObserver;
+
+import java.text.NumberFormat;
 
 public class FileCopyMonitor implements ProgressObserver {
     private long maximum;

@@ -1,11 +1,5 @@
 package org.tvrenamer.view;
 
-import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DragSource;
@@ -44,6 +38,12 @@ import org.tvrenamer.model.ReplacementToken;
 import org.tvrenamer.model.SWTMessageBoxType;
 import org.tvrenamer.model.TVRenamerIOException;
 import org.tvrenamer.model.UserPreferences;
+
+import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class PreferencesDialog extends Dialog {
 
@@ -134,7 +134,7 @@ public class PreferencesDialog extends Dialog {
 
         moveEnabledCheckbox = new Button(generalGroup, SWT.CHECK);
         moveEnabledCheckbox.setText("Move Enabled [?]");
-        moveEnabledCheckbox.setSelection(prefs.isMovedEnabled());
+        moveEnabledCheckbox.setSelection(prefs.isMoveEnabled());
         moveEnabledCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 2, 1));
         moveEnabledCheckbox.setToolTipText("Whether the 'move to TV location' functionality is enabled");
 
@@ -174,9 +174,9 @@ public class PreferencesDialog extends Dialog {
 
         Label seasonPrefixLabel = new Label(generalGroup, SWT.NONE);
         seasonPrefixLabel.setText("Season Prefix [?]");
-        seasonPrefixLabel.setToolTipText(" - The prefix of the season when renaming and moving the file.  It is usually \"Season \" or \"s'\"." +
-            "\n - If no value is entered (or \"\"), the season folder will not be created, putting all files in the show name folder" +
-            "\n - The \" will not be included, just displayed here to show whitespace");
+        seasonPrefixLabel.setToolTipText(" - The prefix of the season when renaming and moving the file.  It is usually \"Season \" or \"s'\"."
+            + "\n - If no value is entered (or \"\"), the season folder will not be created, putting all files in the show name folder"
+            + "\n - The \" will not be included, just displayed here to show whitespace");
 
         seasonPrefixText = new Text(generalGroup, SWT.BORDER);
         seasonPrefixText.setText(prefs.getSeasonPrefixForDisplay());
@@ -228,7 +228,7 @@ public class PreferencesDialog extends Dialog {
         ignoreWordsText = new Text(generalGroup, SWT.BORDER);
         java.util.List<String> ignoreList = prefs.getIgnoreKeywords();
         String ignoreWords = "";
-        for(String s : ignoreList) {
+        for (String s : ignoreList) {
             ignoreWords += s;
             ignoreWords += ",";
         }
@@ -259,8 +259,8 @@ public class PreferencesDialog extends Dialog {
 
         Label renameTokensLabel = new Label(replacementGroup, SWT.NONE);
         renameTokensLabel.setText("Rename Tokens [?]");
-        renameTokensLabel.setToolTipText(" - These are the possible tokens to make up the 'Rename Format' below." +
-                "\n - You can drag and drop tokens to the 'Rename Format' text box below");
+        renameTokensLabel.setToolTipText(" - These are the possible tokens to make up the 'Rename Format' below."
+                + "\n - You can drag and drop tokens to the 'Rename Format' text box below");
 
         List renameTokensList = new List(replacementGroup, SWT.SINGLE);
         renameTokensList.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 2, 1));
@@ -313,7 +313,7 @@ public class PreferencesDialog extends Dialog {
                 String token;
 
                 Matcher tokenMatcher =  Pattern.compile(REPLACEMENT_OPTIONS_LIST_ENTRY_REGEX).matcher(listEntry);
-                if(tokenMatcher.matches()) {
+                if (tokenMatcher.matches()) {
                     token = tokenMatcher.group(1);
                     event.data = token;
                 }
@@ -432,7 +432,7 @@ public class PreferencesDialog extends Dialog {
         proxyEnabledCheckbox.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                if(proxyEnabledCheckbox.getSelection()) {
+                if (proxyEnabledCheckbox.getSelection()) {
                     toggleEnableControls(proxyEnabledCheckbox, proxyHostText, proxyPortText, proxyAuthenticationRequiredCheckbox);
                 } else {
                     toggleEnableControls(proxyEnabledCheckbox, proxyHostText, proxyPortText, proxyAuthenticationRequiredCheckbox, proxyUsernameText, proxyPasswordText);
@@ -497,7 +497,7 @@ public class PreferencesDialog extends Dialog {
      */
     private void savePreferences() {
         // Update the preferences object from the UI control values
-        prefs.setMovedEnabled(moveEnabledCheckbox.getSelection());
+        prefs.setMoveEnabled(moveEnabledCheckbox.getSelection());
         prefs.setSeasonPrefix(seasonPrefixText.getText());
         prefs.setSeasonPrefixLeadingZero(seasonPrefixLeadingZeroCheckbox.getSelection());
         prefs.setRenameReplacementString(replacementStringText.getText());
@@ -536,11 +536,9 @@ public class PreferencesDialog extends Dialog {
      * @param controls the list of controls to update
      */
     private void toggleEnableControls(Button decidingCheckbox, Control... controls) {
-        for(Control control : controls) {
+        for (Control control : controls) {
             control.setEnabled(decidingCheckbox.getSelection());
         }
         preferencesShell.redraw();
     }
-
-
 }

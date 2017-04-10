@@ -41,5 +41,4 @@ public class StdOutConsoleHandler extends StreamHandler {
     protected synchronized void setOutputStream(OutputStream arg0) throws SecurityException {
         super.setOutputStream(arg0);
     }
-
 }

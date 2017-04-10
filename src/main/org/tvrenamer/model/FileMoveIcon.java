@@ -1,9 +1,9 @@
 package org.tvrenamer.model;
 
-import java.io.InputStream;
-
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
+
+import java.io.InputStream;
 
 public enum FileMoveIcon {
     ADDED("/icons/SweetieLegacy/16-circle-blue.png"), DOWNLOADING("/icons/SweetieLegacy/16-clock.png"), RENAMING(

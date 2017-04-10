@@ -1,11 +1,11 @@
 package org.tvrenamer.controller;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import org.tvrenamer.model.TVRenamerIOException;
 import org.tvrenamer.model.util.Constants;
 import org.tvrenamer.view.AboutDialog;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class UpdateChecker {
     private static Logger logger = Logger.getLogger(UpdateChecker.class.getName());

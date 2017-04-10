@@ -1,11 +1,11 @@
 package org.tvrenamer.view;
 
+import org.tvrenamer.controller.UpdateCompleteHandler;
+
 import java.util.Queue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.logging.Logger;
-
-import org.tvrenamer.controller.UpdateCompleteHandler;
 
 public class ProgressBarUpdater implements Runnable {
     private static Logger logger = Logger.getLogger(ProgressBarUpdater.class.getName());
@@ -18,7 +18,8 @@ public class ProgressBarUpdater implements Runnable {
     private final ProgressProxy proxy;
 
     public ProgressBarUpdater(ProgressProxy proxy, int total, Queue<Future<Boolean>> futures,
-        UpdateCompleteHandler updateComplete) {
+        UpdateCompleteHandler updateComplete)
+    {
         this.proxy = proxy;
         this.totalNumFiles = total;
         this.futures = futures;
@@ -39,12 +40,9 @@ public class ProgressBarUpdater implements Runnable {
             try {
                 Future<Boolean> future = futures.remove();
                 logger.info("future returned: " + future.get());
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
         }
     }
-
 }
