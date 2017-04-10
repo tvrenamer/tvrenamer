@@ -76,10 +76,11 @@ public class TVRenamer {
 
     }
 
-    private static String removeLast(String input, String match) {
+    public static String removeLast(String input, String match) {
         int idx = input.toLowerCase().lastIndexOf(match);
         if (idx > 0) {
-            input = input.substring(0, idx);
+            input = input.substring(0, idx)
+                + input.substring(idx + match.length(), input.length());
         }
         return input;
     }
