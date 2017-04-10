@@ -46,6 +46,10 @@ public class FileEpisode {
         return episodeNumber;
     }
 
+    public String getEpisodeResolution() {
+        return episodeResolution;
+    }
+
     public File getFile() {
         return file;
     }
