@@ -1,4 +1,4 @@
-package org.tvrenamer;
+package org.tvrenamer.controller;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -7,7 +7,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized.Parameters;
 import org.junit.runners.Parameterized;
 
-import org.tvrenamer.controller.TVRenamer;
 import org.tvrenamer.model.FileEpisode;
 
 import java.util.Arrays;
