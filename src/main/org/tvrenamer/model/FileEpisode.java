@@ -90,16 +90,20 @@ public class FileEpisode {
         status = newStatus;
     }
 
-    private File getDestinationDirectory() {
+    private String getDestinationDirectoryName() {
         String show = ShowStore.getShow(showName).getName();
-        String destPath = userPrefs.getDestinationDirectory().getAbsolutePath() + File.separatorChar;
-        destPath = destPath + StringUtils.sanitiseTitle(show) + File.separatorChar;
+        String sanitised = StringUtils.sanitiseTitle(show);
+        String destPath = userPrefs.getDestinationDirectoryName();
+        destPath = destPath + File.separatorChar + sanitised;
 
+        String seasonPrefix = userPrefs.getSeasonPrefix();
         // Defect #50: Only add the 'season #' folder if set, otherwise put files in showname root
-        if (StringUtils.isNotBlank(userPrefs.getSeasonPrefix())) {
-            destPath = destPath + userPrefs.getSeasonPrefix() + (userPrefs.isSeasonPrefixLeadingZero() && seasonNumber < 9 ? "0" : "") + seasonNumber + File.separatorChar;
+        if (StringUtils.isNotBlank(seasonPrefix)) {
+            String padding = (userPrefs.isSeasonPrefixLeadingZero() && seasonNumber < 9 ? "0" : "");
+            String seasonFolderName = seasonPrefix + padding + seasonNumber;
+            destPath = destPath + File.separatorChar + seasonFolderName;
         }
-        return new File(destPath);
+        return destPath;
     }
 
     public String getNewFilename() {
@@ -210,7 +214,7 @@ public class FileEpisode {
         String filename = getNewFilename();
 
         if (userPrefs.isMoveEnabled()) {
-            return getDestinationDirectory().getAbsolutePath().concat(File.separator).concat(filename);
+            return getDestinationDirectoryName() + File.separator + filename;
         }
         return filename;
     }

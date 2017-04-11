@@ -153,6 +153,15 @@ public class UserPreferences extends Observable {
     }
 
     /**
+     * Gets the full pathname of the directory set to move renamed files to.
+     *
+     * @return String representing the directory's full path.
+     */
+    public String getDestinationDirectoryName() {
+        return destDir.getAbsolutePath();
+    }
+
+    /**
      * Gets the name of the directory to preload into the table.
      *
      * @return String naming the directory.
