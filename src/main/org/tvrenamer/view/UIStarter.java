@@ -49,6 +49,7 @@ import org.tvrenamer.controller.ShowInformationListener;
 import org.tvrenamer.controller.TVRenamer;
 import org.tvrenamer.controller.UpdateChecker;
 import org.tvrenamer.controller.UpdateCompleteHandler;
+import org.tvrenamer.model.EpisodeDb;
 import org.tvrenamer.model.EpisodeStatus;
 import org.tvrenamer.model.FileEpisode;
 import org.tvrenamer.model.FileMoveIcon;
@@ -69,11 +70,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.Collator;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Queue;
@@ -114,7 +113,7 @@ public class UIStarter implements Observer {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private UserPreferences prefs;
-    private Map<String, FileEpisode> episodeMap = new HashMap<>();
+    private EpisodeDb episodeMap = new EpisodeDb();
 
     // Static initalisation block
     static {
