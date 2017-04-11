@@ -105,6 +105,7 @@ public class UIStarter implements Observer,  AddEpisodeListener {
     private static TableColumn destinationColumn;
     private Table resultsTable;
     private ProgressBar totalProgressBar;
+    private TaskItem taskItem = null;
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -217,6 +218,14 @@ public class UIStarter implements Observer,  AddEpisodeListener {
 
         totalProgressBar = new ProgressBar(bottomButtonsComposite, SWT.SMOOTH);
         totalProgressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
+
+        TaskBar taskBar = display.getSystemTaskBar();
+        if (taskBar != null) {
+            taskItem = taskBar.getItem(shell);
+            if (taskItem == null) {
+                taskItem = taskBar.getItem(null);
+            }
+        }
 
         renameSelectedButton = new Button(bottomButtonsComposite, SWT.PUSH);
         GridData renameSelectedButtonGridData = new GridData(GridData.END, GridData.CENTER, false, false);
@@ -595,15 +604,15 @@ public class UIStarter implements Observer,  AddEpisodeListener {
         }
     }
 
-    private TaskItem getTaskItem() {
-        TaskItem taskItem = null;
-        TaskBar taskBar = display.getSystemTaskBar();
-        if (taskBar != null) {
-            taskItem = taskBar.getItem(shell);
-            if (taskItem == null) {
-                taskItem = taskBar.getItem(null);
-            }
-        }
+    Display getDisplay() {
+        return display;
+    }
+
+    ProgressBar getProgressBar() {
+        return totalProgressBar;
+    }
+
+    TaskItem getTaskItem() {
         return taskItem;
     }
 
@@ -773,7 +782,7 @@ public class UIStarter implements Observer,  AddEpisodeListener {
                 Path newFile = null;
 
                 if (prefs.isMoveEnabled()) {
-                    // If move is enabled, let the File constructor parse the path
+                    // If move is enabled, let the Paths class parse the path
                     newFile = Paths.get(newName);
                 } else {
                     // Else we use the file's current directory
@@ -964,7 +973,7 @@ public class UIStarter implements Observer,  AddEpisodeListener {
         }
     }
 
-    private void refreshTable() {
+    void refreshTable() {
         logger.info("Refreshing table");
         for (TableItem item : resultsTable.getItems()) {
             String fileName = item.getText(CURRENT_FILE_COLUMN);
