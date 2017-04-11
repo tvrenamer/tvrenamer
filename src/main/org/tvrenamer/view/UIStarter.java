@@ -257,7 +257,7 @@ public class UIStarter {
         setRenameButtonText();
         renameSelectedButton
             .setToolTipText("Clicking this button will rename and move the selected files to the directory set in preferences (currently "
-                + prefs.getDestinationDirectory().getAbsolutePath() + ").");
+                + prefs.getDestinationDirectoryName() + ").");
     }
 
     private void setupRenameButtonText() {

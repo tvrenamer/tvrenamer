@@ -151,7 +151,7 @@ public class PreferencesDialog extends Dialog {
         destDirLabel.setToolTipText("The location of your 'TV' folder");
 
         destDirText = new Text(generalGroup, SWT.BORDER);
-        destDirText.setText(prefs.getDestinationDirectory().toString());
+        destDirText.setText(prefs.getDestinationDirectoryName());
         destDirText.setTextLimit(99);
         destDirText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true));
 
@@ -162,7 +162,7 @@ public class PreferencesDialog extends Dialog {
             public void handleEvent(Event event) {
                 DirectoryDialog directoryDialog = new DirectoryDialog(preferencesShell);
 
-                directoryDialog.setFilterPath(prefs.getDestinationDirectory().toString());
+                directoryDialog.setFilterPath(prefs.getDestinationDirectoryName());
                 directoryDialog.setText("Please select a directory and click OK");
 
                 String dir = directoryDialog.open();
