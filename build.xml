@@ -15,6 +15,7 @@
 	<property file="build.properties" />
 
 	<property name="version.file" value="${src.main}/tvrenamer.version" />
+	<property name="logging.file" value="${etc}/logging.properties" />
 	<loadfile property="version" srcFile="${version.file}">
 		<filterchain>
 			<striplinebreaks />
@@ -60,10 +61,14 @@
 
 	<target name="compile" depends="init">
 		<javac srcdir="${src.main}" destdir="${build}" classpathref="classpath" debug="true" debuglevel="lines,vars,source" includeantruntime="false" target="1.8" source="1.8" />
+		<copy file="${version.file}" todir="${build}" />
+		<copy file="${logging.file}" todir="${build}" />
 	</target>
 
 	<target name="compile.test" depends="compile">
 		<javac srcdir="${src.test}" destdir="${build}" classpathref="classpath.test" debug="true" debuglevel="lines,vars,source" includeantruntime="false" />
+		<copy file="${version.file}" todir="${build}" />
+		<copy file="${logging.file}" todir="${build}" />
 	</target>
 
 	<macrodef name="build.jar" description="Compiles the source then creates an executable jar for the given platform">
@@ -99,7 +104,7 @@
 				</zipgroupfileset>
 
 				<fileset file="${version.file}" />
-				<fileset file="etc/logging.properties" />
+				<fileset file="${logging.file}" />
 			</jar>
 		</sequential>
 	</macrodef>
@@ -236,8 +241,6 @@
 	</target>
 
 	<target name="test" depends="clean, compile.test, proxy">
-		<copy file="${src.main}/tvrenamer.version" todir="${build}" />
-
 		<junit haltonerror="true" haltonfailure="true" printsummary="true" fork="no" forkmode="once">
 			<formatter type="plain" usefile="false" />
 
