@@ -42,7 +42,7 @@ public class FileMover implements Callable<Boolean> {
         if (destFile.getParentFile().exists() || destFile.getParentFile().mkdirs()) {
             UIStarter.setTableItemStatus(display, item, FileMoveIcon.RENAMING);
             boolean succeeded = false;
-            if (areSameDisk(srcFile.getAbsolutePath(), destFile.getAbsolutePath())) {
+            if (FileUtilities.areSameDisk(srcFile, destFile)) {
                 succeeded = srcFile.renameTo(destFile);
             }
             if (succeeded) {
@@ -87,23 +87,5 @@ public class FileMover implements Callable<Boolean> {
             file.getParentFile().setLastModified(System.currentTimeMillis());
             file.getParentFile().getParentFile().setLastModified(System.currentTimeMillis());
         }
-    }
-
-    private static boolean areSameDisk(String pathA, String pathB) {
-        File[] roots = File.listRoots();
-        if (roots.length < 2) {
-            return true;
-        }
-        for (File root : roots) {
-            String rootPath = root.getAbsolutePath();
-            if (pathA.startsWith(rootPath)) {
-                if (pathB.startsWith(rootPath)) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        }
-        return false;
     }
 }
