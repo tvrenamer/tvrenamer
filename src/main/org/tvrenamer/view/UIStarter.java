@@ -78,6 +78,7 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Queue;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -736,52 +737,60 @@ public class UIStarter implements Observer {
         }
     }
 
-    private void addFiles(final List<String> fileNames) {
+    private void addEpisodes(final Queue<FileEpisode> episodes) {
         // Update the list of ignored keywords
         ignoreKeywords = prefs.getIgnoreKeywords();
 
-        for (final String fileName : fileNames) {
-            final FileEpisode episode = TVRenamer.parseFilename(fileName);
-            if (episode == null) {
-                logger.severe("Couldn't parse file: " + fileName);
-            } else {
-                String showName = episode.getShowName();
+        for (final FileEpisode episode : episodes) {
+            final String fileName = episode.getFilepath();
+            final TableItem item = createTableItem(resultsTable, fileName, episode);
 
-                episodeMap.put(fileName, episode);
-                final TableItem item = createTableItem(resultsTable, fileName, episode);
-
-                ShowStore.getShow(showName, new ShowInformationListener() {
+            String showName = episode.getShowName();
+            ShowStore.getShow(showName, new ShowInformationListener() {
                     @Override
                     public void downloaded(Show show) {
                         episode.setStatus(EpisodeStatus.DOWNLOADED);
                         display.asyncExec(new Runnable() {
-                            @Override
-                            public void run() {
-                                if ( tableContainsTableItem(item) ) {
-                                    item.setText(NEW_FILENAME_COLUMN, episode.getNewFilePath());
-                                    item.setImage(STATUS_COLUMN, FileMoveIcon.ADDED.icon);
+                                @Override
+                                public void run() {
+                                    if ( tableContainsTableItem(item) ) {
+                                        item.setText(NEW_FILENAME_COLUMN, episode.getNewFilePath());
+                                        item.setImage(STATUS_COLUMN, FileMoveIcon.ADDED.icon);
+                                    }
                                 }
-                            }
-                        });
+                            });
                     }
 
                     @Override
                     public void downloadFailed(Show show) {
                         episode.setStatus(EpisodeStatus.BROKEN);
                         display.asyncExec(new Runnable() {
-                            @Override
-                            public void run() {
-                                if ( tableContainsTableItem(item) ) {
-                                    item.setText(NEW_FILENAME_COLUMN, DOWNLOADING_FAILED_MESSAGE);
-                                    item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
-                                    item.setChecked(false);
+                                @Override
+                                public void run() {
+                                    if ( tableContainsTableItem(item) ) {
+                                        item.setText(NEW_FILENAME_COLUMN, DOWNLOADING_FAILED_MESSAGE);
+                                        item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
+                                        item.setChecked(false);
+                                    }
                                 }
-                            }
-                        });
+                            });
                     }
                 });
+        }
+    }
+
+    private void addFiles(final List<String> fileNames) {
+        Queue<FileEpisode> contents = new ConcurrentLinkedQueue<>();
+        for (final String fileName : fileNames) {
+            final FileEpisode episode = TVRenamer.parseFilename(fileName);
+            if (episode == null) {
+                logger.severe("Couldn't parse file: " + fileName);
+            } else {
+                episodeMap.put(fileName, episode);
+                contents.add(episode);
             }
         }
+        addEpisodes(contents);
     }
 
     private int getTableItemIndex(TableItem item) {
