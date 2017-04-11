@@ -17,11 +17,10 @@ import java.io.StringReader;
 import java.math.BigDecimal;
 import java.net.ConnectException;
 import java.net.UnknownHostException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -41,6 +40,10 @@ public class TheTVDBProvider {
     private static final String ERROR_DOWNLOADING_SHOW_INFORMATION = "Error downloading show information. Check internet or proxy settings";
 
     private static Logger logger = Logger.getLogger(TheTVDBProvider.class.getName());
+
+    private static final String EPISODE_DATE_FORMAT = "yyyy-MM-dd";
+    // Unlike java.text.DateFormat, DateTimeFormatter is thread-safe, so we can create just one instance here.
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern(EPISODE_DATE_FORMAT);
 
     private static final String API_KEY = "4A9560FF0B2670B2";
 
@@ -168,12 +171,21 @@ public class TheTVDBProvider {
                 expr = xpath.compile(XPATH_AIRDATE);
                 Node airdateNode = (Node) expr.evaluate(eNode, XPathConstants.NODE);
                 logger.finer("[" + seasonNumNode.getTextContent() + "x" + epNum + "] " + epNameNode.getTextContent());
-                DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-                Date date = null;
-                try {
-                    date = df.parse(airdateNode.getTextContent());
-                } catch (ParseException e) {
-                    // just leave the date as null
+                String airdate = airdateNode.getTextContent();
+                LocalDate date = null;
+                if (StringUtils.isNotBlank(airdate)) {
+                    try {
+                        date = LocalDate.parse(airdate, DATE_FORMATTER);
+                    } catch (DateTimeParseException e) {
+                        // While a null or empty string is taken to mean "now",
+                        // a badly formatted string is an error and will not
+                        // be translated into any date.
+                        logger.warning("could not parse as date: " + airdate);
+                        date = null;
+                    }
+                } else {
+                    // When no value (good or bad) is found, use "now".
+                    date = LocalDate.now();
                 }
                 season.addEpisode(epNum, epNameNode.getTextContent(), date);
             }

@@ -1,6 +1,6 @@
 package org.tvrenamer.model;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,7 +17,7 @@ public class Season {
         return num;
     }
 
-    public void addEpisode(int epNum, String title, Date airDate) {
+    public void addEpisode(int epNum, String title, LocalDate airDate) {
         episodes.put(epNum, new Episode(title,airDate));
     }
 
@@ -29,7 +29,7 @@ public class Season {
         return e.getTitle();
     }
 
-    public Date getAirDate(int epNum) {
+    public LocalDate getAirDate(int epNum) {
         Episode e = episodes.get(epNum);
         if (e == null) {
             throw new EpisodeNotFoundException("Episode #" + epNum + " not found for season #" + this.num);
