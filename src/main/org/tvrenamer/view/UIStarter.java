@@ -108,7 +108,7 @@ public class UIStarter {
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    private Map<String, FileEpisode> files = new HashMap<>();
+    private Map<String, FileEpisode> episodeMap = new HashMap<>();
 
     // Static initalisation block
     static {
@@ -734,7 +734,7 @@ public class UIStarter {
             } else {
                 String showName = episode.getShowName();
 
-                files.put(fileName, episode);
+                episodeMap.put(fileName, episode);
                 final TableItem item = createTableItem(resultsTable, fileName, episode);
 
                 ShowStore.getShow(showName, new ShowInformationListener() {
@@ -793,7 +793,7 @@ public class UIStarter {
                 count++;
                 String fileName = item.getText(CURRENT_FILE_COLUMN);
                 final File currentFile = new File(fileName);
-                final FileEpisode episode = files.get(fileName);
+                final FileEpisode episode = episodeMap.get(fileName);
                 String currentName = currentFile.getName();
                 String newName = item.getText(NEW_FILENAME_COLUMN);
 
@@ -933,7 +933,7 @@ public class UIStarter {
             }
 
             String filename = item.getText(CURRENT_FILE_COLUMN);
-            files.remove(filename);
+            episodeMap.remove(filename);
 
             resultsTable.remove(index);
             item.dispose();
@@ -991,9 +991,9 @@ public class UIStarter {
         logger.info("Refreshing table");
         for (TableItem item : resultsTable.getItems()) {
             String fileName = item.getText(CURRENT_FILE_COLUMN);
-            FileEpisode episode = files.remove(fileName);
+            FileEpisode episode = episodeMap.remove(fileName);
             String newFileName = episode.getFile().getAbsolutePath();
-            files.put(newFileName, episode);
+            episodeMap.put(newFileName, episode);
             item.setText(CURRENT_FILE_COLUMN, newFileName);
             item.setText(NEW_FILENAME_COLUMN, episode.getNewFilePath());
         }
