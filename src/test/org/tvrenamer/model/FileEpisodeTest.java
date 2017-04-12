@@ -13,8 +13,8 @@ import org.tvrenamer.controller.ShowInformationListener;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -50,7 +50,7 @@ public class FileEpisodeTest {
 
         Show show = new Show("1", showName, "http://thetvdb.com/?tab=series&id=71663");
         Season season5 = new Season(seasonNum);
-        season5.addEpisode(episodeNum, title, new Date());
+        season5.addEpisode(episodeNum, title, LocalDate.now());
         show.setSeason(seasonNum, season5);
         ShowStore.addShow(showName, show);
 
@@ -81,7 +81,7 @@ public class FileEpisodeTest {
 
         Show show = new Show("1", showName, "http://thetvdb.com/?tab=series&id=126841&lid=7");
         Season season1 = new Season(seasonNum);
-        season1.addEpisode(episodeNum, title, new Date());
+        season1.addEpisode(episodeNum, title, LocalDate.now());
         show.setSeason(seasonNum, season1);
         ShowStore.addShow(showName, show);
 

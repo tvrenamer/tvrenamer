@@ -59,7 +59,7 @@
 	</target>
 
 	<target name="compile" depends="init">
-		<javac srcdir="${src.main}" destdir="${build}" classpathref="classpath" debug="true" debuglevel="lines,vars,source" includeantruntime="false" target="1.7" source="1.7" />
+		<javac srcdir="${src.main}" destdir="${build}" classpathref="classpath" debug="true" debuglevel="lines,vars,source" includeantruntime="false" target="1.8" source="1.8" />
 	</target>
 
 	<target name="compile.test" depends="compile">
@@ -131,7 +131,7 @@
 			<build.jar platform="@{platform}" />
 
 			<bundleapp
-				jvmrequired="1.7"
+				jvmrequired="1.8"
 				jrepreferred="true"
 				outputdirectory="${build}/@{platform}"
 				name="${rel.name}"
@@ -168,7 +168,7 @@
 				        jar="${build}/@{platform}/tvrenamer.jar"
 				        icon="${res}\icons\oldschool-tv-icon.ico"
 				        chdir=".">
-					<jre minVersion="1.7.0" />
+					<jre minVersion="1.8.0" />
 				</config>
 			</launch4j>
 

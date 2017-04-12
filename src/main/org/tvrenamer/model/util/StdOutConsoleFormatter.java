@@ -2,8 +2,9 @@ package org.tvrenamer.model.util;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -16,8 +17,9 @@ public class StdOutConsoleFormatter extends Formatter {
 
         // Date
         String formatString = "[dd/MM/yy kk:mm:ss,SSS] ";
-        SimpleDateFormat sdf = new SimpleDateFormat(formatString);
-        Date date = new Date(rec.getMillis());
+        ZoneId zone = ZoneId.systemDefault();
+        DateTimeFormatter sdf = DateTimeFormatter.ofPattern(formatString).withZone(zone);
+        Instant date = Instant.ofEpochMilli(rec.getMillis());
         buffer.append(sdf.format(date));
 
         // Level

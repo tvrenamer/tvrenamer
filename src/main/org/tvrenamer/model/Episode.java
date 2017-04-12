@@ -1,12 +1,12 @@
 package org.tvrenamer.model;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 public class Episode {
     private final String title;
-    private final Date airDate;
+    private final LocalDate airDate;
 
-    public Episode(String title, Date airDate) {
+    public Episode(String title, LocalDate airDate) {
         this.title = title;
         this.airDate = airDate;
     }
@@ -15,7 +15,7 @@ public class Episode {
         return title;
     }
 
-    public Date getAirDate() {
+    public LocalDate getAirDate() {
         return airDate;
     }
 

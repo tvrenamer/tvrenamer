@@ -4,9 +4,8 @@ import org.tvrenamer.controller.util.StringUtils;
 
 import java.io.File;
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -16,6 +15,31 @@ public class FileEpisode {
 
     private static final String ADDED_PLACEHOLDER_FILENAME = "Downloading ...";
     private static final String BROKEN_PLACEHOLDER_FILENAME = "Unable to download show information";
+
+    public static final ThreadLocal<DecimalFormat> TWO_DIGITS =
+        new ThreadLocal<DecimalFormat>() {
+            @Override
+            protected DecimalFormat initialValue() {
+                return new DecimalFormat("00");
+            }
+        };
+
+    public static final ThreadLocal<DecimalFormat> DIGITS =
+        new ThreadLocal<DecimalFormat>() {
+            @Override
+            protected DecimalFormat initialValue() {
+                return new DecimalFormat("##0");
+            }
+        };
+
+    public static final ThreadLocal<DecimalFormat> TWO_OR_THREE =
+        new ThreadLocal<DecimalFormat>() {
+            @Override
+            protected DecimalFormat initialValue() {
+                return new DecimalFormat("#00");
+            }
+        };
+
     private final String showName;
     private final int seasonNumber;
     private final int episodeNumber;
@@ -92,7 +116,7 @@ public class FileEpisode {
                 String showName = "";
                 String seasonNum = "";
                 String titleString = "";
-                Calendar airDate = Calendar.getInstance();
+                LocalDate airDate = null;
 
                 try {
                     Show show = ShowStore.getShow(this.showName);
@@ -108,10 +132,8 @@ public class FileEpisode {
 
                         try {
                             titleString = season.getTitle(episodeNumber);
-                            Date date = season.getAirDate(episodeNumber);
-                            if (date != null) {
-                                airDate.setTime(date);
-                            } else {
+                            airDate = season.getAirDate(episodeNumber);
+                            if (airDate == null) {
                                 logger.log(Level.WARNING, "Episode air date not found for '" + toString() + "'");
                             }
                         } catch (EpisodeNotFoundException e) {
@@ -132,10 +154,10 @@ public class FileEpisode {
                 titleString = Matcher.quoteReplacement(titleString);
 
                 // Make whatever modifications are required
-                String episodeNumberString = new DecimalFormat("##0").format(episodeNumber);
-                String episodeNumberWithLeadingZeros = new DecimalFormat("#00").format(episodeNumber);
+                String episodeNumberString = DIGITS.get().format(episodeNumber);
+                String episodeNumberWithLeadingZeros = TWO_OR_THREE.get().format(episodeNumber);
                 String episodeTitleNoSpaces = titleString.replaceAll(" ", ".");
-                String seasonNumberWithLeadingZero = new DecimalFormat("00").format(seasonNumber);
+                String seasonNumberWithLeadingZero = TWO_DIGITS.get().format(seasonNumber);
 
                 newFilename = newFilename.replaceAll(ReplacementToken.SHOW_NAME.getToken(), showName);
                 newFilename = newFilename.replaceAll(ReplacementToken.SEASON_NUM.getToken(), seasonNum);
@@ -173,9 +195,12 @@ public class FileEpisode {
         }
     }
 
-    private String formatDate(Calendar cal, String format) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat(format);
-        return dateFormat.format(cal.getTime());
+    private String formatDate(LocalDate date, String format) {
+        if (date == null) {
+            return "";
+        }
+        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(format);
+        return dateFormat.format(date);
     }
 
     /**
