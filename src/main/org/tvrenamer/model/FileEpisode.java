@@ -169,6 +169,10 @@ public class FileEpisode {
         }
     }
 
+    public String getFilenameSuffix() {
+        return filenameSuffix;
+    }
+
     public Path getPath() {
         return path;
     }

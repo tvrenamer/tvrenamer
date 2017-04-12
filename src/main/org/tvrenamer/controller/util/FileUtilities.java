@@ -1,10 +1,6 @@
 package org.tvrenamer.controller.util;
 
-import org.tvrenamer.model.ProgressObserver;
-
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileStore;
 import java.nio.file.Files;
@@ -36,72 +32,6 @@ public class FileUtilities {
             return true;
         }
         return false;
-    }
-
-    /**
-     * Copies the source file to the destination, and deletes the source.
-     *
-     * If the destination cannot be created or is a read-only file, the method returns
-     * <code>false</code>. Otherwise, the contents of the source are copied to the destination,
-     * the source is deleted, and <code>true</code> is returned.
-     *
-     * @param source
-     *            The source file to move.
-     * @param dest
-     *            The destination where to move the file.
-     * @param observer
-     *            The observer to notify (can be null).
-     * @return true on success, false otherwise.
-     *
-     * Based on a version originally implemented in jEdit 4.3pre9
-     */
-    public static boolean copyAndDelete(Path source, Path dest, ProgressObserver observer) {
-        if (Files.notExists(source)) {
-            logger.warning("source file to move does not exist: " + source);
-            return false;
-        }
-        if (Files.exists(dest)) {
-            logger.warning("will not overwrite file: " + dest);
-            return false;
-        }
-        Path destDir = dest.getParent();
-        if (!Files.isWritable(destDir)) {
-            logger.warning("cannot write file to " + destDir);
-            return false;
-        }
-
-        boolean ok = false;
-        try (OutputStream fos = Files.newOutputStream(dest);
-             InputStream fis = Files.newInputStream(source))
-        {
-            byte[] buffer = new byte[32768];
-            int n;
-            long copied = 0L;
-            while (-1 != (n = fis.read(buffer))) {
-                fos.write(buffer, 0, n);
-                copied += n;
-                if (observer != null) {
-                    observer.setStatus(StringUtils.formatFileSize(copied));
-                    observer.setValue(copied);
-                }
-                if (Thread.interrupted()) {
-                    break;
-                }
-            }
-            if (-1 == n) {
-                ok = true;
-            }
-        } catch (IOException ioe) {
-            ok = false;
-            logger.log(Level.WARNING, "Error moving file " + source + ": " + ioe.getMessage(), ioe);
-        }
-
-        if (ok) {
-            deleteFile(source);
-        } else {
-            logger.warning("failed to move " + source);
-        }
-        return ok;
     }
 
     /**
