@@ -1,5 +1,6 @@
 package org.tvrenamer.model;
 
+import org.eclipse.swt.widgets.TableItem;
 import org.tvrenamer.controller.util.StringUtils;
 
 import java.io.File;
@@ -24,6 +25,8 @@ public class FileEpisode {
 
     private UserPreferences userPrefs = UserPreferences.getInstance();
     private EpisodeStatus status;
+
+    private TableItem viewItem = null;
 
     public FileEpisode(String name, int season, int episode, String resolution, File f) {
         showName = name;
@@ -64,6 +67,18 @@ public class FileEpisode {
 
     public void setStatus(EpisodeStatus newStatus) {
         status = newStatus;
+    }
+
+    public TableItem getViewItem() {
+        return viewItem;
+    }
+
+    public boolean setViewItem(TableItem newViewItem) {
+        if ((viewItem != null) && (viewItem != newViewItem)) {
+            logger.finer("changing table item for episode! " + this);
+        }
+        viewItem = newViewItem;
+        return true;
     }
 
     private File getDestinationDirectory() {
