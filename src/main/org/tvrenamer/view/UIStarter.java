@@ -48,10 +48,10 @@ import org.eclipse.swt.widgets.Text;
 import org.tvrenamer.controller.AddEpisodeListener;
 import org.tvrenamer.controller.FileMover;
 import org.tvrenamer.controller.ListingsLookup;
+import org.tvrenamer.controller.MoveRunner;
 import org.tvrenamer.controller.ShowInformationListener;
 import org.tvrenamer.controller.ShowListingsListener;
 import org.tvrenamer.controller.UpdateChecker;
-import org.tvrenamer.controller.UpdateCompleteHandler;
 import org.tvrenamer.model.EpisodeDb;
 import org.tvrenamer.model.FileEpisode;
 import org.tvrenamer.model.FileMoveIcon;
@@ -65,9 +65,6 @@ import org.tvrenamer.model.util.Environment;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.Collator;
 import java.util.LinkedList;
 import java.util.List;
@@ -75,10 +72,6 @@ import java.util.Locale;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Queue;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -106,8 +99,6 @@ public class UIStarter implements Observer,  AddEpisodeListener {
     private Table resultsTable;
     private ProgressBar totalProgressBar;
     private TaskItem taskItem = null;
-
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private UserPreferences prefs;
     private EpisodeDb episodeMap = new EpisodeDb();
@@ -253,7 +244,7 @@ public class UIStarter implements Observer,  AddEpisodeListener {
     }
 
     private void doCleanup() {
-        executor.shutdownNow();
+        MoveRunner.shutDown();
         ShowStore.cleanUp();
         shell.dispose();
         display.dispose();
@@ -764,105 +755,46 @@ public class UIStarter implements Observer,  AddEpisodeListener {
         return (ITEM_NOT_IN_TABLE != getTableItemIndex(item));
     }
 
-    private void renameFiles() {
-        final Queue<Future<Boolean>> futures = new LinkedList<>();
+    public TableItem findItem(final FileEpisode ep) {
+        String filename = ep.getFilepath();
+        for (final TableItem item : resultsTable.getItems()) {
+            if (filename.equals(item.getText(CURRENT_FILE_COLUMN))) {
+                return item;
+            }
+        }
 
+        return null;
+    }
+
+    public Label getProgressLabel(TableItem item) {
+        Label progressLabel = new Label(resultsTable, SWT.SHADOW_NONE | SWT.CENTER);
+        TableEditor editor = new TableEditor(resultsTable);
+        editor.grabHorizontal = true;
+        editor.setEditor(progressLabel, item, STATUS_COLUMN);
+
+        return progressLabel;
+    }
+
+    private void renameFiles() {
+        final List<FileMover> pendingMoves = new LinkedList<>();
         for (final TableItem item : resultsTable.getItems()) {
             if (item.getChecked()) {
                 String fileName = item.getText(CURRENT_FILE_COLUMN);
                 final FileEpisode episode = episodeMap.get(fileName);
-                // Skip files not successfully downloaded
+                // Skip files not successfully downloaded and ready to be moved
                 if (!episode.isReady()) {
+                    logger.info("selected but not ready: " + episode.getFilepath());
                     continue;
                 }
-
-                final Path currentFile = Paths.get(fileName);
-                String newName = item.getText(NEW_FILENAME_COLUMN);
-
-                Path newFile = null;
-
-                if (prefs.isMoveEnabled()) {
-                    // If move is enabled, let the Paths class parse the path
-                    newFile = Paths.get(newName);
-                } else {
-                    // Else we use the file's current directory
-                    newFile = currentFile.getParent().resolve(newName);
-                }
-
-                String srcPathstring = currentFile.toAbsolutePath().toString();
-                String dstPathstring = newFile.toAbsolutePath().toString();
-
-                if (srcPathstring.equals(dstPathstring)) {
-                    logger.info("nothing to be done to " + srcPathstring);
-                    continue;
-                }
-
-                logger.info("Going to move '" + srcPathstring + "' to '" + dstPathstring + "'");
-
-                if (Files.exists(newFile)) {
-                    String message = "File " + dstPathstring + " already exists.\n"
-                        + srcPathstring + " was not renamed!";
-                    logger.warning(message);
-                    showMessageBox(SWTMessageBoxType.ERROR, "Rename Failed", message);
-                } else {
-                    // progress label
-                    TableEditor editor = new TableEditor(resultsTable);
-                    final Label progressLabel = new Label(resultsTable, SWT.SHADOW_NONE | SWT.CENTER);
-                    editor.grabHorizontal = true;
-                    editor.setEditor(progressLabel, item, STATUS_COLUMN);
-
-                    Callable<Boolean> moveCallable = new FileMover(display, episode, newFile,
-                                                                   item, progressLabel);
-                    futures.add(executor.submit(moveCallable));
-                    item.setChecked(false);
-                }
+                final FileCopyMonitor monitor = new FileCopyMonitor(display,
+                                                                    getProgressLabel(item));
+                pendingMoves.add(new FileMover(episode, monitor));
             }
         }
 
-        final TaskItem taskItem = getTaskItem();
-        // There is no task bar on linux
-        if (taskItem != null) {
-            taskItem.setProgressState(SWT.NORMAL);
-            taskItem.setOverlayImage(FileMoveIcon.RENAMING.icon);
+        MoveRunner mover = new MoveRunner(pendingMoves, new ProgressBarUpdater(this));
 
-            Thread progressThread = new Thread(new ProgressBarUpdater(new ProgressProxy() {
-                @Override
-                public void setProgress(final float progress) {
-                    if (display.isDisposed()) {
-                        return;
-                    }
-
-                    display.asyncExec(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (totalProgressBar.isDisposed()) {
-                                return;
-                            }
-                            totalProgressBar.setSelection(Math.round(progress * totalProgressBar.getMaximum()));
-                            if (taskItem.isDisposed()) {
-                                return;
-                            }
-                            taskItem.setProgress(Math.round(progress * 100));
-                        }
-                    });
-                }
-            }, futures, new UpdateCompleteHandler() {
-                @Override
-                public void onUpdateComplete() {
-                    display.asyncExec(new Runnable() {
-                        @Override
-                        public void run() {
-                            taskItem.setOverlayImage(null);
-                            taskItem.setProgressState(SWT.DEFAULT);
-                            refreshTable();
-                        }
-                    });
-                }
-            }));
-            progressThread.setName("ProgressBarThread");
-            progressThread.setDaemon(true);
-            progressThread.start();
-        }
+        mover.runThread();
     }
 
     public static void setTableItemStatus(Display display, final TableItem item, final FileMoveIcon fmi) {

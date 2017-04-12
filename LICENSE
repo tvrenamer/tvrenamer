@@ -53,7 +53,7 @@ Description: The Programmer's Text Editor
 Website: http://jedit.org
 License: Berkeley Software Distribution v2.0 (BSD)
 License website: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-Note: A very small amount of code was taken from the jEdit source and repackaged into the TVRenamer application.  See copyAndDelete in FileUtilities.java.  TVRenamer does not use the jEdit libraries at all.
+Note: A very small amount of code was taken from the jEdit source and repackaged into the TVRenamer application.  See copyAndDelete in FileMover.java.  TVRenamer does not use the jEdit libraries at all.
 
 == End of TVRenamer 3rd Party licenses section ==
 
