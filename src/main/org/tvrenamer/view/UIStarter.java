@@ -1,6 +1,5 @@
 package org.tvrenamer.view;
 
-import static org.tvrenamer.view.UIUtils.getOSType;
 import static org.tvrenamer.view.UIUtils.showMessageBox;
 
 import org.eclipse.swt.SWT;
@@ -59,7 +58,7 @@ import org.tvrenamer.model.Show;
 import org.tvrenamer.model.ShowStore;
 import org.tvrenamer.model.UserPreferences;
 import org.tvrenamer.model.util.Constants;
-import org.tvrenamer.model.util.Constants.OSType;
+import org.tvrenamer.model.util.Environment;
 
 import java.io.File;
 import java.io.IOException;
@@ -292,7 +291,7 @@ public class UIStarter {
             }
         };
 
-        if (getOSType() == OSType.MAC) {
+        if (Environment.IS_MAC_OSX) {
             // Add the special Mac OSX Preferences, About and Quit menus.
             CocoaUIEnhancer enhancer = new CocoaUIEnhancer(Constants.APPLICATION_NAME);
             enhancer.hookApplicationMenu(display, quitListener, aboutListener, preferencesListener);

@@ -39,7 +39,7 @@ public class UserPreferences extends Observable {
     private UserPreferences() {
         super();
 
-        this.destDir = new File(Constants.DEFAULT_DESTINATION_DIRECTORY);
+        this.destDir = new File(Constants.DEFAULT_DESTINATION_DIRNAME);
         this.preloadFolder = null;
         this.seasonPrefix = Constants.DEFAULT_SEASON_PREFIX;
         this.seasonPrefixLeadingZero = false;
