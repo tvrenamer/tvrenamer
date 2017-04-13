@@ -6,7 +6,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import org.tvrenamer.model.SWTMessageBoxType;
-import org.tvrenamer.model.util.Constants.OSType;
 
 import java.awt.HeadlessException;
 import java.util.logging.Level;
@@ -90,15 +89,5 @@ public class UIUtils {
             + "\nNote that proxies are not currently supported.";
         logger.log(Level.WARNING, message, exception);
         showMessageBox(SWTMessageBoxType.ERROR, "Error", message);
-    }
-
-    public static OSType getOSType() {
-        if (System.getProperty("os.name").contains("Mac")) {
-            return OSType.MAC;
-        }
-        if (System.getProperty("os.name").contains("Windows")) {
-            return OSType.WINDOWS;
-        }
-        return OSType.LINUX;
     }
 }
