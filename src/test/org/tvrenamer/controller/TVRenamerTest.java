@@ -14,6 +14,7 @@ import org.tvrenamer.model.ShowStore;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 public class TVRenamerTest {
     public static final List<TestInput> values = new LinkedList<>();
@@ -142,10 +143,11 @@ public class TVRenamerTest {
 
     @Test
     public void testDownloadAndRename() {
-        try {
-            for (TestInput testInput : values) {
-                if (testInput.episodeTitle != null) {
-                    final FileEpisode fileEpisode = TVRenamer.parseFilename(testInput.input);
+        for (TestInput testInput : values) {
+            if (testInput.episodeTitle != null) {
+                final String filename = testInput.input;
+                try {
+                    final FileEpisode fileEpisode = TVRenamer.parseFilename(filename);
                     assertNotNull(fileEpisode);
                     String showName = fileEpisode.getShowName();
 
@@ -158,16 +160,21 @@ public class TVRenamerTest {
 
                         @Override
                         public void downloadFailed(Show show) {
-                            fail();
+                            future.complete(null);
                         }
                     });
 
-                    String got = future.get();
+                    String got = future.get(15, TimeUnit.SECONDS);
                     assertEquals(testInput.episodeTitle, got);
+                } catch (Exception e) {
+                    String failMsg = "failure (likely timeout) trying to query for " + filename;
+                    String exceptionMessage = e.getMessage();
+                    if (exceptionMessage != null) {
+                        failMsg += ": " + exceptionMessage;
+                    }
+                    fail(failMsg);
                 }
             }
-        } catch (Exception e) {
-            fail(e.getMessage());
         }
     }
 
