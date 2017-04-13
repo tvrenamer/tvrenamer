@@ -139,7 +139,7 @@ public class ShowStore {
      *            the {@link Show}
      */
     static void addShow(String showName, Show show) {
-        logger.info("Show listing for '" + show.getName() + "' downloaded");
+        logger.fine("Show listing for '" + show.getName() + "' downloaded");
         _shows.put(showName.toLowerCase(), show);
         notifyListeners(showName, show);
     }

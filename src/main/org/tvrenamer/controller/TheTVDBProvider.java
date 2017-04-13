@@ -69,7 +69,7 @@ public class TheTVDBProvider {
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
-            logger.info("About to retrieve search results from " + searchURL);
+            logger.fine("About to retrieve search results from " + searchURL);
 
             String searchXml = new HttpConnectionHandler().downloadUrl(searchURL);
 
@@ -110,7 +110,7 @@ public class TheTVDBProvider {
     public static void getShowListing(Show show) throws TVRenamerIOException {
         String showURL = BASE_LIST_URL + show.getId() + BASE_LIST_FILENAME;
 
-        logger.info("Retrieving episode listing from " + showURL);
+        logger.fine("Retrieving episode listing from " + showURL);
 
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         String showXml;
