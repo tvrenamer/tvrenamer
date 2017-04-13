@@ -2,19 +2,14 @@ package org.tvrenamer.controller;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import org.tvrenamer.model.FileEpisode;
-import org.tvrenamer.model.Show;
-import org.tvrenamer.model.ShowStore;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 public class TVRenamerTest {
     public static final List<TestInput> values = new LinkedList<>();
@@ -141,43 +136,6 @@ public class TVRenamerTest {
         assertEquals(4, episode.getEpisodeNumber());
     }
 
-    @Test
-    public void testDownloadAndRename() {
-        for (TestInput testInput : values) {
-            if (testInput.episodeTitle != null) {
-                final String filename = testInput.input;
-                try {
-                    final FileEpisode fileEpisode = TVRenamer.parseFilename(filename);
-                    assertNotNull(fileEpisode);
-                    String showName = fileEpisode.getShowName();
-
-                    final CompletableFuture<String> future = new CompletableFuture<>();
-                    ShowStore.getShow(showName, new ShowInformationListener() {
-                        @Override
-                        public void downloaded(Show show) {
-                            future.complete(show.getSeason(fileEpisode.getSeasonNumber()).getTitle(fileEpisode.getEpisodeNumber()));
-                        }
-
-                        @Override
-                        public void downloadFailed(Show show) {
-                            future.complete(null);
-                        }
-                    });
-
-                    String got = future.get(15, TimeUnit.SECONDS);
-                    assertEquals(testInput.episodeTitle, got);
-                } catch (Exception e) {
-                    String failMsg = "failure (likely timeout) trying to query for " + filename;
-                    String exceptionMessage = e.getMessage();
-                    if (exceptionMessage != null) {
-                        failMsg += ": " + exceptionMessage;
-                    }
-                    fail(failMsg);
-                }
-            }
-        }
-    }
-
     private static class TestInput {
         public final String input;
         public final String show;
@@ -196,5 +154,4 @@ public class TVRenamerTest {
             this.episodeResolution = episodeResolution;
         }
     }
-
 }
