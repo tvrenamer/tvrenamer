@@ -896,6 +896,7 @@ public class UIStarter {
 
     private static TableItem createTableItem(Table tblResults, String fileName, FileEpisode episode) {
         TableItem item = new TableItem(tblResults, SWT.NONE);
+        episode.setViewItem(item);
         String newFilename = fileName;
         try {
             // Set if the item is checked or not according
@@ -933,7 +934,10 @@ public class UIStarter {
             }
 
             String filename = item.getText(CURRENT_FILE_COLUMN);
-            files.remove(filename);
+            FileEpisode episode = files.remove(filename);
+            if (episode != null) {
+                episode.setViewItem(null);
+            }
 
             resultsTable.remove(index);
             item.dispose();
@@ -943,10 +947,17 @@ public class UIStarter {
 
     private void setSortedItem(int i, int j) {
         TableItem oldItem = resultsTable.getItem(i);
+        String filename = oldItem.getText(CURRENT_FILE_COLUMN);
+        FileEpisode episode = files.get(filename);
+
         boolean wasChecked = oldItem.getChecked();
         int oldStyle = oldItem.getStyle();
 
         TableItem item = new TableItem(resultsTable, oldStyle, j);
+        if (episode != null) {
+            episode.setViewItem(null);
+            episode.setViewItem(item);
+        }
         item.setChecked(wasChecked);
         item.setText(CURRENT_FILE_COLUMN, oldItem.getText(CURRENT_FILE_COLUMN));
         item.setText(NEW_FILENAME_COLUMN, oldItem.getText(NEW_FILENAME_COLUMN));
