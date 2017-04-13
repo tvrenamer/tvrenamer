@@ -790,17 +790,17 @@ public class UIStarter {
 
         for (final TableItem item : resultsTable.getItems()) {
             if (item.getChecked()) {
-                count++;
                 String fileName = item.getText(CURRENT_FILE_COLUMN);
-                final File currentFile = new File(fileName);
                 final FileEpisode episode = episodeMap.get(fileName);
-                String currentName = currentFile.getName();
-                String newName = item.getText(NEW_FILENAME_COLUMN);
-
                 // Skip files not successfully downloaded
                 if (episode.getStatus() != EpisodeStatus.DOWNLOADED) {
                     continue;
                 }
+
+                count++;
+                final File currentFile = new File(fileName);
+                String currentName = currentFile.getName();
+                String newName = item.getText(NEW_FILENAME_COLUMN);
 
                 File newFile = null;
 
