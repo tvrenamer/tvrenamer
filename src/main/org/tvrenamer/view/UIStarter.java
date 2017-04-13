@@ -805,12 +805,11 @@ public class UIStarter {
                 File newFile = null;
 
                 if (prefs != null && prefs.isMoveEnabled()) {
-                    // If move is enabled, the full path is in the table already
+                    // If move is enabled, let the File constructor parse the path
                     newFile = new File(newName);
                 } else {
-                    // Else we need to build it
-                    String newFilePath = currentFile.getParent() + File.separatorChar + newName;
-                    newFile = new File(newFilePath);
+                    // Else we use the file's current directory
+                    newFile = new File(currentFile.getParent(), newName);
                 }
 
                 logger.info("Going to move '" + currentFile.getAbsolutePath() + "' to '" + newFile.getAbsolutePath()
