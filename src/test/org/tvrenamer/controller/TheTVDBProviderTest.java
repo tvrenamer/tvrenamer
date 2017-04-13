@@ -1,3 +1,21 @@
+/**
+ * TheTVDBProviderTest -- test the code's ability to fetch information from thetvdb.com.
+ *
+ * This is kind of an unreliable thing to try to do.  We're depending on "correctly"
+ * receiving information that we have no control over.  The database we're querying
+ * against is generally open to the public, and even when it isn't, it's still open
+ * to several administrators who aren't especially invested in our application.
+ *
+ * Beyond that, the site could simply be down, or we might want to test on a machine
+ * that doesn't have internet access.
+ *
+ * Nevertheless, it's important to give this functionality some testing, and the
+ * potential problems discussed are not that likely in practice.  We should try
+ * to choose data that is most likely to fail if and only if our tvdb-fetching code
+ * is broken, and not for any other reason.
+ *
+ */
+
 package org.tvrenamer.controller;
 
 import static org.junit.Assert.assertEquals;
@@ -8,6 +26,7 @@ import static org.junit.Assert.fail;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import org.tvrenamer.model.Season;
 import org.tvrenamer.model.Show;
 import org.tvrenamer.model.ShowStore;
 
@@ -17,6 +36,41 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 public class TheTVDBProviderTest {
+
+    /**
+     * Remember the show, "Quintuplets"?  No?  Good.  The less popular a show is,
+     * it figures, the less likely it is for anyone to be editing it.  It's not
+     * likely to have a reunion special, or a reboot, or anything of that nature.
+     * "Quintuplets" is also a pretty unusual word to be found in the title of
+     * a TV show.  At the time this test is created, the query returns only a
+     * single option, and that's not too likely to change.  We also avoid having
+     * to download a lot of data by choosing a series with just one season.
+     *
+     */
+    @Test
+    public void testGetShowOptionsAndListings() throws Exception {
+        final String showName = "Quintuplets";
+        final String showId = "73732";
+        final String ep2Name = "Quintagious";
+
+        List<Show> options = TheTVDBProvider.getShowOptions(showName);
+        assertNotNull(options);
+        assertNotEquals(0, options.size());
+        Show best = options.get(0);
+        assertNotNull(best);
+        assertEquals(showId, best.getId());
+        assertEquals(showName, best.getName());
+
+        TheTVDBProvider.getShowListing(best);
+
+        Season s1 = best.getSeason(1);
+        assertNotNull(s1);
+        assertEquals(1, s1.getNumber());
+        assertEquals(ep2Name, s1.getTitle(2));
+
+        // This is probably too likely to change.
+        // assertEquals(1, options.size());
+    }
 
     private static class TestInput {
         public final String show;
@@ -34,6 +88,22 @@ public class TheTVDBProviderTest {
 
     public static final List<TestInput> values = new LinkedList<>();
 
+    /*
+     * Below this comment is a series of another 60 or so episode title tests.  But
+     * I don't think these should be run as part of a normal regression test.  There
+     * are all the problems discussed above, that the data in the database could change
+     * out from under us, or the site could be down.
+     *
+     * Even beyond that, though, I don't think it makes sense to pull in this amount
+     * of data every time we test.  It adds another 30 seconds to the build, and it
+     * really doesn't tell us anything that testGetShowOptionsAndListings doesn't tell
+     * us already.
+     *
+     * It would be nice to make it configurable to run on demand.  I'm not sure how to
+     * do that.  So for now, I'll just leave it here, and if an inidividual wants to
+     * run these tests, they can just uncomment the @Test annotation, below.
+     *
+     */
     @BeforeClass
     public static void setupValues() {
         values.add(new TestInput("game of thrones", "5", "1", "The Wars to Come"));
@@ -105,7 +175,7 @@ public class TheTVDBProviderTest {
         values.add(new TestInput("ncis", "14", "4", "Love Boat"));
     }
 
-    @Test
+    // @Test
     public void testGetEpisodeTitle() {
         for (TestInput testInput : values) {
             if (testInput.episodeTitle != null) {
@@ -144,19 +214,5 @@ public class TheTVDBProviderTest {
                 }
             }
         }
-    }
-
-    @Test
-    public void testGetShowOptions() throws Exception {
-        for (Show show : TheTVDBProvider.getShowOptions("Gossip Girl")) {
-            assertNotNull(show);
-            assertNotEquals(0, show.getId().length());
-            assertNotEquals(0, show.getName().length());
-        }
-    }
-
-    @Test
-    public void testGetShowListing() throws Exception {
-        TheTVDBProvider.getShowListing(new Show("80547", "Gossip Girl", ""));
     }
 }
