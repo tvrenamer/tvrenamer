@@ -18,6 +18,12 @@ Website: http://xstream.codehaus.org
 License: GNU GENERAL PUBLIC LICENSE (GPL)
 License website: http://xstream.codehaus.org/license.html
 
+XmlPull
+=========================================
+Description: XML Pull Parsing
+Website: http://www.xmlpull.org/
+License: Public Domain (LGPL for conformance tests)
+
 jEdit
 =========================================
 Description: The Programmer's Text Editor
