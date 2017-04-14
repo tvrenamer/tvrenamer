@@ -64,6 +64,9 @@ import org.tvrenamer.model.util.Environment;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -808,25 +811,32 @@ public class UIStarter implements Observer {
                 }
 
                 count++;
-                final File currentFile = new File(fileName);
-                String currentName = currentFile.getName();
+                final Path currentFile = Paths.get(fileName);
                 String newName = item.getText(NEW_FILENAME_COLUMN);
 
-                File newFile = null;
+                Path newFile = null;
 
                 if (prefs != null && prefs.isMoveEnabled()) {
                     // If move is enabled, let the File constructor parse the path
-                    newFile = new File(newName);
+                    newFile = Paths.get(newName);
                 } else {
                     // Else we use the file's current directory
-                    newFile = new File(currentFile.getParent(), newName);
+                    newFile = currentFile.getParent().resolve(newName);
                 }
 
-                logger.info("Going to move '" + currentFile.getAbsolutePath() + "' to '" + newFile.getAbsolutePath()
-                    + "'");
+                String srcPathstring = currentFile.toAbsolutePath().toString();
+                String dstPathstring = newFile.toAbsolutePath().toString();
 
-                if (newFile.exists() && !newName.equals(currentName)) {
-                    String message = "File " + newFile + " already exists.\n" + currentFile + " was not renamed!";
+                if (srcPathstring.equals(dstPathstring)) {
+                    logger.info("nothing to be done to " + srcPathstring);
+                    continue;
+                }
+
+                logger.info("Going to move '" + srcPathstring + "' to '" + dstPathstring + "'");
+
+                if (Files.exists(newFile)) {
+                    String message = "File " + dstPathstring + " already exists.\n"
+                        + srcPathstring + " was not renamed!";
                     showMessageBox(SWTMessageBoxType.ERROR, "Rename Failed", message);
                 } else {
                     // progress label
@@ -835,7 +845,7 @@ public class UIStarter implements Observer {
                     editor.grabHorizontal = true;
                     editor.setEditor(progressLabel, item, STATUS_COLUMN);
 
-                    Callable<Boolean> moveCallable = new FileMover(display, episode, newFile.toPath(),
+                    Callable<Boolean> moveCallable = new FileMover(display, episode, newFile,
                                                                    item, progressLabel);
                     futures.add(executor.submit(moveCallable));
                     item.setChecked(false);
@@ -1002,7 +1012,7 @@ public class UIStarter implements Observer {
         for (TableItem item : resultsTable.getItems()) {
             String fileName = item.getText(CURRENT_FILE_COLUMN);
             FileEpisode episode = episodeMap.remove(fileName);
-            String newFileName = episode.getFile().getAbsolutePath();
+            String newFileName = episode.getFilepath();
             episodeMap.put(newFileName, episode);
             item.setText(CURRENT_FILE_COLUMN, newFileName);
             item.setText(NEW_FILENAME_COLUMN, episode.getNewFilePath());

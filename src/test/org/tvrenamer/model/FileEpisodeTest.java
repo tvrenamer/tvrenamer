@@ -9,9 +9,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import org.tvrenamer.controller.ShowInformationListener;
+import org.tvrenamer.controller.util.FileUtilities;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +23,10 @@ import java.util.logging.Logger;
 public class FileEpisodeTest {
     private static Logger logger = Logger.getLogger(FileEpisodeTest.class.getName());
 
-    private List<File> testFiles;
+    private static final String TEMP_DIR_NAME = System.getProperty("java.io.tmpdir");
+    private static final Path TEMP_DIR = Paths.get(TEMP_DIR_NAME);
+
+    private List<Path> testFiles;
 
     private UserPreferences prefs;
     private ShowInformationListener mockListener;
@@ -41,14 +47,15 @@ public class FileEpisodeTest {
      */
     @Test
     public void testGetNewFilenameSpecialRegexChars() throws Exception {
+        String filename = "the.simpsons.5.10.avi";
+        Path path = TEMP_DIR.resolve(filename);
+        createFile(path);
+
         String showName = "The Simpsons";
         String title = "$pringfield";
         int seasonNum = 5;
         int episodeNum = 10;
         String resolution = "";
-        File file = new File(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator")
-                + "the.simpsons.5.10.avi");
-        createFile(file);
 
         Show show = new Show("1", showName, "http://thetvdb.com/?tab=series&id=71663");
         Season season5 = new Season(seasonNum);
@@ -56,7 +63,7 @@ public class FileEpisodeTest {
         show.setSeason(seasonNum, season5);
         ShowStore.addShow(showName, show);
 
-        FileEpisode episode = new FileEpisode(showName, seasonNum, episodeNum, resolution, file);
+        FileEpisode episode = new FileEpisode(showName, seasonNum, episodeNum, resolution, path);
         episode.setStatus(EpisodeStatus.DOWNLOADED);
 
         String newFilename = episode.getNewFilename();
@@ -70,14 +77,15 @@ public class FileEpisodeTest {
      */
     @Test
     public void testColon() throws Exception {
+        String filename = "steven.segal.lawman.1.01.avi";
+        Path path = TEMP_DIR.resolve(filename);
+        createFile(path);
+
         String showName = "Steven Seagal: Lawman";
         String title = "The Way of the Gun";
         int seasonNum = 1;
         int episodeNum = 1;
         String resolution = "";
-        File file = new File(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator")
-                + "steven.segal.lawman.1.01.avi");
-        createFile(file);
 
         Show show = new Show("1", showName, "http://thetvdb.com/?tab=series&id=126841&lid=7");
         Season season1 = new Season(seasonNum);
@@ -85,7 +93,7 @@ public class FileEpisodeTest {
         show.setSeason(seasonNum, season1);
         ShowStore.addShow(showName, show);
 
-        FileEpisode fileEpisode = new FileEpisode(showName, seasonNum, episodeNum, resolution, file);
+        FileEpisode fileEpisode = new FileEpisode(showName, seasonNum, episodeNum, resolution, path);
         fileEpisode.setStatus(EpisodeStatus.RENAMED);
 
         String newFilename = fileEpisode.getNewFilename();
@@ -96,16 +104,16 @@ public class FileEpisodeTest {
     /**
      * Helper method to physically create the file and add to file list for later deletion.
      */
-    private void createFile(File file) throws IOException {
-        file.createNewFile();
-        testFiles.add(file);
+    private void createFile(Path path) throws IOException {
+        Files.createFile(path);
+        testFiles.add(path);
     }
 
     @After
     public void teardown() throws Exception {
-        for (File file : testFiles) {
-            logger.info("Deleting " + file);
-            file.delete();
+        for (Path path : testFiles) {
+            logger.info("Deleting " + path);
+            FileUtilities.deleteFile(path);
         }
     }
 }

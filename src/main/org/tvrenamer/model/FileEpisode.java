@@ -2,7 +2,6 @@ package org.tvrenamer.model;
 
 import org.tvrenamer.controller.util.StringUtils;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
@@ -16,6 +15,7 @@ public class FileEpisode {
 
     private static final String ADDED_PLACEHOLDER_FILENAME = "Downloading ...";
     private static final String BROKEN_PLACEHOLDER_FILENAME = "Unable to download show information";
+    private static final String FILE_SEPARATOR_STRING = java.io.File.separator;
 
     public static final ThreadLocal<DecimalFormat> TWO_DIGITS =
         new ThreadLocal<DecimalFormat>() {
@@ -45,17 +45,17 @@ public class FileEpisode {
     private final int seasonNumber;
     private final int episodeNumber;
     private final String episodeResolution;
-    private File file;
+    private Path path;
 
     private UserPreferences userPrefs = UserPreferences.getInstance();
     private EpisodeStatus status;
 
-    public FileEpisode(String name, int season, int episode, String resolution, File f) {
+    public FileEpisode(String name, int season, int episode, String resolution, Path p) {
         showName = name;
         seasonNumber = season;
         episodeNumber = episode;
         episodeResolution = resolution;
-        file = f;
+        path = p;
         status = EpisodeStatus.ADDED;
     }
 
@@ -75,20 +75,16 @@ public class FileEpisode {
         return episodeResolution;
     }
 
-    public File getFile() {
-        return file;
-    }
-
-    public void setFile(File f) {
-        file = f;
+    public String getFilepath() {
+        return path.toAbsolutePath().toString();
     }
 
     public Path getPath() {
-        return file.toPath();
+        return path;
     }
 
     public void setPath(Path p) {
-        file = p.toFile();
+        path = p;
     }
 
     public EpisodeStatus getStatus() {
@@ -103,14 +99,14 @@ public class FileEpisode {
         String show = ShowStore.getShow(showName).getName();
         String sanitised = StringUtils.sanitiseTitle(show);
         String destPath = userPrefs.getDestinationDirectoryName();
-        destPath = destPath + File.separatorChar + sanitised;
+        destPath = destPath + FILE_SEPARATOR_STRING + sanitised;
 
         String seasonPrefix = userPrefs.getSeasonPrefix();
         // Defect #50: Only add the 'season #' folder if set, otherwise put files in showname root
         if (StringUtils.isNotBlank(seasonPrefix)) {
             String padding = (userPrefs.isSeasonPrefixLeadingZero() && seasonNumber < 9 ? "0" : "");
             String seasonFolderName = seasonPrefix + padding + seasonNumber;
-            destPath = destPath + File.separatorChar + seasonFolderName;
+            destPath = destPath + FILE_SEPARATOR_STRING + seasonFolderName;
         }
         return destPath;
     }
@@ -123,7 +119,7 @@ public class FileEpisode {
             case DOWNLOADED:
             case RENAMED: {
                 if (!userPrefs.isRenameEnabled()) {
-                    return file.getName();
+                    return path.getFileName().toString();
                 }
 
                 String showName = "";
@@ -199,7 +195,8 @@ public class FileEpisode {
                 newFilename = newFilename.replaceAll(ReplacementToken.DATE_YEAR_MIN.getToken(),
                                                      formatDate(airDate, "yy"));
 
-                String resultingFilename = newFilename.concat(".").concat(StringUtils.getExtension(file.getName()));
+                String fileBaseName = path.getFileName().toString();
+                String resultingFilename = newFilename.concat(".").concat(StringUtils.getExtension(fileBaseName));
                 return StringUtils.sanitiseTitle(resultingFilename);
             }
             case BROKEN:
@@ -223,7 +220,7 @@ public class FileEpisode {
         String filename = getNewFilename();
 
         if (userPrefs.isMoveEnabled()) {
-            return getDestinationDirectoryName() + File.separator + filename;
+            return getDestinationDirectoryName() + FILE_SEPARATOR_STRING + filename;
         }
         return filename;
     }
@@ -231,7 +228,7 @@ public class FileEpisode {
     @Override
     public String toString() {
         return "FileEpisode { title:" + showName + ", season:" + seasonNumber + ", episode:" + episodeNumber
-            + ", file:" + file.getName() + " }";
+            + ", file:" + path.getFileName() + " }";
     }
 
 }
