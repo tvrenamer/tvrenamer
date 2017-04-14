@@ -3,6 +3,7 @@ package org.tvrenamer.model;
 import org.tvrenamer.controller.util.StringUtils;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -80,6 +81,14 @@ public class FileEpisode {
 
     public void setFile(File f) {
         file = f;
+    }
+
+    public Path getPath() {
+        return file.toPath();
+    }
+
+    public void setPath(Path p) {
+        file = p.toFile();
     }
 
     public EpisodeStatus getStatus() {

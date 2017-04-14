@@ -835,7 +835,8 @@ public class UIStarter implements Observer {
                     editor.grabHorizontal = true;
                     editor.setEditor(progressLabel, item, STATUS_COLUMN);
 
-                    Callable<Boolean> moveCallable = new FileMover(display, episode, newFile, item, progressLabel);
+                    Callable<Boolean> moveCallable = new FileMover(display, episode, newFile.toPath(),
+                                                                   item, progressLabel);
                     futures.add(executor.submit(moveCallable));
                     item.setChecked(false);
                 }
