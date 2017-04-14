@@ -1,9 +1,17 @@
 package org.tvrenamer.model;
 
+import org.tvrenamer.controller.AddEpisodeListener;
 import org.tvrenamer.controller.TVRenamer;
 
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Logger;
 
 public class EpisodeDb {
@@ -85,8 +93,131 @@ public class EpisodeDb {
         episodes.clear();
     }
 
+    private boolean fileIsVisible(Path path) {
+        boolean isVisible = false;
+        try {
+            if (Files.exists(path)) {
+                if (Files.isHidden(path)) {
+                    logger.finer("ignoring hidden file " + path);
+                } else {
+                    isVisible = true;
+                }
+            }
+        } catch (IOException | SecurityException e) {
+            logger.finer("could not access file; treating as hidden: " + path);
+        }
+        return isVisible;
+    }
+
+    private void addFileToQueue(final Queue<FileEpisode> contents,
+                                final Path path)
+    {
+        final Path absPath = path.toAbsolutePath();
+        final String key = absPath.toString();
+        if (episodes.containsKey(key)) {
+            logger.info("already in table: " + key);
+        } else {
+            FileEpisode ep = add(key);
+            if (ep != null) {
+                contents.add(ep);
+            }
+        }
+    }
+
+    private void addFileIfVisible(final Queue<FileEpisode> contents,
+                                  final Path path)
+    {
+        if (fileIsVisible(path) && Files.isRegularFile(path)) {
+            addFileToQueue(contents, path);
+        }
+    }
+
+    private void addFilesRecursively(final Queue<FileEpisode> contents,
+                                     final Path parent,
+                                     final Path filename)
+    {
+        final Path fullpath = parent.resolve(filename);
+        if (fileIsVisible(fullpath)) {
+            if (Files.isDirectory(fullpath)) {
+                try (DirectoryStream<Path> files = Files.newDirectoryStream(fullpath)) {
+                    if (files != null) {
+                        // recursive call
+                        files.forEach(pth -> addFilesRecursively(contents,
+                                                                 fullpath,
+                                                                 pth.getFileName()));
+                    }
+                } catch (IOException ioe) {
+                    logger.warning("IO Exception descending " + fullpath);
+                }
+            } else {
+                addFileToQueue(contents, fullpath);
+            }
+        }
+    }
+
+    public void addFolderToQueue(final String pathname) {
+        Queue<FileEpisode> contents = new ConcurrentLinkedQueue<>();
+        final Path path = Paths.get(pathname);
+        if (prefs.isRecursivelyAddFolders()) {
+            addFilesRecursively(contents, path.getParent(), path.getFileName());
+            publish(contents);
+        } else {
+            logger.warning("cannot add folder when preference \"add files recursively\" is off");
+        }
+    }
+
+    public void addFilesToQueue(final String pathPrefix, String[] fileNames) {
+        Queue<FileEpisode> contents = new ConcurrentLinkedQueue<>();
+        if (pathPrefix != null) {
+            Path path = Paths.get(pathPrefix);
+            Path parent = path.getParent();
+
+            for (int i = 0; i < fileNames.length; i++) {
+                path = parent.resolve(fileNames[i]);
+                addFileIfVisible(contents, path);
+            }
+            publish(contents);
+        }
+    }
+
+    public void addArrayOfStringsToQueue(final String[] fileNames) {
+        Queue<FileEpisode> contents = new ConcurrentLinkedQueue<>();
+        boolean descend = prefs.isRecursivelyAddFolders();
+        for (final String fileName : fileNames) {
+            final Path path = Paths.get(fileName);
+            if (descend) {
+                addFilesRecursively(contents, path.getParent(), path.getFileName());
+            } else {
+                addFileIfVisible(contents, path);
+            }
+        }
+        publish(contents);
+    }
+
     @Override
     public String toString() {
         return "{EpisodeDb with " + episodes.size() + " files}";
+    }
+
+    public void preload() {
+        if (prefs.isRecursivelyAddFolders()) {
+            String preload = prefs.getPreloadFolder();
+            if (preload != null) {
+                // TODO: do in separate thread
+                addFolderToQueue(preload);
+            }
+        }
+    }
+
+    private final Queue<AddEpisodeListener> listeners = new ConcurrentLinkedQueue<>();
+
+    public void subscribe(AddEpisodeListener listener) {
+        listeners.add(listener);
+    }
+
+    private void publish(Queue<FileEpisode> episodes) {
+        for (AddEpisodeListener listener : listeners) {
+            listener.addEpisodes(episodes);
+        }
     }
 }

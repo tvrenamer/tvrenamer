@@ -44,9 +44,9 @@ import org.eclipse.swt.widgets.TaskBar;
 import org.eclipse.swt.widgets.TaskItem;
 import org.eclipse.swt.widgets.Text;
 
+import org.tvrenamer.controller.AddEpisodeListener;
 import org.tvrenamer.controller.FileMover;
 import org.tvrenamer.controller.ShowInformationListener;
-import org.tvrenamer.controller.TVRenamer;
 import org.tvrenamer.controller.UpdateChecker;
 import org.tvrenamer.controller.UpdateCompleteHandler;
 import org.tvrenamer.model.EpisodeDb;
@@ -62,14 +62,12 @@ import org.tvrenamer.model.UserPreferences;
 import org.tvrenamer.model.util.Constants;
 import org.tvrenamer.model.util.Environment;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.Collator;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -77,7 +75,6 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Queue;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -87,7 +84,7 @@ import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 
-public class UIStarter implements Observer {
+public class UIStarter implements Observer,  AddEpisodeListener {
     private static final String DOWNLOADING_FAILED_MESSAGE = "Downloading show listings failed.  Check internet connection";
     private static Logger logger = Logger.getLogger(UIStarter.class.getName());
     private static final int SELECTED_COLUMN = 0;
@@ -362,15 +359,7 @@ public class UIStarter implements Observer {
             public void widgetSelected(SelectionEvent e) {
                 String pathPrefix = fd.open();
                 if (pathPrefix != null) {
-                    File file = new File(pathPrefix);
-                    pathPrefix = file.getParent();
-
-                    String[] fileNames = fd.getFileNames();
-                    for (int i = 0; i < fileNames.length; i++) {
-                        fileNames[i] = pathPrefix + File.separatorChar + fileNames[i];
-                    }
-
-                    initiateRenamer(fileNames);
+                    episodeMap.addFilesToQueue(pathPrefix, fd.getFileNames());
                 }
             }
         });
@@ -383,41 +372,7 @@ public class UIStarter implements Observer {
                 String directory = dd.open();
                 if (directory != null) {
                     // load all of the files in the dir
-                    File file = new File(directory);
-                    String[] fileNames = file.list();
-
-                    if (fileNames != null) {
-
-                        // Check we are not recursive
-                        boolean includeDirs = prefs.isRecursivelyAddFolders();
-                        List<String> subDirs = new ArrayList<>();
-
-                        for (int i = 0; i < fileNames.length; i++) {
-                            String path = directory + File.separatorChar + fileNames[i];
-
-                            // Store the list of directories
-                            if (new File(path).isDirectory()) {
-                                subDirs.add(path);
-                            }
-
-                            // update the fileName value
-                            fileNames[i] = path;
-                        }
-
-                        if (!includeDirs) {
-                            for (String subDir : subDirs) {
-                                for (int i = 0; i < fileNames.length; i++) {
-                                    if (fileNames[i].startsWith(subDir)) {
-                                        // A safe way of removing the file name
-                                        fileNames[i] = "";
-                                    }
-                                }
-                            }
-                        }
-
-                        initiateRenamer(fileNames);
-                    }
-
+                    episodeMap.addFolderToQueue(directory);
                 }
             }
 
@@ -620,11 +575,10 @@ public class UIStarter implements Observer {
 
             @Override
             public void drop(DropTargetEvent e) {
-                String[] fileList = null;
                 FileTransfer ft = FileTransfer.getInstance();
                 if (ft.isSupportedType(e.currentDataType)) {
-                    fileList = (String[]) e.data;
-                    initiateRenamer(fileList);
+                    String[] fileList = (String[]) e.data;
+                    episodeMap.addArrayOfStringsToQueue(fileList);
                 }
             }
         });
@@ -670,12 +624,10 @@ public class UIStarter implements Observer {
             shell.pack();
             shell.open();
 
-            String preloadFolderName = prefs.getPreloadFolder();
-            if (preloadFolderName != null) {
-                String[] preload = new String[1];
-                preload[0] = preloadFolderName;
-                initiateRenamer(preload);
-            }
+            // Load the preload folder into the episode map, which will call
+            // us back with the list of files once they've been loaded.
+            episodeMap.subscribe(this);
+            episodeMap.preload();
 
             while (!shell.isDisposed()) {
                 if (!display.readAndDispatch()) {
@@ -696,47 +648,8 @@ public class UIStarter implements Observer {
         }
     }
 
-    private void initiateRenamer(final String[] fileNames) {
-        final List<String> files = new LinkedList<>();
-        for (final String fileName : fileNames) {
-            File f = new File(fileName);
-            new FileTraversal() {
-                @Override
-                public void onFile(File f) {
-                    // Don't add hidden files - defect 38
-                    if (!f.isHidden()) {
-                        files.add(f.getAbsolutePath());
-                    }
-                }
-            }.traverse(f);
-        }
-        addFiles(files);
-    }
-
-    // class adopted from http://vafer.org/blog/20071112204524
-    public abstract class FileTraversal {
-        public final void traverse(final File f) {
-            if (f.isDirectory()) {
-                onDirectory(f);
-                final File[] children = f.listFiles();
-                for (File child : children) {
-                    traverse(child);
-                }
-                return;
-            }
-            onFile(f);
-        }
-
-        public void onDirectory(final File d) {
-
-        }
-
-        public void onFile(final File f) {
-
-        }
-    }
-
-    private void addEpisodes(final Queue<FileEpisode> episodes) {
+    @Override
+    public void addEpisodes(Queue<FileEpisode> episodes) {
         // Update the list of ignored keywords
         ignoreKeywords = prefs.getIgnoreKeywords();
 
@@ -776,20 +689,6 @@ public class UIStarter implements Observer {
                     }
                 });
         }
-    }
-
-    private void addFiles(final List<String> fileNames) {
-        Queue<FileEpisode> contents = new ConcurrentLinkedQueue<>();
-        for (final String fileName : fileNames) {
-            final FileEpisode episode = TVRenamer.parseFilename(fileName);
-            if (episode == null) {
-                logger.severe("Couldn't parse file: " + fileName);
-            } else {
-                episodeMap.put(fileName, episode);
-                contents.add(episode);
-            }
-        }
-        addEpisodes(contents);
     }
 
     private int getTableItemIndex(TableItem item) {
