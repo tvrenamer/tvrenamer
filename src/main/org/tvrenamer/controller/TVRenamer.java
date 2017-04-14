@@ -3,7 +3,9 @@ package org.tvrenamer.controller;
 import org.tvrenamer.controller.util.StringUtils;
 import org.tvrenamer.model.FileEpisode;
 
-import java.io.File;
+import java.nio.file.Path;
+
+import java.nio.file.Paths;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,37 +37,38 @@ public class TVRenamer {
         // singleton
     }
 
-    public static FileEpisode parseFilename(String fileName) {
-        File f = new File(fileName);
-        String fName = stripJunk(insertShowNameIfNeeded(f));
+    public static FileEpisode parsePathName(final Path filePath) {
+        String withShowName = insertShowNameIfNeeded(filePath);
+        String strippedName = stripJunk(withShowName);
         int idx = 0;
         Matcher matcher = null;
         while (idx < COMPILED_REGEX.length) {
-            matcher = COMPILED_REGEX[idx++].matcher(fName);
-            if (matcher.matches() && matcher.groupCount() == 4) {
-                String show = matcher.group(1);
-                show = StringUtils.replacePunctuation(show).toLowerCase();
-
-                int season = Integer.parseInt(matcher.group(2));
-                int episode = Integer.parseInt(matcher.group(3));
-                String resolution = matcher.group(4);
-
-                FileEpisode ep = new FileEpisode(show, season, episode, resolution, f);
-                return ep;
-            } else if (matcher.matches() && matcher.groupCount() == 3) {
-                String show = matcher.group(1);
-                show = StringUtils.replacePunctuation(show).toLowerCase();
-
-                int season = Integer.parseInt(matcher.group(2));
-                int episode = Integer.parseInt(matcher.group(3));
+            matcher = COMPILED_REGEX[idx++].matcher(strippedName);
+            if (matcher.matches()) {
                 String resolution = "";
+                if (matcher.groupCount() == 4) {
+                    resolution = matcher.group(4);
+                } else if (matcher.groupCount() != 3) {
+                    // This should never happen and so we should probably consider it
+                    // an error if it does, but not important.
+                    continue;
+                }
+                String show = matcher.group(1);
+                show = StringUtils.replacePunctuation(show).toLowerCase();
 
-                FileEpisode ep = new FileEpisode(show, season, episode, resolution, f);
+                int season = Integer.parseInt(matcher.group(2));
+                int episode = Integer.parseInt(matcher.group(3));
+
+                FileEpisode ep = new FileEpisode(show, season, episode, resolution, filePath);
                 return ep;
             }
         }
 
         return null;
+    }
+
+    public static FileEpisode parseFilename(final String filepath) {
+        return parsePathName(Paths.get(filepath));
     }
 
     private static String stripJunk(String input) {
@@ -85,17 +88,19 @@ public class TVRenamer {
         return input;
     }
 
-    private static String insertShowNameIfNeeded(File file) {
-        String fName = file.getName();
-        if (fName.matches("[sS]\\d\\d?[eE]\\d\\d?.*")) {
-            String parentName = file.getParentFile().getName();
+    static String insertShowNameIfNeeded(final Path filePath) {
+        String pName = filePath.getFileName().toString();
+        logger.info("pName = " + pName);
+        if (pName.matches("[sS]\\d\\d?[eE]\\d\\d?.*")) {
+            Path parent = filePath.getParent();
+            String parentName = parent.getFileName().toString();
             if (parentName.toLowerCase().startsWith("season")) {
-                parentName = file.getParentFile().getParentFile().getName();
+                parentName = parent.getParent().getFileName().toString();
             }
-            logger.info("appending parent directory '" + parentName + "' to filename '" + fName + "'");
-            return parentName + " " + fName;
+            logger.fine("appending parent directory '" + parentName + "' to filename '" + pName + "'");
+            return parentName + " " + pName;
         } else {
-            return fName;
+            return pName;
         }
     }
 }
