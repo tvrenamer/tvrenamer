@@ -1,16 +1,13 @@
 package org.tvrenamer.controller.util;
 
 import org.gjt.sp.util.IOUtilities;
-import org.gjt.sp.util.Log;
 import org.gjt.sp.util.ProgressObserver;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.DirectoryStream;
+import java.nio.file.FileStore;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.logging.Level;
@@ -24,6 +21,23 @@ import java.util.logging.Logger;
  */
 public class FileUtilities {
     private static Logger logger = Logger.getLogger(FileUtilities.class.getName());
+
+    public static boolean deleteFile(Path source) {
+        if (Files.notExists(source)) {
+            logger.warning("cannot delete file, does not exist: " + source);
+            return false;
+        }
+        try {
+            Files.delete(source);
+        } catch (IOException ioe) {
+            logger.log(Level.WARNING, "Error deleting file " + source, ioe);
+            return false;
+        }
+        if (Files.notExists(source)) {
+            return true;
+        }
+        return false;
+    }
 
     // {{{ moveFile() method, based on the moveFile() method in gjt
     /**
@@ -39,60 +53,79 @@ public class FileUtilities {
      *            The destination where to move the file.
      * @param observer
      *            The observer to notify (can be null).
-     * @param canStop
-     *            if true, the move can be stopped by interrupting the thread
      * @return true on success, false otherwise.
      *
-     * @since jEdit 4.3pre9
+     * Based on a version originally implemented in jEdit 4.3pre9
      */
-    public static boolean moveFile(File source, File dest, ProgressObserver observer, boolean canStop) {
-        return doAction(source, dest, observer, canStop, true);
-    } // }}}
+    public static boolean moveFile(Path source, Path dest, ProgressObserver observer) {
+        if (Files.notExists(source)) {
+            logger.warning("source file to move does not exist: " + source);
+            return false;
+        }
+        if (Files.exists(dest)) {
+            logger.warning("will not overwrite file: " + dest);
+            return false;
+        }
+        Path destDir = dest.getParent();
+        if (!Files.isWritable(destDir)) {
+            logger.warning("cannot write file to " + destDir);
+            return false;
+        }
 
-    private static boolean doAction(File source, File dest, ProgressObserver observer, boolean canStop,
-        boolean deleteOnSuccess)
-    {
         boolean ok = false;
 
-        if ((dest.exists() && dest.canWrite()) || (!dest.exists() && dest.getParentFile().canWrite())) {
-            OutputStream fos = null;
-            InputStream fis = null;
-            try {
-                fos = new FileOutputStream(dest);
-                fis = new FileInputStream(source);
-                ok = IOUtilities.copyStream(32768, observer, fis, fos, canStop);
-            } catch (IOException ioe) {
-                Log.log(Log.WARNING, IOUtilities.class, "Error moving file: " + ioe + " : " + ioe.getMessage());
-            } finally {
-                IOUtilities.closeQuietly(fos);
-                IOUtilities.closeQuietly(fis);
-            }
+        try (OutputStream fos = Files.newOutputStream(dest);
+             InputStream fis = Files.newInputStream(source)
+             )
+        {
+            ok = IOUtilities.copyStream(32768, observer, fis, fos, true);
+        } catch (IOException ioe) {
+            logger.log(Level.WARNING, "Error moving file " + source + ": " + ioe.getMessage(), ioe);
+        }
 
-            if (ok && deleteOnSuccess) {
-                source.delete();
-            }
+        if (ok) {
+            deleteFile(source);
         }
         return ok;
-    }
+    } // }}}
 
-    public static boolean areSameDisk(File fileA, File fileB) {
-        String pathA = fileA.getAbsolutePath();
-        String pathB = fileB.getAbsolutePath();
-        File[] roots = File.listRoots();
-        if (roots.length < 2) {
+    /**
+     * areSameDisk -- returns true if two Paths exist on the same FileStore.
+     *
+     * The intended usage is to find out if "moving" a file can be done with
+     * a simple rename, or if the bits must be copied to a new disk.  In this
+     * case, pass in the source file and the destination _folder_, making sure
+     * to create the destination folder first if it doesn't exist.  (Or, pass
+     * in its parent, or parent's parent, etc.)
+     *
+     * @param pathA - an existing path
+     * @param pathB - a different existing path
+     * @return true if both Paths exist and are located on the same FileStore
+     *
+     */
+    public static boolean areSameDisk(Path pathA, Path pathB) {
+        if (Files.notExists(pathA)) {
+            logger.warning("areSameDisk: path " + pathA + " does not exist.");
+            return false;
+        }
+        if (Files.notExists(pathB)) {
+            logger.warning("areSameDisk: path " + pathB + " does not exist.");
+            return false;
+        }
+        FileStore fsA = null;
+        FileStore fsB = null;
+        try {
+            fsA = Files.getFileStore(pathA);
+            fsB = Files.getFileStore(pathB);
+        } catch (IOException ioe) {
+            logger.log(Level.WARNING, "IOException trying to get file stores.", ioe);
+            return false;
+        }
+        if (fsA.equals(fsB)) {
             return true;
+        } else {
+            return false;
         }
-        for (File root : roots) {
-            String rootPath = root.getAbsolutePath();
-            if (pathA.startsWith(rootPath)) {
-                if (pathB.startsWith(rootPath)) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        }
-        return false;
     }
 
     public static boolean mkdirs(final Path dir) {
