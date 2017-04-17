@@ -1,256 +1,256 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project name="TVRenamer build script" default="usage">
 
-	<property name="src.main" value="src/main" />
-	<property name="src.test" value="src/test" />
-	<property name="build" value="out" />
-	<property name="lib.main" value="jars/main" />
-	<property name="lib.test" value="jars/test" />
-	<property name="res" value="res" />
-	<property name="rel" value="release" />
+  <property name="src.main" value="src/main" />
+  <property name="src.test" value="src/test" />
+  <property name="build" value="out" />
+  <property name="lib.main" value="jars/main" />
+  <property name="lib.test" value="jars/test" />
+  <property name="res" value="res" />
+  <property name="rel" value="release" />
 
-	<property name="dist" value="dist" />
-	<property name="etc" value="etc" />
+  <property name="dist" value="dist" />
+  <property name="etc" value="etc" />
 
-	<property file="build.properties" />
+  <property file="build.properties" />
 
-	<property name="version.file" value="${src.main}/tvrenamer.version" />
-	<property name="logging.file" value="${etc}/logging.properties" />
-	<loadfile property="version" srcFile="${version.file}">
-		<filterchain>
-			<striplinebreaks />
-		</filterchain>
-	</loadfile>
+  <property name="version.file" value="${src.main}/tvrenamer.version" />
+  <property name="logging.file" value="${etc}/logging.properties" />
+  <loadfile property="version" srcFile="${version.file}">
+    <filterchain>
+      <striplinebreaks />
+    </filterchain>
+  </loadfile>
 
-	<property name="rel.name" value="TVRenamer-${version}" />
-	<property name="jar.builtBy" value="https://github.com/tvrenamer/tvrenamer" />
-	<property name="jar.mainClass" value="org.tvrenamer.controller.Launcher" />
+  <property name="rel.name" value="TVRenamer-${version}" />
+  <property name="jar.builtBy" value="https://github.com/tvrenamer/tvrenamer" />
+  <property name="jar.mainClass" value="org.tvrenamer.controller.Launcher" />
 
-	<!-- To build, get launch4j, update the path in build.properties -->
-	<taskdef name="launch4j"
-			classname="net.sf.launch4j.ant.Launch4jTask"
-			classpath="${launch4j.path}/launch4j.jar:${launch4j.path}/lib/xstream.jar" onerror="report" />
+  <!-- To build, get launch4j, update the path in build.properties -->
+  <taskdef name="launch4j"
+      classname="net.sf.launch4j.ant.Launch4jTask"
+      classpath="${launch4j.path}/launch4j.jar:${launch4j.path}/lib/xstream.jar" onerror="report" />
 
-	<!-- for creating OS X app bundles -->
-	<taskdef name="bundleapp" classpath="appbundler-1.0ea.jar" classname="com.oracle.appbundler.AppBundlerTask" />
+  <!-- for creating OS X app bundles -->
+  <taskdef name="bundleapp" classpath="appbundler-1.0ea.jar" classname="com.oracle.appbundler.AppBundlerTask" />
 
-	<path id="classpath">
-		<fileset dir="${lib.main}">
-			<!-- We can compile against any swt version-->
-			<include name="swt-win32*.jar" />
-		</fileset>
-		<fileset dir="${lib.main}" id="classpath.runtime">
-			<include name="xstream-*.jar" />
-			<include name="xmlpull-*.jar" />
-			<include name="xpp3_min*.jar" />
-			<include name="jedit-*-IOUtilities.jar" />
-			<include name="commons-codec-*.jar" />
-		</fileset>
-	</path>
+  <path id="classpath">
+    <fileset dir="${lib.main}">
+      <!-- We can compile against any swt version-->
+      <include name="swt-win32*.jar" />
+    </fileset>
+    <fileset dir="${lib.main}" id="classpath.runtime">
+      <include name="xstream-*.jar" />
+      <include name="xmlpull-*.jar" />
+      <include name="xpp3_min*.jar" />
+      <include name="jedit-*-IOUtilities.jar" />
+      <include name="commons-codec-*.jar" />
+    </fileset>
+  </path>
 
-	<path id="classpath.test">
-		<path refid="classpath" />
-		<fileset dir="${lib.test}" />
+  <path id="classpath.test">
+    <path refid="classpath" />
+    <fileset dir="${lib.test}" />
 
-		<pathelement location="${build}" />
-	</path>
+    <pathelement location="${build}" />
+  </path>
 
-	<target name="init">
-		<mkdir dir="${build}" />
-		<mkdir dir="${dist}" />
-	</target>
+  <target name="init">
+    <mkdir dir="${build}" />
+    <mkdir dir="${dist}" />
+  </target>
 
-	<target name="compile" depends="init">
-		<javac srcdir="${src.main}" destdir="${build}" classpathref="classpath" debug="true" debuglevel="lines,vars,source" includeantruntime="false" target="1.8" source="1.8" />
-		<copy file="${version.file}" todir="${build}" />
-		<copy file="${logging.file}" todir="${build}" />
-	</target>
+  <target name="compile" depends="init">
+    <javac srcdir="${src.main}" destdir="${build}" classpathref="classpath" debug="true" debuglevel="lines,vars,source" includeantruntime="false" target="1.8" source="1.8" />
+    <copy file="${version.file}" todir="${build}" />
+    <copy file="${logging.file}" todir="${build}" />
+  </target>
 
-	<target name="compile.test" depends="compile">
-		<javac srcdir="${src.test}" destdir="${build}" classpathref="classpath.test" debug="true" debuglevel="lines,vars,source" includeantruntime="false" />
-		<copy file="${version.file}" todir="${build}" />
-		<copy file="${logging.file}" todir="${build}" />
-	</target>
+  <target name="compile.test" depends="compile">
+    <javac srcdir="${src.test}" destdir="${build}" classpathref="classpath.test" debug="true" debuglevel="lines,vars,source" includeantruntime="false" />
+    <copy file="${version.file}" todir="${build}" />
+    <copy file="${logging.file}" todir="${build}" />
+  </target>
 
-	<macrodef name="build.jar" description="Compiles the source then creates an executable jar for the given platform">
-		<attribute name="platform" />
-		<sequential>
-			<mkdir dir="${build}/@{platform}" />
+  <macrodef name="build.jar" description="Compiles the source then creates an executable jar for the given platform">
+    <attribute name="platform" />
+    <sequential>
+      <mkdir dir="${build}/@{platform}" />
 
-			<!-- Use antcall because macrodef's can't declare dependencies -->
-			<antcall target="compile"/>
+      <!-- Use antcall because macrodef's can't declare dependencies -->
+      <antcall target="compile"/>
 
-			<jar destfile="${build}/@{platform}/tvrenamer.jar" filesetmanifest="mergewithoutmain">
-				<manifest>
-					<attribute name="Built-By" value="${jar.builtBy}" />
-					<attribute name="Main-Class" value="${jar.mainClass}" />
-				</manifest>
+      <jar destfile="${build}/@{platform}/tvrenamer.jar" filesetmanifest="mergewithoutmain">
+        <manifest>
+          <attribute name="Built-By" value="${jar.builtBy}" />
+          <attribute name="Main-Class" value="${jar.mainClass}" />
+        </manifest>
 
-				<fileset dir="${build}" />
+        <fileset dir="${build}" />
 
-				<fileset dir="${res}">
-					<include name="icons/tvrenamer.icns" />
-					<include name="icons/tvrenamer.png" />
+        <fileset dir="${res}">
+          <include name="icons/tvrenamer.icns" />
+          <include name="icons/tvrenamer.png" />
 
-					<include name="icons/SweetieLegacy/16-circle-blue.png" />
-					<include name="icons/SweetieLegacy/16-clock.png" />
-					<include name="icons/SweetieLegacy/16-em-pencil.png" />
-					<include name="icons/SweetieLegacy/16-em-check.png" />
-					<include name="icons/SweetieLegacy/16-em-cross.png" />
-				</fileset>
+          <include name="icons/SweetieLegacy/16-circle-blue.png" />
+          <include name="icons/SweetieLegacy/16-clock.png" />
+          <include name="icons/SweetieLegacy/16-em-pencil.png" />
+          <include name="icons/SweetieLegacy/16-em-check.png" />
+          <include name="icons/SweetieLegacy/16-em-cross.png" />
+        </fileset>
 
-				<zipgroupfileset refid="classpath.runtime" />
-				<zipgroupfileset dir="${lib.main}">
-					<include name="swt-@{platform}*.jar" />
-				</zipgroupfileset>
+        <zipgroupfileset refid="classpath.runtime" />
+        <zipgroupfileset dir="${lib.main}">
+          <include name="swt-@{platform}*.jar" />
+        </zipgroupfileset>
 
-				<fileset file="${version.file}" />
-				<fileset file="${logging.file}" />
-			</jar>
-		</sequential>
-	</macrodef>
+        <fileset file="${version.file}" />
+        <fileset file="${logging.file}" />
+      </jar>
+    </sequential>
+  </macrodef>
 
-	<macrodef name="build.linux">
-		<attribute name="platform" />
-		<sequential>
-			<build.jar platform="@{platform}" />
+  <macrodef name="build.linux">
+    <attribute name="platform" />
+    <sequential>
+      <build.jar platform="@{platform}" />
 
-			<mkdir dir="${build}/@{platform}/${rel.name}" />
+      <mkdir dir="${build}/@{platform}/${rel.name}" />
 
-			<mkdir dir="${build}/@{platform}/${rel.name}" />
-			<move file="${build}/@{platform}/tvrenamer.jar" todir="${build}/@{platform}/${rel.name}" />
-			<copy file="${etc}/run-scripts/run-linux.sh" todir="${build}/@{platform}/${rel.name}" />
-			<copy file="LICENSE" todir="${build}/@{platform}/${rel.name}" />
+      <mkdir dir="${build}/@{platform}/${rel.name}" />
+      <move file="${build}/@{platform}/tvrenamer.jar" todir="${build}/@{platform}/${rel.name}" />
+      <copy file="${etc}/run-scripts/run-linux.sh" todir="${build}/@{platform}/${rel.name}" />
+      <copy file="LICENSE" todir="${build}/@{platform}/${rel.name}" />
 
-			<zip destfile="${build}/@{platform}/${rel.name}/${rel.name}-@{platform}.zip">
-				<zipfileset dir="${build}/@{platform}" filemode="755" />
-			</zip>
-			<copy file="${build}/@{platform}/${rel.name}/${rel.name}-@{platform}.zip" todir="${dist}" />
+      <zip destfile="${build}/@{platform}/${rel.name}/${rel.name}-@{platform}.zip">
+        <zipfileset dir="${build}/@{platform}" filemode="755" />
+      </zip>
+      <copy file="${build}/@{platform}/${rel.name}/${rel.name}-@{platform}.zip" todir="${dist}" />
 
-			<delete dir="${build}/@{platform}/" failonerror="false" />
-		</sequential>
-	</macrodef>
+      <delete dir="${build}/@{platform}/" failonerror="false" />
+    </sequential>
+  </macrodef>
 
-	<macrodef name="build.osx">
-		<attribute name="platform" />
-		<sequential>
-			<build.jar platform="@{platform}" />
+  <macrodef name="build.osx">
+    <attribute name="platform" />
+    <sequential>
+      <build.jar platform="@{platform}" />
 
-			<bundleapp
-				jvmrequired="1.8"
-				jrepreferred="true"
-				outputdirectory="${build}/@{platform}"
-				name="${rel.name}"
-				displayname="${rel.name}"
-				identifier="org.tvrenamer"
-				version="${version}"
-				icon="${res}/icons/tvrenamer.icns"
-				mainclassname="${jar.mainClass}">
-				<classpath file="${build}/@{platform}/tvrenamer.jar" />
-				<option value="-XstartOnFirstThread" />
-			</bundleapp>
+      <bundleapp
+        jvmrequired="1.8"
+        jrepreferred="true"
+        outputdirectory="${build}/@{platform}"
+        name="${rel.name}"
+        displayname="${rel.name}"
+        identifier="org.tvrenamer"
+        version="${version}"
+        icon="${res}/icons/tvrenamer.icns"
+        mainclassname="${jar.mainClass}">
+        <classpath file="${build}/@{platform}/tvrenamer.jar" />
+        <option value="-XstartOnFirstThread" />
+      </bundleapp>
 
-			<delete file="${build}/@{platform}/tvrenamer.jar" />
-			<zip destfile="${build}/@{platform}/${rel.name}-@{platform}.zip">
-				<zipfileset dir="${build}/@{platform}" filemode="755" />
-			</zip>
-			<copy file="${build}/@{platform}/${rel.name}-@{platform}.zip" todir="${dist}" />
+      <delete file="${build}/@{platform}/tvrenamer.jar" />
+      <zip destfile="${build}/@{platform}/${rel.name}-@{platform}.zip">
+        <zipfileset dir="${build}/@{platform}" filemode="755" />
+      </zip>
+      <copy file="${build}/@{platform}/${rel.name}-@{platform}.zip" todir="${dist}" />
 
-			<delete dir="${build}/@{platform}/" failonerror="false" />
-		</sequential>
-	</macrodef>
+      <delete dir="${build}/@{platform}/" failonerror="false" />
+    </sequential>
+  </macrodef>
 
-	<macrodef name="build.win">
-		<attribute name="platform" />
-		<sequential>
-			<fail unless="launch4j.path" message="You must set the 'launch4j.path' property in build.properties. Copy, rename build.properties.template and enter the launch4j location" />
+  <macrodef name="build.win">
+    <attribute name="platform" />
+    <sequential>
+      <fail unless="launch4j.path" message="You must set the 'launch4j.path' property in build.properties. Copy, rename build.properties.template and enter the launch4j location" />
 
-			<build.jar platform="@{platform}" />
-			<!-- Create the .exe with launch4j, but first you must uncomment the ant task import above -->
-			<launch4j>
-				<config headerType="gui"
-				        outfile="${dist}/${rel.name}-@{platform}.exe"
-				        dontWrapJar="false"
-				        jar="${build}/@{platform}/tvrenamer.jar"
-				        icon="${res}\icons\oldschool-tv-icon.ico"
-				        chdir=".">
-					<jre minVersion="1.8.0" />
-				</config>
-			</launch4j>
+      <build.jar platform="@{platform}" />
+      <!-- Create the .exe with launch4j, but first you must uncomment the ant task import above -->
+      <launch4j>
+        <config headerType="gui"
+                outfile="${dist}/${rel.name}-@{platform}.exe"
+                dontWrapJar="false"
+                jar="${build}/@{platform}/tvrenamer.jar"
+                icon="${res}\icons\oldschool-tv-icon.ico"
+                chdir=".">
+          <jre minVersion="1.8.0" />
+        </config>
+      </launch4j>
 
-			<delete dir="${build}/@{platform}/" failonerror="false" />
-		</sequential>
-	</macrodef>
+      <delete dir="${build}/@{platform}/" failonerror="false" />
+    </sequential>
+  </macrodef>
 
 
-	<target name="dist.win" depends="clean">
-		<build.win platform="win32" />
-		<build.win platform="win64" />
-	</target>
+  <target name="dist.win" depends="clean">
+    <build.win platform="win32" />
+    <build.win platform="win64" />
+  </target>
 
-	<target name="dist.linux" depends="clean">
-		<build.linux platform="gtk32" />
-		<build.linux platform="gtk64" />
-	</target>
+  <target name="dist.linux" depends="clean">
+    <build.linux platform="gtk32" />
+    <build.linux platform="gtk64" />
+  </target>
 
-	<target name="dist.osx" depends="clean">
-		<build.osx platform="osx32" />
-		<build.osx platform="osx64" />
-	</target>
+  <target name="dist.osx" depends="clean">
+    <build.osx platform="osx32" />
+    <build.osx platform="osx64" />
+  </target>
 
-	<target name="dist.all" depends="clean, dist.win, dist.linux, dist.osx" />
+  <target name="dist.all" depends="clean, dist.win, dist.linux, dist.osx" />
 
-	<target name="init-checkstyle">
-		<path id="checkstyle.lib.path">
-			<fileset dir="${lib.test}">
-				<include name="checkstyle-7.1.1.jar" />
-				<include name="guava-19.0.jar" />
-				<include name="commons-beanutils-1.9.2.jar" />
-				<include name="commons-cli-1.3.1.jar" />
-				<include name="commons-collections-3.2.2.jar" />
-				<include name="commons-logging-1.1.1.jar" />
-				<include name="antlr-2.7.7.jar" />
-				<include name="antlr4-runtime-4.5.3.jar" />
-			</fileset>
-		</path>
-		<taskdef resource="com/puppycrawl/tools/checkstyle/ant/checkstyle-ant-task.properties"
-						 classpathref="checkstyle.lib.path"/>
-	</target>
+  <target name="init-checkstyle">
+    <path id="checkstyle.lib.path">
+      <fileset dir="${lib.test}">
+        <include name="checkstyle-7.1.1.jar" />
+        <include name="guava-19.0.jar" />
+        <include name="commons-beanutils-1.9.2.jar" />
+        <include name="commons-cli-1.3.1.jar" />
+        <include name="commons-collections-3.2.2.jar" />
+        <include name="commons-logging-1.1.1.jar" />
+        <include name="antlr-2.7.7.jar" />
+        <include name="antlr4-runtime-4.5.3.jar" />
+      </fileset>
+    </path>
+    <taskdef resource="com/puppycrawl/tools/checkstyle/ant/checkstyle-ant-task.properties"
+             classpathref="checkstyle.lib.path"/>
+  </target>
 
-	<target name="checkstyle" depends="init-checkstyle"
-					description="Generates a report of code convention violations.">
-		<checkstyle config="etc/checks.xml">
-			<fileset dir="src" includes="**/*.java"/>
-		</checkstyle>
-	</target>
+  <target name="checkstyle" depends="init-checkstyle"
+          description="Generates a report of code convention violations.">
+    <checkstyle config="etc/checks.xml">
+      <fileset dir="src" includes="**/*.java"/>
+    </checkstyle>
+  </target>
 
-	<target name="clean">
-		<delete includeemptydirs="true" failonerror="false">
-			<fileset dir="${build}" includes="**/*" />
-			<fileset dir="${dist}" includes="**/*" />
-		</delete>
-	</target>
+  <target name="clean">
+    <delete includeemptydirs="true" failonerror="false">
+      <fileset dir="${build}" includes="**/*" />
+      <fileset dir="${dist}" includes="**/*" />
+    </delete>
+  </target>
 
-	<target name="usage">
-		<echo message="Usage: ant dist.{win, linux, osx, all}" />
-		<echo message="       tests {-Dproxy.enabled=true -Dproxy.host=hostname -Dproxy.port=portNumber {-Dproxy.user=username -Dproxy.password=password}}" />
-	</target>
+  <target name="usage">
+    <echo message="Usage: ant dist.{win, linux, osx, all}" />
+    <echo message="       tests {-Dproxy.enabled=true -Dproxy.host=hostname -Dproxy.port=portNumber {-Dproxy.user=username -Dproxy.password=password}}" />
+  </target>
 
-	<target name="proxy" if="proxy.enabled">
+  <target name="proxy" if="proxy.enabled">
     <setproxy proxyhost="${proxy.host}" proxyport="${proxy.port}"
-    	proxyuser="${proxy.user}" proxypassword="${proxy.password}"/>
-	</target>
+      proxyuser="${proxy.user}" proxypassword="${proxy.password}"/>
+  </target>
 
-	<target name="test" depends="clean, compile.test, proxy">
-		<junit haltonerror="true" haltonfailure="true" printsummary="true" fork="no" forkmode="once">
-			<formatter type="plain" usefile="false" />
+  <target name="test" depends="clean, compile.test, proxy">
+    <junit haltonerror="true" haltonfailure="true" printsummary="true" fork="no" forkmode="once">
+      <formatter type="plain" usefile="false" />
 
-			<classpath refid="classpath.test" />
+      <classpath refid="classpath.test" />
 
-			<batchtest>
-				<fileset dir="${src.test}" />
-			</batchtest>
-		</junit>
-	</target>
+      <batchtest>
+        <fileset dir="${src.test}" />
+      </batchtest>
+    </junit>
+  </target>
 
 </project>
