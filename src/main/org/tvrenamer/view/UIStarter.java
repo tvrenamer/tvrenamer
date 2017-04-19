@@ -665,7 +665,7 @@ public class UIStarter implements Observer,  AddEpisodeListener {
                                 @Override
                                 public void run() {
                                     if ( tableContainsTableItem(item) ) {
-                                        item.setText(NEW_FILENAME_COLUMN, episode.getNewFilePath());
+                                        item.setText(NEW_FILENAME_COLUMN, episode.getReplacementText());
                                         item.setImage(STATUS_COLUMN, FileMoveIcon.ADDED.icon);
                                     }
                                 }
@@ -827,7 +827,7 @@ public class UIStarter implements Observer,  AddEpisodeListener {
             // to a list of banned keywords
             item.setChecked(!isNameIgnored(newFilename));
 
-            newFilename = episode.getNewFilename();
+            newFilename = episode.getReplacementText();
         } catch (NotFoundException e) {
             newFilename = e.getMessage();
             item.setChecked(false);
@@ -920,7 +920,7 @@ public class UIStarter implements Observer,  AddEpisodeListener {
             String newFileName = episode.getFilepath();
             episodeMap.put(newFileName, episode);
             item.setText(CURRENT_FILE_COLUMN, newFileName);
-            item.setText(NEW_FILENAME_COLUMN, episode.getNewFilePath());
+            item.setText(NEW_FILENAME_COLUMN, episode.getReplacementText());
         }
     }
 

@@ -271,36 +271,42 @@ public class FileEpisode {
         return baseForRename + filenameSuffix;
     }
 
-    public String getNewFilename() {
+    /**
+     * @return the new full file path (for table display) using {@link #getRenamedFilename()} and
+     *          the destination directory
+     */
+    public String getReplacementText() {
         switch (status) {
             case ADDED: {
                 return ADDED_PLACEHOLDER_FILENAME;
             }
             case DOWNLOADED:
             case RENAMED: {
-                if (!userPrefs.isRenameEnabled()) {
-                    return path.getFileName().toString();
+                String currentFilename = path.getFileName().toString();
+                String newFilename = getRenamedFilename();
+                String destDirectoryName = getDestinationDirectoryName();
+
+                if (userPrefs.isMoveEnabled()) {
+                    if (userPrefs.isRenameEnabled()) {
+                        return  destDirectoryName + FILE_SEPARATOR_STRING + newFilename;
+                    } else {
+                        return  destDirectoryName + FILE_SEPARATOR_STRING + currentFilename;
+                    }
+                } else {
+                    if (userPrefs.isRenameEnabled()) {
+                        return newFilename;
+                    } else {
+                        // This setting doesn't make any sense, but we haven't bothered to
+                        // disallow it yet.
+                        return currentFilename;
+                    }
                 }
-                return getRenamedFilename();
             }
             case UNPARSED:
             case BROKEN:
             default:
                 return BROKEN_PLACEHOLDER_FILENAME;
         }
-    }
-
-    /**
-     * @return the new full file path (for table display) using {@link #getNewFilename()} and
-     *          the destination directory
-     */
-    public String getNewFilePath() {
-        String filename = getNewFilename();
-
-        if (userPrefs.isMoveEnabled()) {
-            return getDestinationDirectoryName() + FILE_SEPARATOR_STRING + filename;
-        }
-        return filename;
     }
 
     @Override
