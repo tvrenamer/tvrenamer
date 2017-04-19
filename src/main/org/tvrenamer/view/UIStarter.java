@@ -46,7 +46,9 @@ import org.eclipse.swt.widgets.Text;
 
 import org.tvrenamer.controller.AddEpisodeListener;
 import org.tvrenamer.controller.FileMover;
+import org.tvrenamer.controller.ListingsLookup;
 import org.tvrenamer.controller.ShowInformationListener;
+import org.tvrenamer.controller.ShowListingsListener;
 import org.tvrenamer.controller.UpdateChecker;
 import org.tvrenamer.controller.UpdateCompleteHandler;
 import org.tvrenamer.model.EpisodeDb;
@@ -647,6 +649,48 @@ public class UIStarter implements Observer,  AddEpisodeListener {
         launch();
     }
 
+    private void listingsDownloaded(TableItem item, FileEpisode episode) {
+        episode.setStatus(EpisodeStatus.GOT_LISTINGS);
+        display.asyncExec(new Runnable() {
+                @Override
+                public void run() {
+                    if ( tableContainsTableItem(item) ) {
+                        item.setText(NEW_FILENAME_COLUMN, episode.getReplacementText());
+                        item.setImage(STATUS_COLUMN, FileMoveIcon.ADDED.icon);
+                    }
+                }
+            });
+    }
+
+    private void listingsFailed(TableItem item, FileEpisode episode) {
+        episode.setStatus(EpisodeStatus.BROKEN);
+        display.asyncExec(new Runnable() {
+                @Override
+                public void run() {
+                    if ( tableContainsTableItem(item) ) {
+                        item.setText(NEW_FILENAME_COLUMN, DOWNLOADING_FAILED_MESSAGE);
+                        item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
+                        item.setChecked(false);
+                    }
+                }
+            });
+    }
+
+    private void getShowListings(Show show, TableItem item, FileEpisode episode) {
+        ListingsLookup.getListings(show, new ShowListingsListener() {
+                @Override
+                public void downloadListingsComplete(Show show) {
+                    listingsDownloaded(item, episode);
+                }
+
+                @Override
+                public void downloadListingsFailed(Show show) {
+                    listingsFailed(item, episode);
+                }
+            });
+    }
+
+
     private void tableItemDownloaded(TableItem item, FileEpisode episode) {
         episode.setStatus(EpisodeStatus.GOT_SHOW);
         display.asyncExec(new Runnable() {
@@ -688,6 +732,7 @@ public class UIStarter implements Observer,  AddEpisodeListener {
                     @Override
                     public void downloaded(Show show) {
                         tableItemDownloaded(item, episode);
+                        getShowListings(show, item, episode);
                     }
 
                     @Override
