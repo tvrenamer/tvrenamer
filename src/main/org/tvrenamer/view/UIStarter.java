@@ -647,6 +647,33 @@ public class UIStarter implements Observer,  AddEpisodeListener {
         launch();
     }
 
+    private void tableItemDownloaded(TableItem item, FileEpisode episode) {
+        episode.setStatus(EpisodeStatus.GOT_LISTINGS);
+        display.asyncExec(new Runnable() {
+                @Override
+                public void run() {
+                    if ( tableContainsTableItem(item) ) {
+                        item.setText(NEW_FILENAME_COLUMN, episode.getReplacementText());
+                        item.setImage(STATUS_COLUMN, FileMoveIcon.ADDED.icon);
+                    }
+                }
+            });
+    }
+
+    private void tableItemFailed(TableItem item, FileEpisode episode) {
+        episode.setStatus(EpisodeStatus.BROKEN);
+        display.asyncExec(new Runnable() {
+                @Override
+                public void run() {
+                    if ( tableContainsTableItem(item) ) {
+                        item.setText(NEW_FILENAME_COLUMN, DOWNLOADING_FAILED_MESSAGE);
+                        item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
+                        item.setChecked(false);
+                    }
+                }
+            });
+    }
+
     @Override
     public void addEpisodes(Queue<FileEpisode> episodes) {
         // Update the list of ignored keywords
@@ -660,31 +687,12 @@ public class UIStarter implements Observer,  AddEpisodeListener {
             ShowStore.getShow(showName, new ShowInformationListener() {
                     @Override
                     public void downloaded(Show show) {
-                        episode.setStatus(EpisodeStatus.GOT_LISTINGS);
-                        display.asyncExec(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if ( tableContainsTableItem(item) ) {
-                                        item.setText(NEW_FILENAME_COLUMN, episode.getReplacementText());
-                                        item.setImage(STATUS_COLUMN, FileMoveIcon.ADDED.icon);
-                                    }
-                                }
-                            });
+                        tableItemDownloaded(item, episode);
                     }
 
                     @Override
                     public void downloadFailed(Show show) {
-                        episode.setStatus(EpisodeStatus.BROKEN);
-                        display.asyncExec(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if ( tableContainsTableItem(item) ) {
-                                        item.setText(NEW_FILENAME_COLUMN, DOWNLOADING_FAILED_MESSAGE);
-                                        item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
-                                        item.setChecked(false);
-                                    }
-                                }
-                            });
+                        tableItemFailed(item, episode);
                     }
                 });
         }
