@@ -648,7 +648,7 @@ public class UIStarter implements Observer,  AddEpisodeListener {
     }
 
     private void tableItemDownloaded(TableItem item, FileEpisode episode) {
-        episode.setStatus(EpisodeStatus.GOT_LISTINGS);
+        episode.setStatus(EpisodeStatus.GOT_SHOW);
         display.asyncExec(new Runnable() {
                 @Override
                 public void run() {
