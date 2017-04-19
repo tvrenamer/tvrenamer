@@ -248,7 +248,7 @@
       <classpath refid="classpath.test" />
 
       <batchtest>
-        <fileset dir="${src.test}" />
+        <fileset dir="${src.test}" includes="**/*Test.java" />
       </batchtest>
     </junit>
   </target>
