@@ -70,6 +70,47 @@ public class ShowStore {
         }
     }
 
+    /**
+     * Given a list of two or more options for which series we're dealing with,
+     * choose the best one and return it.
+     *
+     * @param options the potential shows that match the string we searched for.
+                Must not be null.
+     * @param showName the part of the filename that is presumed to name the show
+     * @return the series from the list which best matches the series information
+     */
+    private static Show selectShowOption(List<Show> options, String showName) {
+        int nOptions = options.size();
+        if (nOptions == 0) {
+            logger.info("did not find any options for " + showName);
+            return null;
+        }
+        if (nOptions == 1) {
+            return options.get(0);
+        }
+        // logger.info("got " + nOptions + " options for " + showName);
+        Show selected = null;
+        for (int i=0; i<nOptions; i++) {
+            Show s = options.get(i);
+            String sName = s.getName();
+            if (showName.equals(sName)) {
+                if (selected == null) {
+                    selected = s;
+                } else {
+                    // TODO: could check language?  other criteria?
+                    logger.warning("multiple exact hits for " + showName
+                                   + "; choosing first one");
+                }
+            }
+        }
+        // TODO: still might be better ways to choose if we don't have an exact match.
+        // Levenshtein distance?
+        if (selected == null) {
+            selected = options.get(0);
+        }
+        return selected;
+    }
+
     private static void downloadShow(final String showName) {
         Callable<Boolean> showFetcher = new Callable<Boolean>() {
             @Override
@@ -77,9 +118,7 @@ public class ShowStore {
                 Show thisShow;
                 try {
                     List<Show> options = TheTVDBProvider.getShowOptions(showName);
-                    thisShow = options.get(0);
-
-                    TheTVDBProvider.getShowListing(thisShow);
+                    thisShow = selectShowOption(options, showName);
                 } catch (TVRenamerIOException e) {
                     thisShow = new FailedShow("", showName, "", e);
                 }
