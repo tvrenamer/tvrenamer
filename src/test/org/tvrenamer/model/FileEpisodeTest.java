@@ -69,7 +69,7 @@ public class FileEpisodeTest {
         episode.setSeasonNum(seasonNum);
         episode.setEpisodeNum(episodeNum);
         episode.setFilenameResolution(resolution);
-        episode.setStatus(EpisodeStatus.DOWNLOADED);
+        episode.setStatus(EpisodeStatus.GOT_LISTINGS);
 
         String newFilename = episode.getReplacementText();
 
@@ -105,7 +105,7 @@ public class FileEpisodeTest {
         episode.setSeasonNum(seasonNum);
         episode.setEpisodeNum(episodeNum);
         episode.setFilenameResolution(resolution);
-        episode.setStatus(EpisodeStatus.DOWNLOADED);
+        episode.setStatus(EpisodeStatus.GOT_LISTINGS);
 
         String newFilename = episode.getReplacementText();
 

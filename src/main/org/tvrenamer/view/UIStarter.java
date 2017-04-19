@@ -660,7 +660,7 @@ public class UIStarter implements Observer,  AddEpisodeListener {
             ShowStore.getShow(showName, new ShowInformationListener() {
                     @Override
                     public void downloaded(Show show) {
-                        episode.setStatus(EpisodeStatus.DOWNLOADED);
+                        episode.setStatus(EpisodeStatus.GOT_LISTINGS);
                         display.asyncExec(new Runnable() {
                                 @Override
                                 public void run() {
@@ -711,7 +711,7 @@ public class UIStarter implements Observer,  AddEpisodeListener {
                 String fileName = item.getText(CURRENT_FILE_COLUMN);
                 final FileEpisode episode = episodeMap.get(fileName);
                 // Skip files not successfully downloaded
-                if (episode.getStatus() != EpisodeStatus.DOWNLOADED) {
+                if (episode.getStatus() != EpisodeStatus.GOT_LISTINGS) {
                     continue;
                 }
 
