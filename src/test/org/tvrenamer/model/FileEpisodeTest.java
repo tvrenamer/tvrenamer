@@ -71,7 +71,7 @@ public class FileEpisodeTest {
         episode.setFilenameResolution(resolution);
         episode.setStatus(EpisodeStatus.DOWNLOADED);
 
-        String newFilename = episode.getNewFilename();
+        String newFilename = episode.getReplacementText();
 
         assertEquals("The Simpsons [5x10] $pringfield 720p.avi", newFilename);
     }
@@ -107,7 +107,7 @@ public class FileEpisodeTest {
         episode.setFilenameResolution(resolution);
         episode.setStatus(EpisodeStatus.DOWNLOADED);
 
-        String newFilename = episode.getNewFilename();
+        String newFilename = episode.getReplacementText();
 
         assertFalse("Resulting filename must not contain a ':' as it breaks Windows", newFilename.contains(":"));
     }
