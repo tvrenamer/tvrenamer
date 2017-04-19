@@ -49,9 +49,6 @@ public class FileEpisode {
             }
         };
 
-    private static final int NO_SEASON = -1;
-    private static final int NO_EPISODE = 0;
-
     // These four fields reflect the information derived from the filename.  In particular,
     // filenameShow is based on the part of the filename we "guessed" represented the name
     // of the show, and which we use to query the provider.  Note that the actual show name
@@ -65,8 +62,8 @@ public class FileEpisode {
     private String baseForRename = null;
     private String filenameSuffix = null;
 
-    private int seasonNum = NO_SEASON;
-    private int episodeNum = NO_EPISODE;
+    private int seasonNum = Show.NO_SEASON;
+    private int episodeNum = Show.NO_EPISODE;
 
     private Path path;
 
@@ -112,7 +109,7 @@ public class FileEpisode {
         try {
             seasonNum = Integer.parseInt(filenameSeason);
         } catch (Exception e) {
-            seasonNum = NO_SEASON;
+            seasonNum = Show.NO_SEASON;
         }
     }
 
@@ -133,7 +130,7 @@ public class FileEpisode {
         try {
             episodeNum = Integer.parseInt(filenameEpisode);
         } catch (Exception e) {
-            episodeNum = NO_EPISODE;
+            episodeNum = Show.NO_EPISODE;
         }
     }
 
@@ -201,19 +198,16 @@ public class FileEpisode {
             Show show = ShowStore.getShow(queryString);
             showName = show.getName();
 
-            Season season = show.getSeason(seasonNum);
-            if (season == null) {
-                logger.log(Level.SEVERE, "Season #" + seasonNum + " not found for show '"
+            Episode actualEpisode = show.getEpisode(seasonNum, episodeNum);
+            if (actualEpisode == null) {
+                logger.log(Level.SEVERE, "Season #" + seasonNum + ", Episode #"
+                           + episodeNum + " not found for show '"
                            + filenameShow + "'");
             } else {
-                try {
-                    titleString = season.getTitle(episodeNum);
-                    airDate = season.getAirDate(episodeNum);
-                    if (airDate == null) {
-                        logger.log(Level.WARNING, "Episode air date not found for '" + toString() + "'");
-                    }
-                } catch (EpisodeNotFoundException e) {
-                    logger.log(Level.SEVERE, "Episode not found for '" + toString() + "'", e);
+                titleString = actualEpisode.getTitle();
+                airDate = actualEpisode.getAirDate();
+                if (airDate == null) {
+                    logger.log(Level.WARNING, "Episode air date not found for '" + toString() + "'");
                 }
             }
         } catch (ShowNotFoundException e) {
