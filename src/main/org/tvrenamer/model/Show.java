@@ -60,18 +60,30 @@ public class Show implements Comparable<Show> {
         }
         Episode found = season.remove(episodeNum);
         if (found == null) {
+            // normal, expected case: first time we're encountering the episode
+            season.put(episodeNum, episode);
+        } else if (found == episode) {
+            // Well, this is unfortunate; if it happens, investigate why.  But it's
+            // fine.  We still have a unique object.
+            season.put(episodeNum, episode);
+        } else if (found.getTitle().equals(episode.getTitle())) {
+            // This is less fine.  We've apparently created two objects to represent
+            // the same data.  This should be fixed.
+            logger.warning("replacing episode object for show " + name + ", season "
+                           + seasonNum + ", episode " + episodeNum + " (\""
+                           + found.getTitle() + "\")");
             season.put(episodeNum, episode);
         } else {
-            logger.warning("two episodes found for show " + name + ", season "
-                           + seasonNum + ", episode " + episodeNum + ": \""
-                           + found.getTitle() + "\" and \""
-                           + episode.getTitle() + "\"");
             // In this very unexpected case, we will not keep EITHER episode
             // in the table.  Remember that both will be in the unordered List
             // of episodes.  A future feature may be that when an episode is not
             // found in the seasons map, for whatever reason, to search through
             // the episode list.  This could be for "special" episodes, DVD extras,
             // etc.  But it could also be used for this case.
+            logger.warning("two episodes found for show " + name + ", season "
+                           + seasonNum + ", episode " + episodeNum + ": \""
+                           + found.getTitle() + "\" and \""
+                           + episode.getTitle() + "\"");
         }
     }
 
@@ -87,9 +99,16 @@ public class Show implements Comparable<Show> {
             logger.info("episode \"" + title + "\" of show " + name
                         + " has non-numeric season: " + seasonString);
         }
-        Episode episode = new Episode(seasonNum, episodeNum, title, firstAired);
-        episodes.add(episode);
+        Episode episode = null;
         if (seasonNum > NO_SEASON) {
+            Map<Integer, Episode> season = seasons.get(seasonNum);
+            if (season != null) {
+                episode = season.get(episodeNum);
+            }
+        }
+        if (episode == null) {
+            episode = new Episode(seasonNum, episodeNum, title, firstAired);
+            episodes.add(episode);
             addEpisodeToSeason(seasonNum, episodeNum, episode);
         }
     }
