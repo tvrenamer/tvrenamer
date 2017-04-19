@@ -271,6 +271,13 @@ public class FileEpisode {
         return baseForRename + filenameSuffix;
     }
 
+    private String getShowNamePlaceholder() {
+        Show show = ShowStore.getShow(queryString);
+        String showName = show.getName();
+
+        return "<" + showName + ">";
+    }
+
     /**
      * @return the new full file path (for table display) using {@link #getRenamedFilename()} and
      *          the destination directory
@@ -279,6 +286,9 @@ public class FileEpisode {
         switch (status) {
             case ADDED: {
                 return ADDED_PLACEHOLDER_FILENAME;
+            }
+            case GOT_SHOW: {
+                return getShowNamePlaceholder();
             }
             case GOT_LISTINGS:
             case RENAMED: {
