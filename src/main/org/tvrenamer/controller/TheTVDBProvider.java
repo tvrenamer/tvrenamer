@@ -5,6 +5,7 @@ import static org.tvrenamer.controller.util.XPathUtilities.nodeTextValue;
 import static org.tvrenamer.model.util.Constants.*;
 
 import org.tvrenamer.controller.util.StringUtils;
+import org.tvrenamer.model.EpisodeInfo;
 import org.tvrenamer.model.Show;
 import org.tvrenamer.model.TVRenamerIOException;
 
@@ -17,9 +18,6 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -33,10 +31,6 @@ import javax.xml.xpath.XPathExpressionException;
 public class TheTVDBProvider {
     private static Logger logger = Logger.getLogger(TheTVDBProvider.class.getName());
 
-    private static final String EPISODE_DATE_FORMAT = "yyyy-MM-dd";
-    // Unlike java.text.DateFormat, DateTimeFormatter is thread-safe, so we can create just one instance here.
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern(EPISODE_DATE_FORMAT);
-
     private static final String API_KEY = "4A9560FF0B2670B2";
 
     private static final String BASE_SEARCH_URL = "http://www.thetvdb.com/api/GetSeries.php?seriesname=";
@@ -49,14 +43,15 @@ public class TheTVDBProvider {
     private static final String XPATH_EPISODE_LIST = "/Data/Episode";
     private static final String SERIES_NOT_PERMITTED = "** 403: Series Not Permitted **";
 
+    private static final String XPATH_EPISODE_ID = "id";
     private static final String XPATH_SEASON_NUM = "SeasonNumber";
     private static final String XPATH_EPISODE_NUM = "EpisodeNumber";
     private static final String XPATH_EPISODE_NAME = "EpisodeName";
-    private static final String XPATH_DVD_EPISODE_NUM = "DVD_episodenumber";
     private static final String XPATH_AIRDATE = "FirstAired";
-
-    // sets whether or not to prefer DVD episode number from TVDB listings over plain episode number
-    private static boolean preferDVDEpNum = true;
+    private static final String XPATH_EPISODE_SERIES_ID = "seriesid";
+    private static final String XPATH_DVD_SEASON_NUM = "DVD_season";
+    private static final String XPATH_DVD_EPISODE_NUM = "DVD_episodenumber";
+    private static final String XPATH_EPISODE_NUM_ABS = "absolute_number";
 
     private static String getShowSearchXml(final String showName)
         throws TVRenamerIOException
@@ -144,69 +139,23 @@ public class TheTVDBProvider {
         }
     }
 
-    private static Integer getEpisodeNumberFromNode(final String name, final Node eNode)
-        throws XPathExpressionException
-    {
-        String epNumText = nodeTextValue(name, eNode);
-        return StringUtils.stringToInt(epNumText);
-    }
-
-    private static Integer getEpisodeNumber(final Node eNode)
-        throws XPathExpressionException
-    {
-        String choice = preferDVDEpNum ? XPATH_DVD_EPISODE_NUM : XPATH_EPISODE_NUM;
-        Integer epNum = getEpisodeNumberFromNode(choice, eNode);
-
-        if (epNum != null) {
-            return epNum;
-        }
-
-        choice = preferDVDEpNum ? XPATH_EPISODE_NUM : XPATH_DVD_EPISODE_NUM;
-        return getEpisodeNumberFromNode(choice, eNode);
-    }
-
-    private static LocalDate getEpisodeDate(final Node eNode)
-        throws XPathExpressionException
-    {
-        String airdate = nodeTextValue(XPATH_AIRDATE, eNode);
-        LocalDate date = null;
-        if (StringUtils.isBlank(airdate)) {
-            // When no value (good or bad) is found, use "now".
-            date = LocalDate.now();
-        } else {
-            try {
-                date = LocalDate.parse(airdate, DATE_FORMATTER);
-            } catch (DateTimeParseException e) {
-                // While a null or empty string is taken to mean "now",
-                // a badly formatted string is an error and will not
-                // be translated into any date.
-                logger.warning("could not parse as date: " + airdate);
-                date = null;
-            }
-        }
-
-        return date;
-    }
-
-    private static void addEpisodeToShow(final Node eNode, final Show show) {
+    private static EpisodeInfo createEpisodeInfo(final Node eNode) {
         try {
-            Integer epNum = getEpisodeNumber(eNode);
-            if (epNum == null) {
-                logger.info("ignoring episode with no epnum: " + eNode);
-                return;
-            }
-
-            String seasonNumString = nodeTextValue(XPATH_SEASON_NUM, eNode);
-            String episodeName = nodeTextValue(XPATH_EPISODE_NAME, eNode);
-            logger.finer("[" + seasonNumString + "x" + epNum + "] " + episodeName);
-
-            LocalDate date = getEpisodeDate(eNode);
-
-            show.addEpisode(seasonNumString, epNum, episodeName, date);
+            return new EpisodeInfo.Builder()
+                .episodeId(nodeTextValue(XPATH_EPISODE_ID, eNode))
+                .seasonNumber(nodeTextValue(XPATH_SEASON_NUM, eNode))
+                .episodeNumber(nodeTextValue(XPATH_EPISODE_NUM, eNode))
+                .episodeName(nodeTextValue(XPATH_EPISODE_NAME, eNode))
+                .firstAired(nodeTextValue(XPATH_AIRDATE, eNode))
+                .dvdSeason(nodeTextValue(XPATH_DVD_SEASON_NUM, eNode))
+                .dvdEpisodeNumber(nodeTextValue(XPATH_DVD_EPISODE_NUM, eNode))
+                .absoluteNumber(nodeTextValue(XPATH_EPISODE_NUM_ABS, eNode))
+                .seriesId(nodeTextValue(XPATH_EPISODE_SERIES_ID, eNode))
+                .build();
         } catch (Exception e) {
-            logger.warning("exception parsing episode of " + show);
-            logger.warning(e.toString());
+            logger.log(Level.WARNING, "exception parsing episode", e);
         }
+        return null;
     }
 
     private static NodeList getEpisodeList(final Show show)
@@ -239,23 +188,17 @@ public class TheTVDBProvider {
     {
         try {
             NodeList episodes = getEpisodeList(show);
-            for (int i = 0; i < episodes.getLength(); i++) {
-                addEpisodeToShow(episodes.item(i), show);
+            int episodeCount = episodes.getLength();
+
+            EpisodeInfo[] episodeInfos = new EpisodeInfo[episodeCount];
+            for (int i = 0; i < episodeCount; i++) {
+                episodeInfos[i] = createEpisodeInfo(episodes.item(i));
             }
+            show.addEpisodes(episodeInfos);
+
         } catch (IOException | NumberFormatException | DOMException e) {
             logger.log(Level.WARNING, e.getMessage(), e);
             throw new TVRenamerIOException(ERROR_PARSING_XML, e);
         }
-    }
-
-    /**
-     * Sets whether or not prefer the DVD episode number from TVDB over the plain
-     * episode number.
-     *
-     * @param preferDVDEpNum TRUE or FALSE depending upon preferences of DVD number
-     *             over plain episode number.
-     */
-    public static void setPreferDVDEpNum(boolean preferDVDEpNum) {
-        TheTVDBProvider.preferDVDEpNum = preferDVDEpNum;
     }
 }
