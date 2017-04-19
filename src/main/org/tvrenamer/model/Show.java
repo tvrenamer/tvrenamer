@@ -49,6 +49,10 @@ public class Show implements Comparable<Show> {
         return seasons.get(sNum);
     }
 
+    public boolean hasSeasons() {
+        return (seasons.size() > 0);
+    }
+
     public int getSeasonCount() {
         return seasons.size();
     }
