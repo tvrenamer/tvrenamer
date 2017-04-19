@@ -63,12 +63,57 @@ public class TheTVDBProviderTest {
 
         TheTVDBProvider.getShowListing(best);
 
+        best.preferProductionOrdering();
         Episode s1e02 = best.getEpisode(1, 2);
-        assertNotNull(s1e02);
+        assertNotNull("result of calling getEpisode(1, 2) on " + showName + " came back null",
+                      s1e02);
         assertEquals(ep2Name, s1e02.getTitle());
 
         // This is probably too likely to change.
         // assertEquals(1, options.size());
+    }
+
+    /**
+     * Second download test.  This one is specifically chosen to ensure we
+     * get the right preferences between "DVD number" and "regular number".
+     */
+    @Test
+    public void testRegularEpisodePreference() throws Exception {
+        final String showName = "Firefly";
+        final String showId = "78874";
+        final String dvdName = "The Train Job";
+        final String productionName = "Bushwhacked";
+
+        List<Show> options = TheTVDBProvider.getShowOptions(showName);
+        assertNotNull(options);
+        assertNotEquals(0, options.size());
+        Show best = options.get(0);
+        assertNotNull(best);
+        assertEquals(showId, best.getId());
+        assertEquals(showName, best.getName());
+
+        best.preferDvdOrdering();
+        TheTVDBProvider.getShowListing(best);
+
+        Episode s01e02 = null;
+
+        best.preferHeuristicOrdering();
+        s01e02 = best.getEpisode(1, 2);
+        assertNotNull("result of calling getEpisode(1, 2) on " + showName
+                      + "with heuristic ordering came back null", s01e02);
+        assertEquals(dvdName, s01e02.getTitle());
+
+        best.preferProductionOrdering();
+        s01e02 = best.getEpisode(1, 2);
+        assertNotNull("result of calling getEpisode(1, 2) on " + showName
+                      + " with production ordering came back null", s01e02);
+        assertEquals(productionName, s01e02.getTitle());
+
+        best.preferDvdOrdering();
+        s01e02 = best.getEpisode(1, 2);
+        assertNotNull("result of calling getEpisode(1, 2) on " + showName
+                      + " with DVD ordering came back null", s01e02);
+        assertEquals(dvdName, s01e02.getTitle());
     }
 
     private static class TestInput {

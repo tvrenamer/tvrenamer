@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -66,11 +65,20 @@ public class FileEpisodeTest {
 
         String showName = "The Simpsons";
         Show show = new Show("71663", showName, "http://thetvdb.com/?tab=series&id=71663");
+        show.preferProductionOrdering();
         ShowStore.addShow(filenameShow, show);
 
         String title = "$pringfield";
-        show.addEpisode(seasonNumString, Integer.parseInt(episodeNumString),
-                        title, LocalDate.now());
+        EpisodeInfo info = new EpisodeInfo.Builder()
+            .episodeId("55542")
+            .seasonNumber(seasonNumString)
+            .episodeNumber(episodeNumString)
+            .episodeName(title)
+            .build();
+        EpisodeInfo[] dummyArray = new EpisodeInfo[1];
+        dummyArray[0] = info;
+        show.addEpisodes(dummyArray);
+
         episode.setStatus(EpisodeStatus.GOT_LISTINGS);
 
         assertEquals("The Simpsons [5x10] $pringfield 720p.avi",
@@ -101,11 +109,19 @@ public class FileEpisodeTest {
 
         String showName = "Steven Seagal: Lawman";
         Show show = new Show("126841", showName, "http://thetvdb.com/?tab=series&id=126841&lid=7");
+        show.preferProductionOrdering();
         ShowStore.addShow(filenameShow, show);
 
         String title = "The Way of the Gun";
-        show.addEpisode(seasonNumString, Integer.parseInt(episodeNumString),
-                        title, LocalDate.now());
+        EpisodeInfo info = new EpisodeInfo.Builder()
+            .episodeId("1111")
+            .seasonNumber(seasonNumString)
+            .episodeNumber(episodeNumString)
+            .episodeName(title)
+            .build();
+        EpisodeInfo[] dummyArray = new EpisodeInfo[1];
+        dummyArray[0] = info;
+        show.addEpisodes(dummyArray);
         episode.setStatus(EpisodeStatus.GOT_LISTINGS);
 
         String newFilename = episode.getReplacementText();
