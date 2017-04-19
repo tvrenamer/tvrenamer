@@ -26,7 +26,7 @@ import static org.junit.Assert.fail;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import org.tvrenamer.model.Season;
+import org.tvrenamer.model.Episode;
 import org.tvrenamer.model.Show;
 import org.tvrenamer.model.ShowStore;
 
@@ -63,10 +63,9 @@ public class TheTVDBProviderTest {
 
         TheTVDBProvider.getShowListing(best);
 
-        Season s1 = best.getSeason(1);
-        assertNotNull(s1);
-        assertEquals(1, s1.getNumber());
-        assertEquals(ep2Name, s1.getTitle(2));
+        Episode s1e02 = best.getEpisode(1, 2);
+        assertNotNull(s1e02);
+        assertEquals(ep2Name, s1e02.getTitle());
 
         // This is probably too likely to change.
         // assertEquals(1, options.size());
@@ -189,7 +188,7 @@ public class TheTVDBProviderTest {
                     ShowStore.getShow(showName, new ShowInformationListener() {
                         @Override
                         public void downloaded(Show show) {
-                            future.complete(show.getSeason(seasonNum).getTitle(episodeNum));
+                            future.complete(show.getEpisode(seasonNum, episodeNum).getTitle());
                         }
 
                         @Override

@@ -48,32 +48,33 @@ public class FileEpisodeTest {
     public void testGetNewFilenameSpecialRegexChars() throws Exception {
         prefs.setRenameReplacementString("%S [%sx%e] %t %r");
 
-        String filename = "the.simpsons.5.10.720p.avi";
+        String filenameShow = "the.simpsons";
+        String seasonNumString = "5";
+        String episodeNumString = "10";
+        String resolution = "720p";
+
+        String filename = filenameShow + "." + seasonNumString + "."
+            + episodeNumString + "." + resolution + ".avi";
         Path path = TEMP_DIR.resolve(filename);
         createFile(path);
 
-        String showName = "The Simpsons";
-        String title = "$pringfield";
-        int seasonNum = 5;
-        int episodeNum = 10;
-        String resolution = "720p";
-
-        Show show = new Show("1", showName, "http://thetvdb.com/?tab=series&id=71663");
-        Season season5 = new Season(show, seasonNum);
-        season5.addEpisode(episodeNum, title, LocalDate.now());
-        show.setSeason(seasonNum, season5);
-        ShowStore.addShow(showName, show);
-
         FileEpisode episode = new FileEpisode(path);
-        episode.setFilenameShow(showName);
-        episode.setSeasonNum(seasonNum);
-        episode.setEpisodeNum(episodeNum);
+        episode.setFilenameShow(filenameShow);
+        episode.setFilenameSeason(seasonNumString);
+        episode.setFilenameEpisode(episodeNumString);
         episode.setFilenameResolution(resolution);
+
+        String showName = "The Simpsons";
+        Show show = new Show("71663", showName, "http://thetvdb.com/?tab=series&id=71663");
+        ShowStore.addShow(filenameShow, show);
+
+        String title = "$pringfield";
+        show.addEpisode(seasonNumString, Integer.parseInt(episodeNumString),
+                        title, LocalDate.now());
         episode.setStatus(EpisodeStatus.GOT_LISTINGS);
 
-        String newFilename = episode.getReplacementText();
-
-        assertEquals("The Simpsons [5x10] $pringfield 720p.avi", newFilename);
+        assertEquals("The Simpsons [5x10] $pringfield 720p.avi",
+                     episode.getReplacementText());
     }
 
     /**
@@ -84,32 +85,32 @@ public class FileEpisodeTest {
     public void testColon() throws Exception {
         prefs.setRenameReplacementString("%S [%sx%e] %t");
 
-        String filename = "steven.segal.lawman.1.01.avi";
+        String filenameShow = "steven.segal.lawman";
+        String seasonNumString = "1";
+        String episodeNumString = "01";
+
+        String filename = filenameShow + "." + seasonNumString + "."
+            + episodeNumString + ".avi";
         Path path = TEMP_DIR.resolve(filename);
         createFile(path);
 
-        String showName = "Steven Seagal: Lawman";
-        String title = "The Way of the Gun";
-        int seasonNum = 1;
-        int episodeNum = 1;
-        String resolution = "";
-
-        Show show = new Show("1", showName, "http://thetvdb.com/?tab=series&id=126841&lid=7");
-        Season season1 = new Season(show, seasonNum);
-        season1.addEpisode(episodeNum, title, LocalDate.now());
-        show.setSeason(seasonNum, season1);
-        ShowStore.addShow(showName, show);
-
         FileEpisode episode = new FileEpisode(path);
-        episode.setFilenameShow(showName);
-        episode.setSeasonNum(seasonNum);
-        episode.setEpisodeNum(episodeNum);
-        episode.setFilenameResolution(resolution);
+        episode.setFilenameShow(filenameShow);
+        episode.setFilenameSeason(seasonNumString);
+        episode.setFilenameEpisode(episodeNumString);
+
+        String showName = "Steven Seagal: Lawman";
+        Show show = new Show("126841", showName, "http://thetvdb.com/?tab=series&id=126841&lid=7");
+        ShowStore.addShow(filenameShow, show);
+
+        String title = "The Way of the Gun";
+        show.addEpisode(seasonNumString, Integer.parseInt(episodeNumString),
+                        title, LocalDate.now());
         episode.setStatus(EpisodeStatus.GOT_LISTINGS);
 
         String newFilename = episode.getReplacementText();
-
-        assertFalse("Resulting filename must not contain a ':' as it breaks Windows", newFilename.contains(":"));
+        assertFalse("Resulting filename must not contain a ':' as it breaks Windows",
+                    newFilename.contains(":"));
     }
 
     /**

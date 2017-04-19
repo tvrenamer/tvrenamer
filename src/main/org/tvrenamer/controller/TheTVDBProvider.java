@@ -5,7 +5,6 @@ import static org.tvrenamer.controller.util.XPathUtilities.nodeTextValue;
 import static org.tvrenamer.model.util.Constants.*;
 
 import org.tvrenamer.controller.util.StringUtils;
-import org.tvrenamer.model.Season;
 import org.tvrenamer.model.Show;
 import org.tvrenamer.model.TVRenamerIOException;
 
@@ -145,16 +144,6 @@ public class TheTVDBProvider {
         }
     }
 
-    private static Season showSeason(final Show show, final String seasonId) {
-        int seasonNum = Integer.parseInt(seasonId);
-        Season season = show.getSeason(seasonNum);
-        if (season == null) {
-            season = new Season(show, seasonNum);
-            show.setSeason(seasonNum, season);
-        }
-        return season;
-    }
-
     private static Integer getEpisodeNumberFromNode(final String name, final Node eNode)
         throws XPathExpressionException
     {
@@ -199,7 +188,7 @@ public class TheTVDBProvider {
         return date;
     }
 
-    private static void addEpisodeToSeason(final Node eNode, final Show show) {
+    private static void addEpisodeToShow(final Node eNode, final Show show) {
         try {
             Integer epNum = getEpisodeNumber(eNode);
             if (epNum == null) {
@@ -213,8 +202,7 @@ public class TheTVDBProvider {
 
             LocalDate date = getEpisodeDate(eNode);
 
-            Season season = showSeason(show, seasonNumString);
-            season.addEpisode(epNum, episodeName, date);
+            show.addEpisode(seasonNumString, epNum, episodeName, date);
         } catch (Exception e) {
             logger.warning("exception parsing episode of " + show);
             logger.warning(e.toString());
@@ -252,7 +240,7 @@ public class TheTVDBProvider {
         try {
             NodeList episodes = getEpisodeList(show);
             for (int i = 0; i < episodes.getLength(); i++) {
-                addEpisodeToSeason(episodes.item(i), show);
+                addEpisodeToShow(episodes.item(i), show);
             }
         } catch (IOException | NumberFormatException | DOMException e) {
             logger.log(Level.WARNING, e.getMessage(), e);
