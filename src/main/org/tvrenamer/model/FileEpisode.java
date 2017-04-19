@@ -280,7 +280,7 @@ public class FileEpisode {
             case ADDED: {
                 return ADDED_PLACEHOLDER_FILENAME;
             }
-            case DOWNLOADED:
+            case GOT_LISTINGS:
             case RENAMED: {
                 String currentFilename = path.getFileName().toString();
                 String newFilename = getRenamedFilename();
