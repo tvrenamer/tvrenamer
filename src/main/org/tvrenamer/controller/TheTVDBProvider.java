@@ -58,7 +58,7 @@ public class TheTVDBProvider {
     {
         String searchURL = BASE_SEARCH_URL + StringUtils.encodeSpecialCharacters(showName);
 
-        logger.info("About to download search results from " + searchURL);
+        logger.fine("About to download search results from " + searchURL);
 
         String searchXmlText = new HttpConnectionHandler().downloadUrl(searchURL);
         return searchXmlText;
@@ -69,7 +69,7 @@ public class TheTVDBProvider {
     {
         String showURL = BASE_LIST_URL + show.getId() + BASE_LIST_FILENAME;
 
-        logger.info("Downloading episode listing from " + showURL);
+        logger.fine("Downloading episode listing from " + showURL);
 
         String listingXmlText = new HttpConnectionHandler().downloadUrl(showURL);
         return listingXmlText;
