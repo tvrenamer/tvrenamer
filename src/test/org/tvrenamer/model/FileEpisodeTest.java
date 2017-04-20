@@ -136,7 +136,7 @@ public class FileEpisodeTest {
     @After
     public void teardown() throws Exception {
         for (Path path : testFiles) {
-            logger.info("Deleting " + path);
+            logger.fine("Deleting " + path);
             FileUtilities.deleteFile(path);
         }
     }

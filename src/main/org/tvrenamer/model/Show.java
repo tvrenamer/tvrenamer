@@ -112,7 +112,6 @@ public class Show implements Comparable<Show> {
                 seasonNumString = episode.getSeasonNumber();
                 episodeNumString = episode.getEpisodeNumber();
             } else if (effective == NumberingScheme.DVD_RELEASE) {
-                logger.info("using dvd information");
                 seasonNumString = episode.getDvdSeasonNumber();
                 episodeNumString = episode.getDvdEpisodeNumber();
             } else {
@@ -127,7 +126,7 @@ public class Show implements Comparable<Show> {
             if ((seasonNum == null) || (episodeNum == null)) {
                 // Note, in this case, the Episode will be created and will be added to the
                 // list of episodes, but will not be added to the season/episode organization.
-                logger.info("episode \"" + episode.getTitle() + "\" of show " + name
+                logger.fine("episode \"" + episode.getTitle() + "\" of show " + name
                             + " has non-numeric season: " + seasonNumString);
                 continue;
             }
@@ -229,7 +228,7 @@ public class Show implements Comparable<Show> {
             return null;
         }
         Episode episode = season.get(episodeNum);
-        logger.info("for season " + seasonNum + ", episode " + episodeNum
+        logger.fine("for season " + seasonNum + ", episode " + episodeNum
                     + ", found " + episode);
 
         return episode;
