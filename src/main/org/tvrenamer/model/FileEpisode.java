@@ -158,7 +158,20 @@ public class FileEpisode {
         status = newStatus;
     }
 
-    private String getDestinationDirectoryName() {
+    /**
+     * Return the name of the directory to which the file should be moved.
+     *
+     * We try to make sure that a term means the same thing throughout the program.
+     * The "destination directory" is the *top-level* directory that the user has
+     * specified we should move all the files into.  But the files don't necessarily
+     * go directly into the "destination directory".  They will go into a sub-directory
+     * naming the show and possibly the season.  That final directory is what we refer
+     * to as the "move-to directory".
+     *
+     * @return the name of the directory into which this file (the Path encapsulated
+     *         within this FileEpisode) should be moved
+     */
+    public String getMoveToDirectory() {
         String dirname = ShowStore.getShow(queryString).getDirName();
         String destPath = userPrefs.getDestinationDirectoryName();
         destPath = destPath + FILE_SEPARATOR_STRING + dirname;
@@ -281,7 +294,7 @@ public class FileEpisode {
             case RENAMED: {
                 String currentFilename = path.getFileName().toString();
                 String newFilename = getRenamedFilename();
-                String destDirectoryName = getDestinationDirectoryName();
+                String destDirectoryName = getMoveToDirectory();
 
                 if (userPrefs.isMoveEnabled()) {
                     if (userPrefs.isRenameEnabled()) {
