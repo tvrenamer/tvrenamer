@@ -2,6 +2,8 @@ package org.tvrenamer.model;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
+import static org.tvrenamer.model.util.Constants.*;
 
 import org.junit.After;
 import org.junit.Before;
@@ -12,7 +14,6 @@ import org.tvrenamer.controller.util.FileUtilities;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -20,15 +21,18 @@ import java.util.logging.Logger;
 public class FileEpisodeTest {
     private static Logger logger = Logger.getLogger(FileEpisodeTest.class.getName());
 
-    private static final String TEMP_DIR_NAME = System.getProperty("java.io.tmpdir");
-    private static final Path TEMP_DIR = Paths.get(TEMP_DIR_NAME);
-
+    private Path ourTempDir;
     private List<Path> testFiles;
 
     private UserPreferences prefs;
 
     @Before
     public void setUp() throws Exception {
+        ourTempDir = TMP_DIR.resolve(APPLICATION_NAME);
+        boolean madeDir = FileUtilities.mkdirs(ourTempDir);
+        if (false == madeDir) {
+            fail("unable to create temp directory " + ourTempDir);
+        }
         testFiles = new ArrayList<>();
         prefs = UserPreferences.getInstance();
         prefs.setMoveEnabled(false);
@@ -50,7 +54,7 @@ public class FileEpisodeTest {
 
         String filename = filenameShow + "." + seasonNumString + "."
             + episodeNumString + "." + resolution + ".avi";
-        Path path = TEMP_DIR.resolve(filename);
+        Path path = ourTempDir.resolve(filename);
         createFile(path);
 
         FileEpisode episode = new FileEpisode(path);
@@ -95,7 +99,7 @@ public class FileEpisodeTest {
 
         String filename = filenameShow + "." + seasonNumString + "."
             + episodeNumString + ".avi";
-        Path path = TEMP_DIR.resolve(filename);
+        Path path = ourTempDir.resolve(filename);
         createFile(path);
 
         FileEpisode episode = new FileEpisode(path);
