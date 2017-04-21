@@ -53,6 +53,8 @@ public class Constants {
     public static final String ERROR_LABEL = "Error";
 
     public static final String ERROR_PARSING_XML = "Error parsing XML";
+    public static final String ADDED_PLACEHOLDER_FILENAME = "Downloading ...";
+    public static final String BROKEN_PLACEHOLDER_FILENAME = "Unable to download show information";
 
     public static final String DEFAULT_REPLACEMENT_MASK = "%S [%sx%0e] %t";
     public static final String DEFAULT_SEASON_PREFIX = "Season ";
