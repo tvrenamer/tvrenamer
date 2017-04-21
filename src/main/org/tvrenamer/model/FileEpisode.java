@@ -7,6 +7,8 @@
 
 package org.tvrenamer.model;
 
+import static org.tvrenamer.model.util.Constants.*;
+
 import org.tvrenamer.controller.util.StringUtils;
 
 import java.nio.file.Path;
@@ -21,8 +23,6 @@ import java.util.regex.Matcher;
 public class FileEpisode {
     private static Logger logger = Logger.getLogger(FileEpisode.class.getName());
 
-    private static final String ADDED_PLACEHOLDER_FILENAME = "Downloading ...";
-    private static final String BROKEN_PLACEHOLDER_FILENAME = "Unable to download show information";
     private static final String FILE_SEPARATOR_STRING = java.io.File.separator;
 
     public static final ThreadLocal<DecimalFormat> DIGITS =
