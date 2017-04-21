@@ -128,6 +128,16 @@ public class FileUtilities {
         }
     }
 
+    public static boolean isSameFile(final Path path1, final Path path2) {
+        try {
+            return Files.isSameFile(path1, path2);
+        } catch (IOException ioe) {
+            logger.log(Level.WARNING, "exception checking files "
+                       + path1 + " and " + path2, ioe);
+            return false;
+        }
+    }
+
     public static boolean mkdirs(final Path dir) {
         try {
             Files.createDirectories(dir);
