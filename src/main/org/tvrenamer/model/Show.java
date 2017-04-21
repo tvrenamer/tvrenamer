@@ -1,5 +1,7 @@
 package org.tvrenamer.model;
 
+import static org.tvrenamer.model.util.Constants.IMDB_BASE_URL;
+
 import org.tvrenamer.controller.util.StringUtils;
 
 import java.util.LinkedList;
@@ -27,7 +29,7 @@ public class Show implements Comparable<Show> {
     private final String id;
     private final String name;
     private final String dirName;
-    private final String url;
+    private final String imdb;
 
     private final Map<String, Episode> episodes;
     private final Map<Integer, Map<Integer, Episode>> seasons;
@@ -35,14 +37,18 @@ public class Show implements Comparable<Show> {
     // Not final.  Could be changed during the program's run.
     private NumberingScheme numberingScheme = NumberingScheme.GUESS;
 
-    public Show(String id, String name, String url) {
+    public Show(String id, String name, String imdb) {
         this.id = id;
         this.name = name;
-        this.url = url;
+        this.imdb = imdb;
         dirName = StringUtils.sanitiseTitle(name);
 
         episodes = new ConcurrentHashMap<>();
         seasons = new ConcurrentHashMap<>();
+    }
+
+    public Show(String id, String name) {
+        this(id, name, null);
     }
 
     public String getId() {
@@ -58,7 +64,7 @@ public class Show implements Comparable<Show> {
     }
 
     public String getUrl() {
-        return url;
+        return (imdb == null) ? "" : IMDB_BASE_URL + imdb;
     }
 
     private void addEpisodeToSeason(int seasonNum, int episodeNum, Episode episode) {
@@ -74,7 +80,7 @@ public class Show implements Comparable<Show> {
             // This is the expected case; we should only be adding the episode to
             // the index a single time.
             season.put(episodeNum, episode);
-        } else  if (found == episode) {
+        } else if (found == episode) {
             // Well, this is unfortunate; if it happens, investigate why.  But it's
             // fine.  We still have a unique object.
             season.put(episodeNum, episode);
@@ -250,11 +256,11 @@ public class Show implements Comparable<Show> {
 
     @Override
     public String toString() {
-        return "Show [" + name + ", id=" + id + ", url=" + url + ", " + episodes.size() + " episodes]";
+        return "Show [" + name + ", id=" + id + ", imdb=" + imdb + ", " + episodes.size() + " episodes]";
     }
 
     public String toLongString() {
-        return "Show [id=" + id + ", name=" + name + ", url=" + url + ", episodes =" + episodes + "]";
+        return "Show [id=" + id + ", name=" + name + ", imdb=" + imdb + ", episodes =" + episodes + "]";
     }
 
     @Override

@@ -5,8 +5,8 @@ public class FailedShow extends Show {
     @SuppressWarnings("unused")
     private final TVRenamerIOException err;
 
-    public FailedShow(String id, String name, String url, TVRenamerIOException err) {
-        super(id, name, url);
+    public FailedShow(String id, String name, TVRenamerIOException err) {
+        super(id, name);
         this.err = err;
     }
 

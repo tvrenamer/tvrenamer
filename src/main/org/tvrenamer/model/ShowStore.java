@@ -120,7 +120,7 @@ public class ShowStore {
                     List<Show> options = TheTVDBProvider.getShowOptions(showName);
                     thisShow = selectShowOption(options, showName);
                 } catch (TVRenamerIOException e) {
-                    thisShow = new FailedShow("", showName, "", e);
+                    thisShow = new FailedShow("", showName, e);
                 }
 
                 logger.fine("Show listing for '" + thisShow.getName() + "' downloaded");
@@ -189,7 +189,7 @@ public class ShowStore {
         String showKey = makeQueryString(showName);
         Show show = _shows.get(showKey);
         if (show == null) {
-            show = new Show(showKey, properName, "");
+            show = new Show(showKey, properName);
         }
         _shows.put(showKey, show);
         return show;
