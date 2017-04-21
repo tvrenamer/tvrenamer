@@ -10,6 +10,7 @@ public class Environment {
     public static final String USER_HOME = System.getProperty("user.home");
     public static final String USER_DIR = System.getProperty("user.dir");
     public static final String OS_NAME = System.getProperty("os.name");
+    public static final String TMP_DIR_NAME = System.getProperty("java.io.tmpdir");
 
     private enum OSType {
         WINDOWS,
