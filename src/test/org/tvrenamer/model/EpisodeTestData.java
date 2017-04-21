@@ -18,9 +18,9 @@ public class EpisodeTestData {
     public final String separator;
     public final String filenameSuffix;
     public final String replacementMask;
+    public final String documentation;
     public final String expectedReplacement;
     public final String inputFilename;
-    public final String documentation;
 
     public static class Builder {
         private String filenameShow;
@@ -34,8 +34,8 @@ public class EpisodeTestData {
         private String separator = ".";
         private String filenameSuffix = ".avi";
         private String replacementMask = "%S [%sx%e] %t";
-        private String expectedReplacement;
         private String documentation = null;
+        private String expectedReplacement;
 
         public Builder() {
         }
@@ -95,13 +95,13 @@ public class EpisodeTestData {
             return this;
         }
 
-        public Builder expectedReplacement(String val) {
-            expectedReplacement = val;
+        public Builder documentation(String val) {
+            documentation = val;
             return this;
         }
 
-        public Builder documentation(String val) {
-            documentation = val;
+        public Builder expectedReplacement(String val) {
+            expectedReplacement = val;
             return this;
         }
 
@@ -129,8 +129,8 @@ public class EpisodeTestData {
         separator = builder.separator;
         filenameSuffix = builder.filenameSuffix;
         replacementMask = builder.replacementMask;
-        expectedReplacement = builder.expectedReplacement;
         documentation = builder.documentation;
+        expectedReplacement = builder.expectedReplacement;
         String resolutionString = "";
         if ((episodeResolution != null) && (episodeResolution.length() > 0)) {
             resolutionString = separator + episodeResolution;
