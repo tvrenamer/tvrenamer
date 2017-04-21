@@ -43,9 +43,9 @@ public class EpisodeDb {
             // to provide information to the user, and in the future,
             // to let them help us parse the filenames.
             logger.severe("Couldn't parse file: " + pathname);
-        } else {
-            put(pathname, episode);
+            return null;
         }
+        put(pathname, episode);
         return episode;
     }
 
