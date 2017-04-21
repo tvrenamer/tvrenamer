@@ -4,8 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.tvrenamer.model.util.Constants.*;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -21,10 +19,7 @@ import java.util.logging.Logger;
 public class FileEpisodeTest {
     private static Logger logger = Logger.getLogger(FileEpisodeTest.class.getName());
 
-    private Path ourTempDir;
-    private List<Path> testFiles;
-
-    private UserPreferences prefs;
+    private UserPreferences prefs = UserPreferences.getInstance();
 
     public static final List<EpisodeTestData> values = new ArrayList<>();
 
@@ -781,27 +776,10 @@ public class FileEpisodeTest {
                    .build());
     }
 
-    @Before
-    public void setUp() throws Exception {
-        ourTempDir = TMP_DIR.resolve(APPLICATION_NAME);
-        boolean madeDir = FileUtilities.mkdirs(ourTempDir);
-        if (false == madeDir) {
-            fail("unable to create temp directory " + ourTempDir);
-        }
-        testFiles = new ArrayList<>();
-        prefs = UserPreferences.getInstance();
-        prefs.setMoveEnabled(false);
-        prefs.setRenameEnabled(true);
-    }
-
-    private String getReplacementFilename(EpisodeTestData data)
+    private String getReplacementFilename(EpisodeTestData data, Path path)
         throws IOException
     {
         prefs.setRenameReplacementString(data.replacementMask);
-
-        Path path = ourTempDir.resolve(data.inputFilename);
-        Files.createFile(path);
-        testFiles.add(path);
 
         FileEpisode episode = new FileEpisode(path);
         episode.setFilenameShow(data.filenameShow);
@@ -829,24 +807,67 @@ public class FileEpisodeTest {
         return episode.getReplacementText();
     }
 
+    /* This method is intended to delete the temp files and our temp directory,
+     * and to report failure if it is unable to do so.  Along the way, we check
+     * for several extremely-unlikely-to-happen errors, just in case.  But we
+     * don't ever want to interrup the cleanup to report a failure.  Be sure to
+     * try to delete each file and the directory before aborting due to any
+     * failure.
+     */
+    private void teardown(Path ourTempDir, List<Path> testFiles) {
+        List<Path> outsideFailures = new ArrayList<>();
+        List<Path> deleteFailures = new ArrayList<>();
+        for (Path path : testFiles) {
+            Path parent = path.getParent();
+            boolean expected = FileUtilities.isSameFile(ourTempDir, parent);
+            if (!expected) {
+                outsideFailures.add(path);
+            }
+            logger.fine("Deleting " + path);
+            boolean deleted = FileUtilities.deleteFile(path);
+            if (!deleted) {
+                deleteFailures.add(path);
+            }
+        }
+        if (FileUtilities.isDirEmpty(ourTempDir)) {
+            boolean rmed = FileUtilities.rmdir(ourTempDir);
+            if (!rmed) {
+                fail("unable to delete empty temp directory " + ourTempDir);
+            }
+        } else {
+            fail("did not succeed in emptying temp directory " + ourTempDir);
+        }
+        if (!deleteFailures.isEmpty()) {
+            fail("failed to delete " + deleteFailures.size() + " temp file(s)");
+        }
+        if (!outsideFailures.isEmpty()) {
+            fail("created " + outsideFailures.size() + " file(s) in the wrong place");
+        }
+    }
+
     @Test
     public void testGetReplacementText() {
+        Path ourTempDir = TMP_DIR.resolve(APPLICATION_NAME);
+        boolean madeDir = FileUtilities.mkdirs(ourTempDir);
+        if (false == madeDir) {
+            fail("unable to create temp directory " + ourTempDir);
+        }
+        prefs.setMoveEnabled(false);
+        prefs.setRenameEnabled(true);
+        List<Path> testFiles = new ArrayList<>();
         for (EpisodeTestData data : values ) {
             try {
-                String replacement = getReplacementFilename(data);
+                Path path = ourTempDir.resolve(data.inputFilename);
+                Files.createFile(path);
+                testFiles.add(path);
+
+                String replacement = getReplacementFilename(data, path);
                 assertEquals(data.expectedReplacement, replacement);
             } catch (Exception e) {
                 fail("testing " + data + ": " + e.getMessage());
                 e.printStackTrace();
             }
         }
-    }
-
-    @After
-    public void teardown() throws Exception {
-        for (Path path : testFiles) {
-            logger.fine("Deleting " + path);
-            FileUtilities.deleteFile(path);
-        }
+        teardown(ourTempDir, testFiles);
     }
 }
