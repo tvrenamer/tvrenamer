@@ -25,14 +25,6 @@ public class FileEpisode {
     private static final String BROKEN_PLACEHOLDER_FILENAME = "Unable to download show information";
     private static final String FILE_SEPARATOR_STRING = java.io.File.separator;
 
-    public static final ThreadLocal<DecimalFormat> TWO_DIGITS =
-        new ThreadLocal<DecimalFormat>() {
-            @Override
-            protected DecimalFormat initialValue() {
-                return new DecimalFormat("00");
-            }
-        };
-
     public static final ThreadLocal<DecimalFormat> DIGITS =
         new ThreadLocal<DecimalFormat>() {
             @Override
@@ -174,9 +166,10 @@ public class FileEpisode {
         String seasonPrefix = userPrefs.getSeasonPrefix();
         // Defect #50: Only add the 'season #' folder if set, otherwise put files in showname root
         if (StringUtils.isNotBlank(seasonPrefix)) {
-            String padding = (userPrefs.isSeasonPrefixLeadingZero() && seasonNum < 9 ? "0" : "");
-            String seasonFolderName = seasonPrefix + padding + seasonNum;
-            destPath = destPath + FILE_SEPARATOR_STRING + seasonFolderName;
+            String seasonString = userPrefs.isSeasonPrefixLeadingZero()
+                ? StringUtils.zeroPadTwoDigits(seasonNum)
+                : String.valueOf(seasonNum);
+            destPath = destPath + FILE_SEPARATOR_STRING + seasonPrefix + seasonString;
         }
         return destPath;
     }
@@ -225,7 +218,7 @@ public class FileEpisode {
         String episodeNumberString = DIGITS.get().format(episodeNum);
         String episodeNumberWithLeadingZeros = TWO_OR_THREE.get().format(episodeNum);
         String episodeTitleNoSpaces = Matcher.quoteReplacement(StringUtils.makeDotTitle(titleString));
-        String seasonNumberWithLeadingZero = TWO_DIGITS.get().format(seasonNum);
+        String seasonNumberWithLeadingZero = StringUtils.zeroPadTwoDigits(seasonNum);
 
         titleString = Matcher.quoteReplacement(titleString);
 
