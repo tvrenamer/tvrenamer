@@ -142,6 +142,7 @@ public class FileEpisodeTest {
                    .episodeTitle("$pringfield")
                    .episodeId("55542")
                    .replacementMask("%S [%sx%e] %t %r")
+                   .documentation("makes sure regex characters are included literally in filename")
                    .expectedReplacement("The Simpsons [5x10] $pringfield 720p.avi")
                    .build());
         /**
@@ -156,6 +157,7 @@ public class FileEpisodeTest {
                    .episodeNumString("01")
                    .episodeTitle("The Way of the Gun")
                    .replacementMask("%S [%sx%e] %t")
+                   .documentation("makes sure illegal characters are not included in filename")
                    .expectedReplacement("Steven Seagal - Lawman [1x1] The Way of the Gun.avi")
                    .build());
     }
