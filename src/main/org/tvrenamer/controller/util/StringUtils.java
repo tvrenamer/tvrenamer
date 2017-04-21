@@ -86,6 +86,10 @@ public class StringUtils {
         return "";
     }
 
+    public static String zeroPadTwoDigits(int number) {
+        return String.format("%02d", number);
+    }
+
     /**
      * Replaces unsafe HTML Characters with HTML Entities
      *

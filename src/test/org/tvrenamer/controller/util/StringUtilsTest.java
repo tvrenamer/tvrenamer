@@ -57,6 +57,16 @@ public class StringUtilsTest {
     }
 
     @Test
+    public void testZeroPad() {
+        assertEquals("00", StringUtils.zeroPadTwoDigits(0));
+        assertEquals("08", StringUtils.zeroPadTwoDigits(8));
+        assertEquals("09", StringUtils.zeroPadTwoDigits(9));
+        assertEquals("10", StringUtils.zeroPadTwoDigits(10));
+        assertEquals("11", StringUtils.zeroPadTwoDigits(11));
+        assertEquals("100", StringUtils.zeroPadTwoDigits(100));
+    }
+
+    @Test
     public void testGetExtension() {
         assertEquals(".mkv", StringUtils.getExtension("dexter.407.720p.hdtv.x264-sys.mkv"));
         assertEquals(".avi", StringUtils.getExtension("Marvels.Agents.of.S.H.I.E.L.D.S04E03.1080p.HDTV.x264-KILLERS[ettv].avi"));
