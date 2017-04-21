@@ -93,8 +93,7 @@ public class TheTVDBProvider {
                 // leave this message a little uninformative.
                 logger.warning("ignoring unpermitted option");
             } else {
-                Show show = new Show(tvdbId, seriesName,
-                                     (imdbId == null) ? "" : IMDB_BASE_URL + imdbId);
+                Show show = new Show(tvdbId, seriesName, imdbId);
                 options.add(show);
             }
         }
