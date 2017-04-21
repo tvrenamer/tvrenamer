@@ -2,13 +2,11 @@ package org.tvrenamer.model;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.mockito.Mockito.mock;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import org.tvrenamer.controller.ShowInformationListener;
 import org.tvrenamer.controller.util.FileUtilities;
 
 import java.io.IOException;
@@ -28,7 +26,6 @@ public class FileEpisodeTest {
     private List<Path> testFiles;
 
     private UserPreferences prefs;
-    private ShowInformationListener mockListener;
 
     @Before
     public void setUp() throws Exception {
@@ -36,7 +33,6 @@ public class FileEpisodeTest {
         prefs = UserPreferences.getInstance();
         prefs.setMoveEnabled(false);
         prefs.setRenameEnabled(true);
-        mockListener = mock(ShowInformationListener.class);
     }
 
     /**
