@@ -4,6 +4,8 @@ dist
 out
 lib
 
+/.gradle/
+
 build.properties
 
 /.idea/workspace.xml
