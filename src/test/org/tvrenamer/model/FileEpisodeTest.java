@@ -787,10 +787,8 @@ public class FileEpisodeTest {
         episode.setFilenameEpisode(data.episodeNumString);
         episode.setFilenameResolution(data.episodeResolution);
 
-        Show show = new Show(data.showId, data.properShowName,
-                             "http://thetvdb.com/?tab=series&id=" + data.showId);
+        Show show = ShowStore.getOrAddShow(data.filenameShow, data.properShowName);
         show.preferProductionOrdering();
-        ShowStore.addShow(data.filenameShow, show);
 
         EpisodeInfo info = new EpisodeInfo.Builder()
             .episodeId(data.episodeId)

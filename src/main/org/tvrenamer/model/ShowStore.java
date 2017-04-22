@@ -123,8 +123,10 @@ public class ShowStore {
                     thisShow = new FailedShow("", showName, "", e);
                 }
 
-                addShow(showName, thisShow);
-
+                logger.fine("Show listing for '" + thisShow.getName() + "' downloaded");
+                String showKey = makeQueryString(showName);
+                _shows.put(showKey, thisShow);
+                notifyListeners(showKey, thisShow);
                 return true;
             }
         };
@@ -171,18 +173,25 @@ public class ShowStore {
     }
 
     /**
-     * Add a show to the store, registered by the show name.<br />
-     * Added this distinct method to enable unit testing
+     * Create a show and add it to the store, unless a show is already registered
+     * by the show name.<br />
      *
-     * @param showName
+     * Added this distinct method to enable unit testing.  Unlike the "real" method
+     * (<code>getShow</code>), this does not spawn a thread, connect to the internet,
+     * or use listeners in any way.  This is just accessing the data store.
+     *
+     * @param  showName
      *            the show name
-     * @param show
+     * @return show
      *            the {@link Show}
      */
-    static void addShow(String showName, Show show) {
-        logger.fine("Show listing for '" + show.getName() + "' downloaded");
+    static Show getOrAddShow(String showName, String properName) {
         String showKey = makeQueryString(showName);
+        Show show = _shows.get(showKey);
+        if (show == null) {
+            show = new Show(showKey, properName, "");
+        }
         _shows.put(showKey, show);
-        notifyListeners(showKey, show);
+        return show;
     }
 }
