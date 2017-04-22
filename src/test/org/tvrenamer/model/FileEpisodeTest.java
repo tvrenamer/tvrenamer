@@ -4,14 +4,19 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.tvrenamer.model.util.Constants.*;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import org.tvrenamer.controller.util.FileUtilities;
 
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -19,9 +24,97 @@ import java.util.logging.Logger;
 public class FileEpisodeTest {
     private static Logger logger = Logger.getLogger(FileEpisodeTest.class.getName());
 
+    /**
+     * Just an unordered list of test data.
+     */
+    private static final List<EpisodeTestData> values = new ArrayList<>();
+
+    /**
+     * We don't want to write directly into the temp dir.  That could make it a lot
+     * trickier to clean up.  Always create our own subdirectory within the temp
+     * dir, and do all our work in there.  We may create further sub-directories
+     * below this one.
+     */
+    private static final Path OUR_TEMP_DIR = TMP_DIR.resolve(APPLICATION_NAME);
+
     private UserPreferences prefs = UserPreferences.getInstance();
 
-    public static final List<EpisodeTestData> values = new ArrayList<>();
+    // Helper method.  Basically mkdirs, but expects that the directory does
+    // NOT exist, and considers it an error if it does.  Also does one final
+    // check that, after we believe we've created it, the directory actually
+    // does exist.
+    private void createNewDirectory(Path newdir) {
+        if (Files.exists(newdir)) {
+            fail("directory " + newdir + " already exists.  It should not!");
+        }
+        boolean madeDir = FileUtilities.mkdirs(newdir);
+        if (false == madeDir) {
+            fail("unable to create directory " + newdir);
+        }
+        if (!Files.exists(newdir)) {
+            fail("directory " + newdir + " still does not exist!");
+        }
+    }
+
+    // Helper method to give information about an exception we catch, and
+    // automatically fail because of it.
+    private void verboseFail(String msg, Exception e) {
+        String failMsg = msg + ": " + e.getClass().getName() + " ";
+        String exceptionMessage = e.getMessage();
+        if (exceptionMessage != null) {
+            failMsg += exceptionMessage;
+        } else {
+            failMsg += "(no message)";
+        }
+        e.printStackTrace();
+        fail(failMsg);
+    }
+
+    /**
+     * Just makes sure our temp directory exists.
+     */
+    @Before
+    public void setUp() {
+        createNewDirectory(OUR_TEMP_DIR);
+    }
+
+    /* This method is intended to delete the temp files and our temp directory,
+     * and to report failure if it is unable to do so.  Along the way, we check
+     * for several extremely-unlikely-to-happen errors, just in case.  But we
+     * don't ever want to interrup the cleanup to report a failure.  Be sure to
+     * try to delete each file and the directory before aborting due to any
+     * failure.
+     */
+    private void teardown(List<Path> testFiles) {
+        List<Path> outsideFailures = new ArrayList<>();
+        List<Path> deleteFailures = new ArrayList<>();
+        for (Path path : testFiles) {
+            Path parent = path.getParent();
+            boolean expected = FileUtilities.isSameFile(OUR_TEMP_DIR, parent);
+            if (!expected) {
+                outsideFailures.add(path);
+            }
+            logger.fine("Deleting " + path);
+            boolean deleted = FileUtilities.deleteFile(path);
+            if (!deleted) {
+                deleteFailures.add(path);
+            }
+        }
+        if (FileUtilities.isDirEmpty(OUR_TEMP_DIR)) {
+            boolean rmed = FileUtilities.rmdir(OUR_TEMP_DIR);
+            if (!rmed) {
+                fail("unable to delete empty temp directory " + OUR_TEMP_DIR);
+            }
+        } else {
+            fail("did not succeed in emptying temp directory " + OUR_TEMP_DIR);
+        }
+        if (!deleteFailures.isEmpty()) {
+            fail("failed to delete " + deleteFailures.size() + " temp file(s)");
+        }
+        if (!outsideFailures.isEmpty()) {
+            fail("created " + outsideFailures.size() + " file(s) in the wrong place");
+        }
+    }
 
     // We're going to add a bunch of test cases to the list.  The first two have been in this file
     // for a long time (in a different form), and are testing specific functionality.  The rest
@@ -728,6 +821,8 @@ public class FileEpisodeTest {
                    .seasonNumString("11")
                    .episodeNumString("22")
                    .filenameSuffix(".mkv")
+                   .showId("78901")
+                   .episodeId("5590688")
                    .episodeResolution("1080p")
                    .episodeTitle("We Happy Few")
                    // .replacementMask("%S [%sx%e] %t %r")
@@ -740,6 +835,8 @@ public class FileEpisodeTest {
                    .seasonNumString("11")
                    .episodeNumString("22")
                    .filenameSuffix(".mkv")
+                   .showId("78901")
+                   .episodeId("5590688")
                    .episodeResolution("720p")
                    .episodeTitle("We Happy Few")
                    // .replacementMask("%S [%sx%e] %t %r")
@@ -776,6 +873,38 @@ public class FileEpisodeTest {
                    .build());
     }
 
+    /**
+     * Here's where all that data in <code>values</code> is turned into something.  Note this
+     * doesn't use a lot of what the real program does; it doesn't fetch anything from the
+     * Internet (or even from a cache), and it doesn't use listeners.  And, of course, it
+     * doesn't use the UI, which is intimately tied to moving files in the real program.
+     * But it does try to simulate the process.
+     *
+     * We start off by making sure our preferences are what we want.  Then we get a Path.
+     * We turn that path into a FileEpisode, which initially is basically just a shell.
+     * We then fill in information based on the filename.  (In the real program, the parser
+     * in TVRenamer is used for this.)
+     *
+     * Then, once we know the part of the filename that we think represents the show name,
+     * we find the actual show name, and create a Show object to represent it.  We store
+     * the mapping between the query string and the Show object in ShowStore.  (In the real
+     * program, we send the query string to the TVDB, it responds with options in XML, which we
+     * parse, choose the best match, and use to create the Show object.)
+     *
+     * Once we have the Show object, we add the episodes.  Here, we're creating a single episode,
+     * but the Show API always expects an array.  (In the real program, we get the episodes by
+     * querying The TVDB with the show ID, and parsing the XML into an array of EpisodeInfo
+     * objects.)  We create a one-element array and stick the EpisodeInfo into it, and add that
+     * to the Show.
+     *
+     * Finally, we set the status of the FileEpisode to tell it we're finished downloading all
+     * the episodes its show needs to know about, which enables getReplacementText to give us
+     * the filename to use.  (If it didn't think we were finished adding episodes, it would
+     * instead return a placeholder text.)
+     *
+     * Then, we're done.  We return the replacement text to the driver method, and let it
+     * do the checking.
+     */
     private String getReplacementFilename(EpisodeTestData data, Path path)
         throws IOException
     {
@@ -805,67 +934,65 @@ public class FileEpisodeTest {
         return episode.getReplacementText();
     }
 
-    /* This method is intended to delete the temp files and our temp directory,
-     * and to report failure if it is unable to do so.  Along the way, we check
-     * for several extremely-unlikely-to-happen errors, just in case.  But we
-     * don't ever want to interrup the cleanup to report a failure.  Be sure to
-     * try to delete each file and the directory before aborting due to any
-     * failure.
+    /**
+     * This is, officially, the Test that checks all the EpisodeTestData, though really it's just
+     * a driver method.  All the real work goes on in <code>getReplacementFilename</code>, above.
+     *
+     * This is the method where the expected and actual values are compared, though.
      */
-    private void teardown(Path ourTempDir, List<Path> testFiles) {
-        List<Path> outsideFailures = new ArrayList<>();
-        List<Path> deleteFailures = new ArrayList<>();
-        for (Path path : testFiles) {
-            Path parent = path.getParent();
-            boolean expected = FileUtilities.isSameFile(ourTempDir, parent);
-            if (!expected) {
-                outsideFailures.add(path);
-            }
-            logger.fine("Deleting " + path);
-            boolean deleted = FileUtilities.deleteFile(path);
-            if (!deleted) {
-                deleteFailures.add(path);
-            }
-        }
-        if (FileUtilities.isDirEmpty(ourTempDir)) {
-            boolean rmed = FileUtilities.rmdir(ourTempDir);
-            if (!rmed) {
-                fail("unable to delete empty temp directory " + ourTempDir);
-            }
-        } else {
-            fail("did not succeed in emptying temp directory " + ourTempDir);
-        }
-        if (!deleteFailures.isEmpty()) {
-            fail("failed to delete " + deleteFailures.size() + " temp file(s)");
-        }
-        if (!outsideFailures.isEmpty()) {
-            fail("created " + outsideFailures.size() + " file(s) in the wrong place");
-        }
-    }
-
     @Test
     public void testGetReplacementText() {
-        Path ourTempDir = TMP_DIR.resolve(APPLICATION_NAME);
-        boolean madeDir = FileUtilities.mkdirs(ourTempDir);
-        if (false == madeDir) {
-            fail("unable to create temp directory " + ourTempDir);
-        }
         prefs.setMoveEnabled(false);
         prefs.setRenameEnabled(true);
         List<Path> testFiles = new ArrayList<>();
         for (EpisodeTestData data : values ) {
             try {
-                Path path = ourTempDir.resolve(data.inputFilename);
+                Path path = OUR_TEMP_DIR.resolve(data.inputFilename);
                 Files.createFile(path);
                 testFiles.add(path);
 
                 String replacement = getReplacementFilename(data, path);
                 assertEquals(data.expectedReplacement, replacement);
             } catch (Exception e) {
-                fail("testing " + data + ": " + e.getMessage());
-                e.printStackTrace();
+                verboseFail("testing " + data, e);
             }
         }
-        teardown(ourTempDir, testFiles);
+        teardown(testFiles);
+    }
+
+    /**
+     * The tests are actually expected to clean up after themselves properly.
+     * The <code>teardown</code> method is used for that, and checks things
+     * every step of the way.  But if it fails, we still would like to try
+     * to leave the world the way we left it.  This is straightforward to do
+     * if we stuck with the rule of doing everything inside OUR_TEMP_DIR.
+     * Try to basically do an <code>/bin/rm -rf</code> on our temp directory.
+     */
+    @After
+    public void cleanup() throws Exception {
+        if (Files.exists(OUR_TEMP_DIR)) {
+            logger.warning("trying to clean up " + OUR_TEMP_DIR);
+            try {
+                Files.walkFileTree(OUR_TEMP_DIR, new SimpleFileVisitor<Path>() {
+                        @Override
+                        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                            throws IOException
+                        {
+                            FileUtilities.deleteFile(file);
+                            return FileVisitResult.CONTINUE;
+                        }
+
+                        @Override
+                        public FileVisitResult postVisitDirectory(Path dir, IOException exc)
+                            throws IOException
+                        {
+                            FileUtilities.rmdir(dir);
+                            return FileVisitResult.CONTINUE;
+                        }
+                    });
+            } catch (IOException e) {
+                verboseFail("unable to cleanup leftover directory " + OUR_TEMP_DIR, e);
+            }
+        }
     }
 }
