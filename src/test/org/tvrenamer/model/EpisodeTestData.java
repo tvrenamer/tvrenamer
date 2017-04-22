@@ -5,6 +5,8 @@ import java.util.logging.Logger;
 public class EpisodeTestData {
     private static Logger logger = Logger.getLogger(EpisodeTestData.class.getName());
 
+    private static Integer fakeEpisodeIdCounter = 101;
+
     public final String filenameShow;
     public final String properShowName;
     public final String showId;
@@ -28,7 +30,7 @@ public class EpisodeTestData {
         private String episodeNumString;
         private String episodeResolution = "";
         private String episodeTitle;
-        private String episodeId = "100";
+        private String episodeId = null;
         private String separator = ".";
         private String filenameSuffix = ".avi";
         private String replacementMask = "%S [%sx%e] %t";
@@ -116,7 +118,14 @@ public class EpisodeTestData {
         episodeNumString = builder.episodeNumString;
         episodeResolution = builder.episodeResolution;
         episodeTitle = builder.episodeTitle;
-        episodeId = builder.episodeId;
+        if (builder.episodeId == null) {
+            synchronized (fakeEpisodeIdCounter) {
+                fakeEpisodeIdCounter++;
+                episodeId = String.valueOf(fakeEpisodeIdCounter);
+            }
+        } else {
+            episodeId = builder.episodeId;
+        }
         separator = builder.separator;
         filenameSuffix = builder.filenameSuffix;
         replacementMask = builder.replacementMask;
