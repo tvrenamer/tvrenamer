@@ -1,8 +1,7 @@
-bin
-build
-dist
-out
-lib
+/out/
+/dist/
+/lib/
+/build/
 
 build.properties
 
