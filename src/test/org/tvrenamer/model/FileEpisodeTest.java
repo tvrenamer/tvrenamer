@@ -800,7 +800,7 @@ public class FileEpisodeTest {
             .build();
         EpisodeInfo[] dummyArray = new EpisodeInfo[1];
         dummyArray[0] = info;
-        show.addEpisodes(dummyArray);
+        show.addEpisodes(dummyArray, false);
 
         episode.setStatus(EpisodeStatus.GOT_LISTINGS);
 

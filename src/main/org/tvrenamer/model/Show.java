@@ -178,7 +178,7 @@ public class Show implements Comparable<Show> {
         }
     }
 
-    public void addEpisodes(final EpisodeInfo[] infos) {
+    void addEpisodes(final EpisodeInfo[] infos, final boolean logConflicts) {
         List<EpisodeInfo> conflicts = new LinkedList<>();
         for (EpisodeInfo info : infos) {
             if (info != null) {
@@ -193,7 +193,13 @@ public class Show implements Comparable<Show> {
             }
         }
         indexEpisodesBySeason();
-        dealWithConflicts(conflicts);
+        if (logConflicts) {
+            dealWithConflicts(conflicts);
+        }
+    }
+
+    public void addEpisodes(final EpisodeInfo[] infos) {
+        addEpisodes(infos, true);
     }
 
     public synchronized void preferHeuristicOrdering() {
