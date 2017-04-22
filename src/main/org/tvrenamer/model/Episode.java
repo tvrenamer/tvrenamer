@@ -74,27 +74,25 @@ public class Episode {
 
     // "Package-private".  Used by Show; should not be used by other classes.
     String getDifferenceMessage(EpisodeInfo info) {
-        if (title.equals(info.episodeName)) {
-            if (airDateString.equals(info.firstAired)) {
+        if (StringUtils.stringsAreEqual(title, info.episodeName)) {
+            if (StringUtils.stringsAreEqual(airDateString, info.firstAired)) {
                 return null;
             } else {
                 return "different airdate: " + info.episodeName
                     + " was " + airDateString
                     + ", now " + info.firstAired;
             }
+        } else if (StringUtils.stringsAreEqual(airDateString, info.firstAired)) {
+            return "different title: " + info.episodeId
+                + " was " + title
+                + ", now " + info.episodeName;
         } else {
-            if (airDateString.equals(info.firstAired)) {
-                return "different title: " + info.episodeId
-                    + " was " + title
-                    + ", now " + info.episodeName;
-            } else {
-                return "different title: " + info.episodeId
-                    + " was " + title
-                    + ", now " + info.episodeName
-                    + " and different airdate: " + info.episodeName
-                    + " was " + airDateString
-                    + ", now " + info.firstAired;
-            }
+            return "different title: " + info.episodeId
+                + " was " + title
+                + ", now " + info.episodeName
+                + " and different airdate: " + info.episodeName
+                + " was " + airDateString
+                + ", now " + info.firstAired;
         }
     }
 
