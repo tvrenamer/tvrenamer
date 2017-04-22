@@ -78,6 +78,42 @@ public class StringUtils {
         return replacePunctuation(text).toLowerCase();
     }
 
+    /**
+     * Given a String representing a filename, extract and return the portion
+     * that represents the "file extension", also known as the "suffix".
+     *
+     * This method expects to receive just the filename, i.e., not the path, just
+     * the name of the actual file.  However, as long as the filename does have an
+     * extension, it would work fine with a path, as well.
+     *
+     * In our implementation, the "extension" includes the leading "dot" character.
+     * There's no purpose to obtaining the extension without the dot. The only place
+     * we use the extension is when we're constructing a new filename, and in that
+     * case, we would need to keep the dot, so we'd strip it away just to re-add it
+     * later. What would be the point of doing so?
+     *
+     * Beyond that, in a general sense, it's nice to think of file paths as composed
+     * of three parts: the parent folder, the basename and the extension. If the
+     * extension doesn't contain the dot, then we either think of it as four parts
+     * (parent, basename, dot, extension) or that the basename contains the dot,
+     * which clearly doesn't make any sense.
+     *
+     * After the leading dot, a file extension cannot contain another dot.  In some
+     * contexts, people may perceive the "extension" differently.  For example, in
+     * "foo.tar.gz", some might say that the extension is ".tar.gz".  But we have no
+     * reason to expect any justifiably double- suffixed files, and in our
+     * filenames, the dot is a commonly used separator character
+     * ("show.1x01.title.avi").  So we clearly must use only the last part.
+     *
+     * In the case of a filename without a dot, this simply returns the empty string.
+     *
+     * @param filename
+     *            the String giving the filename; should be just the last element of
+     *            the path, but not strictly necessary.  Does not need to refer to
+     *            an existing file.
+     * @return the "file extension": the last dot found, plus any text that comes
+     *         after it.
+     */
     public static String getExtension(String filename) {
         int dot = filename.lastIndexOf('.');
         if (dot >= 0) {
@@ -112,6 +148,22 @@ public class StringUtils {
         }
         logger.finest("Input after encoding: [" + input + "]");
         return input;
+    }
+
+    /**
+     * Compares two strings, considering null equal to null.
+     *
+     * @param s1
+     *            first string
+     * @param s1
+     *            second string
+     * @return true if the strings are equal
+     */
+    public static boolean stringsAreEqual(String s1, String s2) {
+        if (s1 == null) {
+            return (s2 == null);
+        }
+        return s1.equals(s2);
     }
 
     /**
