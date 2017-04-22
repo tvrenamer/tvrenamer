@@ -1,5 +1,6 @@
 package org.tvrenamer.view;
 
+import static org.tvrenamer.model.util.Constants.*;
 import static org.tvrenamer.view.UIUtils.getDefaultSystemFont;
 
 import org.eclipse.swt.SWT;
@@ -19,7 +20,6 @@ import org.eclipse.swt.widgets.Shell;
 
 import org.tvrenamer.controller.UpdateChecker;
 import org.tvrenamer.model.SWTMessageBoxType;
-import org.tvrenamer.model.util.Constants;
 
 import java.io.InputStream;
 import java.util.logging.Logger;
@@ -30,11 +30,7 @@ import java.util.logging.Logger;
 public class AboutDialog extends Dialog {
     private static Logger logger = Logger.getLogger(AboutDialog.class.getName());
 
-    private static final String TVRENAMER_REPOSITORY_URL = "http://tvrenamer.org/source";
     private static final String TVRENAMER_LICENSE_URL = "http://www.gnu.org/licenses/gpl-2.0.html";
-    private static final String TVRENAMER_SUPPORT_EMAIL = "support@tvrenamer.org";
-    public static final String TVRENAMER_PROJECT_URL = "http://tvrenamer.org";
-    private static final String TVRENAMER_PROJECT_ISSUES_URL = TVRENAMER_PROJECT_URL + "/issues";
     private static Shell aboutShell;
 
     /**
@@ -96,13 +92,13 @@ public class AboutDialog extends Dialog {
         Label applicationLabel = new Label(aboutShell, SWT.NONE);
         applicationLabel.setFont(new Font(aboutShell.getDisplay(), getDefaultSystemFont().getName(),
             getDefaultSystemFont().getHeight() + 4, SWT.BOLD));
-        applicationLabel.setText(Constants.APPLICATION_NAME);
+        applicationLabel.setText(APPLICATION_NAME);
         applicationLabel.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true));
 
         Label versionLabel = new Label(aboutShell, SWT.NONE);
         versionLabel.setFont(new Font(aboutShell.getDisplay(), getDefaultSystemFont().getName(), getDefaultSystemFont()
             .getHeight() + 2, SWT.BOLD));
-        versionLabel.setText("Version: " + Constants.VERSION_NUMBER);
+        versionLabel.setText("Version: " + VERSION_NUMBER);
         versionLabel.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true));
 
         Label descriptionLabel = new Label(aboutShell, SWT.NONE);
@@ -182,7 +178,7 @@ public class AboutDialog extends Dialog {
                     StringBuilder messageBuilder = new StringBuilder();
                     messageBuilder.append("There is a new version available!\n\n");
                     messageBuilder.append("You are currently running ");
-                    messageBuilder.append(Constants.VERSION_NUMBER);
+                    messageBuilder.append(VERSION_NUMBER);
                     messageBuilder.append(", but there is an update available\n\n");
                     messageBuilder.append("Please visit ");
                     messageBuilder.append(TVRENAMER_PROJECT_URL);

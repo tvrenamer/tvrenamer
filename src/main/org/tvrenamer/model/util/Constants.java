@@ -43,8 +43,10 @@ public class Constants {
 
     public static final String TVRENAMER_PROJECT_URL = "http://tvrenamer.org";
     public static final String TVRENAMER_DOWNLOAD_URL = TVRENAMER_PROJECT_URL + "/downloads";
-    public static final String TVRENAMER_ISSUES_URL = TVRENAMER_PROJECT_URL + "/issues";
+    public static final String TVRENAMER_PROJECT_ISSUES_URL = TVRENAMER_PROJECT_URL + "/issues";
     public static final String TVRENAMER_VERSION_URL = TVRENAMER_PROJECT_URL + "/version";
+    public static final String TVRENAMER_REPOSITORY_URL = TVRENAMER_PROJECT_URL + "/source";
+    public static final String TVRENAMER_SUPPORT_EMAIL = "support@tvrenamer.org";
 
     public static final String XML_SUFFIX = ".xml";
     public static final String ICON_PARENT_DIRECTORY = "res";
