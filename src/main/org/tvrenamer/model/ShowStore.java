@@ -125,10 +125,11 @@ public class ShowStore {
 
     private static final ExecutorService threadPool = Executors.newCachedThreadPool();
 
-    public static Show getShow(String showName) {
-        Show s = _shows.get(makeQueryString(showName));
+    public static Show getShow(String filenameShow) {
+        String queryString = makeQueryString(filenameShow);
+        Show s = _shows.get(queryString);
         if (s == null) {
-            String message = "Show not found for show name: '" + showName + "'";
+            String message = "Show not found for show name: '" + filenameShow + "'";
             logger.warning(message);
             throw new ShowNotFoundException(message);
         }
@@ -141,32 +142,32 @@ public class ShowStore {
      * Download the show details if required, otherwise notify listener.
      * </p>
      * <ul>
-     * <li>if we have already downloaded the show (exists in _shows) then just call the method on the listener</li>
-     * <li>if we don't have the show, but are in the process of downloading the show (exists in _showRegistrations) then
-     * add the listener to the registration</li>
-     * <li>if we don't have the show and aren't downloading, then create the registration, add the listener and kick off
-     * the download</li>
+     * <li>if we have already downloaded the show (exists in _shows) then just notify the listener</li>
+     * <li>if we don't have the show, but are in the process of downloading the show
+     *     (exists in _showRegistrations) then add the listener to the registration</li>
+     * <li>if we don't have the show and aren't downloading, then create the registration,
+     *     add the listener and kick off the download</li>
      * </ul>
      *
-     * @param showName
-     *            the name of the show
+     * @param filenameShow
+     *            the name of the show as it appears in the filename
      * @param listener
      *            the listener to notify or register
      */
-    public static void getShow(String showName, ShowInformationListener listener) {
-        String showKey = makeQueryString(showName);
-        Show show = _shows.get(showKey);
+    public static void getShow(String filenameShow, ShowInformationListener listener) {
+        String queryString = makeQueryString(filenameShow);
+        Show show = _shows.get(queryString);
         if (show != null) {
             listener.downloaded(show);
         } else {
-            ShowRegistrations registrations = _showRegistrations.get(showKey);
+            ShowRegistrations registrations = _showRegistrations.get(queryString);
             if (registrations != null) {
                 registrations.addListener(listener);
             } else {
                 registrations = new ShowRegistrations();
                 registrations.addListener(listener);
-                _showRegistrations.put(showKey, registrations);
-                downloadShow(showName);
+                _showRegistrations.put(queryString, registrations);
+                downloadShow(filenameShow, queryString);
             }
         }
     }
@@ -177,29 +178,29 @@ public class ShowStore {
      *
      * @param options the potential shows that match the string we searched for.
                 Must not be null.
-     * @param showName the part of the filename that is presumed to name the show
+     * @param filenameShow the part of the filename that is presumed to name the show
      * @return the series from the list which best matches the series information
      */
-    private static Show selectShowOption(List<Show> options, String showName) {
+    private static Show selectShowOption(List<Show> options, String filenameShow) {
         int nOptions = options.size();
         if (nOptions == 0) {
-            logger.info("did not find any options for " + showName);
+            logger.info("did not find any options for " + filenameShow);
             return null;
         }
         if (nOptions == 1) {
             return options.get(0);
         }
-        // logger.info("got " + nOptions + " options for " + showName);
+        // logger.info("got " + nOptions + " options for " + filenameShow);
         Show selected = null;
         for (int i=0; i<nOptions; i++) {
             Show s = options.get(i);
-            String sName = s.getName();
-            if (showName.equals(sName)) {
+            String actualName = s.getName();
+            if (filenameShow.equals(actualName)) {
                 if (selected == null) {
                     selected = s;
                 } else {
                     // TODO: could check language?  other criteria?
-                    logger.warning("multiple exact hits for " + showName
+                    logger.warning("multiple exact hits for " + filenameShow
                                    + "; choosing first one");
                 }
             }
@@ -212,30 +213,29 @@ public class ShowStore {
         return selected;
     }
 
-    private static void downloadShow(final String showName) {
+    private static void downloadShow(final String filenameShow, final String queryString) {
         Callable<Boolean> showFetcher = new Callable<Boolean>() {
             @Override
             public Boolean call() throws InterruptedException {
                 Show thisShow;
                 try {
-                    List<Show> options = TheTVDBProvider.getShowOptions(showName);
-                    thisShow = selectShowOption(options, showName);
+                    List<Show> options = TheTVDBProvider.getShowOptions(queryString);
+                    thisShow = selectShowOption(options, filenameShow);
                 } catch (TVRenamerIOException e) {
-                    thisShow = new FailedShow("", showName, e);
+                    thisShow = new FailedShow("", filenameShow, e);
                 }
 
                 logger.fine("Show listing for '" + thisShow.getName() + "' downloaded");
-                String showKey = makeQueryString(showName);
-                _shows.put(showKey, thisShow);
-                notifyListeners(showKey, thisShow);
+                _shows.put(queryString, thisShow);
+                notifyListeners(queryString, thisShow);
                 return true;
             }
         };
         threadPool.submit(showFetcher);
     }
 
-    private static void notifyListeners(String showKey, Show show) {
-        ShowRegistrations registrations = _showRegistrations.get(showKey);
+    private static void notifyListeners(String queryString, Show show) {
+        ShowRegistrations registrations = _showRegistrations.get(queryString);
 
         if (registrations != null) {
             for (ShowInformationListener informationListener : registrations.getListeners()) {
@@ -281,18 +281,20 @@ public class ShowStore {
      * (<code>getShow</code>), this does not spawn a thread, connect to the internet,
      * or use listeners in any way.  This is just accessing the data store.
      *
-     * @param  showName
-     *            the show name
+     * @param  filenameShow
+     *            the show name as it appears in the filename
+     * @param  actualName
+     *            the proper show name, as it appears in the provider DB
      * @return show
      *            the {@link Show}
      */
-    static Show getOrAddShow(String showName, String properName) {
-        String showKey = makeQueryString(showName);
-        Show show = _shows.get(showKey);
+    static Show getOrAddShow(String filenameShow, String actualName) {
+        String queryString = makeQueryString(filenameShow);
+        Show show = _shows.get(queryString);
         if (show == null) {
-            show = new Show(showKey, properName);
+            show = new Show(filenameShow, actualName);
+            _shows.put(queryString, show);
         }
-        _shows.put(showKey, show);
         return show;
     }
 }
