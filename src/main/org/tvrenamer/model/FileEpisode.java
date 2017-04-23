@@ -22,6 +22,10 @@ import java.util.regex.Matcher;
 public class FileEpisode {
     private static Logger logger = Logger.getLogger(FileEpisode.class.getName());
 
+    private enum EpisodeStatus {
+        UNPARSED, ADDED, GOT_SHOW, GOT_LISTINGS, RENAMED, BROKEN;
+    }
+
     private static final String FILE_SEPARATOR_STRING = java.io.File.separator;
 
     // This is the one final field in this class; it's the one thing that should never
@@ -42,6 +46,17 @@ public class FileEpisode {
 
     private Path path;
     private String fileNameString;
+
+    // After we've looked up the filenameShow from the provider, we should get back an
+    // actual Show object.  This is true even if the show was not found; in that case,
+    // we should get an instance of a FailedShow.
+    private Show actualShow = null;
+
+    // This class represents a file on disk, with fields that indicate which episode we
+    // believe it refers to, based on the filename.  The "Episode" class represents
+    // information about an actual episode of a show, based on listings from the provider.
+    // Once we have the listings, we should be able to map this instance to an Episode.
+    private Episode actualEpisode = null;
 
     // This class actually figures out the proposed new name for the file, so we need
     // a link to the user preferences to know how the user wants the file renamed.
@@ -146,12 +161,71 @@ public class FileEpisode {
         return path.toAbsolutePath().toString();
     }
 
-    public EpisodeStatus getStatus() {
-        return status;
+    public boolean wasParsed() {
+        return (status != EpisodeStatus.UNPARSED);
     }
 
-    public void setStatus(EpisodeStatus newStatus) {
-        status = newStatus;
+    public boolean isReady() {
+        return (actualEpisode != null);
+    }
+
+    public void setParsed() {
+        status = EpisodeStatus.ADDED;
+    }
+
+    public void setFailToParse() {
+        status = EpisodeStatus.UNPARSED;
+    }
+
+    public void setMoving() {
+        status = EpisodeStatus.RENAMED;
+    }
+
+    public void setFailToMove() {
+        status = EpisodeStatus.GOT_LISTINGS;
+    }
+
+    public void setDoesNotExist() {
+        status = EpisodeStatus.BROKEN;
+    }
+
+    public void setShow(Show show) {
+        actualShow = show;
+        if (actualShow instanceof FailedShow) {
+            status = EpisodeStatus.BROKEN;
+        } else {
+            status = EpisodeStatus.GOT_SHOW;
+        }
+    }
+
+    public void listingsComplete() {
+        if (actualShow == null) {
+            logger.warning("error: should not get listings, do not have show!");
+            status = EpisodeStatus.BROKEN;
+        } else if (actualShow instanceof FailedShow) {
+            logger.warning("error: should not get listings, have a failed show!");
+            status = EpisodeStatus.BROKEN;
+        } else {
+            actualEpisode = actualShow.getEpisode(seasonNum, episodeNum);
+            if (actualEpisode == null) {
+                logger.log(Level.SEVERE, "Season #" + seasonNum + ", Episode #"
+                           + episodeNum + " not found for show '"
+                           + filenameShow + "'");
+                status = EpisodeStatus.BROKEN;
+            } else {
+                // Success!!!
+                status = EpisodeStatus.GOT_LISTINGS;
+            }
+        }
+    }
+
+    public void listingsFailed() {
+        status = EpisodeStatus.BROKEN;
+        if (actualShow == null) {
+            logger.warning("error: should not have tried to get listings, do not have show!");
+        } else if (actualShow instanceof FailedShow) {
+            logger.warning("error: should not have tried to get listings, have a failed show!");
+        }
     }
 
     /**
@@ -192,29 +266,26 @@ public class FileEpisode {
     }
 
     public String getRenamedBasename() {
-        String showName = "";
+        String showName;
+        if (actualShow == null) {
+            logger.warning("should not be renaming without an actual Show.");
+            showName = filenameShow;
+        } else {
+            if (actualShow instanceof FailedShow) {
+                logger.warning("should not be renaming with a FailedShow.");
+            }
+            // We can use getName() even if it was a FailedShow
+            showName = actualShow.getName();
+        }
+
         String titleString = "";
         LocalDate airDate = null;
-
-        try {
-            Show show = ShowStore.getShow(filenameShow);
-            showName = show.getName();
-
-            Episode actualEpisode = show.getEpisode(seasonNum, episodeNum);
-            if (actualEpisode == null) {
-                logger.log(Level.SEVERE, "Season #" + seasonNum + ", Episode #"
-                           + episodeNum + " not found for show '"
-                           + filenameShow + "'");
-            } else {
-                titleString = actualEpisode.getTitle();
-                airDate = actualEpisode.getAirDate();
-                if (airDate == null) {
-                    logger.log(Level.WARNING, "Episode air date not found for '" + toString() + "'");
-                }
+        if (actualEpisode != null) {
+            titleString = actualEpisode.getTitle();
+            airDate = actualEpisode.getAirDate();
+            if (airDate == null) {
+                logger.log(Level.WARNING, "Episode air date not found for '" + toString() + "'");
             }
-        } catch (ShowNotFoundException e) {
-            showName = filenameShow;
-            logger.log(Level.SEVERE, "Show not found for '" + toString() + "'", e);
         }
 
         String newFilename = userPrefs.getRenameReplacementString();

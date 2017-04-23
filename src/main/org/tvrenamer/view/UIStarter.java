@@ -52,7 +52,6 @@ import org.tvrenamer.controller.ShowListingsListener;
 import org.tvrenamer.controller.UpdateChecker;
 import org.tvrenamer.controller.UpdateCompleteHandler;
 import org.tvrenamer.model.EpisodeDb;
-import org.tvrenamer.model.EpisodeStatus;
 import org.tvrenamer.model.FileEpisode;
 import org.tvrenamer.model.FileMoveIcon;
 import org.tvrenamer.model.NotFoundException;
@@ -650,7 +649,7 @@ public class UIStarter implements Observer,  AddEpisodeListener {
     }
 
     private void listingsDownloaded(TableItem item, FileEpisode episode) {
-        episode.setStatus(EpisodeStatus.GOT_LISTINGS);
+        episode.listingsComplete();
         display.asyncExec(new Runnable() {
                 @Override
                 public void run() {
@@ -663,7 +662,7 @@ public class UIStarter implements Observer,  AddEpisodeListener {
     }
 
     private void listingsFailed(TableItem item, FileEpisode episode) {
-        episode.setStatus(EpisodeStatus.BROKEN);
+        episode.listingsFailed();
         display.asyncExec(new Runnable() {
                 @Override
                 public void run() {
@@ -692,7 +691,6 @@ public class UIStarter implements Observer,  AddEpisodeListener {
 
 
     private void tableItemDownloaded(TableItem item, FileEpisode episode) {
-        episode.setStatus(EpisodeStatus.GOT_SHOW);
         display.asyncExec(new Runnable() {
                 @Override
                 public void run() {
@@ -705,7 +703,6 @@ public class UIStarter implements Observer,  AddEpisodeListener {
     }
 
     private void tableItemFailed(TableItem item, FileEpisode episode) {
-        episode.setStatus(EpisodeStatus.BROKEN);
         display.asyncExec(new Runnable() {
                 @Override
                 public void run() {
@@ -727,16 +724,18 @@ public class UIStarter implements Observer,  AddEpisodeListener {
             final String fileName = episode.getFilepath();
             final TableItem item = createTableItem(resultsTable, fileName, episode);
 
-            String showName = episode.getFilenameShow();
+            final String showName = episode.getFilenameShow();
             ShowStore.getShow(showName, new ShowInformationListener() {
                     @Override
                     public void downloaded(Show show) {
+                        episode.setShow(show);
                         tableItemDownloaded(item, episode);
                         getShowListings(show, item, episode);
                     }
 
                     @Override
                     public void downloadFailed(Show show) {
+                        episode.setShow(show);
                         tableItemFailed(item, episode);
                     }
                 });
@@ -764,7 +763,7 @@ public class UIStarter implements Observer,  AddEpisodeListener {
                 String fileName = item.getText(CURRENT_FILE_COLUMN);
                 final FileEpisode episode = episodeMap.get(fileName);
                 // Skip files not successfully downloaded
-                if (episode.getStatus() != EpisodeStatus.GOT_LISTINGS) {
+                if (!episode.isReady()) {
                     continue;
                 }
 
