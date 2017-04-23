@@ -79,6 +79,10 @@ public class FileEpisode {
         return queryString;
     }
 
+    public String getFilenameShow() {
+        return filenameShow;
+    }
+
     public void setFilenameShow(String filenameShow) {
         this.filenameShow = filenameShow;
         queryString = StringUtils.makeQueryString(filenameShow);
