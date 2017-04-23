@@ -54,8 +54,6 @@ public class FileEpisode {
     private String filenameEpisode = "";
     private String filenameResolution = "";
 
-    private String baseForRename = null;
-
     private int seasonNum = Show.NO_SEASON;
     private int episodeNum = Show.NO_EPISODE;
 
@@ -66,6 +64,10 @@ public class FileEpisode {
     // a link to the user preferences to know how the user wants the file renamed.
     private UserPreferences userPrefs = UserPreferences.getInstance();
     private EpisodeStatus status;
+
+    // This is the basic part of what we would rename the file to.  That is, we would
+    // rename it to destinationFolder + baseForRename + filenameSuffix.
+    private String baseForRename = null;
 
     // Initially we create the FileEpisode with nothing more than the path.
     // Other information will flow in.
@@ -206,7 +208,7 @@ public class FileEpisode {
         return dateFormat.format(date);
     }
 
-    private String getRenamedFilename() {
+    public String getRenamedBasename() {
         String showName = "";
         String titleString = "";
         LocalDate airDate = null;
@@ -278,7 +280,7 @@ public class FileEpisode {
         // Note, this is an instance variable, not a local variable.
         baseForRename = StringUtils.sanitiseTitle(newFilename);
 
-        return baseForRename + filenameSuffix;
+        return baseForRename;
     }
 
     private String getShowNamePlaceholder() {
@@ -289,7 +291,7 @@ public class FileEpisode {
     }
 
     /**
-     * @return the new full file path (for table display) using {@link #getRenamedFilename()} and
+     * @return the new full file path (for table display) using {@link #getRenamedBasename()} and
      *          the destination directory
      */
     public String getReplacementText() {
@@ -302,23 +304,21 @@ public class FileEpisode {
             }
             case GOT_LISTINGS:
             case RENAMED: {
-                String newFilename = getRenamedFilename();
-                String destDirectoryName = getMoveToDirectory();
 
-                if (userPrefs.isMoveEnabled()) {
-                    if (userPrefs.isRenameEnabled()) {
-                        return  destDirectoryName + FILE_SEPARATOR_STRING + newFilename;
+                if (userPrefs.isRenameEnabled()) {
+                    String newFilename = getRenamedBasename() + filenameSuffix;
+
+                    if (userPrefs.isMoveEnabled()) {
+                        return getMoveToDirectory() + FILE_SEPARATOR_STRING + newFilename;
                     } else {
-                        return  destDirectoryName + FILE_SEPARATOR_STRING + fileNameString;
-                    }
-                } else {
-                    if (userPrefs.isRenameEnabled()) {
                         return newFilename;
-                    } else {
-                        // This setting doesn't make any sense, but we haven't bothered to
-                        // disallow it yet.
-                        return fileNameString;
                     }
+                } else if (userPrefs.isMoveEnabled()) {
+                    return getMoveToDirectory() + FILE_SEPARATOR_STRING + fileNameString;
+                } else {
+                    // This setting doesn't make any sense, but we haven't bothered to
+                    // disallow it yet.
+                    return fileNameString;
                 }
             }
             case UNPARSED:
