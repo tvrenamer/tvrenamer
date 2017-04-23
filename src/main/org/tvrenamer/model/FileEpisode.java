@@ -13,7 +13,6 @@ import org.tvrenamer.controller.util.StringUtils;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.logging.Level;
@@ -24,22 +23,6 @@ public class FileEpisode {
     private static Logger logger = Logger.getLogger(FileEpisode.class.getName());
 
     private static final String FILE_SEPARATOR_STRING = java.io.File.separator;
-
-    public static final ThreadLocal<DecimalFormat> DIGITS =
-        new ThreadLocal<DecimalFormat>() {
-            @Override
-            protected DecimalFormat initialValue() {
-                return new DecimalFormat("##0");
-            }
-        };
-
-    public static final ThreadLocal<DecimalFormat> TWO_OR_THREE =
-        new ThreadLocal<DecimalFormat>() {
-            @Override
-            protected DecimalFormat initialValue() {
-                return new DecimalFormat("#00");
-            }
-        };
 
     // This is the one final field in this class; it's the one thing that should never
     // change in a FileEpisode.
@@ -241,8 +224,8 @@ public class FileEpisode {
         showName = GlobalOverrides.getInstance().getShowName(showName);
 
         // Make whatever modifications are required
-        String episodeNumberString = DIGITS.get().format(episodeNum);
-        String episodeNumberWithLeadingZeros = TWO_OR_THREE.get().format(episodeNum);
+        String episodeNumberString = StringUtils.formatDigits(episodeNum);
+        String episodeNumberWithLeadingZeros = StringUtils.zeroPadThreeDigits(episodeNum);
         String episodeTitleNoSpaces = Matcher.quoteReplacement(StringUtils.makeDotTitle(titleString));
         String seasonNumberWithLeadingZero = StringUtils.zeroPadTwoDigits(seasonNum);
 

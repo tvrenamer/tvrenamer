@@ -1,10 +1,27 @@
 package org.tvrenamer.controller.util;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.logging.Logger;
 
 public class StringUtils {
     private static Logger logger = Logger.getLogger(StringUtils.class.getName());
+
+    public static final ThreadLocal<DecimalFormat> DIGITS =
+        new ThreadLocal<DecimalFormat>() {
+            @Override
+            protected DecimalFormat initialValue() {
+                return new DecimalFormat("##0");
+            }
+        };
+
+    public static final ThreadLocal<DecimalFormat> TWO_OR_THREE =
+        new ThreadLocal<DecimalFormat>() {
+            @Override
+            protected DecimalFormat initialValue() {
+                return new DecimalFormat("#00");
+            }
+        };
 
     public static String makeDotTitle(String titleString) {
         String pass1 = titleString.replaceAll("(\\w)\\s+(\\w)", "$1.$2");
@@ -124,6 +141,14 @@ public class StringUtils {
 
     public static String zeroPadTwoDigits(int number) {
         return String.format("%02d", number);
+    }
+
+    public static String zeroPadThreeDigits(int number) {
+        return TWO_OR_THREE.get().format(number);
+    }
+
+    public static String formatDigits(int number) {
+        return DIGITS.get().format(number);
     }
 
     /**
