@@ -920,6 +920,7 @@ public class FileEpisodeTest {
 
         Show show = ShowStore.getOrAddShow(data.filenameShow, data.properShowName);
         show.preferProductionOrdering();
+        episode.setShow(show);
 
         EpisodeInfo info = new EpisodeInfo.Builder()
             .episodeId(data.episodeId)
@@ -931,7 +932,7 @@ public class FileEpisodeTest {
         dummyArray[0] = info;
         show.addEpisodes(dummyArray, false);
 
-        episode.setStatus(EpisodeStatus.GOT_LISTINGS);
+        episode.listingsComplete();
 
         return episode.getReplacementText();
     }

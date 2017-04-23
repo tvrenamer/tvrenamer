@@ -1,6 +1,5 @@
 package org.tvrenamer.controller;
 
-import org.tvrenamer.model.EpisodeStatus;
 import org.tvrenamer.model.FileEpisode;
 
 import java.nio.file.Path;
@@ -56,12 +55,13 @@ public class TVRenamer {
                 episode.setSeasonNum(Integer.parseInt(matcher.group(2)));
                 episode.setEpisodeNum(Integer.parseInt(matcher.group(3)));
                 episode.setFilenameResolution(resolution);
-                episode.setStatus(EpisodeStatus.ADDED);
+                episode.setParsed();
 
                 return true;
             }
         }
 
+        episode.setFailToParse();
         return false;
     }
 

@@ -37,8 +37,8 @@ public class EpisodeDb {
 
     private FileEpisode add(final String pathname) {
         final FileEpisode episode = new FileEpisode(pathname);
-        boolean parsed = TVRenamer.parseFilename(episode);
-        if (!parsed) {
+        TVRenamer.parseFilename(episode);
+        if (!episode.wasParsed()) {
             // TODO: we can add these episodes to the table anyway,
             // to provide information to the user, and in the future,
             // to let them help us parse the filenames.
