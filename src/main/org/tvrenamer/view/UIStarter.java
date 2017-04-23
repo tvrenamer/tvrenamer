@@ -727,7 +727,7 @@ public class UIStarter implements Observer,  AddEpisodeListener {
             final String fileName = episode.getFilepath();
             final TableItem item = createTableItem(resultsTable, fileName, episode);
 
-            String showName = episode.getQueryString();
+            String showName = episode.getFilenameShow();
             ShowStore.getShow(showName, new ShowInformationListener() {
                     @Override
                     public void downloaded(Show show) {

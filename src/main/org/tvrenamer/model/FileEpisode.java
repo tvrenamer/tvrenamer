@@ -49,7 +49,6 @@ public class FileEpisode {
     private String filenameSeason = "";
     private String filenameEpisode = "";
     private String filenameResolution = "";
-    private String queryString = "";
 
     private String baseForRename = null;
     private String filenameSuffix = null;
@@ -75,17 +74,12 @@ public class FileEpisode {
         this(Paths.get(filename));
     }
 
-    public String getQueryString() {
-        return queryString;
-    }
-
     public String getFilenameShow() {
         return filenameShow;
     }
 
     public void setFilenameShow(String filenameShow) {
         this.filenameShow = filenameShow;
-        queryString = StringUtils.makeQueryString(filenameShow);
     }
 
     public int getSeasonNum() {
@@ -176,7 +170,7 @@ public class FileEpisode {
      *         within this FileEpisode) should be moved
      */
     public String getMoveToDirectory() {
-        String dirname = ShowStore.getShow(queryString).getDirName();
+        String dirname = ShowStore.getShow(filenameShow).getDirName();
         String destPath = userPrefs.getDestinationDirectoryName();
         destPath = destPath + FILE_SEPARATOR_STRING + dirname;
 
@@ -205,7 +199,7 @@ public class FileEpisode {
         LocalDate airDate = null;
 
         try {
-            Show show = ShowStore.getShow(queryString);
+            Show show = ShowStore.getShow(filenameShow);
             showName = show.getName();
 
             Episode actualEpisode = show.getEpisode(seasonNum, episodeNum);
@@ -276,7 +270,7 @@ public class FileEpisode {
     }
 
     private String getShowNamePlaceholder() {
-        Show show = ShowStore.getShow(queryString);
+        Show show = ShowStore.getShow(filenameShow);
         String showName = show.getName();
 
         return "<" + showName + ">";
