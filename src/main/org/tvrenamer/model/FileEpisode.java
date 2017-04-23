@@ -41,6 +41,10 @@ public class FileEpisode {
             }
         };
 
+    // This is the one final field in this class; it's the one thing that should never
+    // change in a FileEpisode.
+    private final String filenameSuffix;
+
     // These four fields reflect the information derived from the filename.  In particular,
     // filenameShow is based on the part of the filename we "guessed" represented the name
     // of the show, and which we use to query the provider.  Note that the actual show name
@@ -51,12 +55,12 @@ public class FileEpisode {
     private String filenameResolution = "";
 
     private String baseForRename = null;
-    private String filenameSuffix = null;
 
     private int seasonNum = Show.NO_SEASON;
     private int episodeNum = Show.NO_EPISODE;
 
     private Path path;
+    private String fileNameString;
 
     // This class actually figures out the proposed new name for the file, so we need
     // a link to the user preferences to know how the user wants the file renamed.
@@ -67,6 +71,9 @@ public class FileEpisode {
     // Other information will flow in.
     public FileEpisode(Path p) {
         path = p;
+        fileNameString = path.getFileName().toString();
+        filenameSuffix = StringUtils.getExtension(fileNameString);
+
         status = EpisodeStatus.UNPARSED;
     }
 
@@ -136,16 +143,22 @@ public class FileEpisode {
         }
     }
 
-    public String getFilepath() {
-        return path.toAbsolutePath().toString();
-    }
-
     public Path getPath() {
         return path;
     }
 
     public void setPath(Path p) {
         path = p;
+        fileNameString = path.getFileName().toString();
+
+        String newSuffix = StringUtils.getExtension(fileNameString);
+        if (!filenameSuffix.equals(newSuffix)) {
+            throw new IllegalStateException("suffix of a FileEpisode may not change!");
+        }
+    }
+
+    public String getFilepath() {
+        return path.toAbsolutePath().toString();
     }
 
     public EpisodeStatus getStatus() {
@@ -262,9 +275,8 @@ public class FileEpisode {
         newFilename = newFilename.replaceAll(ReplacementToken.DATE_YEAR_MIN.getToken(),
                                              formatDate(airDate, "yy"));
 
-        // Note, these are instance variables, not local variables.
+        // Note, this is an instance variable, not a local variable.
         baseForRename = StringUtils.sanitiseTitle(newFilename);
-        filenameSuffix = StringUtils.getExtension(path.getFileName().toString());
 
         return baseForRename + filenameSuffix;
     }
@@ -290,7 +302,6 @@ public class FileEpisode {
             }
             case GOT_LISTINGS:
             case RENAMED: {
-                String currentFilename = path.getFileName().toString();
                 String newFilename = getRenamedFilename();
                 String destDirectoryName = getMoveToDirectory();
 
@@ -298,7 +309,7 @@ public class FileEpisode {
                     if (userPrefs.isRenameEnabled()) {
                         return  destDirectoryName + FILE_SEPARATOR_STRING + newFilename;
                     } else {
-                        return  destDirectoryName + FILE_SEPARATOR_STRING + currentFilename;
+                        return  destDirectoryName + FILE_SEPARATOR_STRING + fileNameString;
                     }
                 } else {
                     if (userPrefs.isRenameEnabled()) {
@@ -306,7 +317,7 @@ public class FileEpisode {
                     } else {
                         // This setting doesn't make any sense, but we haven't bothered to
                         // disallow it yet.
-                        return currentFilename;
+                        return fileNameString;
                     }
                 }
             }
@@ -320,6 +331,6 @@ public class FileEpisode {
     @Override
     public String toString() {
         return "FileEpisode { title:" + filenameShow + ", season:" + seasonNum + ", episode:" + episodeNum
-            + ", file:" + path.getFileName() + " }";
+            + ", file:" + fileNameString + " }";
     }
 }
