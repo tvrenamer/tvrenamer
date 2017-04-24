@@ -40,26 +40,7 @@ public class FileMover implements Callable<Boolean> {
         this.progressLabel = progressLabel;
     }
 
-    private void cleanUpLabel() {
-        // We only use the progressLabel if we're doing the "copy-and-delete" method.  But we
-        // have created it beforehand, not knowing which method we'd be using.  So, regardless
-        // of how we tried to move the file, and regardless of whether it succeeded or not,
-        // we need to get rid of the label.
-        if (!display.isDisposed()) {
-            display.asyncExec(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (progressLabel.isDisposed()) {
-                            return;
-                        }
-                        progressLabel.dispose();
-                    }
-                });
-        }
-    }
-
-    @Override
-    public Boolean call() {
+    public Boolean call(FileCopyMonitor monitor) {
         Path srcPath = episode.getPath();
         Path destDir = destPath.getParent();
         if (Files.notExists(destDir)) {
@@ -75,8 +56,8 @@ public class FileMover implements Callable<Boolean> {
                 }
                 if (!succeeded) {
                     long size = Files.size(srcPath);
-                    FileCopyMonitor monitor = new FileCopyMonitor(progressLabel, size);
-                    succeeded = FileUtilities.moveFile(srcPath, destPath, monitor);
+                    monitor.setMaximum(size);
+                    succeeded = FileUtilities.copyAndDelete(srcPath, destPath, monitor);
                 }
                 if (succeeded) {
                     updateFileModifiedDate(destPath);
@@ -88,7 +69,6 @@ public class FileMover implements Callable<Boolean> {
                                   + destPath.toAbsolutePath());
                     UIStarter.setTableItemStatus(display, item, FileMoveIcon.FAIL);
                 }
-                cleanUpLabel();
             } catch (IOException ioe) {
                 logger.warning("IO Exception");
             }
@@ -97,6 +77,24 @@ public class FileMover implements Callable<Boolean> {
             logger.severe("Unable to move file to " + destPath.toAbsolutePath().toString());
         }
         return false;
+    }
+
+    @Override
+    public Boolean call() {
+        FileCopyMonitor monitor = new FileCopyMonitor(display, progressLabel);
+        Boolean status = null;
+        try {
+            status = call(monitor);
+        } catch (Exception e) {
+            logger.warning("exception caught doing file move: " + e);
+        } finally {
+            // We only use the label if we're doing the "copy-and-delete" method.
+            // But we have created it beforehand, not knowing which method we'd be using.
+            // So, regardless of how we tried to move the file, and regardless of whether
+            // it succeeded or not, we need to get rid of the label.
+            monitor.cleanUp();
+        }
+        return status;
     }
 
     private void updateFileModifiedDate(Path path)
