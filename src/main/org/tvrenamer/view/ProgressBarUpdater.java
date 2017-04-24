@@ -27,8 +27,10 @@ public class ProgressBarUpdater {
         this.progressBar = ui.getProgressBar();
         this.barSize = progressBar.getMaximum();
 
-        taskItem.setProgressState(SWT.NORMAL);
-        taskItem.setOverlayImage(FileMoveIcon.RENAMING.icon);
+        if (taskItem != null) {
+            taskItem.setProgressState(SWT.NORMAL);
+            taskItem.setOverlayImage(FileMoveIcon.RENAMING.icon);
+        }
     }
 
     /**
@@ -44,8 +46,10 @@ public class ProgressBarUpdater {
         display.asyncExec(new Runnable() {
                 @Override
                 public void run() {
-                    taskItem.setOverlayImage(null);
-                    taskItem.setProgressState(SWT.DEFAULT);
+                    if (taskItem != null) {
+                        taskItem.setOverlayImage(null);
+                        taskItem.setProgressState(SWT.DEFAULT);
+                    }
                     ui.refreshTable();
                 }
             });
@@ -73,10 +77,12 @@ public class ProgressBarUpdater {
                         return;
                     }
                     progressBar.setSelection(Math.round(progress * barSize));
-                    if (taskItem.isDisposed()) {
-                        return;
+                    if (taskItem != null) {
+                        if (taskItem.isDisposed()) {
+                            return;
+                        }
+                        taskItem.setProgress(Math.round(progress * 100));
                     }
-                    taskItem.setProgress(Math.round(progress * 100));
                 }
             });
     }
