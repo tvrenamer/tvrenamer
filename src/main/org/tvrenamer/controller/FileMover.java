@@ -26,6 +26,7 @@ public class FileMover implements Callable<Boolean> {
     private final String destBasename;
     private final String destSuffix;
     private final ProgressObserver observer;
+    Integer destIndex = null;
 
     public FileMover(FileEpisode episode, ProgressObserver observer) {
         this.episode = episode;
@@ -37,6 +38,36 @@ public class FileMover implements Callable<Boolean> {
     }
 
     /**
+     * Gets the current location of the file to be moved
+     *
+     * @return the Path where the file is currently located
+     */
+    Path getCurrentPath() {
+        return episode.getPath();
+    }
+
+    /**
+     * Gets the size (in bytes) of the file to be moved
+     *
+     * @return the size of the file
+     */
+    long getFileSize() {
+        return episode.getFileSize();
+    }
+
+    /**
+     * The "basename" of the destination we want to move the file to.
+     * The "basename" is the filename without the filename suffix (or
+     * the dot), or the parent directory.
+     *
+     * @return the basic part of the filename that we want to move the
+     *         file to
+     */
+    String getDestBasename() {
+        return destBasename;
+    }
+
+    /**
      * Gets the name of the directory we should move the file to, as a string.
      *
      * We call it the "moveToDirectory" because "destinationDirectory" is used more
@@ -44,20 +75,10 @@ public class FileMover implements Callable<Boolean> {
      * for user preferences.  This is the subdirectory of that folder that the file
      * should actually be placed in.
      *
-     * But, it doesn't make sense if we don't have enough information about the episode.
-     * We never should have gotten here if that's the case, but we'll do a sanity check
-     * here.
-     *
      * @return the name of the directory we should move the file to, as a string.
      */
     String getMoveToDirectory() {
-        // Skip files not successfully downloaded and ready to be moved
-        if (!episode.isReady()) {
-            logger.info("selected but not ready: " + episode.getFilepath());
-            return null;
-        }
-
-        return episode.getMoveToDirectory();
+        return destRootName;
     }
 
     /**
@@ -186,6 +207,11 @@ public class FileMover implements Callable<Boolean> {
             return false;
         }
         Path destDir = Paths.get(destRootName);
+        String filename = destBasename + destSuffix;
+        if (destIndex != null) {
+            destDir = destDir.resolve(DUPLICATES_DIRECTORY);
+            filename = destBasename + VERSION_SEPARATOR_STRING + destIndex + destSuffix;
+        }
         if (Files.notExists(destDir)) {
             try {
                 Files.createDirectories(destDir);
@@ -206,7 +232,6 @@ public class FileMover implements Callable<Boolean> {
             return false;
         }
 
-        String filename = destBasename + destSuffix;
         Path destPath = destDir.resolve(filename);
         if (Files.exists(destPath)) {
             if (destPath.equals(srcPath)) {
