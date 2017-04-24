@@ -24,14 +24,6 @@ Description: XML Pull Parsing
 Website: http://www.xmlpull.org/
 License: Public Domain (LGPL for conformance tests)
 
-jEdit
-=========================================
-Description: The Programmer's Text Editor
-Website: http://jedit.org
-License: Berkeley Software Distribution v2.0 (BSD)
-License website: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-Note: A small number of classes were taken from the jEdit source and repackaged into the TVRenamer application.  This was purely done to keep the download of our application small
-
 TransparenTech CocoaUIEnhancer
 =========================================
 Description: Connect the About, Preferences and Quit menus in Mac OS X Cocoa SWT and JFace applications
@@ -55,6 +47,13 @@ License: Apache Copyright © 2003 The Trustees of Indiana University. All rights
 License website: http://www.extreme.indiana.edu/dist/java-repository/xpp3/licenses/LICENSE.txt
 License conditions: This product includes software developed by the Indiana University Extreme! Lab.  For further information please visit http://www.extreme.indiana.edu/
 
+jEdit
+=========================================
+Description: The Programmer's Text Editor
+Website: http://jedit.org
+License: Berkeley Software Distribution v2.0 (BSD)
+License website: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+Note: A very small amount of code was taken from the jEdit source and repackaged into the TVRenamer application.  See copyAndDelete in FileUtilities.java.  TVRenamer does not use the jEdit libraries at all.
 
 == End of TVRenamer 3rd Party licenses section ==
 

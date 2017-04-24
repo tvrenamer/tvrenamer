@@ -2,19 +2,21 @@ package org.tvrenamer.view;
 
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.gjt.sp.util.ProgressObserver;
+
+import org.tvrenamer.model.ProgressObserver;
 
 import java.text.NumberFormat;
 
 public class FileCopyMonitor implements ProgressObserver {
-    private long maximum;
-    private final Label label;
-    private int loopCount = 0;
     private final NumberFormat format = NumberFormat.getPercentInstance();
+    private final Display display;
+    private final Label label;
+    private long maximum;
+    private int loopCount = 0;
 
-    public FileCopyMonitor(Label label, long maximum) {
+    public FileCopyMonitor(Display display, Label label) {
+        this.display = display;
         this.label = label;
-        setMaximum(maximum);
         setValue(0);
         format.setMaximumFractionDigits(1);
     }
@@ -22,7 +24,7 @@ public class FileCopyMonitor implements ProgressObserver {
     @Override
     public void setValue(final long value) {
         if (loopCount++ % 500 == 0) {
-            Display.getDefault().asyncExec(new Runnable() {
+            display.asyncExec(new Runnable() {
                 @Override
                 public void run() {
                     if (label.isDisposed()) {
@@ -35,13 +37,13 @@ public class FileCopyMonitor implements ProgressObserver {
     }
 
     @Override
-    public void setMaximum(long value) {
+    public void setMaximum(final long value) {
         maximum = value;
     }
 
     @Override
     public void setStatus(final String status) {
-        Display.getDefault().asyncExec(new Runnable() {
+        display.asyncExec(new Runnable() {
             @Override
             public void run() {
                 if (label.isDisposed()) {
@@ -51,4 +53,20 @@ public class FileCopyMonitor implements ProgressObserver {
             }
         });
     }
+
+    @Override
+    public void cleanUp() {
+        if (!display.isDisposed()) {
+            display.asyncExec(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (label.isDisposed()) {
+                            return;
+                        }
+                        label.dispose();
+                    }
+                });
+        }
+    }
+
 }

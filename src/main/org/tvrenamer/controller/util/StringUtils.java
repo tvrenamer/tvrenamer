@@ -23,6 +23,22 @@ public class StringUtils {
             }
         };
 
+    public static final ThreadLocal<DecimalFormat> KB_FORMAT =
+        new ThreadLocal<DecimalFormat>() {
+            @Override
+            protected DecimalFormat initialValue() {
+                return new DecimalFormat("#.# kB");
+            }
+        };
+
+    public static final ThreadLocal<DecimalFormat> MB_FORMAT =
+        new ThreadLocal<DecimalFormat>() {
+            @Override
+            protected DecimalFormat initialValue() {
+                return new DecimalFormat("#.# MB");
+            }
+        };
+
     public static String makeDotTitle(String titleString) {
         String pass1 = titleString.replaceAll("(\\w)\\s+(\\w)", "$1.$2");
         String pass2 = pass1.replaceAll("(\\w)\\s+(\\w)", "$1.$2");
@@ -137,6 +153,23 @@ public class StringUtils {
             return filename.substring(dot);
         }
         return "";
+    }
+
+    /**
+     * Formats the given file size into a nice string (123 Bytes, 10.6 kB,
+     * 1.2 MB).  Copied from gjt I/O library.
+     *
+     * @param length The size
+     * @since jEdit 4.4pre1
+     */
+    public static String formatFileSize(long length) {
+        if (length < 1024) {
+            return length + " Bytes";
+        } else if (length < 1024 << 10) {
+            return KB_FORMAT.get().format((double)length / 1024);
+        } else {
+            return MB_FORMAT.get().format((double)length / 1024 / 1024);
+        }
     }
 
     public static String zeroPadTwoDigits(int number) {

@@ -1,7 +1,6 @@
 package org.tvrenamer.controller.util;
 
-import org.gjt.sp.util.IOUtilities;
-import org.gjt.sp.util.ProgressObserver;
+import org.tvrenamer.model.ProgressObserver;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,13 +38,12 @@ public class FileUtilities {
         return false;
     }
 
-    // {{{ moveFile() method, based on the moveFile() method in gjt
     /**
-     * Moves the source file to the destination.
+     * Copies the source file to the destination, and deletes the source.
      *
-     * If the destination cannot be created or is a read-only file, the method returns <code>false</code>. Otherwise,
-     * the contents of the source are copied to the destination, the source is deleted, and <code>true</code> is
-     * returned.
+     * If the destination cannot be created or is a read-only file, the method returns
+     * <code>false</code>. Otherwise, the contents of the source are copied to the destination,
+     * the source is deleted, and <code>true</code> is returned.
      *
      * @param source
      *            The source file to move.
@@ -57,7 +55,7 @@ public class FileUtilities {
      *
      * Based on a version originally implemented in jEdit 4.3pre9
      */
-    public static boolean moveFile(Path source, Path dest, ProgressObserver observer) {
+    public static boolean copyAndDelete(Path source, Path dest, ProgressObserver observer) {
         if (Files.notExists(source)) {
             logger.warning("source file to move does not exist: " + source);
             return false;
@@ -73,21 +71,38 @@ public class FileUtilities {
         }
 
         boolean ok = false;
-
         try (OutputStream fos = Files.newOutputStream(dest);
-             InputStream fis = Files.newInputStream(source)
-             )
+             InputStream fis = Files.newInputStream(source))
         {
-            ok = IOUtilities.copyStream(32768, observer, fis, fos, true);
+            byte[] buffer = new byte[32768];
+            int n;
+            long copied = 0L;
+            while (-1 != (n = fis.read(buffer))) {
+                fos.write(buffer, 0, n);
+                copied += n;
+                if (observer != null) {
+                    observer.setStatus(StringUtils.formatFileSize(copied));
+                    observer.setValue(copied);
+                }
+                if (Thread.interrupted()) {
+                    break;
+                }
+            }
+            if (-1 == n) {
+                ok = true;
+            }
         } catch (IOException ioe) {
+            ok = false;
             logger.log(Level.WARNING, "Error moving file " + source + ": " + ioe.getMessage(), ioe);
         }
 
         if (ok) {
             deleteFile(source);
+        } else {
+            logger.warning("failed to move " + source);
         }
         return ok;
-    } // }}}
+    }
 
     /**
      * areSameDisk -- returns true if two Paths exist on the same FileStore.
