@@ -11,6 +11,8 @@ import static org.tvrenamer.model.util.Constants.*;
 
 import org.tvrenamer.controller.util.StringUtils;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
@@ -27,6 +29,7 @@ public class FileEpisode {
     }
 
     private static final String FILE_SEPARATOR_STRING = java.io.File.separator;
+    private static final long NO_FILE_SIZE = -1L;
 
     // This is the one final field in this class; it's the one thing that should never
     // change in a FileEpisode.
@@ -46,6 +49,9 @@ public class FileEpisode {
 
     private Path path;
     private String fileNameString;
+    private boolean exists = false;
+    private long fileSize = NO_FILE_SIZE;
+
 
     // After we've looked up the filenameShow from the provider, we should get back an
     // actual Show object.  This is true even if the show was not found; in that case,
@@ -70,9 +76,9 @@ public class FileEpisode {
     // Initially we create the FileEpisode with nothing more than the path.
     // Other information will flow in.
     public FileEpisode(Path p) {
-        path = p;
-        fileNameString = path.getFileName().toString();
+        fileNameString = p.getFileName().toString();
         filenameSuffix = StringUtils.getExtension(fileNameString);
+        setPath(p);
 
         status = EpisodeStatus.UNPARSED;
     }
@@ -155,6 +161,24 @@ public class FileEpisode {
         if (!filenameSuffix.equals(newSuffix)) {
             throw new IllegalStateException("suffix of a FileEpisode may not change!");
         }
+
+        if (Files.exists(path)) {
+            exists = true;
+            try {
+                fileSize = Files.size(path);
+            } catch (IOException ioe) {
+                logger.log(Level.WARNING, "couldn't get size of " + path, ioe);
+                fileSize = NO_FILE_SIZE;
+            }
+        } else {
+            logger.fine("creating FileEpisode for nonexistent path, " + path);
+            exists = false;
+            fileSize = NO_FILE_SIZE;
+        }
+    }
+
+    public long getFileSize() {
+        return fileSize;
     }
 
     public String getFilepath() {
