@@ -47,15 +47,28 @@ public class Constants {
     public static final String TVRENAMER_VERSION_URL = TVRENAMER_PROJECT_URL + "/version";
 
     public static final String XML_SUFFIX = ".xml";
+    public static final String ICON_PARENT_DIRECTORY = "res";
+    public static final String TVRENAMER_ICON_PATH = "/icons/tvrenamer.png";
     public static final String LOGGING_PROPERTIES = "/logging.properties";
     public static final String DEVELOPER_DEFAULT_OVERRIDES_FILENAME = "etc/default-overrides.xml";
 
     public static final String ERROR_LABEL = "Error";
+    public static final String MOVE_TOOLTIP_1 = "Clicking this button will rename and move "
+        + "the selected files to the directory set in preferences (currently ";
+    public static final String MOVE_TOOLTIP_2 = ").";
+    public static final String RENAME_TOOLTIP = "Clicking this button will rename the selected "
+        + "files but leave them where they are.";
+    public static final String NO_DND = "Drag and Drop is not currently supported "
+        + "on your operating system, please use the 'Browse Files' option above";
+    public static final String UNKNOWN_EXCEPTION = "An error occurred, please check "
+        + "the console output to see any errors:";
 
     public static final String ERROR_PARSING_XML = "Error parsing XML";
     public static final String ADDED_PLACEHOLDER_FILENAME = "Downloading ...";
     public static final String BROKEN_PLACEHOLDER_FILENAME = "Unable to download show information";
     public static final String DOWNLOADING_FAILED = "Downloading show listings failed";
+    public static final String DOWNLOADING_FAILED_MESSAGE = DOWNLOADING_FAILED
+        + ".  Check internet connection";
 
     public static final String DEFAULT_REPLACEMENT_MASK = "%S [%sx%0e] %t";
     public static final String DEFAULT_SEASON_PREFIX = "Season ";

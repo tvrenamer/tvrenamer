@@ -1,5 +1,6 @@
 package org.tvrenamer.view;
 
+import static org.tvrenamer.model.util.Constants.*;
 import static org.tvrenamer.view.UIUtils.showMessageBox;
 
 import org.eclipse.swt.SWT;
@@ -60,7 +61,6 @@ import org.tvrenamer.model.Show;
 import org.tvrenamer.model.ShowStore;
 import org.tvrenamer.model.UserPreference;
 import org.tvrenamer.model.UserPreferences;
-import org.tvrenamer.model.util.Constants;
 import org.tvrenamer.model.util.Environment;
 
 import java.io.IOException;
@@ -86,14 +86,12 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 public class UIStarter implements Observer,  AddEpisodeListener {
-    private static final String DOWNLOADING_FAILED_MESSAGE = "Downloading show listings failed.  Check internet connection";
     private static Logger logger = Logger.getLogger(UIStarter.class.getName());
     private static final int SELECTED_COLUMN = 0;
     private static final int CURRENT_FILE_COLUMN = 1;
     private static final int NEW_FILENAME_COLUMN = 2;
     private static final int STATUS_COLUMN = 3;
     private static final int ITEM_NOT_IN_TABLE = -1;
-    private static final String TVRENAMER_DOWNLOAD_URL = AboutDialog.TVRENAMER_PROJECT_URL + "/downloads";
 
     private static Shell shell;
     private Display display;
@@ -135,12 +133,12 @@ public class UIStarter implements Observer,  AddEpisodeListener {
 
         // Setup display and shell
         GridLayout shellGridLayout = new GridLayout(3, false);
-        Display.setAppName(Constants.APPLICATION_NAME);
+        Display.setAppName(APPLICATION_NAME);
         display = new Display();
 
         shell = new Shell(display);
 
-        shell.setText(Constants.APPLICATION_NAME);
+        shell.setText(APPLICATION_NAME);
         shell.setLayout(shellGridLayout);
 
         // Setup the util class
@@ -254,15 +252,15 @@ public class UIStarter implements Observer,  AddEpisodeListener {
 
     private void setupMoveButtonText() {
         setRenameButtonText();
-        renameSelectedButton
-            .setToolTipText("Clicking this button will rename and move the selected files to the directory set in preferences (currently "
-                + prefs.getDestinationDirectoryName() + ").");
+        renameSelectedButton.setToolTipText(MOVE_TOOLTIP_1
+                                            + prefs.getDestinationDirectoryName()
+                                            + MOVE_TOOLTIP_2);
     }
 
     private void setupRenameButtonText() {
         setRenameButtonText();
-        renameSelectedButton
-            .setToolTipText("Clicking this button will rename the selected files but leave them where they are.");
+        renameSelectedButton.setToolTipText(RENAME_TOOLTIP);
+
     }
 
     private void setupMenuBar() {
@@ -292,7 +290,7 @@ public class UIStarter implements Observer,  AddEpisodeListener {
 
         if (Environment.IS_MAC_OSX) {
             // Add the special Mac OSX Preferences, About and Quit menus.
-            CocoaUIEnhancer enhancer = new CocoaUIEnhancer(Constants.APPLICATION_NAME);
+            CocoaUIEnhancer enhancer = new CocoaUIEnhancer(APPLICATION_NAME);
             enhancer.hookApplicationMenu(display, quitListener, aboutListener, preferencesListener);
 
             setupHelpMenuBar(menuBarMenu);
@@ -339,7 +337,7 @@ public class UIStarter implements Observer,  AddEpisodeListener {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
-                Program.launch(AboutDialog.TVRENAMER_PROJECT_URL);
+                Program.launch(TVRENAMER_PROJECT_URL);
             }
         });
 
@@ -465,7 +463,8 @@ public class UIStarter implements Observer,  AddEpisodeListener {
         selectedColumn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                resultsTable.setSortDirection(resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN);
+                int newDirection = resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
+                resultsTable.setSortDirection(newDirection);
                 sortTable(selectedColumn, SELECTED_COLUMN);
                 resultsTable.setSortColumn(selectedColumn);
             }
@@ -474,7 +473,8 @@ public class UIStarter implements Observer,  AddEpisodeListener {
         sourceColumn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                resultsTable.setSortDirection(resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN);
+                int newDirection = resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
+                resultsTable.setSortDirection(newDirection);
                 sortTable(sourceColumn, CURRENT_FILE_COLUMN);
                 resultsTable.setSortColumn(sourceColumn);
             }
@@ -483,7 +483,8 @@ public class UIStarter implements Observer,  AddEpisodeListener {
         destinationColumn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                resultsTable.setSortDirection(resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN);
+                int newDirection = resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
+                resultsTable.setSortDirection(newDirection);
                 sortTable(destinationColumn, NEW_FILENAME_COLUMN);
                 resultsTable.setSortColumn(destinationColumn);
             }
@@ -492,7 +493,8 @@ public class UIStarter implements Observer,  AddEpisodeListener {
         statusColumn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                resultsTable.setSortDirection(resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN);
+                int newDirection = resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
+                resultsTable.setSortDirection(newDirection);
                 sortTable(statusColumn, STATUS_COLUMN);
                 resultsTable.setSortColumn(statusColumn);
             }
@@ -581,11 +583,11 @@ public class UIStarter implements Observer,  AddEpisodeListener {
 
     private void setupIcons() {
         try {
-            InputStream icon = getClass().getResourceAsStream("/icons/tvrenamer.png");
+            InputStream icon = getClass().getResourceAsStream(TVRENAMER_ICON_PATH);
             if (icon != null) {
                 shell.setImage(new Image(display, icon));
             } else {
-                shell.setImage(new Image(display, "res/icons/tvrenamer.png"));
+                shell.setImage(new Image(display, ICON_PARENT_DIRECTORY + TVRENAMER_ICON_PATH));
             }
 
         } catch (Exception e) {
@@ -631,14 +633,12 @@ public class UIStarter implements Observer,  AddEpisodeListener {
             }
             doCleanup();
         } catch (IllegalArgumentException argumentException) {
-            String message = "Drag and Drop is not currently supported on your operating system, please use the 'Browse Files' option above";
-            logger.log(Level.SEVERE, message, argumentException);
-            JOptionPane.showMessageDialog(null, message);
+            logger.log(Level.SEVERE, NO_DND, argumentException);
+            JOptionPane.showMessageDialog(null, NO_DND);
             System.exit(1);
         } catch (Exception exception) {
-            String message = "An error occurred, please check your internet connection, java version or run from the command line to show errors";
-            showMessageBox(SWTMessageBoxType.ERROR, "Error", message, exception);
-            logger.log(Level.SEVERE, message, exception);
+            showMessageBox(SWTMessageBoxType.ERROR, "Error", UNKNOWN_EXCEPTION, exception);
+            logger.log(Level.SEVERE, UNKNOWN_EXCEPTION, exception);
             System.exit(1);
         }
     }
@@ -667,7 +667,7 @@ public class UIStarter implements Observer,  AddEpisodeListener {
                 @Override
                 public void run() {
                     if ( tableContainsTableItem(item) ) {
-                        item.setText(NEW_FILENAME_COLUMN, DOWNLOADING_FAILED_MESSAGE);
+                        item.setText(NEW_FILENAME_COLUMN, DOWNLOADING_FAILED);
                         item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
                         item.setChecked(false);
                     }
@@ -707,7 +707,7 @@ public class UIStarter implements Observer,  AddEpisodeListener {
                 @Override
                 public void run() {
                     if ( tableContainsTableItem(item) ) {
-                        item.setText(NEW_FILENAME_COLUMN, DOWNLOADING_FAILED_MESSAGE);
+                        item.setText(NEW_FILENAME_COLUMN, BROKEN_PLACEHOLDER_FILENAME);
                         item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
                         item.setChecked(false);
                     }
