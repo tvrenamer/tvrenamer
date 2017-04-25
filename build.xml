@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project name="TVRenamer build script" default="usage">
+<project name="TVRenamer build script" default="usage"
+         xmlns:ivy="antlib:org.apache.ivy.ant">
 
   <property name="src.main" value="src/main" />
   <property name="src.test" value="src/test" />
   <property name="build" value="out" />
+  <property name="lib.dl" value="lib" />
   <property name="lib.main" value="jars/main" />
   <property name="lib.test" value="jars/test" />
   <property name="res" value="res" />
@@ -54,6 +56,10 @@
 
     <pathelement location="${build}" />
   </path>
+
+  <target name="resolve" description="retrieve dependencies with ivy">
+    <ivy:retrieve/>
+  </target>
 
   <target name="init">
     <mkdir dir="${build}" />
@@ -201,8 +207,9 @@
   <target name="dist.all" depends="clean, dist.win, dist.linux, dist.osx" />
 
   <target name="init-checkstyle">
+    <ivy:retrieve/>
     <path id="checkstyle.lib.path">
-      <fileset dir="${lib.test}">
+      <fileset dir="${lib.dl}">
         <include name="checkstyle-7.1.1.jar" />
         <include name="guava-19.0.jar" />
         <include name="commons-beanutils-1.9.2.jar" />
@@ -222,6 +229,20 @@
     <checkstyle config="etc/checks.xml">
       <fileset dir="src" includes="**/*.java"/>
     </checkstyle>
+  </target>
+
+  <target name="findbugs" depends="compile" description="Run findbugs on the code">
+    <ivy:retrieve/>
+    <ivy:cachepath pathid="findbugs.classpath" conf="findbugs"/>
+    <taskdef name="findbugs"
+             classname="edu.umd.cs.findbugs.anttask.FindBugsTask"
+             classpathref="findbugs.classpath"/>
+    <findbugs output="html"
+              reportLevel="low"
+              outputFile="${build}/fbugs.html" >
+      <classpath refid="findbugs.classpath"/>
+      <class location="${build}"/>
+    </findbugs>
   </target>
 
   <target name="clean">
