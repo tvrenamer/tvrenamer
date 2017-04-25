@@ -24,8 +24,26 @@ import java.util.regex.Matcher;
 public class FileEpisode {
     private static Logger logger = Logger.getLogger(FileEpisode.class.getName());
 
-    private enum EpisodeStatus {
-        UNPARSED, ADDED, GOT_SHOW, GOT_LISTINGS, RENAMED, BROKEN;
+    private enum ParseStatus {
+        UNPARSED,
+        PARSED,
+        BAD_PARSE
+    }
+
+    private enum SeriesStatus {
+        NOT_STARTED,
+        GOT_SHOW,
+        UNFOUND,
+        GOT_LISTINGS,
+        NO_LISTINGS
+    }
+
+    private enum FileStatus {
+        UNCHECKED,
+        NO_FILE,
+        MOVING,
+        RENAMED,
+        FAIL_TO_MOVE
     }
 
     private static final String FILE_SEPARATOR_STRING = java.io.File.separator;
@@ -67,7 +85,11 @@ public class FileEpisode {
     // This class actually figures out the proposed new name for the file, so we need
     // a link to the user preferences to know how the user wants the file renamed.
     private UserPreferences userPrefs = UserPreferences.getInstance();
-    private EpisodeStatus status;
+
+    // The state of this object, not the state of the actual TV episode.
+    private ParseStatus parseStatus = ParseStatus.UNPARSED;
+    private SeriesStatus seriesStatus = SeriesStatus.NOT_STARTED;
+    private FileStatus fileStatus = FileStatus.UNCHECKED;
 
     // This is the basic part of what we would rename the file to.  That is, we would
     // rename it to destinationFolder + baseForRename + filenameSuffix.
@@ -79,8 +101,6 @@ public class FileEpisode {
         fileNameString = p.getFileName().toString();
         filenameSuffix = StringUtils.getExtension(fileNameString);
         setPath(p);
-
-        status = EpisodeStatus.UNPARSED;
     }
 
     public FileEpisode(String filename) {
@@ -168,11 +188,13 @@ public class FileEpisode {
                 fileSize = Files.size(path);
             } catch (IOException ioe) {
                 logger.log(Level.WARNING, "couldn't get size of " + path, ioe);
+                fileStatus = FileStatus.NO_FILE;
                 fileSize = NO_FILE_SIZE;
             }
         } else {
             logger.fine("creating FileEpisode for nonexistent path, " + path);
             exists = false;
+            fileStatus = FileStatus.NO_FILE;
             fileSize = NO_FILE_SIZE;
         }
     }
@@ -186,7 +208,7 @@ public class FileEpisode {
     }
 
     public boolean wasParsed() {
-        return (status != EpisodeStatus.UNPARSED);
+        return (parseStatus == ParseStatus.PARSED);
     }
 
     public boolean isReady() {
@@ -194,57 +216,61 @@ public class FileEpisode {
     }
 
     public void setParsed() {
-        status = EpisodeStatus.ADDED;
+        parseStatus = ParseStatus.PARSED;
     }
 
     public void setFailToParse() {
-        status = EpisodeStatus.UNPARSED;
+        parseStatus = ParseStatus.BAD_PARSE;
     }
 
     public void setMoving() {
-        status = EpisodeStatus.RENAMED;
+        fileStatus = FileStatus.MOVING;
+    }
+
+    public void setRenamed() {
+        fileStatus = FileStatus.RENAMED;
     }
 
     public void setFailToMove() {
-        status = EpisodeStatus.GOT_LISTINGS;
+        fileStatus = FileStatus.FAIL_TO_MOVE;
     }
 
     public void setDoesNotExist() {
-        status = EpisodeStatus.BROKEN;
+        fileStatus = FileStatus.NO_FILE;
     }
 
     public void setShow(Show show) {
         actualShow = show;
         if (actualShow instanceof FailedShow) {
-            status = EpisodeStatus.BROKEN;
+            seriesStatus = SeriesStatus.UNFOUND;
         } else {
-            status = EpisodeStatus.GOT_SHOW;
+            seriesStatus = SeriesStatus.GOT_SHOW;
         }
     }
 
     public void listingsComplete() {
         if (actualShow == null) {
             logger.warning("error: should not get listings, do not have show!");
-            status = EpisodeStatus.BROKEN;
+            seriesStatus = SeriesStatus.UNFOUND;
         } else if (actualShow instanceof FailedShow) {
             logger.warning("error: should not get listings, have a failed show!");
-            status = EpisodeStatus.BROKEN;
+            seriesStatus = SeriesStatus.UNFOUND;
         } else {
             actualEpisode = actualShow.getEpisode(seasonNum, episodeNum);
             if (actualEpisode == null) {
                 logger.log(Level.SEVERE, "Season #" + seasonNum + ", Episode #"
                            + episodeNum + " not found for show '"
                            + filenameShow + "'");
-                status = EpisodeStatus.BROKEN;
+                seriesStatus = SeriesStatus.NO_LISTINGS;
             } else {
                 // Success!!!
-                status = EpisodeStatus.GOT_LISTINGS;
+                seriesStatus = SeriesStatus.GOT_LISTINGS;
             }
         }
     }
 
     public void listingsFailed() {
-        status = EpisodeStatus.BROKEN;
+        seriesStatus = SeriesStatus.NO_LISTINGS;
         if (actualShow == null) {
             logger.warning("error: should not have tried to get listings, do not have show!");
         } else if (actualShow instanceof FailedShow) {
@@ -373,16 +399,17 @@ public class FileEpisode {
      *          the destination directory
      */
     public String getReplacementText() {
-        switch (status) {
-            case ADDED: {
+        switch (seriesStatus) {
+            case NOT_STARTED: {
                 return ADDED_PLACEHOLDER_FILENAME;
             }
             case GOT_SHOW: {
                 return getShowNamePlaceholder();
             }
-            case GOT_LISTINGS:
-            case RENAMED: {
-
+            case UNFOUND: {
+                return BROKEN_PLACEHOLDER_FILENAME;
+            }
+            case GOT_LISTINGS: {
                 if (userPrefs.isRenameEnabled()) {
                     String newFilename = getRenamedBasename() + filenameSuffix;
 
@@ -399,10 +426,14 @@ public class FileEpisode {
                     return fileNameString;
                 }
             }
-            case UNPARSED:
-            case BROKEN:
-            default:
+            case NO_LISTINGS: {
+                return DOWNLOADING_FAILED;
+            }
+            default: {
+                logger.warning("internal error, seriesStatus check apparently not exhaustive: "
+                               + seriesStatus);
                 return BROKEN_PLACEHOLDER_FILENAME;
+            }
         }
     }
 
