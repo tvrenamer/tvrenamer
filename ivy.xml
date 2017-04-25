@@ -1,0 +1,14 @@
+<ivy-module version="2.0">
+  <info organisation="org.tvrenamer" module="TVRenamer"/>
+  <configurations defaultconfmapping="findbugs->default">
+    <conf name="findbugs"/>
+  </configurations>
+  <dependencies>
+    <!-- checkstyle -->
+    <dependency org="com.puppycrawl.tools" name="checkstyle" rev="7.1.1" />
+    <!-- findbugs -->
+    <dependency org="com.google.code.findbugs" name="findbugs" rev="3.0.1" conf="findbugs"/>
+    <!-- junit dependency -->
+    <dependency org="org.hamcrest" name="hamcrest-core" rev="1.3" />
+  </dependencies>
+</ivy-module>
