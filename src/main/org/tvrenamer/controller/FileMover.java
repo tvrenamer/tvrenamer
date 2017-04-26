@@ -12,7 +12,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
@@ -22,7 +21,7 @@ public class FileMover implements Callable<Boolean> {
     private static Logger logger = Logger.getLogger(FileMover.class.getName());
 
     private final FileEpisode episode;
-    private final String destRootName;
+    private final Path destRoot;
     private final String destBasename;
     private final String destSuffix;
     private final ProgressObserver observer;
@@ -32,7 +31,7 @@ public class FileMover implements Callable<Boolean> {
         this.episode = episode;
         this.observer = observer;
 
-        destRootName = episode.getMoveToDirectory();
+        destRoot = episode.getMoveToPath();
         destBasename = episode.getRenamedBasename();
         destSuffix = episode.getFilenameSuffix();
     }
@@ -78,7 +77,7 @@ public class FileMover implements Callable<Boolean> {
      * @return the name of the directory we should move the file to, as a string.
      */
     String getMoveToDirectory() {
-        return destRootName;
+        return destRoot.toString();
     }
 
     /**
@@ -206,10 +205,10 @@ public class FileMover implements Callable<Boolean> {
             episode.setDoesNotExist();
             return false;
         }
-        Path destDir = Paths.get(destRootName);
+        Path destDir = destRoot;
         String filename = destBasename + destSuffix;
         if (destIndex != null) {
-            destDir = destDir.resolve(DUPLICATES_DIRECTORY);
+            destDir = destRoot.resolve(DUPLICATES_DIRECTORY);
             filename = destBasename + VERSION_SEPARATOR_STRING + destIndex + destSuffix;
         }
         if (Files.notExists(destDir)) {
