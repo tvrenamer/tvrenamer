@@ -265,18 +265,6 @@ public class UserPreferences extends Observable {
         return destDir;
     }
 
-    /**
-     * Gets the directory set to move renamed files to.
-     *
-     * @return Path object representing the directory.
-     */
-    public Path getDestinationPath() {
-        if (destDir == null) {
-            return null;
-        }
-        return Paths.get(destDir);
-    }
-
     public void setMoveEnabled(boolean moveEnabled) {
         if (valuesAreDifferent(this.moveEnabled, moveEnabled)) {
             this.moveEnabled = moveEnabled;
