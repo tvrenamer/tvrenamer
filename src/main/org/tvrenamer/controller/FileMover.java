@@ -32,7 +32,7 @@ public class FileMover implements Callable<Boolean> {
         this.observer = observer;
 
         destRoot = episode.getMoveToPath();
-        destBasename = episode.getRenamedBasename();
+        destBasename = episode.getDestinationBasename();
         destSuffix = episode.getFilenameSuffix();
     }
 
