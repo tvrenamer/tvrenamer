@@ -185,7 +185,7 @@ public class ShowStore {
         int nOptions = options.size();
         if (nOptions == 0) {
             logger.info("did not find any options for " + filenameShow);
-            return null;
+            return new FailedShow("", filenameShow, null);
         }
         if (nOptions == 1) {
             return options.get(0);
