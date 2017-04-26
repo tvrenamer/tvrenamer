@@ -84,16 +84,16 @@ public class UIStarter implements Observer,  AddEpisodeListener {
     private static final int STATUS_COLUMN = 3;
     private static final int ITEM_NOT_IN_TABLE = -1;
 
-    private static Shell shell;
+    private Shell shell;
     private Display display;
-    private static List<String> ignoreKeywords;
+    private List<String> ignoreKeywords;
 
     private Button addFilesButton;
     private Button addFolderButton;
     private Button clearFilesButton;
     private Link updatesAvailableLink;
-    private static Button renameSelectedButton;
-    private static TableColumn destinationColumn;
+    private Button renameSelectedButton;
+    private TableColumn destinationColumn;
     private Table resultsTable;
     private ProgressBar totalProgressBar;
     private TaskItem taskItem = null;
@@ -802,7 +802,7 @@ public class UIStarter implements Observer,  AddEpisodeListener {
         });
     }
 
-    private static TableItem createTableItem(Table tblResults, String fileName, FileEpisode episode) {
+    private TableItem createTableItem(Table tblResults, String fileName, FileEpisode episode) {
         TableItem item = new TableItem(tblResults, SWT.NONE);
         String newFilename = fileName;
         try {
@@ -822,7 +822,7 @@ public class UIStarter implements Observer,  AddEpisodeListener {
         return item;
     }
 
-    private static boolean isNameIgnored(String fileName) {
+    private boolean isNameIgnored(String fileName) {
         for (int i = 0; i < ignoreKeywords.size(); i++) {
             if (fileName.toLowerCase().contains(ignoreKeywords.get(i))) {
                 return true;
