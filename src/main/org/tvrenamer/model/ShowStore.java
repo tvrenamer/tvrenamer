@@ -173,7 +173,7 @@ public class ShowStore {
         int nOptions = options.size();
         if (nOptions == 0) {
             logger.info("did not find any options for " + filenameShow);
-            return new FailedShow("", filenameShow, null);
+            return new FailedShow(filenameShow);
         }
         if (nOptions == 1) {
             return options.get(0);
@@ -210,7 +210,7 @@ public class ShowStore {
                     List<Show> options = TheTVDBProvider.getShowOptions(queryString);
                     thisShow = selectShowOption(options, filenameShow);
                 } catch (TVRenamerIOException e) {
-                    thisShow = new FailedShow("", filenameShow, e);
+                    thisShow = new FailedShow(filenameShow, e);
                 }
 
                 logger.fine("Show listing for '" + thisShow.getName() + "' downloaded");
@@ -280,7 +280,7 @@ public class ShowStore {
         String queryString = makeQueryString(filenameShow);
         Show show = _shows.get(queryString);
         if (show == null) {
-            show = new Show(filenameShow, actualName);
+            show = new LocalShow(actualName);
             _shows.put(queryString, show);
         }
         return show;

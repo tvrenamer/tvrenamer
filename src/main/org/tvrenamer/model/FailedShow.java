@@ -1,13 +1,15 @@
 package org.tvrenamer.model;
 
-public class FailedShow extends Show {
+public class FailedShow extends LocalShow {
 
-    @SuppressWarnings("unused")
     private final TVRenamerIOException err;
 
-    public FailedShow(String id, String name, TVRenamerIOException err) {
-        super(id, name);
+    public FailedShow(String name, TVRenamerIOException err) {
+        super(name);
         this.err = err;
     }
 
+    public FailedShow(String name) {
+        this(name, null);
+    }
 }
