@@ -331,7 +331,7 @@ public class FileEpisode {
         return dateFormat.format(date);
     }
 
-    public String getRenamedBasename() {
+    private String getRenamedBasename() {
         String showName;
         if (actualShow == null) {
             logger.warning("should not be renaming without an actual Show.");
@@ -401,6 +401,14 @@ public class FileEpisode {
         baseForRename = StringUtils.sanitiseTitle(newFilename);
 
         return baseForRename;
+    }
+
+    public String getDestinationBasename() {
+        if (userPrefs.isRenameEnabled()) {
+            return getRenamedBasename();
+        } else {
+            return StringUtils.removeLast(fileNameString, filenameSuffix);
+        }
     }
 
     private String getShowNamePlaceholder() {
