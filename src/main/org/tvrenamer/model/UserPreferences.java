@@ -211,7 +211,7 @@ public class UserPreferences extends Observable {
         logger.fine("Sucessfully saved/updated preferences");
     }
 
-    private void preferenceChanged(UserPreference preference, Object newValue) {
+    private void preferenceChanged(UserPreference preference) {
         setChanged();
         notifyObservers(preference);
         clearChanged();
@@ -241,7 +241,7 @@ public class UserPreferences extends Observable {
             destDir = dir;
             ensureDestDir();
 
-            preferenceChanged(UserPreference.DEST_DIR, dir);
+            preferenceChanged(UserPreference.DEST_DIR);
         }
     }
 
@@ -279,7 +279,7 @@ public class UserPreferences extends Observable {
         if (valuesAreDifferent(this.moveEnabled, moveEnabled)) {
             this.moveEnabled = moveEnabled;
 
-            preferenceChanged(UserPreference.MOVE_ENABLED, moveEnabled);
+            preferenceChanged(UserPreference.MOVE_ENABLED);
         }
     }
 
@@ -296,7 +296,7 @@ public class UserPreferences extends Observable {
         if (valuesAreDifferent(this.renameEnabled, renameEnabled)) {
             this.renameEnabled = renameEnabled;
 
-            preferenceChanged(UserPreference.RENAME_ENABLED, renameEnabled);
+            preferenceChanged(UserPreference.RENAME_ENABLED);
         }
     }
 
@@ -313,7 +313,7 @@ public class UserPreferences extends Observable {
         if (valuesAreDifferent(this.recursivelyAddFolders, recursivelyAddFolders)) {
             this.recursivelyAddFolders = recursivelyAddFolders;
 
-            preferenceChanged(UserPreference.ADD_SUBDIRS, recursivelyAddFolders);
+            preferenceChanged(UserPreference.ADD_SUBDIRS);
         }
     }
 
@@ -340,7 +340,7 @@ public class UserPreferences extends Observable {
                 }
             }
 
-            preferenceChanged(UserPreference.IGNORE_REGEX, ignoreKeywords);
+            preferenceChanged(UserPreference.IGNORE_REGEX);
         }
     }
 
@@ -357,7 +357,7 @@ public class UserPreferences extends Observable {
             // reject any text that has an illegal character in it.
             seasonPrefix = StringUtils.sanitiseTitle(prefix);
 
-            preferenceChanged(UserPreference.SEASON_PREFIX, prefix);
+            preferenceChanged(UserPreference.SEASON_PREFIX);
         }
     }
 
@@ -377,7 +377,7 @@ public class UserPreferences extends Observable {
         if (valuesAreDifferent(this.seasonPrefixLeadingZero, seasonPrefixLeadingZero)) {
             this.seasonPrefixLeadingZero = seasonPrefixLeadingZero;
 
-            preferenceChanged(UserPreference.LEADING_ZERO, seasonPrefixLeadingZero);
+            preferenceChanged(UserPreference.LEADING_ZERO);
 
         }
     }
@@ -386,7 +386,7 @@ public class UserPreferences extends Observable {
         if (valuesAreDifferent(this.renameReplacementMask, renameReplacementMask)) {
             this.renameReplacementMask = renameReplacementMask;
 
-            preferenceChanged(UserPreference.REPLACEMENT_MASK, renameReplacementMask);
+            preferenceChanged(UserPreference.REPLACEMENT_MASK);
         }
     }
 
@@ -403,7 +403,7 @@ public class UserPreferences extends Observable {
             this.proxy = proxy;
             proxy.apply();
 
-            preferenceChanged(UserPreference.PROXY, proxy);
+            preferenceChanged(UserPreference.PROXY);
         }
     }
 
@@ -421,7 +421,7 @@ public class UserPreferences extends Observable {
         if (valuesAreDifferent(this.checkForUpdates, checkForUpdates)) {
             this.checkForUpdates = checkForUpdates;
 
-            preferenceChanged(UserPreference.UPDATE_CHECK, checkForUpdates);
+            preferenceChanged(UserPreference.UPDATE_CHECK);
         }
     }
 
