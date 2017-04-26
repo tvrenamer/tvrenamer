@@ -6,6 +6,7 @@ import org.tvrenamer.controller.util.FileUtilities;
 import org.tvrenamer.controller.util.StringUtils;
 import org.tvrenamer.model.FileEpisode;
 import org.tvrenamer.model.ProgressObserver;
+import org.tvrenamer.model.UserPreferences;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,6 +26,7 @@ public class FileMover implements Callable<Boolean> {
     private final String destBasename;
     private final String destSuffix;
     private final ProgressObserver observer;
+    private final UserPreferences userPrefs = UserPreferences.getInstance();
     Integer destIndex = null;
 
     public FileMover(FileEpisode episode, ProgressObserver observer) {
@@ -208,7 +210,9 @@ public class FileMover implements Callable<Boolean> {
         Path destDir = destRoot;
         String filename = destBasename + destSuffix;
         if (destIndex != null) {
-            destDir = destRoot.resolve(DUPLICATES_DIRECTORY);
+            if (userPrefs.isMoveEnabled()) {
+                destDir = destRoot.resolve(DUPLICATES_DIRECTORY);
+            }
             filename = destBasename + VERSION_SEPARATOR_STRING + destIndex + destSuffix;
         }
         if (Files.notExists(destDir)) {
