@@ -63,7 +63,6 @@ import org.tvrenamer.model.UserPreference;
 import org.tvrenamer.model.UserPreferences;
 import org.tvrenamer.model.util.Environment;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.text.Collator;
 import java.util.LinkedList;
@@ -73,7 +72,6 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Queue;
 import java.util.logging.Level;
-import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
@@ -102,21 +100,6 @@ public class UIStarter implements Observer,  AddEpisodeListener {
 
     private UserPreferences prefs;
     private EpisodeDb episodeMap = new EpisodeDb();
-
-    // Static initalisation block
-    static {
-        // Find logging.properties file inside jar
-        InputStream loggingConfigStream = UIStarter.class.getResourceAsStream("/logging.properties");
-
-        if (loggingConfigStream != null) {
-            try {
-                LogManager.getLogManager().readConfiguration(loggingConfigStream);
-            } catch (IOException e) {
-                System.err.println("Exception thrown while loading logging config");
-                e.printStackTrace();
-            }
-        }
-    }
 
     private void init() {
         // load preferences
