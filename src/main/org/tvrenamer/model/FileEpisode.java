@@ -311,6 +311,18 @@ public class FileEpisode {
         return destPath;
     }
 
+    /**
+     * @return the new Path into which this file would be moved, based on the information
+     *         we've gathered, and the user's preferences
+     */
+    public Path getMoveToPath() {
+        if (userPrefs.isMoveEnabled()) {
+            return Paths.get(getMoveToDirectory());
+        } else {
+            return path.toAbsolutePath().getParent();
+        }
+    }
+
     private String formatDate(LocalDate date, String format) {
         if (date == null) {
             return "";
