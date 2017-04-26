@@ -314,14 +314,6 @@ public class UIStarter implements Observer,  AddEpisodeListener {
             Menu fileMenu = new Menu(shell, SWT.DROP_DOWN);
             fileMenuItem.setMenu(fileMenu);
 
-            MenuItem filePreferencesItem = new MenuItem(fileMenu, SWT.PUSH);
-            filePreferencesItem.setText("Preferences");
-            filePreferencesItem.addListener(SWT.Selection, preferencesListener);
-
-            MenuItem fileExitItem = new MenuItem(fileMenu, SWT.PUSH);
-            fileExitItem.setText("Exit");
-            fileExitItem.addListener(SWT.Selection, quitListener);
-
             makeMenuItem(fileMenu, PREFERENCES_LABEL, preferencesListener, 'P');
             makeMenuItem(fileMenu, EXIT_LABEL, quitListener, 'Q');
 
