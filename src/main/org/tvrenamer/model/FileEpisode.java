@@ -62,14 +62,28 @@ public class FileEpisode {
     private String filenameEpisode = "";
     private String filenameResolution = "";
 
+    // These integers are meant to represent the indices into the Show's catalog that "we"
+    // (the combination of the program and the user) think is right.  In many cases, there
+    // are alternate and ambiguous numbering schemes.  There's not necessarily one true
+    // answer.  But these variables are meant to hold the answer the user wants.
+    //
+    // Initially these values are set to the result of the parse (i.e., whatever is found
+    // in the filename), and actually as of this writing, there is nothing in the program
+    // that would change them, but there could/should be, in future versions.
     private int seasonNum = Show.NO_SEASON;
     private int episodeNum = Show.NO_EPISODE;
 
+    // Information about the file on disk.  The only way the UI allows you to enter names
+    // to be processed is by selecting a file on disk, so they obviously should exist.
+    // It's always possible they could be moved or deleted out from under us, though.
+    // It's also true that for testing, we create FileEpisodes that refer to nonexistent
+    // files.  There's really no reason why the file has to exist, at least, not until
+    // we actually try to move it.  If we just want to parse information and look it up
+    // in the show's catalog, the file does not need to actually be present.
     private Path path;
     private String fileNameString;
     private boolean exists = false;
     private long fileSize = NO_FILE_SIZE;
-
 
     // After we've looked up the filenameShow from the provider, we should get back an
     // actual Show object.  This is true even if the show was not found; in that case,
