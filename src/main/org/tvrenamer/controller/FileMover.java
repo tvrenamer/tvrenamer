@@ -125,6 +125,10 @@ public class FileMover implements Callable<Boolean> {
         }
 
         if (ok) {
+            // TODO: the newly created file will not necessarily have the same attributes as
+            // the original.  In some cases, like ownership, that might actually be desirable
+            // (have the copy be owned by the user running the program).  But there may be
+            // other attributes we should try to adopt.  In any case, requires investigation.
             FileUtilities.deleteFile(source);
         } else {
             logger.warning("failed to move " + source);
@@ -257,7 +261,7 @@ public class FileMover implements Callable<Boolean> {
             return false;
         }
 
-        logger.fine("successful:\n  " + srcPath.toAbsolutePath().toString()
+        logger.info("successful:\n  " + srcPath.toAbsolutePath().toString()
                     + "\n  " + destPath.toAbsolutePath().toString());
         if (userPrefs.isRemoveEmptiedDirectories()) {
             FileUtilities.removeWhileEmpty(srcDir);
