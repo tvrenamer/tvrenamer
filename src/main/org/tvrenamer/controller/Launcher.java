@@ -2,6 +2,7 @@ package org.tvrenamer.controller;
 
 import static org.tvrenamer.model.util.Constants.*;
 
+import org.tvrenamer.model.ShowStore;
 import org.tvrenamer.model.UserPreferences;
 import org.tvrenamer.view.UIStarter;
 
@@ -30,10 +31,25 @@ public class Launcher {
         }
     }
 
+    /**
+     * Shut down any threads that we know might be running.  Sadly hard-coded.
+     */
+    private static void tvRenamerThreadShutdown() {
+        MoveRunner.shutDown();
+        ShowStore.cleanUp();
+        ListingsLookup.cleanUp();
+    }
+
+    /**
+     * All this application does is run the UI, with no arguments.  Configuration
+     * comes from the PREFERENCES_FILE (see Constants.java).  But in the future,
+     * it might be able to do different things depending on command-line arguments.
+     */
     public static void main(String[] args) {
         UserPreferences prefs = UserPreferences.getInstance();
 
         UIStarter ui = new UIStarter();
         ui.run();
+        tvRenamerThreadShutdown();
     }
 }

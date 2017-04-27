@@ -217,14 +217,12 @@ public class UIStarter implements Observer,  AddEpisodeListener {
         quitButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                doCleanup();
+                uiCleanup();
             }
         });
     }
 
-    private void doCleanup() {
-        MoveRunner.shutDown();
-        ShowStore.cleanUp();
+    private void uiCleanup() {
         shell.dispose();
         display.dispose();
     }
@@ -262,7 +260,7 @@ public class UIStarter implements Observer,  AddEpisodeListener {
         Listener quitListener = new Listener() {
             @Override
             public void handleEvent(Event e) {
-                doCleanup();
+                uiCleanup();
             }
         };
 
@@ -619,7 +617,7 @@ public class UIStarter implements Observer,  AddEpisodeListener {
     public int run() {
         init();
         int rval = launch();
-        doCleanup();
+        uiCleanup();
         return rval;
     }
 
