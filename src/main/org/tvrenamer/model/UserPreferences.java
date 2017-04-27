@@ -95,6 +95,9 @@ public class UserPreferences extends Observable {
         ensureDestDir();
     }
 
+    /**
+     * @return the singleton UserPreferences instance for this application
+     */
     public static UserPreferences getInstance() {
         return INSTANCE;
     }
@@ -208,11 +211,23 @@ public class UserPreferences extends Observable {
         return prefs;
     }
 
+    /**
+     * Save preferences to xml file
+     *
+     * @param prefs the instance to export to XML
+     */
     public static void store(UserPreferences prefs) {
         UserPreferencesPersistence.persist(prefs, PREFERENCES_FILE);
         logger.fine("Sucessfully saved/updated preferences");
     }
 
+    /**
+     * A private helper method we call for each preference that gets change.
+     * When any attribute of this object changes, the object itself has changed.
+     * Set the flag, notify the observers, and then clear the flag.
+     *
+     * @param preference the user preference that has changed
+     */
     private void preferenceChanged(UserPreference preference) {
         setChanged();
         notifyObservers(preference);
@@ -265,6 +280,12 @@ public class UserPreferences extends Observable {
         return destDir;
     }
 
+    /**
+     * Sets whether or not we want the FileMover to move files to a destination directory
+     *
+     * @param moveEnabled whether or not we want the FileMover to move files to a
+     *           destination directory
+     */
     public void setMoveEnabled(boolean moveEnabled) {
         if (valuesAreDifferent(this.moveEnabled, moveEnabled)) {
             this.moveEnabled = moveEnabled;
@@ -282,6 +303,12 @@ public class UserPreferences extends Observable {
         return moveEnabled;
     }
 
+    /**
+     * Sets whether or not we want the FileMover to rename files based on the show,
+     * season, and episode we find.
+     *
+     * @param renameEnabled whether or not we want the FileMover to rename files
+     */
     public void setRenameEnabled(boolean renameEnabled) {
         if (valuesAreDifferent(this.renameEnabled, renameEnabled)) {
             this.renameEnabled = renameEnabled;
@@ -325,6 +352,12 @@ public class UserPreferences extends Observable {
         return removeEmptiedDirectories;
     }
 
+    /**
+     * Sets whether or not we want "Add Folder" to descend into subdirectories.
+     *
+     * @param recursivelyAddFolders whether or not we want "Add Folder" to descend
+     *               into subdirectories.
+     */
     public void setRecursivelyAddFolders(boolean recursivelyAddFolders) {
         if (valuesAreDifferent(this.recursivelyAddFolders, recursivelyAddFolders)) {
             this.recursivelyAddFolders = recursivelyAddFolders;
@@ -342,6 +375,13 @@ public class UserPreferences extends Observable {
         return recursivelyAddFolders;
     }
 
+    /**
+     * Sets the ignore keywords
+     *
+     * @param ignoreKeywords a list of strings which indicate a file that
+     *           should be ignored.  To be acceptable as an "ignore keyword",
+     *           a string must be at least two characters long.
+     */
     public void setIgnoreKeywords(List<String> ignoreKeywords) {
         if (valuesAreDifferent(this.ignoreKeywords, ignoreKeywords)) {
             this.ignoreKeywords.clear();
@@ -360,10 +400,20 @@ public class UserPreferences extends Observable {
         }
     }
 
+    /**
+     * @return a list of strings that indicate that the presence of that string in
+     *         a filename means that we should ignore that file
+     */
     public List<String> getIgnoreKeywords() {
         return ignoreKeywords;
     }
 
+    /**
+     * Sets the season prefix
+     *
+     * @param prefix the prefix for subfolders we would create to hold individual
+     *         seasons of a show
+     */
     public void setSeasonPrefix(String prefix) {
         // Remove the displayed "
         prefix = prefix.replaceAll("\"", "");
@@ -377,18 +427,39 @@ public class UserPreferences extends Observable {
         }
     }
 
+    /**
+     * @return the prefix for subfolders we would create to hold individual
+     *         seasons of a show
+     */
     public String getSeasonPrefix() {
         return seasonPrefix;
     }
 
+    /**
+     * @return the season prefix, suitable for displaying in the Preferences dialog
+     */
     public String getSeasonPrefixForDisplay() {
         return ("\"" + seasonPrefix + "\"");
     }
 
+    /**
+     * Get whether or not we want the season subfolder to be numberd with a
+     * leading zero.
+     *
+     * @return true if we want want the season subfolder to be numberd with
+     *            a leading zero
+     */
     public boolean isSeasonPrefixLeadingZero() {
         return seasonPrefixLeadingZero;
     }
 
+    /**
+     * Sets whether or not we want the season subfolder to be numberd with a
+     * leading zero.
+     *
+     * @param seasonPrefixLeadingZero whether or not we want the season subfolder
+     *               to be numberd with a leading zero
+     */
     public void setSeasonPrefixLeadingZero(boolean seasonPrefixLeadingZero) {
         if (valuesAreDifferent(this.seasonPrefixLeadingZero, seasonPrefixLeadingZero)) {
             this.seasonPrefixLeadingZero = seasonPrefixLeadingZero;
@@ -398,6 +469,11 @@ public class UserPreferences extends Observable {
         }
     }
 
+    /**
+     * Sets the rename replacement mask
+     *
+     * @param renameReplacementMask the rename replacement mask
+     */
     public void setRenameReplacementString(String renameReplacementMask) {
         if (valuesAreDifferent(this.renameReplacementMask, renameReplacementMask)) {
             this.renameReplacementMask = renameReplacementMask;
@@ -406,14 +482,25 @@ public class UserPreferences extends Observable {
         }
     }
 
+    /**
+     * @return the rename replacement mask
+     */
     public String getRenameReplacementString() {
         return renameReplacementMask;
     }
 
+    /**
+     * @return the proxy settings
+     */
     public ProxySettings getProxy() {
         return proxy;
     }
 
+    /**
+     * Sets the proxy settings
+     *
+     * @param proxy the proxy settings
+     */
     public void setProxy(ProxySettings proxy) {
         if (valuesAreDifferent(this.proxy, proxy)) {
             this.proxy = proxy;
@@ -441,6 +528,9 @@ public class UserPreferences extends Observable {
         }
     }
 
+    /**
+     * @return a string displaying attributes of this object
+     */
     @Override
     public String toString() {
         return "UserPreferences [destDir=" + destDir + ", seasonPrefix=" + seasonPrefix
