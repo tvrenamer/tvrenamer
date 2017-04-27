@@ -27,6 +27,7 @@ public class UserPreferences extends Observable {
     private boolean seasonPrefixLeadingZero;
     private boolean moveEnabled;
     private boolean renameEnabled;
+    private boolean removeEmptiedDirectories;
     private String renameReplacementMask;
     private ProxySettings proxy;
     private boolean checkForUpdates;
@@ -83,6 +84,7 @@ public class UserPreferences extends Observable {
         seasonPrefixLeadingZero = false;
         moveEnabled = false;
         renameEnabled = true;
+        removeEmptiedDirectories = true;
         renameReplacementMask = DEFAULT_REPLACEMENT_MASK;
         proxy = new ProxySettings();
         checkForUpdates = true;
@@ -307,6 +309,32 @@ public class UserPreferences extends Observable {
      */
     public boolean isRenameEnabled() {
         return renameEnabled;
+    }
+
+    /**
+     * Sets whether or not we want the FileMover to delete directories when their last
+     * remaining contents have been moved away.
+     *
+     * @param removeEmptiedDirectories whether or not we want the FileMover to delete
+     *               directories when their last remaining contents have been moved away.
+     */
+    public void setRemoveEmptiedDirectories(boolean removeEmptiedDirectories) {
+        if (valuesAreDifferent(this.removeEmptiedDirectories, removeEmptiedDirectories)) {
+            this.removeEmptiedDirectories = removeEmptiedDirectories;
+
+            preferenceChanged(UserPreference.REMOVE_EMPTY);
+        }
+    }
+
+    /**
+     * Get whether or not we want the FileMover to delete directories when their last
+     * remaining contents have been moved away.
+     *
+     * @return true if we want the FileMover to delete directories when their last
+     *         remaining contents have been moved away.
+     */
+    public boolean isRemoveEmptiedDirectories() {
+        return removeEmptiedDirectories;
     }
 
     public void setRecursivelyAddFolders(boolean recursivelyAddFolders) {
