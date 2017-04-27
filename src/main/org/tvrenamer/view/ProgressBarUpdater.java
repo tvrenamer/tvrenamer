@@ -36,11 +36,6 @@ public class ProgressBarUpdater {
     /**
      * Cleans up the progress bar and the task item
      *
-     * @param totalNumFiles
-     *            the total number of files to be moved during the duration
-     *            of this progress bar
-     * @param nRemaining
-     *            the number of files left to be moved
      */
     public void finish() {
         display.asyncExec(new Runnable() {
