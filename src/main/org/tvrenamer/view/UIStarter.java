@@ -234,14 +234,14 @@ public class UIStarter implements Observer,  AddEpisodeListener {
     }
 
     private void setupMoveButtonText() {
-        setRenameButtonText();
+        setRenameButtonText(renameSelectedButton);
         renameSelectedButton.setToolTipText(MOVE_TOOLTIP_1
                                             + prefs.getDestinationDirectoryName()
                                             + MOVE_TOOLTIP_2);
     }
 
     private void setupRenameButtonText() {
-        setRenameButtonText();
+        setRenameButtonText(renameSelectedButton);
         renameSelectedButton.setToolTipText(RENAME_TOOLTIP);
 
     }
@@ -907,16 +907,18 @@ public class UIStarter implements Observer,  AddEpisodeListener {
         }
     }
 
-    private void setRenameButtonText() {
+    private void setRenameButtonText(Button b) {
         if (prefs.isMoveEnabled()) {
-            renameSelectedButton.setText("Rename && Move Selected");
-            shell.changed(new Control[] {renameSelectedButton});
-            shell.layout(false, true);
+            if (prefs.isRenameEnabled()) {
+                b.setText("Rename && Move Selected");
+            } else {
+                b.setText("Move Selected");
+            }
         } else {
-            renameSelectedButton.setText("Rename Selected");
-            shell.changed(new Control[] {renameSelectedButton});
-            shell.layout(false, true);
+            b.setText("Rename Selected");
         }
+        shell.changed(new Control[] {b});
+        shell.layout(false, true);
     }
 
     private void setColumnDestText() {
@@ -934,7 +936,7 @@ public class UIStarter implements Observer,  AddEpisodeListener {
             || (upref == UserPreference.RENAME_ENABLED))
         {
             setColumnDestText();
-            setRenameButtonText();
+            setRenameButtonText(renameSelectedButton);
         }
         if ((upref == UserPreference.REPLACEMENT_MASK)
             || (upref == UserPreference.MOVE_ENABLED)
