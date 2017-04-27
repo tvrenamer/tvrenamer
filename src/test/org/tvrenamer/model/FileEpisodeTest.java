@@ -81,7 +81,7 @@ public class FileEpisodeTest {
     /* This method is intended to delete the temp files and our temp directory,
      * and to report failure if it is unable to do so.  Along the way, we check
      * for several extremely-unlikely-to-happen errors, just in case.  But we
-     * don't ever want to interrup the cleanup to report a failure.  Be sure to
+     * don't ever want to interrupt the cleanup to report a failure.  Be sure to
      * try to delete each file and the directory before aborting due to any
      * failure.
      */
@@ -972,7 +972,7 @@ public class FileEpisodeTest {
      * Try to basically do an <code>/bin/rm -rf</code> on our temp directory.
      */
     @After
-    public void cleanup() throws Exception {
+    public void cleanUp() throws Exception {
         if (Files.exists(OUR_TEMP_DIR)) {
             logger.warning("trying to clean up " + OUR_TEMP_DIR);
             try {
@@ -994,7 +994,7 @@ public class FileEpisodeTest {
                         }
                     });
             } catch (IOException e) {
-                verboseFail("unable to cleanup leftover directory " + OUR_TEMP_DIR, e);
+                verboseFail("unable to clean up leftover directory " + OUR_TEMP_DIR, e);
             }
         }
     }
