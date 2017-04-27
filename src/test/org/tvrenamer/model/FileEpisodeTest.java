@@ -717,7 +717,7 @@ public class FileEpisodeTest {
     }
 
     @BeforeClass
-    public static void setupValuesFirefly() {
+    public static void setupValuesFirefly1() {
         values.add(new EpisodeTestData.Builder()
                    .filenameShow("firefly")
                    .properShowName("Firefly")
@@ -795,6 +795,10 @@ public class FileEpisodeTest {
                    .replacementMask("%S S%0sE%0e %t")
                    .expectedReplacement("Firefly S01E07 Jaynestown")
                    .build());
+    }
+
+    @BeforeClass
+    public static void setupValuesFirefly2() {
         values.add(new EpisodeTestData.Builder()
                    .filenameShow("firefly")
                    .properShowName("Firefly")
