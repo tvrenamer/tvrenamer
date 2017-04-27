@@ -205,11 +205,7 @@ public class UIStarter implements Observer,  AddEpisodeListener {
         GridData renameSelectedButtonGridData = new GridData(GridData.END, GridData.CENTER, false, false);
         renameSelectedButton.setLayoutData(renameSelectedButtonGridData);
 
-        if (prefs != null && prefs.isMoveEnabled()) {
-            setupMoveButtonText();
-        } else {
-            setupRenameButtonText();
-        }
+        setRenameButtonText(renameSelectedButton);
 
         renameSelectedButton.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -231,19 +227,6 @@ public class UIStarter implements Observer,  AddEpisodeListener {
         ShowStore.cleanUp();
         shell.dispose();
         display.dispose();
-    }
-
-    private void setupMoveButtonText() {
-        setRenameButtonText(renameSelectedButton);
-        renameSelectedButton.setToolTipText(MOVE_TOOLTIP_1
-                                            + prefs.getDestinationDirectoryName()
-                                            + MOVE_TOOLTIP_2);
-    }
-
-    private void setupRenameButtonText() {
-        setRenameButtonText(renameSelectedButton);
-        renameSelectedButton.setToolTipText(RENAME_TOOLTIP);
-
     }
 
     private MenuItem makeMenuItem(Menu parent, String text, Listener listener, char shortcut) {
@@ -914,8 +897,12 @@ public class UIStarter implements Observer,  AddEpisodeListener {
             } else {
                 b.setText("Move Selected");
             }
+            b.setToolTipText(MOVE_TOOLTIP_1
+                             + prefs.getDestinationDirectoryName()
+                             + MOVE_TOOLTIP_2);
         } else {
             b.setText("Rename Selected");
+            b.setToolTipText(RENAME_TOOLTIP);
         }
         shell.changed(new Control[] {b});
         shell.layout(false, true);
