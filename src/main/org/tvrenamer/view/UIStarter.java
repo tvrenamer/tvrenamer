@@ -580,7 +580,7 @@ public class UIStarter implements Observer,  AddEpisodeListener {
         return taskItem;
     }
 
-    private void launch() {
+    private int launch() {
         try {
             // place the window in the centre of the primary monitor
             Monitor primary = display.getPrimaryMonitor();
@@ -604,21 +604,23 @@ public class UIStarter implements Observer,  AddEpisodeListener {
                     display.sleep();
                 }
             }
-            doCleanup();
+            return 0;
         } catch (IllegalArgumentException argumentException) {
             logger.log(Level.SEVERE, NO_DND, argumentException);
             JOptionPane.showMessageDialog(null, NO_DND);
-            System.exit(1);
+            return 1;
         } catch (Exception exception) {
             showMessageBox(SWTMessageBoxType.ERROR, "Error", UNKNOWN_EXCEPTION, exception);
             logger.log(Level.SEVERE, UNKNOWN_EXCEPTION, exception);
-            System.exit(1);
+            return 1;
         }
     }
 
-    public void run() {
+    public int run() {
         init();
-        launch();
+        int rval = launch();
+        doCleanup();
+        return rval;
     }
 
     private void listingsDownloaded(TableItem item, FileEpisode episode) {
