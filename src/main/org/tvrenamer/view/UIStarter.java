@@ -749,6 +749,11 @@ public class UIStarter implements Observer,  AddEpisodeListener {
     }
 
     private void renameFiles() {
+        if (!prefs.isMoveEnabled() && !prefs.isRenameEnabled()) {
+            logger.info("move and rename both disabled, nothing to be done.");
+            return;
+        }
+
         final List<FileMover> pendingMoves = new LinkedList<>();
         for (final TableItem item : resultsTable.getItems()) {
             if (item.getChecked()) {
