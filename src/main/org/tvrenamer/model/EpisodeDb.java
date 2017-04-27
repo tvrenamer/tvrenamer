@@ -50,6 +50,13 @@ public class EpisodeDb {
     }
 
     public FileEpisode remove(String key) {
+        // This is called when the user removes a row from the table.
+        // It's possible (even if unlikely) that the user might delete
+        // the entry, only to re-add it later.  And this works fine.
+        // But it does cause us to recreate the FileEpisode from scratch.
+        // It might be nice to put removed episodes "aside" somewhere that
+        // we could still find them, but just know they're not actively
+        // in the table.
         return episodes.remove(key);
     }
 
