@@ -259,7 +259,9 @@ public class FileMover implements Callable<Boolean> {
 
         logger.fine("successful:\n  " + srcPath.toAbsolutePath().toString()
                     + "\n  " + destPath.toAbsolutePath().toString());
-        FileUtilities.removeWhileEmpty(srcDir);
+        if (userPrefs.isRemoveEmptiedDirectories()) {
+            FileUtilities.removeWhileEmpty(srcDir);
+        }
         return true;
     }
 
