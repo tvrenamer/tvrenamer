@@ -261,7 +261,10 @@ public class FileEpisode {
 
     public void setShow(Show show) {
         actualShow = show;
-        if (actualShow instanceof FailedShow) {
+        if (actualShow == null) {
+            logger.warning("setShow should never be called with null");
+            seriesStatus = SeriesStatus.UNFOUND;
+        } else if (actualShow instanceof FailedShow) {
             seriesStatus = SeriesStatus.UNFOUND;
         } else {
             seriesStatus = SeriesStatus.GOT_SHOW;
@@ -441,10 +444,7 @@ public class FileEpisode {
     }
 
     private String getShowNamePlaceholder() {
-        Show show = ShowStore.getShow(filenameShow);
-        String showName = show.getName();
-
-        return "<" + showName + ">";
+        return "<" + actualShow.getName() + ">";
     }
 
     /**
