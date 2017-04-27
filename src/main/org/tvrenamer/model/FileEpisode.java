@@ -41,6 +41,7 @@ public class FileEpisode {
     private enum FileStatus {
         UNCHECKED,
         NO_FILE,
+        ORIGINAL,
         MOVING,
         RENAMED,
         FAIL_TO_MOVE
@@ -203,6 +204,7 @@ public class FileEpisode {
         if (Files.exists(path)) {
             exists = true;
             try {
+                fileStatus = FileStatus.ORIGINAL;
                 fileSize = Files.size(path);
             } catch (IOException ioe) {
                 logger.log(Level.WARNING, "couldn't get size of " + path, ioe);
