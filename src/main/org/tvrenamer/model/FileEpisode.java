@@ -310,17 +310,30 @@ public class FileEpisode {
      *         within this FileEpisode) should be moved
      */
     public String getMoveToDirectory() {
-        String dirname = ShowStore.getShow(filenameShow).getDirName();
         String destPath = userPrefs.getDestinationDirectoryName();
-        destPath = destPath + FILE_SEPARATOR_STRING + dirname;
+        if (actualShow == null) {
+            logger.warning("error: should not get move-to directory, do not have show!");
+        } else if (actualShow instanceof FailedShow) {
+            logger.warning("error: should not get move-to directory, have a failed show!");
+        } else {
+            String dirname = actualShow.getDirName();
+            destPath = destPath + FILE_SEPARATOR_STRING + dirname;
 
-        String seasonPrefix = userPrefs.getSeasonPrefix();
-        // Defect #50: Only add the 'season #' folder if set, otherwise put files in showname root
-        if (StringUtils.isNotBlank(seasonPrefix)) {
-            String seasonString = userPrefs.isSeasonPrefixLeadingZero()
-                ? StringUtils.zeroPadTwoDigits(seasonNum)
-                : String.valueOf(seasonNum);
-            destPath = destPath + FILE_SEPARATOR_STRING + seasonPrefix + seasonString;
+            // Now we might append the "season" directory, if the user requested it in
+            // the preferences.  But, only if we actually *have* season information.
+            if (seasonNum > Show.NO_SEASON) {
+                String seasonPrefix = userPrefs.getSeasonPrefix();
+                // Defect #50: Only add the 'season #' folder if set,
+                // otherwise put files in showname root
+                if (StringUtils.isNotBlank(seasonPrefix)) {
+                    String seasonString = userPrefs.isSeasonPrefixLeadingZero()
+                        ? StringUtils.zeroPadTwoDigits(seasonNum)
+                        : String.valueOf(seasonNum);
+                    destPath = destPath + FILE_SEPARATOR_STRING + seasonPrefix + seasonString;
+                }
+            } else {
+                logger.fine("maybe should not get move-to directory, do not have season");
+            }
         }
         return destPath;
     }
