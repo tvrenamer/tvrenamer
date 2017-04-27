@@ -271,11 +271,19 @@ public class UserPreferences extends Observable {
     }
 
     /**
-     * Gets the directory set to move renamed files to.
+     * Gets the directory the user last chose to move renamed files to.
+     *
+     * Note that this returns a directory name even if "move" is disabled.
+     * Therefore, this is NOT necessarily "where files should be moved to".
+     * Callers need to check isMoveEnabled() separately.
      *
      * @return name of the directory.
      */
     public String getDestinationDirectoryName() {
+        // This method is called by the preferences dialog, to fill in the
+        // field of the dialog.  If "move" is disabled, the dialog should
+        // show this text greyed out, but it still needs to know what it
+        // is, in order to disable it.
         return destDir;
     }
 
