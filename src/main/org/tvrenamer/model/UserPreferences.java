@@ -234,7 +234,6 @@ public class UserPreferences extends Observable {
         clearChanged();
     }
 
-
     /**
      * Simply the complement of equals(), but with the specific purpose of detecting
      * if the value of a preference has been changed.
@@ -248,8 +247,8 @@ public class UserPreferences extends Observable {
     }
 
     /**
-     * Sets the directory to move renamed files to. Must be an absolute path, and the entire path will be created if it
-     * doesn't exist.
+     * Sets the directory to move renamed files to.  Must be an absolute path, and the entire path
+     * will be created if it doesn't exist.
      *
      * @param dir the path to the directory
      */
@@ -295,9 +294,9 @@ public class UserPreferences extends Observable {
     }
 
     /**
-     * Get the status of of move support
+     * Get whether or not we want the FileMover to move files to a destination directory
      *
-     * @return true if selected destination exists, false otherwise
+     * @return true if we want the FileMover to move files to a destination directory
      */
     public boolean isMoveEnabled() {
         return moveEnabled;
@@ -318,9 +317,10 @@ public class UserPreferences extends Observable {
     }
 
     /**
-     * Get the status of of rename support
+     * Get whether or not we want the FileMover to rename files based on the show,
+     * season, and episode we find.
      *
-     * @return true if selected destination exists, false otherwise
+     * @return true if we want the FileMover to rename files
      */
     public boolean isRenameEnabled() {
         return renameEnabled;
@@ -369,7 +369,9 @@ public class UserPreferences extends Observable {
     /**
      * Get the status of recursively adding files within a directory
      *
-     * @return true if adding subdirectories, false otherwise
+     * @return true if we want "Add Folder" to descend into subdirectories,
+     *         false if we want it to just consider the files at the top level of
+     *               the folder
      */
     public boolean isRecursivelyAddFolders() {
         return recursivelyAddFolders;
