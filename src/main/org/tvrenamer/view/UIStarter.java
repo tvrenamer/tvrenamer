@@ -891,28 +891,36 @@ public class UIStarter implements Observer,  AddEpisodeListener {
     }
 
     private void setRenameButtonText(Button b) {
+        String label = RENAME_LABEL;
+        String tooltip = RENAME_TOOLTIP;
+
         if (prefs.isMoveEnabled()) {
+            tooltip = INTRO_MOVE_DIR + prefs.getDestinationDirectoryName()
+                + FINISH_MOVE_DIR;
             if (prefs.isRenameEnabled()) {
-                b.setText("Rename && Move Selected");
+                label = RENAME_AND_MOVE;
+                tooltip = MOVE_INTRO + AND_RENAME + tooltip;
             } else {
-                b.setText("Move Selected");
+                label = JUST_MOVE_LABEL;
+                tooltip = MOVE_INTRO + tooltip;
             }
-            b.setToolTipText(MOVE_TOOLTIP_1
-                             + prefs.getDestinationDirectoryName()
-                             + MOVE_TOOLTIP_2);
-        } else {
-            b.setText("Rename Selected");
-            b.setToolTipText(RENAME_TOOLTIP);
+        } else if (!prefs.isRenameEnabled()) {
+            // This setting, "do not move and do not rename", really makes no sense.
+            // But for now, we're not taking the effort to explicitly disable it.
+            tooltip = NO_ACTION_TOOLTIP;
         }
+
+        b.setText(label);
+        b.setToolTipText(tooltip);
         shell.changed(new Control[] {b});
         shell.layout(false, true);
     }
 
     private void setColumnDestText() {
         if (prefs.isMoveEnabled()) {
-            destinationColumn.setText("Proposed File Path");
+            destinationColumn.setText(MOVE_HEADER);
         } else {
-            destinationColumn.setText("Proposed File Name");
+            destinationColumn.setText(RENAME_HEADER);
         }
     }
 

@@ -61,6 +61,12 @@ public class Constants {
     public static final String EXIT_LABEL = "Exit";
     public static final String PREFERENCES_LABEL = "Preferences";
     public static final String FILE_MOVE_THREAD_LABEL = "FileMoverThread";
+    public static final String RENAME_FAILED_LABEL = "Rename Failed";
+    public static final String RENAME_LABEL = "Rename Selected";
+    public static final String JUST_MOVE_LABEL = "Move Selected";
+    public static final String RENAME_AND_MOVE = "Rename && Move Selected";
+    public static final String MOVE_HEADER = "Proposed File Path";
+    public static final String RENAME_HEADER = "Proposed File Name";
     public static final String REPLACEMENT_OPTIONS_LIST_ENTRY_REGEX = "(.*) :.*";
     public static final String IGNORE_WORDS_SPLIT_REGEX = "\\s*,\\s*";
     public static final String GENERAL_LABEL = "General";
@@ -76,7 +82,14 @@ public class Constants {
     public static final String CHECK_UPDATES_TEXT = "Check for Updates at startup";
     public static final String RENAME_TOKEN_TEXT = "Rename Tokens [?]";
     public static final String RENAME_FORMAT_TEXT = "Rename Format [?]";
+    public static final String RENAME_ENABLED_TOOLTIP = "Whether the 'rename' functionality is enabled.\n"
+        + "You can move a file into a folder based on its show\n"
+        + "without actually renaming the file";
     public static final String HELP_TOOLTIP = "Hover mouse over [?] to get help";
+    public static final String PROXY_TOOLTIP = "If you connect to the internet via a proxy server, "
+        + "enable and set the properties";
+    public static final String PROXY_USER_TOOLTIP = "If you connect to a windows domain enter "
+        + "domain\\username";
     public static final String GENERAL_TOOLTIP = " - TVRenamer will automatically move the files "
         + "to your 'TV' folder if you want it to.  \n"
         + " - It will move the file to <tv directory>/<series name>/<season prefix> #/ \n"
@@ -98,11 +111,17 @@ public class Constants {
     public static final String RENAME_FORMAT_TOOLTIP = "The result of the rename, with the "
         + "tokens being replaced by the meaning above";
     public static final String CANT_CREATE_DEST = "Unable to create the destination directory";
-    public static final String MOVE_TOOLTIP_1 = "Clicking this button will rename and move "
-        + "the selected files to the directory set in preferences (currently ";
-    public static final String MOVE_TOOLTIP_2 = ").";
+    public static final String MOVE_INTRO = "Clicking this button will ";
+    public static final String AND_RENAME = "rename and ";
+    public static final String INTRO_MOVE_DIR = "move the selected files to the directory "
+        + "set in preferences (currently ";
+    public static final String FINISH_MOVE_DIR = ").";
     public static final String RENAME_TOOLTIP = "Clicking this button will rename the selected "
         + "files but leave them where they are.";
+    public static final String NO_ACTION_TOOLTIP = "You have selected not to move files, "
+        + "and not to rename them, either.  Therefore, there's no action to be taken.  "
+        + "Open the Preferences dialog and enable \"Move\", \"Rename\", or both, in order "
+        + "to take some action.";
     public static final String NO_DND = "Drag and Drop is not currently supported "
         + "on your operating system, please use the 'Browse Files' option above";
     public static final String UNKNOWN_EXCEPTION = "An error occurred, please check "
