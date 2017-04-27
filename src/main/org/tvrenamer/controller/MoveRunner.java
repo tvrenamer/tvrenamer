@@ -160,10 +160,8 @@ public class MoveRunner implements Runnable {
                     Set<Path> newHits = new HashSet<>();
                     for (Path hit : hits) {
                         logger.info("comparing " + pathToMove + " and " + hit);
-                        if (Files.isSameFile(pathToMove, hit)) {
-                            logger.info("*** removing " + hit);
-                        } else {
-                            logger.info("*** keeping " + hit);
+                        if (!Files.isSameFile(pathToMove, hit)) {
+                            logger.fine("conflict: " + hit);
                             newHits.add(hit);
                         }
                     }
