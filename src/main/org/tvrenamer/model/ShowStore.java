@@ -178,48 +178,7 @@ public class ShowStore {
     }
 
     /**
-     * Given a list of two or more options for which series we're dealing with,
-     * choose the best one and return it.
-     *
-     * @param options the potential shows that match the string we searched for.
-                Must not be null.
-     * @param filenameShow the part of the filename that is presumed to name the show
-     * @return the series from the list which best matches the series information
-     */
-    private static Show selectShowOption(List<Show> options, String filenameShow) {
-        int nOptions = options.size();
-        if (nOptions == 0) {
-            logger.info("did not find any options for " + filenameShow);
-            return new FailedShow(filenameShow);
-        }
-        if (nOptions == 1) {
-            return options.get(0);
-        }
-        // logger.info("got " + nOptions + " options for " + filenameShow);
-        Show selected = null;
-        for (int i=0; i<nOptions; i++) {
-            Show s = options.get(i);
-            String actualName = s.getName();
-            if (filenameShow.equals(actualName)) {
-                if (selected == null) {
-                    selected = s;
-                } else {
-                    // TODO: could check language?  other criteria?
-                    logger.warning("multiple exact hits for " + filenameShow
-                                   + "; choosing first one");
-                }
-            }
-        }
-        // TODO: still might be better ways to choose if we don't have an exact match.
-        // Levenshtein distance?
-        if (selected == null) {
-            selected = options.get(0);
-        }
-        return selected;
-    }
-
-    /**
-     * Download information about shows that match the given show name, and
+     * Download information about shows that match the given ShowName, and
      * choose the best option, if one exists.
      *
      * This method is private, because only this class can decide when it is
@@ -246,9 +205,9 @@ public class ShowStore {
                 Show thisShow;
                 try {
                     List<Show> options = TheTVDBProvider.getShowOptions(showName);
-                    thisShow = selectShowOption(options, filenameShow);
+                    thisShow = showName.selectShowOption(options);
                 } catch (TVRenamerIOException e) {
-                    thisShow = new FailedShow(filenameShow, e);
+                    thisShow = showName.getFailedShow(e);
                 }
 
                 logger.fine("Show options for '" + thisShow.getName() + "' downloaded");
