@@ -138,6 +138,8 @@ public class ShowName implements Comparable<ShowName> {
     private final String sanitised;
     private final QueryString queryString;
 
+    private List<Show> showOptions;
+
     /**
      * Create a ShowName object for the given "foundName" String.  The "foundName"
      * is expected to be the exact String that was extracted by the TVRenamer parser
@@ -150,6 +152,25 @@ public class ShowName implements Comparable<ShowName> {
         this.foundName = foundName;
         sanitised = StringUtils.sanitiseTitle(foundName);
         queryString = QueryString.lookupQueryString(foundName);
+    }
+
+    /**
+     * Find out if this ShowName has received its options from the provider yet.
+     *
+     * @return true if this ShowName has show options; false otherwise
+     */
+    public boolean hasShowOptions() {
+        return (showOptions != null) && (showOptions.size() > 0);
+    }
+
+    /**
+     * Add all possible Show options that could be mapped to this ShowName
+     *
+     * @param options
+     *    list of Shows that could be mapped to this ShowName
+     */
+    public void setShowOptions(List<Show> options) {
+        showOptions = options;
     }
 
     /**
@@ -167,12 +188,10 @@ public class ShowName implements Comparable<ShowName> {
      * Given a list of two or more options for which series we're dealing with,
      * choose the best one and return it.
      *
-     * @param options the potential shows that match the string we searched for.
-                Must not be null.
      * @return the series from the list which best matches the series information
      */
-    public Show selectShowOption(List<Show> options) {
-        int nOptions = options.size();
+    public Show selectShowOption() {
+        int nOptions = showOptions.size();
         if (nOptions == 0) {
             logger.info("did not find any options for " + foundName);
             return getFailedShow(null);
@@ -180,7 +199,7 @@ public class ShowName implements Comparable<ShowName> {
         // logger.info("got " + nOptions + " options for " + foundName);
         Show selected = null;
         for (int i=0; i<nOptions; i++) {
-            Show s = options.get(i);
+            Show s = showOptions.get(i);
             String actualName = s.getName();
             if (foundName.equals(actualName)) {
                 if (selected == null) {
@@ -195,7 +214,7 @@ public class ShowName implements Comparable<ShowName> {
         // TODO: still might be better ways to choose if we don't have an exact match.
         // Levenshtein distance?
         if (selected == null) {
-            selected = options.get(0);
+            selected = showOptions.get(0);
         }
 
         queryString.setShow(selected);

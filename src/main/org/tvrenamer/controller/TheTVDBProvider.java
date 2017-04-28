@@ -75,7 +75,7 @@ public class TheTVDBProvider {
         return listingXmlText;
     }
 
-    private static List<Show> collectShowOptions(final NodeList shows, final ShowName showName)
+    private static void collectShowOptions(final NodeList shows, final ShowName showName)
         throws XPathExpressionException
     {
         List<Show> options = new ArrayList<>();
@@ -95,25 +95,25 @@ public class TheTVDBProvider {
             }
         }
 
-        return options;
+        showName.setShowOptions(options);
     }
 
-    public static List<Show> readShowsFromInputSource(final DocumentBuilder bld,
-                                                      final InputSource searchXmlSource,
-                                                      final ShowName showName)
+    public static void readShowsFromInputSource(final DocumentBuilder bld,
+                                                final InputSource searchXmlSource,
+                                                final ShowName showName)
         throws TVRenamerIOException
     {
         try {
             Document doc = bld.parse(searchXmlSource);
             NodeList shows = nodeListValue(XPATH_SHOW, doc);
-            return collectShowOptions(shows, showName);
+            collectShowOptions(shows, showName);
         } catch (SAXException | XPathExpressionException | DOMException | IOException e) {
             logger.log(Level.WARNING, ERROR_PARSING_XML, e);
             throw new TVRenamerIOException(ERROR_PARSING_XML, e);
         }
     }
 
-    public static List<Show> getShowOptions(final ShowName showName)
+    public static void getShowOptions(final ShowName showName)
         throws TVRenamerIOException
     {
         DocumentBuilder bld;
@@ -128,7 +128,7 @@ public class TheTVDBProvider {
         try {
             searchXml = getShowSearchXml(showName);
             InputSource source = new InputSource(new StringReader(searchXml));
-            return readShowsFromInputSource(bld, source, showName);
+            readShowsFromInputSource(bld, source, showName);
         } catch (TVRenamerIOException tve) {
             String msg  = "error parsing XML from " + searchXml + " for series "
                 + showName.getFoundName();
