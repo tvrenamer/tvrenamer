@@ -4,7 +4,6 @@ import static org.tvrenamer.controller.util.XPathUtilities.nodeListValue;
 import static org.tvrenamer.controller.util.XPathUtilities.nodeTextValue;
 import static org.tvrenamer.model.util.Constants.*;
 
-import org.tvrenamer.controller.util.StringUtils;
 import org.tvrenamer.model.EpisodeInfo;
 import org.tvrenamer.model.Show;
 import org.tvrenamer.model.TVRenamerIOException;
@@ -53,10 +52,10 @@ public class TheTVDBProvider {
     private static final String XPATH_DVD_EPISODE_NUM = "DVD_episodenumber";
     private static final String XPATH_EPISODE_NUM_ABS = "absolute_number";
 
-    private static String getShowSearchXml(final String showName)
+    private static String getShowSearchXml(final String queryString)
         throws TVRenamerIOException
     {
-        String searchURL = BASE_SEARCH_URL + StringUtils.encodeSpecialCharacters(showName);
+        String searchURL = BASE_SEARCH_URL + queryString;
 
         logger.fine("About to download search results from " + searchURL);
 
@@ -115,7 +114,7 @@ public class TheTVDBProvider {
         }
     }
 
-    public static List<Show> getShowOptions(final String showName)
+    public static List<Show> getShowOptions(final String queryString)
         throws TVRenamerIOException
     {
         DocumentBuilder bld;
@@ -128,11 +127,11 @@ public class TheTVDBProvider {
 
         String searchXml = "";
         try {
-            searchXml = getShowSearchXml(showName);
+            searchXml = getShowSearchXml(queryString);
             InputSource source = new InputSource(new StringReader(searchXml));
             return readShowsFromInputSource(bld, source);
         } catch (TVRenamerIOException tve) {
-            String msg  = "error parsing XML from " + searchXml + " for series " + showName;
+            String msg  = "error parsing XML from " + searchXml + " for series " + queryString;
             logger.log(Level.WARNING, msg, tve);
             throw new TVRenamerIOException(msg, tve);
         }

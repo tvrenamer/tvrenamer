@@ -117,7 +117,7 @@ public class StringUtils {
      *         punctuation, etc.
      */
     public static String makeQueryString(String text) {
-        return replacePunctuation(text).toLowerCase();
+        return encodeSpecialCharacters(replacePunctuation(text).toLowerCase());
     }
 
     /**
