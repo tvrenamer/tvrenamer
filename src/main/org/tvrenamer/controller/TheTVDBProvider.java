@@ -175,9 +175,15 @@ public class TheTVDBProvider {
             InputSource listingsXmlSource = new InputSource(new StringReader(listingsXml));
             Document doc = dbf.parse(listingsXmlSource);
             episodeList = nodeListValue(XPATH_EPISODE_LIST, doc);
-        } catch (XPathExpressionException | SAXException | IOException | NumberFormatException | DOMException e) {
+        } catch (XPathExpressionException | SAXException | DOMException e) {
             logger.log(Level.WARNING, e.getMessage(), e);
             throw new TVRenamerIOException(ERROR_PARSING_XML, e);
+        } catch (NumberFormatException nfe) {
+            logger.log(Level.WARNING, nfe.getMessage(), nfe);
+            throw new TVRenamerIOException(ERROR_PARSING_NUMBERS, nfe);
+        } catch (IOException ioe) {
+            logger.log(Level.WARNING, ioe.getMessage(), ioe);
+            throw new TVRenamerIOException(DOWNLOADING_FAILED_MESSAGE, ioe);
         }
         return episodeList;
     }
@@ -195,9 +201,15 @@ public class TheTVDBProvider {
             }
             show.addEpisodes(episodeInfos);
 
-        } catch (IOException | NumberFormatException | DOMException e) {
-            logger.log(Level.WARNING, e.getMessage(), e);
-            throw new TVRenamerIOException(ERROR_PARSING_XML, e);
+        } catch (DOMException dom) {
+            logger.log(Level.WARNING, dom.getMessage(), dom);
+            throw new TVRenamerIOException(ERROR_PARSING_XML, dom);
+        } catch (NumberFormatException nfe) {
+            logger.log(Level.WARNING, nfe.getMessage(), nfe);
+            throw new TVRenamerIOException(ERROR_PARSING_NUMBERS, nfe);
+        } catch (IOException ioe) {
+            logger.log(Level.WARNING, ioe.getMessage(), ioe);
+            throw new TVRenamerIOException(DOWNLOADING_FAILED_MESSAGE, ioe);
         }
     }
 }
