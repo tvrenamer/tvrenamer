@@ -204,8 +204,8 @@ public class ShowStore {
             public Boolean call() throws InterruptedException {
                 Show thisShow;
                 try {
-                    List<Show> options = TheTVDBProvider.getShowOptions(showName);
-                    thisShow = showName.selectShowOption(options);
+                    TheTVDBProvider.getShowOptions(showName);
+                    thisShow = showName.selectShowOption();
                 } catch (TVRenamerIOException e) {
                     thisShow = showName.getFailedShow(e);
                 }

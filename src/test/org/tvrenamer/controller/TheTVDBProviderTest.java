@@ -20,8 +20,8 @@ package org.tvrenamer.controller;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.junit.BeforeClass;
@@ -59,10 +59,9 @@ public class TheTVDBProviderTest {
         final String ep2Name = "Quintagious";
 
         final ShowName showName = ShowName.lookupShowName(actualName);
-        List<Show> options = TheTVDBProvider.getShowOptions(showName);
-        assertNotNull(options);
-        assertNotEquals(0, options.size());
-        Show best = options.get(0);
+        TheTVDBProvider.getShowOptions(showName);
+        assertTrue(showName.hasShowOptions());
+        Show best = showName.selectShowOption();
         assertNotNull(best);
         assertFalse(best instanceof LocalShow);
         assertEquals(showId, best.getId());
@@ -92,10 +91,9 @@ public class TheTVDBProviderTest {
         final String productionName = "Bushwhacked";
 
         final ShowName showName = ShowName.lookupShowName(actualName);
-        List<Show> options = TheTVDBProvider.getShowOptions(showName);
-        assertNotNull(options);
-        assertNotEquals(0, options.size());
-        Show best = options.get(0);
+        TheTVDBProvider.getShowOptions(showName);
+        assertTrue(showName.hasShowOptions());
+        Show best = showName.selectShowOption();
         assertNotNull(best);
         assertFalse(best instanceof LocalShow);
         assertEquals(showId, best.getId());
