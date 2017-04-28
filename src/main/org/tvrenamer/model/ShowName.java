@@ -132,6 +132,23 @@ public class ShowName implements Comparable<ShowName> {
         return showName;
     }
 
+    /**
+     * Inner class -- basically a record -- to encapsulate information we received from
+     * the provider about potential Shows.  We shouldn't create actual Show objects for
+     * the options we reject.
+     */
+    private static class ShowOption {
+        String id;
+        String actualName;
+        String imdb;
+
+        ShowOption(final String id, final String actualName, final String imdb) {
+            this.id = id;
+            this.actualName = actualName;
+            this.imdb = imdb;
+        }
+    }
+
     /*
      * Instance variables
      */
@@ -139,7 +156,7 @@ public class ShowName implements Comparable<ShowName> {
     private final String sanitised;
     private final QueryString queryString;
 
-    private final List<Show> showOptions;
+    private final List<ShowOption> showOptions;
 
     /**
      * Create a ShowName object for the given "foundName" String.  The "foundName"
@@ -180,8 +197,8 @@ public class ShowName implements Comparable<ShowName> {
                               final String seriesName,
                               final String imdbId)
     {
-        Show show = Show.getShow(tvdbId, seriesName, imdbId);
-        showOptions.add(show);
+        ShowOption option = new ShowOption(tvdbId, seriesName, imdbId);
+        showOptions.add(option);
     }
 
     /**
@@ -219,10 +236,10 @@ public class ShowName implements Comparable<ShowName> {
             return getFailedShow(null);
         }
         // logger.info("got " + nOptions + " options for " + foundName);
-        Show selected = null;
+        ShowOption selected = null;
         for (int i=0; i<nOptions; i++) {
-            Show s = showOptions.get(i);
-            String actualName = s.getName();
+            ShowOption s = showOptions.get(i);
+            String actualName = s.actualName;
             if (foundName.equals(actualName)) {
                 if (selected == null) {
                     selected = s;
@@ -239,8 +256,9 @@ public class ShowName implements Comparable<ShowName> {
             selected = showOptions.get(0);
         }
 
-        queryString.setShow(selected);
-        return selected;
+        Show selectedShow = Show.getShow(selected.id, selected.actualName, selected.imdb);
+        queryString.setShow(selectedShow);
+        return selectedShow;
     }
 
     /**
