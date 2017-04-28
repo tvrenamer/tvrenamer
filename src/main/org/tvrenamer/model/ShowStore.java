@@ -287,7 +287,7 @@ public class ShowStore {
         ShowName showName = ShowName.lookupShowName(filenameShow);
         Show show = showName.getMatchedShow();
         if (show == null) {
-            show = new LocalShow(actualName);
+            show = showName.getLocalShow(actualName);
             showName.setShow(show);
         }
         return show;
