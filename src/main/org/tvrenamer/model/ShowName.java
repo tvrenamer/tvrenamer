@@ -2,6 +2,7 @@ package org.tvrenamer.model;
 
 import org.tvrenamer.controller.util.StringUtils;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -138,7 +139,7 @@ public class ShowName implements Comparable<ShowName> {
     private final String sanitised;
     private final QueryString queryString;
 
-    private List<Show> showOptions;
+    private final List<Show> showOptions;
 
     /**
      * Create a ShowName object for the given "foundName" String.  The "foundName"
@@ -152,6 +153,8 @@ public class ShowName implements Comparable<ShowName> {
         this.foundName = foundName;
         sanitised = StringUtils.sanitiseTitle(foundName);
         queryString = QueryString.lookupQueryString(foundName);
+
+        showOptions = new LinkedList<>();
     }
 
     /**
@@ -164,13 +167,13 @@ public class ShowName implements Comparable<ShowName> {
     }
 
     /**
-     * Add all possible Show options that could be mapped to this ShowName
+     * Add a possible Show option that could be mapped to this ShowName
      *
-     * @param options
-     *    list of Shows that could be mapped to this ShowName
+     * @param option
+     *    a Show that could be mapped to this ShowName
      */
-    public void setShowOptions(List<Show> options) {
-        showOptions = options;
+    public void addShowOption(Show option) {
+        showOptions.add(option);
     }
 
     /**
