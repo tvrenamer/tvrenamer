@@ -125,18 +125,6 @@ public class ShowStore {
 
     private static final ExecutorService threadPool = Executors.newCachedThreadPool();
 
-    public static Show getShow(String filenameShow) {
-        String queryString = makeQueryString(filenameShow);
-        Show s = _shows.get(queryString);
-        if (s == null) {
-            String message = "Show not found for show name: '" + filenameShow + "'";
-            logger.warning(message);
-            throw new ShowNotFoundException(message);
-        }
-
-        return s;
-    }
-
     /**
      * <p>
      * Download the show details if required, otherwise notify listener.
