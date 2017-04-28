@@ -18,8 +18,6 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -78,8 +76,6 @@ public class TheTVDBProvider {
     private static void collectShowOptions(final NodeList shows, final ShowName showName)
         throws XPathExpressionException
     {
-        List<Show> options = new ArrayList<>();
-
         for (int i = 0; i < shows.getLength(); i++) {
             Node eNode = shows.item(i);
             String seriesName = nodeTextValue(XPATH_NAME, eNode);
@@ -91,11 +87,9 @@ public class TheTVDBProvider {
                                + showName.getFoundName());
             } else {
                 Show show = Show.getShow(tvdbId, seriesName, imdbId);
-                options.add(show);
+                showName.addShowOption(show);
             }
         }
-
-        showName.setShowOptions(options);
     }
 
     public static void readShowsFromInputSource(final DocumentBuilder bld,
