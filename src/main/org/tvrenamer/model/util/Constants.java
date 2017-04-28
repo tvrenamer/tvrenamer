@@ -128,6 +128,8 @@ public class Constants {
         + "the console output to see any errors:";
 
     public static final String ERROR_PARSING_XML = "Error parsing XML";
+    public static final String ERROR_PARSING_NUMBERS = ERROR_PARSING_XML
+        + ": a field expected to be a number was not";
     public static final String ADDED_PLACEHOLDER_FILENAME = "Downloading ...";
     public static final String BROKEN_PLACEHOLDER_FILENAME = "Unable to download show information";
     public static final String DOWNLOADING_FAILED = "Downloading show listings failed";
