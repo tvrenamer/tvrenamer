@@ -169,11 +169,19 @@ public class ShowName implements Comparable<ShowName> {
     /**
      * Add a possible Show option that could be mapped to this ShowName
      *
-     * @param option
-     *    a Show that could be mapped to this ShowName
+     * @param tvdbId
+     *    the show's id in the TVDB database
+     * @param seriesName
+     *    the "official" show name
+     * @param imdbId
+     *    the show's id in IMDB
      */
-    public void addShowOption(Show option) {
-        showOptions.add(option);
+    public void addShowOption(final String tvdbId,
+                              final String seriesName,
+                              final String imdbId)
+    {
+        Show show = Show.getShow(tvdbId, seriesName, imdbId);
+        showOptions.add(show);
     }
 
     /**
@@ -183,6 +191,17 @@ public class ShowName implements Comparable<ShowName> {
      */
     public Show getFailedShow(TVRenamerIOException err) {
         Show standIn = new FailedShow(foundName, err);
+        queryString.setShow(standIn);
+        return standIn;
+    }
+
+    /**
+     * Create a stand-in Show object in the case of failure from the provider.
+     *
+     * @return a Show representing this ShowName
+     */
+    public Show getLocalShow(String actualName) {
+        Show standIn = new LocalShow(actualName);
         queryString.setShow(standIn);
         return standIn;
     }

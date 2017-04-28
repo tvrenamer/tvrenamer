@@ -86,8 +86,7 @@ public class TheTVDBProvider {
                 logger.warning("ignoring unpermitted option for "
                                + showName.getFoundName());
             } else {
-                Show show = Show.getShow(tvdbId, seriesName, imdbId);
-                showName.addShowOption(show);
+                showName.addShowOption(tvdbId, seriesName, imdbId);
             }
         }
     }
