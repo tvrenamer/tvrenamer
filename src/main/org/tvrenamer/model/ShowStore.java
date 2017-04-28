@@ -101,8 +101,6 @@
 
 package org.tvrenamer.model;
 
-import static org.tvrenamer.controller.util.StringUtils.makeQueryString;
-
 import org.tvrenamer.controller.ShowInformationListener;
 import org.tvrenamer.controller.TheTVDBProvider;
 
@@ -145,11 +143,19 @@ public class ShowStore {
      *            the listener to notify or register
      */
     public static void getShow(String filenameShow, ShowInformationListener listener) {
-        String queryString = makeQueryString(filenameShow);
+        if (listener == null) {
+            logger.warning("cannot lookup show without a listener");
+            return;
+        }
+        ShowName showName = ShowName.lookupShowName(filenameShow);
+        String queryString = showName.getQueryString();
         Show show = SHOW_MAPPINGS.get(queryString);
-        if (show != null) {
-            listener.downloaded(show);
-        } else {
+
+        if (show == null) {
+            // Since "show" is null, we know we haven't downloaded the options for
+            // this filenameShow yet; that is, we know we haven't FINISHED doing so.
+            // But we might have started.  If SHOW_REGISTRATIONS already has one or more
+            // listeners, that means the download is already underway.
             ShowRegistrations registrations = SHOW_REGISTRATIONS.get(queryString);
             if (registrations != null) {
                 registrations.addListener(listener);
@@ -158,6 +164,17 @@ public class ShowStore {
                 registrations.addListener(listener);
                 SHOW_REGISTRATIONS.put(queryString, registrations);
                 downloadShow(filenameShow, queryString);
+            }
+        } else {
+            // Since we've already downloaded the show, we don't need to involve
+            // SHOW_REGISTRATIONS at all.  We invoke the listener's callback immediately
+            // and directly.  If, in the future, we expand ShowInformationListener so
+            // that there is more information to be sent later, we'd want to edit
+            // this to add the listener.
+            if (show instanceof LocalShow) {
+                listener.downloadFailed(show);
+            } else {
+                listener.downloaded(show);
             }
         }
     }
@@ -235,7 +252,7 @@ public class ShowStore {
                     thisShow = new FailedShow(filenameShow, e);
                 }
 
-                logger.fine("Show listing for '" + thisShow.getName() + "' downloaded");
+                logger.fine("Show options for '" + thisShow.getName() + "' downloaded");
                 SHOW_MAPPINGS.put(queryString, thisShow);
                 notifyListeners(queryString, thisShow);
                 return true;
@@ -310,7 +327,8 @@ public class ShowStore {
      *            the {@link Show}
      */
     static Show getOrAddShow(String filenameShow, String actualName) {
-        String queryString = makeQueryString(filenameShow);
+        ShowName showName = ShowName.lookupShowName(filenameShow);
+        String queryString = showName.getQueryString();
         Show show = SHOW_MAPPINGS.get(queryString);
         if (show == null) {
             show = new LocalShow(actualName);

@@ -2,6 +2,7 @@ package org.tvrenamer.controller;
 
 import org.tvrenamer.controller.util.StringUtils;
 import org.tvrenamer.model.FileEpisode;
+import org.tvrenamer.model.ShowName;
 
 import java.nio.file.Path;
 import java.util.logging.Logger;
@@ -62,6 +63,7 @@ public class TVRenamer {
                     continue;
                 }
                 String foundName = matcher.group(1);
+                ShowName.lookupShowName(foundName);
                 episode.setFilenameShow(foundName);
                 episode.setSeasonNum(Integer.parseInt(matcher.group(2)));
                 episode.setEpisodeNum(Integer.parseInt(matcher.group(3)));
