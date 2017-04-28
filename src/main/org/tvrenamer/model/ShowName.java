@@ -2,6 +2,7 @@ package org.tvrenamer.model;
 
 import org.tvrenamer.controller.util.StringUtils;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
@@ -149,6 +150,56 @@ public class ShowName implements Comparable<ShowName> {
         this.foundName = foundName;
         sanitised = StringUtils.sanitiseTitle(foundName);
         queryString = QueryString.lookupQueryString(foundName);
+    }
+
+    /**
+     * Create a stand-in Show object in the case of failure from the provider.
+     *
+     * @return a Show representing this ShowName
+     */
+    public Show getFailedShow(TVRenamerIOException err) {
+        Show standIn = new FailedShow(foundName, err);
+        queryString.setShow(standIn);
+        return standIn;
+    }
+
+    /**
+     * Given a list of two or more options for which series we're dealing with,
+     * choose the best one and return it.
+     *
+     * @param options the potential shows that match the string we searched for.
+                Must not be null.
+     * @return the series from the list which best matches the series information
+     */
+    public Show selectShowOption(List<Show> options) {
+        int nOptions = options.size();
+        if (nOptions == 0) {
+            logger.info("did not find any options for " + foundName);
+            return getFailedShow(null);
+        }
+        // logger.info("got " + nOptions + " options for " + foundName);
+        Show selected = null;
+        for (int i=0; i<nOptions; i++) {
+            Show s = options.get(i);
+            String actualName = s.getName();
+            if (foundName.equals(actualName)) {
+                if (selected == null) {
+                    selected = s;
+                } else {
+                    // TODO: could check language?  other criteria?
+                    logger.warning("multiple exact hits for " + foundName
+                                   + "; choosing first one");
+                }
+            }
+        }
+        // TODO: still might be better ways to choose if we don't have an exact match.
+        // Levenshtein distance?
+        if (selected == null) {
+            selected = options.get(0);
+        }
+
+        queryString.setShow(selected);
+        return selected;
     }
 
     /**
