@@ -176,6 +176,17 @@ public class ShowName implements Comparable<ShowName> {
     }
 
     /**
+     * Set the matched show for the QueryString associated with this ShowName.
+     *
+     * @param show the Show to map the QueryString to
+     * @return false if the QueryString had already been mapped to a show;
+     *         true otherwise.
+     */
+    public boolean setShow(Show matchedShow) {
+        return queryString.setShow(matchedShow);
+    }
+
+    /**
      * Standard object method to represent this StringName as a string.
      *
      * @return string version of this

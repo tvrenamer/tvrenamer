@@ -31,6 +31,7 @@ import org.tvrenamer.model.Episode;
 import org.tvrenamer.model.EpisodeTestData;
 import org.tvrenamer.model.LocalShow;
 import org.tvrenamer.model.Show;
+import org.tvrenamer.model.ShowName;
 import org.tvrenamer.model.ShowStore;
 
 import java.util.LinkedList;
@@ -57,7 +58,8 @@ public class TheTVDBProviderTest {
         final String showId = "73732";
         final String ep2Name = "Quintagious";
 
-        List<Show> options = TheTVDBProvider.getShowOptions(actualName);
+        final ShowName showName = ShowName.lookupShowName(actualName);
+        List<Show> options = TheTVDBProvider.getShowOptions(showName);
         assertNotNull(options);
         assertNotEquals(0, options.size());
         Show best = options.get(0);
@@ -89,7 +91,8 @@ public class TheTVDBProviderTest {
         final String dvdName = "The Train Job";
         final String productionName = "Bushwhacked";
 
-        List<Show> options = TheTVDBProvider.getShowOptions(actualName);
+        final ShowName showName = ShowName.lookupShowName(actualName);
+        List<Show> options = TheTVDBProvider.getShowOptions(showName);
         assertNotNull(options);
         assertNotEquals(0, options.size());
         Show best = options.get(0);
