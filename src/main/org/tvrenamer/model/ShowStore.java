@@ -107,11 +107,11 @@ import org.tvrenamer.controller.ShowInformationListener;
 import org.tvrenamer.controller.TheTVDBProvider;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
@@ -120,8 +120,9 @@ public class ShowStore {
 
     private static Logger logger = Logger.getLogger(ShowStore.class.getName());
 
-    private static final Map<String, Show> _shows = Collections.synchronizedMap(new HashMap<String, Show>());
-    private static final Map<String, ShowRegistrations> _showRegistrations = new HashMap<>();
+    private static final Map<String, Show> _shows = new ConcurrentHashMap<>();
+    private static final Map<String, ShowRegistrations> _showRegistrations
+        = new ConcurrentHashMap<>();
 
     private static final ExecutorService threadPool = Executors.newCachedThreadPool();
 
@@ -130,7 +131,8 @@ public class ShowStore {
      * Download the show details if required, otherwise notify listener.
      * </p>
      * <ul>
-     * <li>if we have already downloaded the show (exists in _shows) then just notify the listener</li>
+     * <li>if we have already downloaded the show (exists in _shows) then
+     *      just notify the listener</li>
      * <li>if we don't have the show, but are in the process of downloading the show
      *     (exists in _showRegistrations) then add the listener to the registration</li>
      * <li>if we don't have the show and aren't downloading, then create the registration,
@@ -201,6 +203,26 @@ public class ShowStore {
         return selected;
     }
 
+    /**
+     * Download information about shows that match the given show name, and
+     * choose the best option, if one exists.
+     *
+     * This method is private, because only this class can decide when it is
+     * necessary to go to the provider to get information.  We might already
+     * have the information.  Callers must go through the public interfaces
+     * which check our internal data structures before initiating an call to
+     * the provider.
+     *
+     * Does not return the value.  Spawns a thread to notify all interested
+     * listeners after it has an answer.
+     *
+     * @param filenameShow
+     *    the part of the filename that is presumed to name the show
+     * @param queryString
+     *    a version of the filenameShow we can give the provider
+     * @return nothing; but via callback, sends the series from the list which best
+     *         matches the series information
+     */
     private static void downloadShow(final String filenameShow, final String queryString) {
         Callable<Boolean> showFetcher = new Callable<Boolean>() {
             @Override
@@ -222,6 +244,17 @@ public class ShowStore {
         threadPool.submit(showFetcher);
     }
 
+    /**
+     * Notify registered interested parties that we have decided on what to map
+     * a given String to.
+     *
+     * @param queryString
+     *    the version of the part of the filename that is presumed to name
+     *    the show, that we use as the key into the hashmap
+     * @param show
+     *    the Show object representing the TV show we've mapped the string to.
+     *    Might be a FailedShow.
+     */
     private static void notifyListeners(String queryString, Show show) {
         ShowRegistrations registrations = _showRegistrations.get(queryString);
 
