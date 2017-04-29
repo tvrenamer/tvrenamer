@@ -12,11 +12,20 @@ public class TVRenamer {
     private static Logger logger = Logger.getLogger(TVRenamer.class.getName());
 
     public static final String[] REGEX = {
-            "(.+?\\d{4}[^a-zA-Z0-9]\\D*?)[sS]?(\\d\\d?)\\D*?(\\d\\d).*\\D(\\d+[pk]).*", // this one works for titles with years
-            "(.+?[^a-zA-Z0-9]\\D*?)[sS](\\d\\d?)[eE](\\d\\d?).*\\D(\\d+[pk]).*", // this one matches SXXEXX
-            "(.+[^a-zA-Z0-9]\\D*?)[sS](\\d\\d?)\\D*?[eE](\\d\\d).*\\D(\\d+[pk]).*", // this one matches sXX.eXX
-            "(.+[^a-zA-Z0-9]\\D*?)(\\d\\d?)\\D+(\\d\\d).*\\D(\\d+[pk]).*", // this one matches everything else
-            "(.+[^a-zA-Z0-9]+)(\\d\\d?)(\\d\\d).*\\D(\\d+[pk]).*" // truly last resort
+        // this one works for titles with years:
+        "(.+?\\d{4}[^a-zA-Z0-9]\\D*?)[sS]?(\\d\\d?)\\D*?(\\d\\d).*\\D(\\d+[pk]).*",
+
+        // this one matches SXXEXX:
+        "(.+?[^a-zA-Z0-9]\\D*?)[sS](\\d\\d?)[eE](\\d\\d?).*\\D(\\d+[pk]).*",
+
+        // this one matches sXX.eXX:
+        "(.+[^a-zA-Z0-9]\\D*?)[sS](\\d\\d?)\\D*?[eE](\\d\\d).*\\D(\\d+[pk]).*",
+
+        // this one matches everything else:
+        "(.+[^a-zA-Z0-9]\\D*?)(\\d\\d?)\\D+(\\d\\d).*\\D(\\d+[pk]).*",
+
+        // truly last resort:
+        "(.+[^a-zA-Z0-9]+)(\\d\\d?)(\\d\\d).*\\D(\\d+[pk]).*"
     };
 
     public static final Pattern[] COMPILED_REGEX = new Pattern[REGEX.length * 2];
@@ -52,7 +61,8 @@ public class TVRenamer {
                     // an error if it does, but not important.
                     continue;
                 }
-                episode.setFilenameShow(matcher.group(1));
+                String foundName = matcher.group(1);
+                episode.setFilenameShow(foundName);
                 episode.setSeasonNum(Integer.parseInt(matcher.group(2)));
                 episode.setEpisodeNum(Integer.parseInt(matcher.group(3)));
                 episode.setFilenameResolution(resolution);
