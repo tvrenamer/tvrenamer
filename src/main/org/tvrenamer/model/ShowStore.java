@@ -120,8 +120,8 @@ public class ShowStore {
 
     private static Logger logger = Logger.getLogger(ShowStore.class.getName());
 
-    private static final Map<String, Show> _shows = new ConcurrentHashMap<>();
-    private static final Map<String, ShowRegistrations> _showRegistrations
+    private static final Map<String, Show> SHOW_MAPPINGS = new ConcurrentHashMap<>();
+    private static final Map<String, ShowRegistrations> SHOW_REGISTRATIONS
         = new ConcurrentHashMap<>();
 
     private static final ExecutorService threadPool = Executors.newCachedThreadPool();
@@ -131,10 +131,10 @@ public class ShowStore {
      * Download the show details if required, otherwise notify listener.
      * </p>
      * <ul>
-     * <li>if we have already downloaded the show (exists in _shows) then
+     * <li>if we have already downloaded the show (exists in SHOW_MAPPINGS) then
      *      just notify the listener</li>
      * <li>if we don't have the show, but are in the process of downloading the show
-     *     (exists in _showRegistrations) then add the listener to the registration</li>
+     *     (exists in SHOW_REGISTRATIONS) then add the listener to the registration</li>
      * <li>if we don't have the show and aren't downloading, then create the registration,
      *     add the listener and kick off the download</li>
      * </ul>
@@ -146,17 +146,17 @@ public class ShowStore {
      */
     public static void getShow(String filenameShow, ShowInformationListener listener) {
         String queryString = makeQueryString(filenameShow);
-        Show show = _shows.get(queryString);
+        Show show = SHOW_MAPPINGS.get(queryString);
         if (show != null) {
             listener.downloaded(show);
         } else {
-            ShowRegistrations registrations = _showRegistrations.get(queryString);
+            ShowRegistrations registrations = SHOW_REGISTRATIONS.get(queryString);
             if (registrations != null) {
                 registrations.addListener(listener);
             } else {
                 registrations = new ShowRegistrations();
                 registrations.addListener(listener);
-                _showRegistrations.put(queryString, registrations);
+                SHOW_REGISTRATIONS.put(queryString, registrations);
                 downloadShow(filenameShow, queryString);
             }
         }
@@ -236,7 +236,7 @@ public class ShowStore {
                 }
 
                 logger.fine("Show listing for '" + thisShow.getName() + "' downloaded");
-                _shows.put(queryString, thisShow);
+                SHOW_MAPPINGS.put(queryString, thisShow);
                 notifyListeners(queryString, thisShow);
                 return true;
             }
@@ -256,7 +256,7 @@ public class ShowStore {
      *    Might be a FailedShow.
      */
     private static void notifyListeners(String queryString, Show show) {
-        ShowRegistrations registrations = _showRegistrations.get(queryString);
+        ShowRegistrations registrations = SHOW_REGISTRATIONS.get(queryString);
 
         if (registrations != null) {
             for (ShowInformationListener informationListener : registrations.getListeners()) {
@@ -290,8 +290,8 @@ public class ShowStore {
     }
 
     public static void clear() {
-        _shows.clear();
-        _showRegistrations.clear();
+        SHOW_MAPPINGS.clear();
+        SHOW_REGISTRATIONS.clear();
     }
 
     /**
@@ -311,10 +311,10 @@ public class ShowStore {
      */
     static Show getOrAddShow(String filenameShow, String actualName) {
         String queryString = makeQueryString(filenameShow);
-        Show show = _shows.get(queryString);
+        Show show = SHOW_MAPPINGS.get(queryString);
         if (show == null) {
             show = new LocalShow(actualName);
-            _shows.put(queryString, show);
+            SHOW_MAPPINGS.put(queryString, show);
         }
         return show;
     }
