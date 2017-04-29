@@ -220,6 +220,56 @@ public class TheTVDBProviderTest {
         values.add(new TestInput("ncis", "14", "4", "Love Boat"));
     }
 
+    // Once we have a CompletableFuture, we need to complete it.  There are a few ways, but
+    // obviously the simplest is to call complete().  If we simply call the JUnit method
+    // fail(), the future thread does not die and the test never exits.  The same appears
+    // to happen with an uncaught exception.  So, be very careful to make sure, one way or
+    // other, we call complete.
+
+    // Of course, none of this matters when everything works.  But if we want failure cases
+    // to actually stop and report failure, we need to complete the future, one way or another.
+
+    // We use a brief failure message as the show title in cases where we detect failure.
+    // Just make sure to not add a test case where the actual episode's title is one of
+    // the failure messages.  :)
+    private Show testQueryShow(final TestInput testInput, final String showName) {
+        try {
+            final CompletableFuture<Show> futureShow = new CompletableFuture<>();
+            ShowStore.getShow(showName, new ShowInformationListener() {
+                    @Override
+                    public void downloaded(Show show) {
+                        futureShow.complete(show);
+                    }
+
+                    @Override
+                    public void downloadFailed(Show show) {
+                        futureShow.complete(null);
+                    }
+                });
+            Show gotShow = futureShow.get(4, TimeUnit.SECONDS);
+            if (gotShow == null) {
+                fail("could not parse show name input " + showName);
+                return null;
+            }
+            // assertEquals(testInput.actualShowName, gotShow.getName());
+            return gotShow;
+        } catch (TimeoutException e) {
+            String failMsg = "timeout trying to query for " + showName;
+            String exceptionMessage = e.getMessage();
+            if (exceptionMessage != null) {
+                failMsg += exceptionMessage;
+            } else {
+                failMsg += "(no message)";
+            }
+            fail(failMsg);
+            return null;
+        } catch (Exception e) {
+            fail("failure (possibly timeout?) trying to query for " + showName
+                 + ": " + e.getMessage());
+            return null;
+        }
+    }
+
     // @Test
     public void testGetEpisodeTitle() {
         for (TestInput testInput : values) {
@@ -230,16 +280,23 @@ public class TheTVDBProviderTest {
                 try {
                     final int seasonNum = Integer.parseInt(season);
                     final int episodeNum = Integer.parseInt(episode);
+                    final Show show = testQueryShow(testInput, showName);
                     final CompletableFuture<String> future = new CompletableFuture<>();
-                    ShowStore.getShow(showName, new ShowInformationListener() {
+                    ListingsLookup.getListings(show, new ShowListingsListener() {
                         @Override
-                        public void downloaded(Show show) {
-                            future.complete(show.getEpisode(seasonNum, episodeNum).getTitle());
+                        public void downloadListingsComplete(Show show) {
+                            Episode ep = show.getEpisode(seasonNum, episodeNum);
+                            if (ep == null) {
+                                future.complete("null episode");
+                            } else {
+                                String title = ep.getTitle();
+                                future.complete(title);
+                            }
                         }
 
                         @Override
-                        public void downloadFailed(Show show) {
-                            future.complete(null);
+                        public void downloadListingsFailed(Show show) {
+                            future.complete("downloadFailed");
                         }
                     });
 
