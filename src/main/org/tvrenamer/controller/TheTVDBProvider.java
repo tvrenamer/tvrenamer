@@ -6,6 +6,7 @@ import static org.tvrenamer.model.util.Constants.*;
 
 import org.tvrenamer.model.EpisodeInfo;
 import org.tvrenamer.model.Show;
+import org.tvrenamer.model.ShowName;
 import org.tvrenamer.model.TVRenamerIOException;
 
 import org.w3c.dom.DOMException;
@@ -52,10 +53,10 @@ public class TheTVDBProvider {
     private static final String XPATH_DVD_EPISODE_NUM = "DVD_episodenumber";
     private static final String XPATH_EPISODE_NUM_ABS = "absolute_number";
 
-    private static String getShowSearchXml(final String queryString)
+    private static String getShowSearchXml(final ShowName showName)
         throws TVRenamerIOException
     {
-        String searchURL = BASE_SEARCH_URL + queryString;
+        String searchURL = BASE_SEARCH_URL + showName.getQueryString();
 
         logger.fine("About to download search results from " + searchURL);
 
@@ -74,7 +75,7 @@ public class TheTVDBProvider {
         return listingXmlText;
     }
 
-    private static List<Show> collectShowOptions(final NodeList shows)
+    private static List<Show> collectShowOptions(final NodeList shows, final ShowName showName)
         throws XPathExpressionException
     {
         List<Show> options = new ArrayList<>();
@@ -86,11 +87,8 @@ public class TheTVDBProvider {
             String imdbId = nodeTextValue(XPATH_IMDB, eNode);
 
             if (SERIES_NOT_PERMITTED.equals(seriesName)) {
-                // Unfortunately we don't have the show name handy here,
-                // and we'd have to thread it through a few methods just
-                // for the sake of an unlikely warning, so I prefer to
-                // leave this message a little uninformative.
-                logger.warning("ignoring unpermitted option");
+                logger.warning("ignoring unpermitted option for "
+                               + showName.getFoundName());
             } else {
                 Show show = Show.getShow(tvdbId, seriesName, imdbId);
                 options.add(show);
@@ -101,20 +99,21 @@ public class TheTVDBProvider {
     }
 
     public static List<Show> readShowsFromInputSource(final DocumentBuilder bld,
-                                                      final InputSource searchXmlSource)
+                                                      final InputSource searchXmlSource,
+                                                      final ShowName showName)
         throws TVRenamerIOException
     {
         try {
             Document doc = bld.parse(searchXmlSource);
             NodeList shows = nodeListValue(XPATH_SHOW, doc);
-            return collectShowOptions(shows);
+            return collectShowOptions(shows, showName);
         } catch (SAXException | XPathExpressionException | DOMException | IOException e) {
             logger.log(Level.WARNING, ERROR_PARSING_XML, e);
             throw new TVRenamerIOException(ERROR_PARSING_XML, e);
         }
     }
 
-    public static List<Show> getShowOptions(final String queryString)
+    public static List<Show> getShowOptions(final ShowName showName)
         throws TVRenamerIOException
     {
         DocumentBuilder bld;
@@ -127,11 +126,12 @@ public class TheTVDBProvider {
 
         String searchXml = "";
         try {
-            searchXml = getShowSearchXml(queryString);
+            searchXml = getShowSearchXml(showName);
             InputSource source = new InputSource(new StringReader(searchXml));
-            return readShowsFromInputSource(bld, source);
+            return readShowsFromInputSource(bld, source, showName);
         } catch (TVRenamerIOException tve) {
-            String msg  = "error parsing XML from " + searchXml + " for series " + queryString;
+            String msg  = "error parsing XML from " + searchXml + " for series "
+                + showName.getFoundName();
             logger.log(Level.WARNING, msg, tve);
             throw new TVRenamerIOException(msg, tve);
         }

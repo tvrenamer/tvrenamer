@@ -163,7 +163,7 @@ public class ShowStore {
                 registrations = new ShowRegistrations();
                 registrations.addListener(listener);
                 SHOW_REGISTRATIONS.put(queryString, registrations);
-                downloadShow(filenameShow, queryString);
+                downloadShow(showName);
             }
         } else {
             // Since we've already downloaded the show, we don't need to involve
@@ -233,26 +233,28 @@ public class ShowStore {
      * Does not return the value.  Spawns a thread to notify all interested
      * listeners after it has an answer.
      *
-     * @param filenameShow
-     *    the part of the filename that is presumed to name the show
-     * @param queryString
-     *    a version of the filenameShow we can give the provider
+     * @param showName
+     *    an object containing the part of the filename that is presumed to name
+     *    the show, as well as the version of that string we can give the provider
      * @return nothing; but via callback, sends the series from the list which best
      *         matches the series information
      */
-    private static void downloadShow(final String filenameShow, final String queryString) {
+    private static void downloadShow(final ShowName showName) {
+        final String filenameShow = showName.getFoundName();
+        final String queryString = showName.getQueryString();
         Callable<Boolean> showFetcher = new Callable<Boolean>() {
             @Override
             public Boolean call() throws InterruptedException {
                 Show thisShow;
                 try {
-                    List<Show> options = TheTVDBProvider.getShowOptions(queryString);
+                    List<Show> options = TheTVDBProvider.getShowOptions(showName);
                     thisShow = selectShowOption(options, filenameShow);
                 } catch (TVRenamerIOException e) {
                     thisShow = new FailedShow(filenameShow, e);
                 }
 
                 logger.fine("Show options for '" + thisShow.getName() + "' downloaded");
+                showName.setShow(thisShow);
                 SHOW_MAPPINGS.put(queryString, thisShow);
                 notifyListeners(queryString, thisShow);
                 return true;
