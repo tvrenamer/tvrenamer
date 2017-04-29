@@ -34,6 +34,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class TheTVDBProviderTest {
 
@@ -244,15 +245,25 @@ public class TheTVDBProviderTest {
 
                     String got = future.get(15, TimeUnit.SECONDS);
                     assertEquals(testInput.episodeTitle, got);
+                } catch (TimeoutException e) {
+                    String failMsg = "timeout trying to query for " + showName
+                        + ", season " + season + ", episode " + episode;
+                    String exceptionMessage = e.getMessage();
+                    if (exceptionMessage != null) {
+                        failMsg += exceptionMessage;
+                    } else {
+                        failMsg += "(no message)";
+                    }
+                    fail(failMsg);
                 } catch (Exception e) {
                     String failMsg = "failure trying to query for " + showName
-                        + ", season " + season + ", " + episode
+                        + ", season " + season + ", episode " + episode
                         + e.getClass().getName() + " ";
                     String exceptionMessage = e.getMessage();
                     if (exceptionMessage != null) {
                         failMsg += exceptionMessage;
                     } else {
-                        failMsg += "(likely timeout)";
+                        failMsg += "(possibly timeout?)";
                     }
                     fail(failMsg);
                 }
