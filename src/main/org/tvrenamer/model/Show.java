@@ -160,9 +160,9 @@ public class Show implements Comparable<Show> {
                     withDVD++;
                 }
             }
-            // Make the threshold 50%.  That's probably low, but the program has a history
-            // of preferring DVD episode numbers, and 50% is really easy to do.
-            if (withDVD > withoutDVD) {
+            // Make the threshold 75%.  That's probably low, but the program has a history
+            // of preferring DVD episode numbers, and 75% is easy to do.
+            if (withDVD > (withoutDVD * 3)) {
                 indexEpisodesBySeason(NumberingScheme.DVD_RELEASE);
             } else {
                 indexEpisodesBySeason(NumberingScheme.REGULAR);
