@@ -26,6 +26,7 @@ public class Episode {
     private final String dvdSeason;
     private final String dvdEpisodeNumber;
 
+    private final String episodeId;
 
     public Episode(EpisodeInfo info) {
         this.title = info.episodeName;
@@ -34,6 +35,7 @@ public class Episode {
         this.episodeNumber = info.episodeNumber;
         this.dvdSeason = info.dvdSeason;
         this.dvdEpisodeNumber = info.dvdEpisodeNumber;
+        this.episodeId = info.episodeId;
     }
 
     public String getTitle() {
