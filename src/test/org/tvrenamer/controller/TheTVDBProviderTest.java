@@ -19,6 +19,7 @@
 package org.tvrenamer.controller;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -27,6 +28,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import org.tvrenamer.model.Episode;
+import org.tvrenamer.model.LocalShow;
 import org.tvrenamer.model.Show;
 import org.tvrenamer.model.ShowStore;
 
@@ -50,23 +52,24 @@ public class TheTVDBProviderTest {
      */
     @Test
     public void testGetShowOptionsAndListings() throws Exception {
-        final String showName = "Quintuplets";
+        final String actualName = "Quintuplets";
         final String showId = "73732";
         final String ep2Name = "Quintagious";
 
-        List<Show> options = TheTVDBProvider.getShowOptions(showName);
+        List<Show> options = TheTVDBProvider.getShowOptions(actualName);
         assertNotNull(options);
         assertNotEquals(0, options.size());
         Show best = options.get(0);
         assertNotNull(best);
+        assertFalse(best instanceof LocalShow);
         assertEquals(showId, best.getId());
-        assertEquals(showName, best.getName());
+        assertEquals(actualName, best.getName());
 
         TheTVDBProvider.getShowListing(best);
 
         best.preferProductionOrdering();
         Episode s1e02 = best.getEpisode(1, 2);
-        assertNotNull("result of calling getEpisode(1, 2) on " + showName + " came back null",
+        assertNotNull("result of calling getEpisode(1, 2) on " + actualName + " came back null",
                       s1e02);
         assertEquals(ep2Name, s1e02.getTitle());
 
@@ -80,18 +83,19 @@ public class TheTVDBProviderTest {
      */
     @Test
     public void testRegularEpisodePreference() throws Exception {
-        final String showName = "Firefly";
+        final String actualName = "Firefly";
         final String showId = "78874";
         final String dvdName = "The Train Job";
         final String productionName = "Bushwhacked";
 
-        List<Show> options = TheTVDBProvider.getShowOptions(showName);
+        List<Show> options = TheTVDBProvider.getShowOptions(actualName);
         assertNotNull(options);
         assertNotEquals(0, options.size());
         Show best = options.get(0);
         assertNotNull(best);
+        assertFalse(best instanceof LocalShow);
         assertEquals(showId, best.getId());
-        assertEquals(showName, best.getName());
+        assertEquals(actualName, best.getName());
 
         best.preferDvdOrdering();
         TheTVDBProvider.getShowListing(best);
@@ -100,19 +104,19 @@ public class TheTVDBProviderTest {
 
         best.preferHeuristicOrdering();
         s01e02 = best.getEpisode(1, 2);
-        assertNotNull("result of calling getEpisode(1, 2) on " + showName
+        assertNotNull("result of calling getEpisode(1, 2) on " + actualName
                       + "with heuristic ordering came back null", s01e02);
         assertEquals(dvdName, s01e02.getTitle());
 
         best.preferProductionOrdering();
         s01e02 = best.getEpisode(1, 2);
-        assertNotNull("result of calling getEpisode(1, 2) on " + showName
+        assertNotNull("result of calling getEpisode(1, 2) on " + actualName
                       + " with production ordering came back null", s01e02);
         assertEquals(productionName, s01e02.getTitle());
 
         best.preferDvdOrdering();
         s01e02 = best.getEpisode(1, 2);
-        assertNotNull("result of calling getEpisode(1, 2) on " + showName
+        assertNotNull("result of calling getEpisode(1, 2) on " + actualName
                       + " with DVD ordering came back null", s01e02);
         assertEquals(dvdName, s01e02.getTitle());
     }
@@ -124,7 +128,7 @@ public class TheTVDBProviderTest {
         public final String episodeTitle;
 
         public TestInput(String show, String season, String episode, String episodeTitle) {
-            this.show = show.toLowerCase();
+            this.show = show;
             this.season = season;
             this.episode = episode;
             this.episodeTitle = episodeTitle;
@@ -251,6 +255,7 @@ public class TheTVDBProviderTest {
                 fail("could not parse show name input " + showName);
                 return null;
             }
+            assertFalse(gotShow instanceof LocalShow);
             // assertEquals(testInput.actualShowName, gotShow.getName());
             return gotShow;
         } catch (TimeoutException e) {
