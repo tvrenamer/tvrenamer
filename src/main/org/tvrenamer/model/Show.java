@@ -26,6 +26,36 @@ public class Show implements Comparable<Show> {
         ABSOLUTE
     }
 
+    /* When going from a filename to a Show object, there's a class in the way
+     * which helps avoid duplication.  If we have two files like:
+     *    "Lost.S06E05.mp4"
+     *    "Lost.S06E06.mp4"
+     * ... they will share a common ShowName object, and therefore be mapped to
+     * the same Show object.  Which is good.
+     *
+     * But in a case like this one:
+     *    "Real.Oneals.S01E01.avi"
+     *    "The Real O'Neals.S01E02.avi"
+     * ... they probably won't, because of the "The".  There will be two
+     * separate ShowName objects created, one with "the" and one without.
+     * But, that doesn't mean we have to create two Show objects.  Once
+     * we query the provider and determine the ID of the show we're going
+     * to map to, we can look in "knownShows" to see if a show has already
+     * been created for that ID.  If it has, return that object, and don't
+     * create a new one.
+     *
+     * Without using this hashmap, we might very well create two or more
+     * instances of the same Show.  In fact, it happened all the time.
+     * It doesn't cause anything to break, it just results in a lot of
+     * unnecessary work.
+     *
+     * Note we even put LocalShows in here, too, even though it does not
+     * serve the purpose of avoiding unnecessary work.  That's because
+     * another usage of this map is that its values represent all the
+     * Shows we have created, which can be useful information to have.
+     */
+    private static Map<String, Show> knownShows = new ConcurrentHashMap<>();
+
     private final String id;
     private final String name;
     private final String dirName;
@@ -37,7 +67,7 @@ public class Show implements Comparable<Show> {
     // Not final.  Could be changed during the program's run.
     private NumberingScheme numberingScheme = NumberingScheme.GUESS;
 
-    public Show(String id, String name, String imdb) {
+    protected Show(String id, String name, String imdb) {
         this.id = id;
         this.name = name;
         this.imdb = imdb;
@@ -45,10 +75,27 @@ public class Show implements Comparable<Show> {
 
         episodes = new ConcurrentHashMap<>();
         seasons = new ConcurrentHashMap<>();
+
+        knownShows.put(id, this);
     }
 
-    public Show(String id, String name) {
-        this(id, name, null);
+    /**
+     * "Factory"-type static method to get an instance of a Show.  Looks
+     * up the ID in a hash table, and returns the object if it's already
+     * been created.  Otherwise, we create a new Show, put it into the
+     * table, and return it.
+     *
+     * @return a Show with the given ID
+     */
+    public static Show getShow(String id, String name, String imdb) {
+        Show matchedShow = null;
+        synchronized (knownShows) {
+            matchedShow = knownShows.get(id);
+            if (matchedShow == null) {
+                matchedShow = new Show(id, name, imdb);
+            }
+        }
+        return matchedShow;
     }
 
     public String getId() {
