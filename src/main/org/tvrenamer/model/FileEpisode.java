@@ -1,7 +1,7 @@
 // FileEpisode - represents a file on disk which is presumed to contain a single
 //   episode of a TV show.
 //
-// This is a very mutable class.  It is initially created with just a filename,
+// This is a very mutable class.  It is initially created with just a path,
 // and then information comes streaming in.
 //
 
@@ -9,6 +9,7 @@ package org.tvrenamer.model;
 
 import static org.tvrenamer.model.util.Constants.*;
 
+import org.tvrenamer.controller.TVRenamer;
 import org.tvrenamer.controller.util.StringUtils;
 
 import java.io.IOException;
@@ -114,14 +115,24 @@ public class FileEpisode {
     // Other information will flow in.
     public FileEpisode(Path p) {
         if (p == null) {
-            logger.severe("cannot create FileEpisode with no path.");
+            logger.severe(FILE_EPISODE_NEEDS_PATH);
+            throw new IllegalArgumentException(FILE_EPISODE_NEEDS_PATH);
         }
+        fileNameString = p.getFileName().toString();
+        filenameSuffix = StringUtils.getExtension(fileNameString);
+        setPath(p);
+        TVRenamer.parseFilename(this);
+    }
+
+    // Create FileEpisode with String; only for testing
+    public FileEpisode(String filename) {
+        Path p = Paths.get(filename);
         fileNameString = p.getFileName().toString();
         filenameSuffix = StringUtils.getExtension(fileNameString);
         setPath(p);
     }
 
-    // Create FileEpisode with no path
+    // Create FileEpisode with no path; only for testing
     public FileEpisode() {
         // We do not provide any way to create a FileEpisode with a null path
         // via the UI -- why would we?  Ultimately the program is to rename and
@@ -135,10 +146,6 @@ public class FileEpisode {
         exists = false;
         fileStatus = FileStatus.NO_FILE;
         fileSize = NO_FILE_SIZE;
-    }
-
-    public FileEpisode(String filename) {
-        this(Paths.get(filename));
     }
 
     public String getFilenameShow() {
