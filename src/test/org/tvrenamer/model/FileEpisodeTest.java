@@ -912,7 +912,9 @@ public class FileEpisodeTest {
     {
         prefs.setRenameReplacementString(data.replacementMask);
 
-        FileEpisode episode = new FileEpisode(path);
+        String pathstring = path.toAbsolutePath().toString();
+
+        FileEpisode episode = new FileEpisode(pathstring);
         episode.setFilenameShow(data.filenameShow);
         episode.setFilenameSeason(data.seasonNumString);
         episode.setFilenameEpisode(data.episodeNumString);

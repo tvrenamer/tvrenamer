@@ -1,7 +1,6 @@
 package org.tvrenamer.model;
 
 import org.tvrenamer.controller.AddEpisodeListener;
-import org.tvrenamer.controller.TVRenamer;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -36,8 +35,8 @@ public class EpisodeDb {
     }
 
     private FileEpisode add(final String pathname) {
-        final FileEpisode episode = new FileEpisode(pathname);
-        TVRenamer.parseFilename(episode);
+        Path path = Paths.get(pathname);
+        final FileEpisode episode = new FileEpisode(path);
         if (!episode.wasParsed()) {
             // TODO: we can add these episodes to the table anyway,
             // to provide information to the user, and in the future,

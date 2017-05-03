@@ -135,6 +135,7 @@ public class Constants {
     public static final String DOWNLOADING_FAILED = "Downloading show listings failed";
     public static final String DOWNLOADING_FAILED_MESSAGE = DOWNLOADING_FAILED
         + ".  Check internet connection";
+    public static final String FILE_EPISODE_NEEDS_PATH = "cannot create FileEpisode with no path";
 
     public static final String DEFAULT_REPLACEMENT_MASK = "%S [%sx%0e] %t";
     public static final String DEFAULT_SEASON_PREFIX = "Season ";
