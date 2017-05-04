@@ -389,7 +389,7 @@ public class FileEpisode {
         return dateFormat.format(date);
     }
 
-    private String getRenamedBasename() {
+    String getRenamedBasename() {
         String showName;
         if (actualShow == null) {
             logger.warning("should not be renaming without an actual Show.");
