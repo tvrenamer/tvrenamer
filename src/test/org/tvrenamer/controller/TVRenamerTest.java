@@ -121,15 +121,6 @@ public class TVRenamerTest {
         }
     }
 
-    @Test
-    public void testWarehouse13() {
-        FileEpisode episode = new FileEpisode("Warehouse.13.S05E04.HDTV.x264-2HD.mp4");
-        assertTrue(TVRenamer.parseFilename(episode));
-        assertEquals("Warehouse.13.", episode.getFilenameShow());
-        assertEquals(5, episode.getSeasonNum());
-        assertEquals(4, episode.getEpisodeNum());
-    }
-
     private static class TestInput {
         public final String input;
         public final String showName;
