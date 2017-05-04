@@ -138,7 +138,7 @@ public class EpisodeTestData {
         inputFilename = filenameShow
             + separator + seasonNumString
             + separator + episodeNumString
-            + resolutionString + filenameSuffix;
+            + resolutionString;
     }
 
     @Override
