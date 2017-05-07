@@ -84,6 +84,15 @@ public class ShowName implements Comparable<ShowName> {
         }
 
         /**
+         * Get the mapping between this QueryString and a Show, if any has been established.
+         *
+         * @return show the Show to map this QueryString to
+         */
+        synchronized Show getMatchedShow() {
+            return matchedShow;
+        }
+
+        /**
          * Factory-style method to obtain a QueryString.  If an object has already been created
          * for the query string we need for the found name, re-use it.
          */
@@ -184,6 +193,15 @@ public class ShowName implements Comparable<ShowName> {
      */
     public boolean setShow(Show matchedShow) {
         return queryString.setShow(matchedShow);
+    }
+
+    /**
+     * Get the mapping between this ShowName and a Show, if any has been established.
+     *
+     * @return show the Show to map this ShowName to
+     */
+    synchronized Show getMatchedShow() {
+        return queryString.getMatchedShow();
     }
 
     /**
