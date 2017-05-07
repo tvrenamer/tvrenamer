@@ -6,136 +6,712 @@ import static org.junit.Assert.assertTrue;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import org.tvrenamer.model.EpisodeTestData;
 import org.tvrenamer.model.FileEpisode;
 
 import java.util.LinkedList;
 import java.util.List;
 
 public class TVRenamerTest {
-    public static final List<TestInput> values = new LinkedList<>();
+    public static final List<EpisodeTestData> values = new LinkedList<>();
 
     @BeforeClass
-    public static void setupValues() {
-        values.add(new TestInput("game.of.thrones.5x01.mp4", "game.of.thrones.", "5", "1", ""));
-        values.add(new TestInput("24.s08.e01.720p.hdtv.x264-immerse.mkv", "24.", "8", "1", "720p"));
-        values.add(new TestInput("24.S07.E18.720p.BlueRay.x264-SiNNERS.mkv", "24.", "7", "18", "720p"));
-        values.add(new TestInput("human.target.2010.s01.e02.720p.hdtv.x264-2hd.mkv", "human.target.2010.",
-                                 "1", "2", "720p"));
-        values.add(new TestInput("dexter.407.720p.hdtv.x264-sys.mkv", "dexter.", "4", "7", "720p"));
-        values.add(new TestInput("JAG.S10E01.DVDRip.XviD-P0W4DVD.avi", "JAG.", "10", "1", ""));
-        values.add(new TestInput("Lost.S06E05.Lighthouse.DD51.720p.WEB-DL.AVC-FUSiON.mkv", "Lost.", "6", "5",
-                                 "720p"));
-        values.add(new TestInput("warehouse.13.s1e01.720p.hdtv.x264-dimension.mkv", "warehouse.13.", "1",
-                                 "1", "720p"));
-        values.add(new TestInput("one.tree.hill.s07e14.hdtv.xvid-fqm.avi", "one.tree.hill.", "7", "14", ""));
-        values.add(new TestInput("gossip.girl.s03e15.hdtv.xvid-fqm.avi", "gossip.girl.", "3", "15", ""));
-        values.add(new TestInput("smallville.s09e14.hdtv.xvid-xii.avi", "smallville.", "9", "14", ""));
-        values.add(new TestInput("smallville.s09e15.hdtv.xvid-2hd.avi", "smallville.", "9", "15", ""));
-        values.add(new TestInput("the.big.bang.theory.s03e18.720p.hdtv.x264-ctu.mkv", "the.big.bang.theory.",
-                                 "3", "18", "720p"));
-        values.add(new TestInput("castle.2009.s01e09.720p.hdtv.x264-ctu.mkv", "castle.2009.", "1", "9",
-                                 "720p"));
-        values.add(new TestInput("/TV/Dexter/S05E05 First Blood.mkv", "Dexter ", "5", "5", ""));
-        values.add(new TestInput("/TV/Lost/Lost [2x07].mkv", "Lost [", "2", "7", ""));
-        values.add(new TestInput("American.Dad.S09E17.HDTV.x264-2HD.mp4", "American.Dad.", "9", "17", ""));
-        values.add(new TestInput("Californication.S07E04.HDTV.x264-2HD.mp4", "Californication.", "7", "4",
-                                 ""));
-        values.add(new TestInput("Continuum.S03E07.HDTV.x264-2HD.mp4", "Continuum.", "3", "7", ""));
-        values.add(new TestInput("Elementary.S02E23.HDTV.x264-LOL.mp4", "Elementary.", "2", "23", ""));
-        values.add(new TestInput("Family.Guy.S12E19.HDTV.x264-2HD.mp4", "Family.Guy.", "12", "19", ""));
-        values.add(new TestInput("Fargo.S01E01.HDTV.x264-2HD.mp4", "Fargo.", "1", "1", ""));
-        values.add(new TestInput("Girls.S03E11.HDTV.x264-KILLERS.mp4", "Girls.", "3", "11", ""));
-        values.add(new TestInput("Grimm.S03E19.HDTV.x264-LOL.mp4", "Grimm.", "3", "19", ""));
-        values.add(new TestInput("House.Of.Cards.2013.S01E06.HDTV.x264-EVOLVE.mp4", "House.Of.Cards.2013.",
-                                 "1", "6", ""));
-        values.add(new TestInput("Modern.Family.S05E12.HDTV.x264-EXCELLENCE.mp4", "Modern.Family.", "5",
-                                 "12", ""));
-        values.add(new TestInput("New.Girl.S03E23.HDTV.x264-LOL.mp4", "New.Girl.", "3", "23", ""));
-        values.add(new TestInput("Nurse.Jackie.S06E04.HDTV.x264-2HD.mp4", "Nurse.Jackie.", "6", "4", ""));
-        values.add(new TestInput("Offspring - S05E01.mp4", "Offspring - ", "5", "1", ""));
-        values.add(new TestInput("Reign.2013.S01E20.HDTV.x264-2HD.mp4", "Reign.2013.", "1", "20", ""));
-        values.add(new TestInput("Robot.Chicken.S07E04.PROPER.HDTV.x264-W4F.mp4", "Robot.Chicken.", "7", "4",
-                                 ""));
-        values.add(new TestInput("Supernatural.S09E21.HDTV.x264-LOL.mp4", "Supernatural.", "9", "21", ""));
-        values.add(new TestInput("The.Americans.2013.S02E10.HDTV.x264-LOL.mp4", "The.Americans.2013.", "2",
-                                 "10", ""));
-        values.add(new TestInput("The.Big.Bang.Theory.S07E23.HDTV.x264-LOL.mp4", "The.Big.Bang.Theory.", "7",
-                                 "23", ""));
-        values.add(new TestInput("The.Good.Wife.S05E20.HDTV.x264-LOL.mp4", "The.Good.Wife.", "5", "20", ""));
-        values.add(new TestInput("The.Walking.Dead.S04E16.PROPER.HDTV.x264-2HD.mp4", "The.Walking.Dead.",
-                                 "4", "16", ""));
-        values.add(new TestInput("Veep.S03E05.HDTV.x264-KILLERS.mp4", "Veep.", "3", "5", ""));
-        values.add(new TestInput("Witches.of.East.End.S01E01.PROPER.HDTV.x264-2HD.mp4",
-                                 "Witches.of.East.End.", "1", "1", ""));
-        values.add(new TestInput("Warehouse.13.S05E04.HDTV.x264-2HD.mp4", "Warehouse.13.", "5", "4", ""));
-        values.add(new TestInput("the.100.208.hdtv-lol.mp4", "the.100.", "2", "8", ""));
-        values.add(new TestInput("firefly.1x01.hdtv-lol.mp4", "firefly.", "1", "1", ""));
-        values.add(new TestInput("firefly.1x02.hdtv-lol.mp4", "firefly.", "1", "2", ""));
-        values.add(new TestInput("firefly.1x03.hdtv-lol.mp4", "firefly.", "1", "3", ""));
-        values.add(new TestInput("firefly.1x04.hdtv-lol.mp4", "firefly.", "1", "4", ""));
-        values.add(new TestInput("firefly.1x05.hdtv-lol.mp4", "firefly.", "1", "5", ""));
-        values.add(new TestInput("firefly.1x06.hdtv-lol.mp4", "firefly.", "1", "6", ""));
-        values.add(new TestInput("firefly.1x07.hdtv-lol.mp4", "firefly.", "1", "7", ""));
-        values.add(new TestInput("firefly.1x08.hdtv-lol.mp4", "firefly.", "1", "8", ""));
-        values.add(new TestInput("firefly.1x09.hdtv-lol.mp4", "firefly.", "1", "9", ""));
-        values.add(new TestInput("firefly.1x10.hdtv-lol.mp4", "firefly.", "1", "10", ""));
-        values.add(new TestInput("firefly.1x11.hdtv-lol.mp4", "firefly.", "1", "11", ""));
-        values.add(new TestInput("firefly.1x12.hdtv-lol.mp4", "firefly.", "1", "12", ""));
-        values.add(new TestInput("firefly.1x13.hdtv-lol.mp4", "firefly.", "1", "13", ""));
-        values.add(new TestInput("firefly.1x14.hdtv-lol.mp4", "firefly.", "1", "14", ""));
-        values.add(new TestInput("Strike.Back.S01E01.Mini.720p.HDTV.DD5.1.x264.mkv", "Strike.Back.", "1",
-                                 "1", "720p"));
-        values.add(new TestInput("law.and.order.svu.1705.hdtv-lol", "law.and.order.svu.", "17", "05", ""));
-        values.add(new TestInput("ncis.1304.hdtv-lol", "ncis.", "13", "04", ""));
-        values.add(new TestInput("Marvels.Agents.of.S.H.I.E.L.D.S03E03.HDTV.x264-FLEET",
-                                 "Marvels.Agents.of.S.H.I.E.L.D.", "3", "3", ""));
-        values.add(new TestInput("Marvels.Agents.of.S.H.I.E.L.D.S03E10.HDTV.x264-KILLERS",
-                                 "Marvels.Agents.of.S.H.I.E.L.D.", "3", "10", ""));
-        values.add(new TestInput("Nip.Tuck.S06E01.720p.HDTV.X264-DIMENSION.mkv", "Nip.Tuck.", "6", "1",
-                                 "720p"));
-        values.add(new TestInput("The.Big.Bang.Theory.S10E04.720p.HDTV.X264-DIMENSION[ettv].mkv",
-                                 "The.Big.Bang.Theory.", "10", "4", "720p"));
-        values.add(new TestInput("Lucifer.S02E03.720p.HDTV.X264-DIMENSION[ettv].mkv", "Lucifer.", "2", "3",
-                                 "720p"));
-        values.add(new TestInput("Marvels.Agents.of.S.H.I.E.L.D.S04E03.1080p.HDTV.x264-KILLERS[ettv].mkv",
-                                 "Marvels.Agents.of.S.H.I.E.L.D.", "4", "3", "1080p"));
-        values.add(new TestInput("Supernatural.S11E22.1080p.HDTV.X264-DIMENSION[ettv].mkv", "Supernatural.",
-                                 "11", "22", "1080p"));
-        values.add(new TestInput("Supernatural.S11E22.HDTV.X264-DIMENSION.720p.[ettv].mkv", "Supernatural.",
-                                 "11", "22", "720p"));
-        values.add(new TestInput("Channel.Zero.S01E01.480p.HDTV.X264-DIMENSION[ettv].mkv", "Channel.Zero.",
-                                 "1", "1", "480p"));
-        values.add(new TestInput("NCIS.S14E04.720p.HDTV.X264-DIMENSION[ettv].mkv", "NCIS.", "14", "4",
-                                 "720p"));
+    public static void setupValues01() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("game.of.thrones.5x01.mp4")
+                   .filenameShow("game.of.thrones.")
+                   .seasonNumString("5")
+                   .episodeNumString("1")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues02() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("24.s08.e01.720p.hdtv.x264-immerse.mkv")
+                   .filenameShow("24.")
+                   .seasonNumString("8")
+                   .episodeNumString("1")
+                   .episodeResolution("720p")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues03() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("24.S07.E18.720p.BlueRay.x264-SiNNERS.mkv")
+                   .filenameShow("24.")
+                   .seasonNumString("7")
+                   .episodeNumString("18")
+                   .episodeResolution("720p")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues04() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("human.target.2010.s01.e02.720p.hdtv.x264-2hd.mkv")
+                   .filenameShow("human.target.2010.")
+                   .seasonNumString("1")
+                   .episodeNumString("2")
+                   .episodeResolution("720p")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues05() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("dexter.407.720p.hdtv.x264-sys.mkv")
+                   .filenameShow("dexter.")
+                   .seasonNumString("4")
+                   .episodeNumString("7")
+                   .episodeResolution("720p")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues06() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("JAG.S10E01.DVDRip.XviD-P0W4DVD.avi")
+                   .filenameShow("JAG.")
+                   .seasonNumString("10")
+                   .episodeNumString("1")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues07() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Lost.S06E05.Lighthouse.DD51.720p.WEB-DL.AVC-FUSiON.mkv")
+                   .filenameShow("Lost.")
+                   .seasonNumString("6")
+                   .episodeNumString("5")
+                   .episodeResolution("720p")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues08() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("warehouse.13.s1e01.720p.hdtv.x264-dimension.mkv")
+                   .filenameShow("warehouse.13.")
+                   .seasonNumString("1")
+                   .episodeNumString("1")
+                   .episodeResolution("720p")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues09() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("one.tree.hill.s07e14.hdtv.xvid-fqm.avi")
+                   .filenameShow("one.tree.hill.")
+                   .seasonNumString("7")
+                   .episodeNumString("14")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues10() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("gossip.girl.s03e15.hdtv.xvid-fqm.avi")
+                   .filenameShow("gossip.girl.")
+                   .seasonNumString("3")
+                   .episodeNumString("15")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues11() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("smallville.s09e14.hdtv.xvid-xii.avi")
+                   .filenameShow("smallville.")
+                   .seasonNumString("9")
+                   .episodeNumString("14")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues12() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("smallville.s09e15.hdtv.xvid-2hd.avi")
+                   .filenameShow("smallville.")
+                   .seasonNumString("9")
+                   .episodeNumString("15")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues13() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("the.big.bang.theory.s03e18.720p.hdtv.x264-ctu.mkv")
+                   .filenameShow("the.big.bang.theory.")
+                   .seasonNumString("3")
+                   .episodeNumString("18")
+                   .episodeResolution("720p")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues14() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("castle.2009.s01e09.720p.hdtv.x264-ctu.mkv")
+                   .filenameShow("castle.2009.")
+                   .seasonNumString("1")
+                   .episodeNumString("9")
+                   .episodeResolution("720p")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues15() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("/TV/Dexter/S05E05 First Blood.mkv")
+                   .filenameShow("Dexter ")
+                   .seasonNumString("5")
+                   .episodeNumString("5")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues16() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("/TV/Lost/Lost [2x07].mkv")
+                   .filenameShow("Lost [")
+                   .seasonNumString("2")
+                   .episodeNumString("7")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues17() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("American.Dad.S09E17.HDTV.x264-2HD.mp4")
+                   .filenameShow("American.Dad.")
+                   .seasonNumString("9")
+                   .episodeNumString("17")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues18() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Californication.S07E04.HDTV.x264-2HD.mp4")
+                   .filenameShow("Californication.")
+                   .seasonNumString("7")
+                   .episodeNumString("4")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues19() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Continuum.S03E07.HDTV.x264-2HD.mp4")
+                   .filenameShow("Continuum.")
+                   .seasonNumString("3")
+                   .episodeNumString("7")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues20() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Elementary.S02E23.HDTV.x264-LOL.mp4")
+                   .filenameShow("Elementary.")
+                   .seasonNumString("2")
+                   .episodeNumString("23")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues21() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Family.Guy.S12E19.HDTV.x264-2HD.mp4")
+                   .filenameShow("Family.Guy.")
+                   .seasonNumString("12")
+                   .episodeNumString("19")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues22() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Fargo.S01E01.HDTV.x264-2HD.mp4")
+                   .filenameShow("Fargo.")
+                   .seasonNumString("1")
+                   .episodeNumString("1")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues23() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Girls.S03E11.HDTV.x264-KILLERS.mp4")
+                   .filenameShow("Girls.")
+                   .seasonNumString("3")
+                   .episodeNumString("11")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues24() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Grimm.S03E19.HDTV.x264-LOL.mp4")
+                   .filenameShow("Grimm.")
+                   .seasonNumString("3")
+                   .episodeNumString("19")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues25() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("House.Of.Cards.2013.S01E06.HDTV.x264-EVOLVE.mp4")
+                   .filenameShow("House.Of.Cards.2013.")
+                   .seasonNumString("1")
+                   .episodeNumString("6")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues26() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Modern.Family.S05E12.HDTV.x264-EXCELLENCE.mp4")
+                   .filenameShow("Modern.Family.")
+                   .seasonNumString("5")
+                   .episodeNumString("12")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues27() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("New.Girl.S03E23.HDTV.x264-LOL.mp4")
+                   .filenameShow("New.Girl.")
+                   .seasonNumString("3")
+                   .episodeNumString("23")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues28() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Nurse.Jackie.S06E04.HDTV.x264-2HD.mp4")
+                   .filenameShow("Nurse.Jackie.")
+                   .seasonNumString("6")
+                   .episodeNumString("4")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues29() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Offspring - S05E01.mp4")
+                   .filenameShow("Offspring - ")
+                   .seasonNumString("5")
+                   .episodeNumString("1")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues30() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Reign.2013.S01E20.HDTV.x264-2HD.mp4")
+                   .filenameShow("Reign.2013.")
+                   .seasonNumString("1")
+                   .episodeNumString("20")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues31() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Robot.Chicken.S07E04.PROPER.HDTV.x264-W4F.mp4")
+                   .filenameShow("Robot.Chicken.")
+                   .seasonNumString("7")
+                   .episodeNumString("4")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues32() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Supernatural.S09E21.HDTV.x264-LOL.mp4")
+                   .filenameShow("Supernatural.")
+                   .seasonNumString("9")
+                   .episodeNumString("21")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues33() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("The.Americans.2013.S02E10.HDTV.x264-LOL.mp4")
+                   .filenameShow("The.Americans.2013.")
+                   .seasonNumString("2")
+                   .episodeNumString("10")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues34() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("The.Big.Bang.Theory.S07E23.HDTV.x264-LOL.mp4")
+                   .filenameShow("The.Big.Bang.Theory.")
+                   .seasonNumString("7")
+                   .episodeNumString("23")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues35() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("The.Good.Wife.S05E20.HDTV.x264-LOL.mp4")
+                   .filenameShow("The.Good.Wife.")
+                   .seasonNumString("5")
+                   .episodeNumString("20")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues36() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("The.Walking.Dead.S04E16.PROPER.HDTV.x264-2HD.mp4")
+                   .filenameShow("The.Walking.Dead.")
+                   .seasonNumString("4")
+                   .episodeNumString("16")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues37() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Veep.S03E05.HDTV.x264-KILLERS.mp4")
+                   .filenameShow("Veep.")
+                   .seasonNumString("3")
+                   .episodeNumString("5")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues38() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Witches.of.East.End.S01E01.PROPER.HDTV.x264-2HD.mp4")
+                   .filenameShow("Witches.of.East.End.")
+                   .seasonNumString("1")
+                   .episodeNumString("1")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues39() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Warehouse.13.S05E04.HDTV.x264-2HD.mp4")
+                   .filenameShow("Warehouse.13.")
+                   .seasonNumString("5")
+                   .episodeNumString("4")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues40() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("the.100.208.hdtv-lol.mp4")
+                   .filenameShow("the.100.")
+                   .seasonNumString("2")
+                   .episodeNumString("8")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues41() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("firefly.1x01.hdtv-lol.mp4")
+                   .filenameShow("firefly.")
+                   .seasonNumString("1")
+                   .episodeNumString("1")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues42() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("firefly.1x02.hdtv-lol.mp4")
+                   .filenameShow("firefly.")
+                   .seasonNumString("1")
+                   .episodeNumString("2")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues43() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("firefly.1x03.hdtv-lol.mp4")
+                   .filenameShow("firefly.")
+                   .seasonNumString("1")
+                   .episodeNumString("3")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues44() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("firefly.1x04.hdtv-lol.mp4")
+                   .filenameShow("firefly.")
+                   .seasonNumString("1")
+                   .episodeNumString("4")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues45() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("firefly.1x05.hdtv-lol.mp4")
+                   .filenameShow("firefly.")
+                   .seasonNumString("1")
+                   .episodeNumString("5")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues46() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("firefly.1x06.hdtv-lol.mp4")
+                   .filenameShow("firefly.")
+                   .seasonNumString("1")
+                   .episodeNumString("6")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues47() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("firefly.1x07.hdtv-lol.mp4")
+                   .filenameShow("firefly.")
+                   .seasonNumString("1")
+                   .episodeNumString("7")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues48() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("firefly.1x08.hdtv-lol.mp4")
+                   .filenameShow("firefly.")
+                   .seasonNumString("1")
+                   .episodeNumString("8")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues49() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("firefly.1x09.hdtv-lol.mp4")
+                   .filenameShow("firefly.")
+                   .seasonNumString("1")
+                   .episodeNumString("9")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues50() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("firefly.1x10.hdtv-lol.mp4")
+                   .filenameShow("firefly.")
+                   .seasonNumString("1")
+                   .episodeNumString("10")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues51() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("firefly.1x11.hdtv-lol.mp4")
+                   .filenameShow("firefly.")
+                   .seasonNumString("1")
+                   .episodeNumString("11")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues52() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("firefly.1x12.hdtv-lol.mp4")
+                   .filenameShow("firefly.")
+                   .seasonNumString("1")
+                   .episodeNumString("12")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues53() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("firefly.1x13.hdtv-lol.mp4")
+                   .filenameShow("firefly.")
+                   .seasonNumString("1")
+                   .episodeNumString("13")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues54() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("firefly.1x14.hdtv-lol.mp4")
+                   .filenameShow("firefly.")
+                   .seasonNumString("1")
+                   .episodeNumString("14")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues55() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Strike.Back.S01E01.Mini.720p.HDTV.DD5.1.x264.mkv")
+                   .filenameShow("Strike.Back.")
+                   .seasonNumString("1")
+                   .episodeNumString("1")
+                   .episodeResolution("720p")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues56() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("law.and.order.svu.1705.hdtv-lol")
+                   .filenameShow("law.and.order.svu.")
+                   .seasonNumString("17")
+                   .episodeNumString("05")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues57() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("ncis.1304.hdtv-lol")
+                   .filenameShow("ncis.")
+                   .seasonNumString("13")
+                   .episodeNumString("04")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues58() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Marvels.Agents.of.S.H.I.E.L.D.S03E03.HDTV.x264-FLEET")
+                   .filenameShow("Marvels.Agents.of.S.H.I.E.L.D.")
+                   .seasonNumString("3")
+                   .episodeNumString("3")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues59() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Marvels.Agents.of.S.H.I.E.L.D.S03E10.HDTV.x264-KILLERS")
+                   .filenameShow("Marvels.Agents.of.S.H.I.E.L.D.")
+                   .seasonNumString("3")
+                   .episodeNumString("10")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues60() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Nip.Tuck.S06E01.720p.HDTV.X264-DIMENSION.mkv")
+                   .filenameShow("Nip.Tuck.")
+                   .seasonNumString("6")
+                   .episodeNumString("1")
+                   .episodeResolution("720p")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues61() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("The.Big.Bang.Theory.S10E04.720p.HDTV.X264-DIMENSION[ettv].mkv")
+                   .filenameShow("The.Big.Bang.Theory.")
+                   .seasonNumString("10")
+                   .episodeNumString("4")
+                   .episodeResolution("720p")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues62() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Lucifer.S02E03.720p.HDTV.X264-DIMENSION[ettv].mkv")
+                   .filenameShow("Lucifer.")
+                   .seasonNumString("2")
+                   .episodeNumString("3")
+                   .episodeResolution("720p")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues63() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Marvels.Agents.of.S.H.I.E.L.D.S04E03.1080p.HDTV.x264-KILLERS[ettv].mkv")
+                   .filenameShow("Marvels.Agents.of.S.H.I.E.L.D.")
+                   .seasonNumString("4")
+                   .episodeNumString("3")
+                   .episodeResolution("1080p")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues64() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Supernatural.S11E22.1080p.HDTV.X264-DIMENSION[ettv].mkv")
+                   .filenameShow("Supernatural.")
+                   .seasonNumString("11")
+                   .episodeNumString("22")
+                   .episodeResolution("1080p")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues65() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Supernatural.S11E22.HDTV.X264-DIMENSION.720p.[ettv].mkv")
+                   .filenameShow("Supernatural.")
+                   .seasonNumString("11")
+                   .episodeNumString("22")
+                   .episodeResolution("720p")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues66() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Channel.Zero.S01E01.480p.HDTV.X264-DIMENSION[ettv].mkv")
+                   .filenameShow("Channel.Zero.")
+                   .seasonNumString("1")
+                   .episodeNumString("1")
+                   .episodeResolution("480p")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues67() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("NCIS.S14E04.720p.HDTV.X264-DIMENSION[ettv].mkv")
+                   .filenameShow("NCIS.")
+                   .seasonNumString("14")
+                   .episodeNumString("4")
+                   .episodeResolution("720p")
+                   .build());
     }
 
     @Test
     public void testParseFileName() {
-        for (TestInput testInput : values) {
-            FileEpisode retval = new FileEpisode(testInput.input);
+        for (EpisodeTestData testInput : values) {
+            String input = testInput.inputFilename;
+            FileEpisode retval = new FileEpisode(input);
             assertTrue(TVRenamer.parseFilename(retval));
-            assertEquals(testInput.input, testInput.showName, retval.getFilenameShow());
-            assertEquals(testInput.input, Integer.parseInt(testInput.season), retval.getSeasonNum());
-            assertEquals(testInput.input, Integer.parseInt(testInput.episode), retval.getEpisodeNum());
-            assertEquals(testInput.input, testInput.episodeResolution, retval.getFilenameResolution());
-        }
-    }
-
-    private static class TestInput {
-        public final String input;
-        public final String showName;
-        public final String season;
-        public final String episode;
-        public final String episodeResolution;
-
-        public TestInput(String input, String showName, String season, String episode,
-                         String episodeResolution)
-        {
-            this.input = input;
-            this.showName = showName;
-            this.season = season;
-            this.episode = episode;
-            this.episodeResolution = episodeResolution;
+            assertEquals(input, testInput.filenameShow, retval.getFilenameShow());
+            assertEquals(input, Integer.parseInt(testInput.seasonNumString), retval.getSeasonNum());
+            assertEquals(input, Integer.parseInt(testInput.episodeNumString), retval.getEpisodeNum());
+            assertEquals(input, testInput.episodeResolution, retval.getFilenameResolution());
         }
     }
 }
