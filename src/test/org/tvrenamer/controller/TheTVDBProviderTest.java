@@ -28,6 +28,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import org.tvrenamer.model.Episode;
+import org.tvrenamer.model.EpisodeTestData;
 import org.tvrenamer.model.LocalShow;
 import org.tvrenamer.model.Show;
 import org.tvrenamer.model.ShowStore;
@@ -121,21 +122,7 @@ public class TheTVDBProviderTest {
         assertEquals(dvdName, s01e02.getTitle());
     }
 
-    private static class TestInput {
-        public final String show;
-        public final int seasonNum;
-        public final int episodeNum;
-        public final String episodeTitle;
-
-        public TestInput(String show, int seasonNum, int episodeNum, String episodeTitle) {
-            this.show = show;
-            this.seasonNum = seasonNum;
-            this.episodeNum = episodeNum;
-            this.episodeTitle = episodeTitle;
-        }
-    }
-
-    public static final List<TestInput> values = new LinkedList<>();
+    public static final List<EpisodeTestData> values = new LinkedList<>();
 
     /*
      * Below this comment is a series of another 60 or so episode title tests.  But
@@ -154,75 +141,665 @@ public class TheTVDBProviderTest {
      *
      */
     @BeforeClass
-    public static void setupValues() {
-        values.add(new TestInput("game of thrones", 5, 1, "The Wars to Come"));
-        values.add(new TestInput("24", 8, 1, "Day 8: 4:00 P.M. - 5:00 P.M."));
-        values.add(new TestInput("24", 7, 18, "Day 7: 1:00 A.M. - 2:00 A.M."));
-        values.add(new TestInput("human target 2010", 1, 2, "Rewind"));
-        values.add(new TestInput("dexter", 4, 7, "Slack Tide"));
-        values.add(new TestInput("jag", 10, 1, "Hail and Farewell, Part II (2)"));
-        values.add(new TestInput("lost", 6, 5, "Lighthouse"));
-        values.add(new TestInput("warehouse 13", 1, 1, "Pilot"));
-        values.add(new TestInput("one tree hill", 7, 14, "Family Affair"));
-        values.add(new TestInput("gossip girl", 3, 15, "The Sixteen Year Old Virgin"));
-        values.add(new TestInput("smallville", 9, 14, "Conspiracy"));
-        values.add(new TestInput("smallville", 9, 15, "Escape"));
-        values.add(new TestInput("the big bang theory", 3, 18, "The Pants Alternative"));
-        values.add(new TestInput("castle 2009", 1, 9, "Little Girl Lost"));
-        values.add(new TestInput("dexter", 5, 5, "First Blood"));
-        values.add(new TestInput("lost", 2, 7, "The Other 48 Days"));
-        values.add(new TestInput("american dad", 9, 17,
-                                 "The Full Cognitive Redaction of Avery Bullock by the Coward Stan Smith"));
-        values.add(new TestInput("californication", 7, 4, "Dicks"));
-        values.add(new TestInput("continuum", 3, 7, "Waning Minutes"));
-        values.add(new TestInput("elementary", 2, 23, "Art in the Blood"));
-        values.add(new TestInput("family guy", 12, 19, "Meg Stinks!"));
-        values.add(new TestInput("fargo", 1, 1, "The Crocodile's Dilemma"));
-        values.add(new TestInput("girls", 3, 11, "I Saw You"));
-        values.add(new TestInput("grimm", 3, 19, "Nobody Knows the Trubel I've Seen"));
-        values.add(new TestInput("house of cards 2013", 1, 6, "Chapter 6"));
-        values.add(new TestInput("modern family", 5, 12, "Under Pressure"));
-        values.add(new TestInput("new girl", 3, 23, "Cruise"));
-        values.add(new TestInput("nurse jackie", 6, 4, "Jungle Love"));
-        values.add(new TestInput("offspring", 5, 1, "Back in the Game"));
-        values.add(new TestInput("reign 2013", 1, 20, "Higher Ground"));
-        values.add(new TestInput("robot chicken", 7, 4, "Rebel Appliance"));
-        values.add(new TestInput("supernatural", 9, 21, "King of the Damned"));
-        values.add(new TestInput("the americans 2013", 2, 10, "Yousaf"));
-        values.add(new TestInput("the big bang theory", 7, 23, "The Gorilla Dissolution"));
-        values.add(new TestInput("the good wife", 5, 20, "The Deep Web"));
-        values.add(new TestInput("the walking dead", 4, 16, "A"));
-        values.add(new TestInput("veep", 3, 5, "Fishing"));
-        values.add(new TestInput("witches of east end", 1, 1, "Pilot"));
-        values.add(new TestInput("warehouse 13", 5, 4, "Savage Seduction"));
-        values.add(new TestInput("the 100", 2, 8, "Spacewalker"));
-        values.add(new TestInput("firefly", 1, 1, "Serenity"));
-        values.add(new TestInput("firefly", 1, 2, "The Train Job"));
-        values.add(new TestInput("firefly", 1, 3, "Bushwhacked"));
-        values.add(new TestInput("firefly", 1, 4, "Shindig"));
-        values.add(new TestInput("firefly", 1, 5, "Safe"));
-        values.add(new TestInput("firefly", 1, 6, "Our Mrs. Reynolds"));
-        values.add(new TestInput("firefly", 1, 7, "Jaynestown"));
-        values.add(new TestInput("firefly", 1, 8, "Out of Gas"));
-        values.add(new TestInput("firefly", 1, 9, "Ariel"));
-        values.add(new TestInput("firefly", 1, 10, "War Stories"));
-        values.add(new TestInput("firefly", 1, 11, "Trash"));
-        values.add(new TestInput("firefly", 1, 12, "The Message"));
-        values.add(new TestInput("firefly", 1, 13, "Heart of Gold"));
-        values.add(new TestInput("firefly", 1, 14, "Objects in Space"));
-        values.add(new TestInput("strike back", 1, 1, "Chris Ryan's Strike Back, Episode 1"));
-        values.add(new TestInput("law and order svu", 17, 05, "Community Policing"));
-        values.add(new TestInput("ncis", 13, 04, "Double Trouble"));
-        values.add(new TestInput("marvels agents of shield", 3, 3, "A Wanted (Inhu)man"));
-        values.add(new TestInput("marvels agents of shield", 3, 10, "Maveth"));
-        values.add(new TestInput("nip tuck", 6, 1, "Don Hoberman"));
-        values.add(new TestInput("the big bang theory", 10, 4, "The Cohabitation Experimentation"));
-        values.add(new TestInput("lucifer", 2, 3, "Sin-Eater"));
-        values.add(new TestInput("marvels agents of shield", 4, 3, "Uprising"));
-        values.add(new TestInput("supernatural", 11, 22, "We Happy Few"));
-        values.add(new TestInput("channel zero", 1, 1, "You Have to Go Inside"));
-        values.add(new TestInput("ncis", 14, 4, "Love Boat"));
+    public static void setupValues01() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("game of thrones")
+                   .seasonNum(5)
+                   .episodeNum(1)
+                   .episodeTitle("The Wars to Come")
+                   .build());
     }
+
+    @BeforeClass
+    public static void setupValues02() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("24")
+                   .seasonNum(8)
+                   .episodeNum(1)
+                   .episodeTitle("Day 8: 4:00 P.M. - 5:00 P.M.")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues03() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("24")
+                   .seasonNum(7)
+                   .episodeNum(18)
+                   .episodeTitle("Day 7: 1:00 A.M. - 2:00 A.M.")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues04() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("human target 2010")
+                   .seasonNum(1)
+                   .episodeNum(2)
+                   .episodeTitle("Rewind")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues05() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("dexter")
+                   .seasonNum(4)
+                   .episodeNum(7)
+                   .episodeTitle("Slack Tide")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues06() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("jag")
+                   .seasonNum(10)
+                   .episodeNum(1)
+                   .episodeTitle("Hail and Farewell, Part II (2)")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues07() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("lost")
+                   .seasonNum(6)
+                   .episodeNum(5)
+                   .episodeTitle("Lighthouse")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues08() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("warehouse 13")
+                   .seasonNum(1)
+                   .episodeNum(1)
+                   .episodeTitle("Pilot")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues09() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("one tree hill")
+                   .seasonNum(7)
+                   .episodeNum(14)
+                   .episodeTitle("Family Affair")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues10() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("gossip girl")
+                   .seasonNum(3)
+                   .episodeNum(15)
+                   .episodeTitle("The Sixteen Year Old Virgin")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues11() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("smallville")
+                   .seasonNum(9)
+                   .episodeNum(14)
+                   .episodeTitle("Conspiracy")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues12() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("smallville")
+                   .seasonNum(9)
+                   .episodeNum(15)
+                   .episodeTitle("Escape")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues13() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("the big bang theory")
+                   .seasonNum(3)
+                   .episodeNum(18)
+                   .episodeTitle("The Pants Alternative")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues14() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("castle 2009")
+                   .seasonNum(1)
+                   .episodeNum(9)
+                   .episodeTitle("Little Girl Lost")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues15() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("dexter")
+                   .seasonNum(5)
+                   .episodeNum(5)
+                   .episodeTitle("First Blood")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues16() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("lost")
+                   .seasonNum(2)
+                   .episodeNum(7)
+                   .episodeTitle("The Other 48 Days")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues17() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("american dad")
+                   .seasonNum(9)
+                   .episodeNum(17)
+                   .episodeTitle("The Full Cognitive Redaction of Avery Bullock by the Coward Stan Smith")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues18() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("californication")
+                   .seasonNum(7)
+                   .episodeNum(4)
+                   .episodeTitle("Dicks")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues19() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("continuum")
+                   .seasonNum(3)
+                   .episodeNum(7)
+                   .episodeTitle("Waning Minutes")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues20() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("elementary")
+                   .seasonNum(2)
+                   .episodeNum(23)
+                   .episodeTitle("Art in the Blood")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues21() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("family guy")
+                   .seasonNum(12)
+                   .episodeNum(19)
+                   .episodeTitle("Meg Stinks!")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues22() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("fargo")
+                   .seasonNum(1)
+                   .episodeNum(1)
+                   .episodeTitle("The Crocodile's Dilemma")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues23() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("girls")
+                   .seasonNum(3)
+                   .episodeNum(11)
+                   .episodeTitle("I Saw You")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues24() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("grimm")
+                   .seasonNum(3)
+                   .episodeNum(19)
+                   .episodeTitle("Nobody Knows the Trubel I've Seen")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues25() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("house of cards 2013")
+                   .seasonNum(1)
+                   .episodeNum(6)
+                   .episodeTitle("Chapter 6")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues26() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("modern family")
+                   .seasonNum(5)
+                   .episodeNum(12)
+                   .episodeTitle("Under Pressure")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues27() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("new girl")
+                   .seasonNum(3)
+                   .episodeNum(23)
+                   .episodeTitle("Cruise")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues28() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("nurse jackie")
+                   .seasonNum(6)
+                   .episodeNum(4)
+                   .episodeTitle("Jungle Love")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues29() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("offspring")
+                   .seasonNum(5)
+                   .episodeNum(1)
+                   .episodeTitle("Back in the Game")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues30() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("reign 2013")
+                   .seasonNum(1)
+                   .episodeNum(20)
+                   .episodeTitle("Higher Ground")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues31() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("robot chicken")
+                   .seasonNum(7)
+                   .episodeNum(4)
+                   .episodeTitle("Rebel Appliance")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues32() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("supernatural")
+                   .seasonNum(9)
+                   .episodeNum(21)
+                   .episodeTitle("King of the Damned")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues33() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("the americans 2013")
+                   .seasonNum(2)
+                   .episodeNum(10)
+                   .episodeTitle("Yousaf")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues34() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("the big bang theory")
+                   .seasonNum(7)
+                   .episodeNum(23)
+                   .episodeTitle("The Gorilla Dissolution")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues35() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("the good wife")
+                   .seasonNum(5)
+                   .episodeNum(20)
+                   .episodeTitle("The Deep Web")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues36() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("the walking dead")
+                   .seasonNum(4)
+                   .episodeNum(16)
+                   .episodeTitle("A")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues37() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("veep")
+                   .seasonNum(3)
+                   .episodeNum(5)
+                   .episodeTitle("Fishing")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues38() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("witches of east end")
+                   .seasonNum(1)
+                   .episodeNum(1)
+                   .episodeTitle("Pilot")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues39() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("warehouse 13")
+                   .seasonNum(5)
+                   .episodeNum(4)
+                   .episodeTitle("Savage Seduction")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues40() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("the 100")
+                   .seasonNum(2)
+                   .episodeNum(8)
+                   .episodeTitle("Spacewalker")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues41() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("firefly")
+                   .seasonNum(1)
+                   .episodeNum(1)
+                   .episodeTitle("Serenity")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues42() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("firefly")
+                   .seasonNum(1)
+                   .episodeNum(2)
+                   .episodeTitle("The Train Job")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues43() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("firefly")
+                   .seasonNum(1)
+                   .episodeNum(3)
+                   .episodeTitle("Bushwhacked")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues44() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("firefly")
+                   .seasonNum(1)
+                   .episodeNum(4)
+                   .episodeTitle("Shindig")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues45() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("firefly")
+                   .seasonNum(1)
+                   .episodeNum(5)
+                   .episodeTitle("Safe")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues46() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("firefly")
+                   .seasonNum(1)
+                   .episodeNum(6)
+                   .episodeTitle("Our Mrs. Reynolds")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues47() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("firefly")
+                   .seasonNum(1)
+                   .episodeNum(7)
+                   .episodeTitle("Jaynestown")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues48() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("firefly")
+                   .seasonNum(1)
+                   .episodeNum(8)
+                   .episodeTitle("Out of Gas")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues49() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("firefly")
+                   .seasonNum(1)
+                   .episodeNum(9)
+                   .episodeTitle("Ariel")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues50() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("firefly")
+                   .seasonNum(1)
+                   .episodeNum(10)
+                   .episodeTitle("War Stories")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues51() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("firefly")
+                   .seasonNum(1)
+                   .episodeNum(11)
+                   .episodeTitle("Trash")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues52() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("firefly")
+                   .seasonNum(1)
+                   .episodeNum(12)
+                   .episodeTitle("The Message")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues53() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("firefly")
+                   .seasonNum(1)
+                   .episodeNum(13)
+                   .episodeTitle("Heart of Gold")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues54() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("firefly")
+                   .seasonNum(1)
+                   .episodeNum(14)
+                   .episodeTitle("Objects in Space")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues55() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("strike back")
+                   .seasonNum(1)
+                   .episodeNum(1)
+                   .episodeTitle("Chris Ryan's Strike Back, Episode 1")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues56() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("law and order svu")
+                   .seasonNum(17)
+                   .episodeNum(5)
+                   .episodeTitle("Community Policing")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues57() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("ncis")
+                   .seasonNum(13)
+                   .episodeNum(4)
+                   .episodeTitle("Double Trouble")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues58() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("marvels agents of shield")
+                   .seasonNum(3)
+                   .episodeNum(3)
+                   .episodeTitle("A Wanted (Inhu)man")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues59() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("marvels agents of shield")
+                   .seasonNum(3)
+                   .episodeNum(10)
+                   .episodeTitle("Maveth")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues60() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("nip tuck")
+                   .seasonNum(6)
+                   .episodeNum(1)
+                   .episodeTitle("Don Hoberman")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues61() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("the big bang theory")
+                   .seasonNum(10)
+                   .episodeNum(4)
+                   .episodeTitle("The Cohabitation Experimentation")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues62() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("lucifer")
+                   .seasonNum(2)
+                   .episodeNum(3)
+                   .episodeTitle("Sin-Eater")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues63() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("marvels agents of shield")
+                   .seasonNum(4)
+                   .episodeNum(3)
+                   .episodeTitle("Uprising")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues64() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("supernatural")
+                   .seasonNum(11)
+                   .episodeNum(22)
+                   .episodeTitle("We Happy Few")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues65() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("channel zero")
+                   .seasonNum(1)
+                   .episodeNum(1)
+                   .episodeTitle("You Have to Go Inside")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues66() {
+        values.add(new EpisodeTestData.Builder()
+                   .queryString("ncis")
+                   .seasonNum(14)
+                   .episodeNum(4)
+                   .episodeTitle("Love Boat")
+                   .build());
+    }
+
 
     // Once we have a CompletableFuture, we need to complete it.  There are a few ways, but
     // obviously the simplest is to call complete().  If we simply call the JUnit method
@@ -236,10 +813,10 @@ public class TheTVDBProviderTest {
     // We use a brief failure message as the show title in cases where we detect failure.
     // Just make sure to not add a test case where the actual episode's title is one of
     // the failure messages.  :)
-    private Show testQueryShow(final TestInput testInput, final String showName) {
+    private Show testQueryShow(final EpisodeTestData testInput, final String queryString) {
         try {
             final CompletableFuture<Show> futureShow = new CompletableFuture<>();
-            ShowStore.getShow(showName, new ShowInformationListener() {
+            ShowStore.getShow(queryString, new ShowInformationListener() {
                     @Override
                     public void downloaded(Show show) {
                         futureShow.complete(show);
@@ -252,14 +829,14 @@ public class TheTVDBProviderTest {
                 });
             Show gotShow = futureShow.get(4, TimeUnit.SECONDS);
             if (gotShow == null) {
-                fail("could not parse show name input " + showName);
+                fail("could not parse show name input " + queryString);
                 return null;
             }
             assertFalse(gotShow instanceof LocalShow);
             // assertEquals(testInput.actualShowName, gotShow.getName());
             return gotShow;
         } catch (TimeoutException e) {
-            String failMsg = "timeout trying to query for " + showName;
+            String failMsg = "timeout trying to query for " + queryString;
             String exceptionMessage = e.getMessage();
             if (exceptionMessage != null) {
                 failMsg += exceptionMessage;
@@ -269,7 +846,7 @@ public class TheTVDBProviderTest {
             fail(failMsg);
             return null;
         } catch (Exception e) {
-            fail("failure (possibly timeout?) trying to query for " + showName
+            fail("failure (possibly timeout?) trying to query for " + queryString
                  + ": " + e.getMessage());
             return null;
         }
@@ -277,13 +854,13 @@ public class TheTVDBProviderTest {
 
     // @Test
     public void testGetEpisodeTitle() {
-        for (TestInput testInput : values) {
+        for (EpisodeTestData testInput : values) {
             if (testInput.episodeTitle != null) {
-                final String showName = testInput.show;
+                final String queryString = testInput.queryString;
                 final int seasonNum = testInput.seasonNum;
                 final int episodeNum = testInput.episodeNum;
                 try {
-                    final Show show = testQueryShow(testInput, showName);
+                    final Show show = testQueryShow(testInput, queryString);
                     final CompletableFuture<String> future = new CompletableFuture<>();
                     ListingsLookup.getListings(show, new ShowListingsListener() {
                         @Override
@@ -306,7 +883,7 @@ public class TheTVDBProviderTest {
                     String got = future.get(15, TimeUnit.SECONDS);
                     assertEquals(testInput.episodeTitle, got);
                 } catch (TimeoutException e) {
-                    String failMsg = "timeout trying to query for " + showName
+                    String failMsg = "timeout trying to query for " + queryString
                         + ", season " + seasonNum + ", episode " + episodeNum;
                     String exceptionMessage = e.getMessage();
                     if (exceptionMessage != null) {
@@ -316,7 +893,7 @@ public class TheTVDBProviderTest {
                     }
                     fail(failMsg);
                 } catch (Exception e) {
-                    String failMsg = "failure trying to query for " + showName
+                    String failMsg = "failure trying to query for " + queryString
                         + ", season " + seasonNum + ", episode " + episodeNum
                         + e.getClass().getName() + " ";
                     String exceptionMessage = e.getMessage();
