@@ -118,7 +118,6 @@ public class ShowStore {
 
     private static Logger logger = Logger.getLogger(ShowStore.class.getName());
 
-    private static final Map<String, Show> SHOW_MAPPINGS = new ConcurrentHashMap<>();
     private static final Map<String, ShowRegistrations> SHOW_REGISTRATIONS
         = new ConcurrentHashMap<>();
 
@@ -129,8 +128,7 @@ public class ShowStore {
      * Download the show details if required, otherwise notify listener.
      * </p>
      * <ul>
-     * <li>if we have already downloaded the show (exists in SHOW_MAPPINGS) then
-     *      just notify the listener</li>
+     * <li>if we have already downloaded the show then just notify the listener</li>
      * <li>if we don't have the show, but are in the process of downloading the show
      *     (exists in SHOW_REGISTRATIONS) then add the listener to the registration</li>
      * <li>if we don't have the show and aren't downloading, then create the registration,
@@ -148,10 +146,10 @@ public class ShowStore {
             return;
         }
         ShowName showName = ShowName.lookupShowName(filenameShow);
-        String queryString = showName.getQueryString();
-        Show show = SHOW_MAPPINGS.get(queryString);
+        Show show = showName.getMatchedShow();
 
         if (show == null) {
+            String queryString = showName.getQueryString();
             // Since "show" is null, we know we haven't downloaded the options for
             // this filenameShow yet; that is, we know we haven't FINISHED doing so.
             // But we might have started.  If SHOW_REGISTRATIONS already has one or more
@@ -255,7 +253,6 @@ public class ShowStore {
 
                 logger.fine("Show options for '" + thisShow.getName() + "' downloaded");
                 showName.setShow(thisShow);
-                SHOW_MAPPINGS.put(queryString, thisShow);
                 notifyListeners(queryString, thisShow);
                 return true;
             }
@@ -309,7 +306,6 @@ public class ShowStore {
     }
 
     public static void clear() {
-        SHOW_MAPPINGS.clear();
         SHOW_REGISTRATIONS.clear();
     }
 
@@ -330,11 +326,10 @@ public class ShowStore {
      */
     static Show getOrAddShow(String filenameShow, String actualName) {
         ShowName showName = ShowName.lookupShowName(filenameShow);
-        String queryString = showName.getQueryString();
-        Show show = SHOW_MAPPINGS.get(queryString);
+        Show show = showName.getMatchedShow();
         if (show == null) {
             show = new LocalShow(actualName);
-            SHOW_MAPPINGS.put(queryString, show);
+            showName.setShow(show);
         }
         return show;
     }
