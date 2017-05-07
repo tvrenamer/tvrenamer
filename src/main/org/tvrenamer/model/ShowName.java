@@ -1,5 +1,6 @@
 package org.tvrenamer.model;
 
+import org.tvrenamer.controller.ShowInformationListener;
 import org.tvrenamer.controller.util.StringUtils;
 
 import java.util.LinkedList;
@@ -54,6 +55,7 @@ public class ShowName implements Comparable<ShowName> {
     private static class QueryString {
         final String queryString;
         private Show matchedShow = null;
+        private final List<ShowInformationListener> listeners = new LinkedList<>();
 
         private static final Map<String, QueryString> QUERY_STRINGS = new ConcurrentHashMap<>();
 
@@ -83,6 +85,39 @@ public class ShowName implements Comparable<ShowName> {
             logger.warning("changing show in QueryString " + queryString);
             matchedShow = show;
             return false;
+        }
+
+        // see ShowName.addListener for documentation
+        private void addListener(ShowInformationListener listener) {
+            synchronized (listeners) {
+                listeners.add(listener);
+            }
+        }
+
+        // see ShowName.hasListeners for documentation
+        private boolean hasListeners() {
+            synchronized (listeners) {
+                logger.info("have " + listeners.size() + " listeners for " + queryString);
+                return (listeners.size() > 0);
+            }
+        }
+
+        // see ShowName.nameResolved for documentation
+        private void nameResolved(Show show) {
+            synchronized (listeners) {
+                for (ShowInformationListener informationListener : listeners) {
+                    informationListener.downloaded(show);
+                }
+            }
+        }
+
+        // see ShowName.nameNotFound for documentation
+        private void nameNotFound(Show show) {
+            synchronized (listeners) {
+                for (ShowInformationListener informationListener : listeners) {
+                    informationListener.downloadFailed(show);
+                }
+            }
         }
 
         /**
@@ -157,6 +192,63 @@ public class ShowName implements Comparable<ShowName> {
     private final QueryString queryString;
 
     private final List<ShowOption> showOptions;
+
+    /*
+     * QueryString methods -- these four methods are the public interface to the
+     * functionality, but they are just pass-throughs to the real implementations
+     * kept inside the QueryString inner class.
+     */
+
+    /**
+     * Add a listener for this ShowName's query string.
+     *
+     * @param listener
+     *            the listener registering interest
+     */
+    public void addListener(ShowInformationListener listener) {
+        synchronized (queryString) {
+            queryString.addListener(listener);
+        }
+    }
+
+    /**
+     * Determine if this ShowName's query string has any listeners yet
+     *
+     * @return true if this ShowName's query string already has a listener;
+     *     false if not
+     */
+    public boolean hasListeners() {
+        synchronized (queryString) {
+            return queryString.hasListeners();
+        }
+    }
+
+    /**
+     * Notify registered interested parties that the provider has found a show,
+     * and we've created a Show object to represent it.
+     *
+     * @param show
+     *    the Show object representing the TV show we've mapped the string to.
+     */
+    public void nameResolved(Show show) {
+        synchronized (queryString) {
+            queryString.nameResolved(show);
+        }
+    }
+
+    /**
+     * Notify registered interested parties that the provider did not give us a
+     * viable option, and provide a stand-in object.
+     *
+     * @param show
+     *    the LocalShow object (presumably a FailedShow) representing the string
+     *    we searched for.
+     */
+    public void nameNotFound(Show show) {
+        synchronized (queryString) {
+            queryString.nameNotFound(show);
+        }
+    }
 
     /**
      * Create a ShowName object for the given "foundName" String.  The "foundName"
