@@ -104,12 +104,7 @@ package org.tvrenamer.model;
 import org.tvrenamer.controller.ShowInformationListener;
 import org.tvrenamer.controller.TheTVDBProvider;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
@@ -117,9 +112,6 @@ import java.util.logging.Logger;
 public class ShowStore {
 
     private static Logger logger = Logger.getLogger(ShowStore.class.getName());
-
-    private static final Map<String, ShowRegistrations> SHOW_REGISTRATIONS
-        = new ConcurrentHashMap<>();
 
     private static final ExecutorService threadPool = Executors.newCachedThreadPool();
 
@@ -130,7 +122,7 @@ public class ShowStore {
      * <ul>
      * <li>if we have already downloaded the show then just notify the listener</li>
      * <li>if we don't have the show, but are in the process of downloading the show
-     *     (exists in SHOW_REGISTRATIONS) then add the listener to the registration</li>
+     *     (exists in the show's listeners) then add the listener to the registration</li>
      * <li>if we don't have the show and aren't downloading, then create the registration,
      *     add the listener and kick off the download</li>
      * </ul>
@@ -152,21 +144,21 @@ public class ShowStore {
             String queryString = showName.getQueryString();
             // Since "show" is null, we know we haven't downloaded the options for
             // this filenameShow yet; that is, we know we haven't FINISHED doing so.
-            // But we might have started.  If SHOW_REGISTRATIONS already has one or more
+            // But we might have started.  If the showName already has one or more
             // listeners, that means the download is already underway.
-            ShowRegistrations registrations = SHOW_REGISTRATIONS.get(queryString);
-            if (registrations != null) {
-                registrations.addListener(listener);
-            } else {
-                registrations = new ShowRegistrations();
-                registrations.addListener(listener);
-                SHOW_REGISTRATIONS.put(queryString, registrations);
-                downloadShow(showName);
+            synchronized (showName) {
+                boolean needsDownload = !showName.hasListeners();
+                // We add this listener whether or not the download has been started.
+                showName.addListener(listener);
+                // Now we start a download only if we need to.
+                if (needsDownload) {
+                    downloadShow(showName);
+                }
             }
         } else {
-            // Since we've already downloaded the show, we don't need to involve
-            // SHOW_REGISTRATIONS at all.  We invoke the listener's callback immediately
-            // and directly.  If, in the future, we expand ShowInformationListener so
+            // Since we've already downloaded the show, we don't need to involve the
+            // ShowName at all.  We invoke the listener's callback immediately and
+            // directly.  If, in the future, we expand ShowInformationListener so
             // that there is more information to be sent later, we'd want to edit
             // this to add the listener.
             if (show instanceof LocalShow) {
@@ -212,52 +204,15 @@ public class ShowStore {
 
                 logger.fine("Show options for '" + thisShow.getName() + "' downloaded");
                 showName.setShow(thisShow);
-                notifyListeners(queryString, thisShow);
+                if (thisShow instanceof FailedShow) {
+                    showName.nameNotFound(thisShow);
+                } else {
+                    showName.nameResolved(thisShow);
+                }
                 return true;
             }
         };
         threadPool.submit(showFetcher);
-    }
-
-    /**
-     * Notify registered interested parties that we have decided on what to map
-     * a given String to.
-     *
-     * @param queryString
-     *    the version of the part of the filename that is presumed to name
-     *    the show, that we use as the key into the hashmap
-     * @param show
-     *    the Show object representing the TV show we've mapped the string to.
-     *    Might be a FailedShow.
-     */
-    private static void notifyListeners(String queryString, Show show) {
-        ShowRegistrations registrations = SHOW_REGISTRATIONS.get(queryString);
-
-        if (registrations != null) {
-            for (ShowInformationListener informationListener : registrations.getListeners()) {
-                if (show instanceof FailedShow) {
-                    informationListener.downloadFailed(show);
-                } else {
-                    informationListener.downloaded(show);
-                }
-            }
-        }
-    }
-
-    private static class ShowRegistrations {
-        private final List<ShowInformationListener> mListeners;
-
-        public ShowRegistrations() {
-            this.mListeners = new LinkedList<>();
-        }
-
-        public void addListener(ShowInformationListener listener) {
-            this.mListeners.add(listener);
-        }
-
-        public List<ShowInformationListener> getListeners() {
-            return Collections.unmodifiableList(mListeners);
-        }
     }
 
     public static void cleanUp() {
@@ -265,7 +220,6 @@ public class ShowStore {
     }
 
     public static void clear() {
-        SHOW_REGISTRATIONS.clear();
     }
 
     /**
