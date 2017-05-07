@@ -2,7 +2,6 @@ package org.tvrenamer.model;
 
 import static org.tvrenamer.model.util.Constants.*;
 
-import org.tvrenamer.controller.UserPreferencesChangeListener;
 import org.tvrenamer.controller.UserPreferencesPersistence;
 import org.tvrenamer.controller.util.FileUtilities;
 import org.tvrenamer.controller.util.StringUtils;
@@ -203,10 +202,6 @@ public class UserPreferences extends Observable {
         }
 
         prefs.ensureDestDir();
-
-        // add observer
-        // TODO: why do we do this?
-        prefs.addObserver(new UserPreferencesChangeListener());
 
         return prefs;
     }

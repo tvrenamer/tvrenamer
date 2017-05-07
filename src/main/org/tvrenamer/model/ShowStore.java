@@ -219,9 +219,6 @@ public class ShowStore {
         threadPool.shutdownNow();
     }
 
-    public static void clear() {
-    }
-
     /**
      * Create a show and add it to the store, unless a show is already registered
      * by the show name.<br />
