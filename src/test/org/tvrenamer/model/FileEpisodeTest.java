@@ -942,7 +942,7 @@ public class FileEpisodeTest {
         episode.setFilenameResolution(data.episodeResolution);
 
         Show show = ShowStore.getOrAddShow(data.filenameShow, data.properShowName);
-        episode.setShow(show);
+        episode.setEpisodeShow(show);
 
         EpisodeInfo info = new EpisodeInfo.Builder()
             .episodeId(data.episodeId)

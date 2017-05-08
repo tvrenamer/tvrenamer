@@ -701,14 +701,14 @@ public class UIStarter implements Observer,  AddEpisodeListener {
             ShowStore.getShow(showName, new ShowInformationListener() {
                     @Override
                     public void downloaded(Show show) {
-                        episode.setShow(show);
+                        episode.setEpisodeShow(show);
                         tableItemDownloaded(item, episode);
                         getShowListings(show, item, episode);
                     }
 
                     @Override
                     public void downloadFailed(Show show) {
-                        episode.setShow(show);
+                        episode.setEpisodeShow(show);
                         tableItemFailed(item, episode);
                     }
                 });
