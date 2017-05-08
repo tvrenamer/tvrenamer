@@ -87,7 +87,7 @@ public class Show implements Comparable<Show> {
      *
      * @return a Show with the given ID
      */
-    public static Show getShow(String id, String name, String imdb) {
+    public static Show getShowInstance(String id, String name, String imdb) {
         Show matchedShow = null;
         synchronized (knownShows) {
             matchedShow = knownShows.get(id);
