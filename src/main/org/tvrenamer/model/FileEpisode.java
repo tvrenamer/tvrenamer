@@ -118,18 +118,23 @@ public class FileEpisode {
             logger.severe(FILE_EPISODE_NEEDS_PATH);
             throw new IllegalArgumentException(FILE_EPISODE_NEEDS_PATH);
         }
+        path = p;
         fileNameString = p.getFileName().toString();
         filenameSuffix = StringUtils.getExtension(fileNameString);
-        setPath(p);
+        checkFile(true);
         TVRenamer.parseFilename(this);
     }
 
     // Create FileEpisode with String; only for testing
     public FileEpisode(String filename) {
-        Path p = Paths.get(filename);
-        fileNameString = p.getFileName().toString();
+        if (filename == null) {
+            logger.severe(FILE_EPISODE_NEEDS_PATH);
+            throw new IllegalArgumentException(FILE_EPISODE_NEEDS_PATH);
+        }
+        path = Paths.get(filename);
+        fileNameString = path.getFileName().toString();
         filenameSuffix = StringUtils.getExtension(fileNameString);
-        setPath(p);
+        checkFile(false);
     }
 
     // Create FileEpisode with no path; only for testing
@@ -218,15 +223,7 @@ public class FileEpisode {
         return path;
     }
 
-    public void setPath(Path p) {
-        path = p;
-        fileNameString = path.getFileName().toString();
-
-        String newSuffix = StringUtils.getExtension(fileNameString);
-        if (!filenameSuffix.equals(newSuffix)) {
-            throw new IllegalStateException("suffix of a FileEpisode may not change!");
-        }
-
+    private void checkFile(boolean mustExist) {
         if (Files.exists(path)) {
             exists = true;
             try {
@@ -238,11 +235,25 @@ public class FileEpisode {
                 fileSize = NO_FILE_SIZE;
             }
         } else {
-            logger.warning("creating FileEpisode for nonexistent path, " + path);
+            if (mustExist) {
+                logger.warning("creating FileEpisode for nonexistent path, " + path);
+            }
             exists = false;
             fileStatus = FileStatus.NO_FILE;
             fileSize = NO_FILE_SIZE;
         }
+    }
+
+    public void setPath(Path p) {
+        path = p;
+        fileNameString = path.getFileName().toString();
+
+        String newSuffix = StringUtils.getExtension(fileNameString);
+        if (!filenameSuffix.equals(newSuffix)) {
+            throw new IllegalStateException("suffix of a FileEpisode may not change!");
+        }
+
+        checkFile(true);
     }
 
     public long getFileSize() {
