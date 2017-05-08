@@ -97,7 +97,6 @@ public class ShowName implements Comparable<ShowName> {
         // see ShowName.hasListeners for documentation
         private boolean hasListeners() {
             synchronized (listeners) {
-                logger.info("have " + listeners.size() + " listeners for " + queryString);
                 return (listeners.size() > 0);
             }
         }
@@ -389,14 +388,14 @@ public class ShowName implements Comparable<ShowName> {
     /**
      * Get the mapping between this ShowName and a Show, if any has been established.
      *
-     * @return show the Show to map this ShowName to
+     * @return a Show, if this ShowName is matched to one.  Null if not.
      */
     synchronized Show getMatchedShow() {
         return queryString.getMatchedShow();
     }
 
     /**
-     * Standard object method to represent this StringName as a string.
+     * Standard object method to represent this ShowName as a string.
      *
      * @return string version of this
      */
