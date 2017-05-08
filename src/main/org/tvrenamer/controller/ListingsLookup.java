@@ -56,9 +56,9 @@ public class ListingsLookup {
         if (registrations != null) {
             for (ShowListingsListener listener : registrations.getListeners()) {
                 if (show.hasSeasons()) {
-                    listener.downloadListingsComplete(show);
+                    listener.listingsDownloadComplete(show);
                 } else {
-                    listener.downloadListingsFailed(show);
+                    listener.listingsDownloadFailed(show);
                 }
             }
         }
