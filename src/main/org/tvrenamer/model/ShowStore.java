@@ -239,7 +239,6 @@ public class ShowStore {
         Show show = showName.getMatchedShow();
         if (show == null) {
             show = showName.getLocalShow(actualName);
-            showName.setShow(show);
         }
         return show;
     }
