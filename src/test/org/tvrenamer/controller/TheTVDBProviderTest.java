@@ -863,7 +863,7 @@ public class TheTVDBProviderTest {
                 try {
                     final Show show = testQueryShow(testInput, queryString);
                     final CompletableFuture<String> future = new CompletableFuture<>();
-                    ListingsLookup.getListings(show, new ShowListingsListener() {
+                    show.addListingsListener(new ShowListingsListener() {
                         @Override
                         public void listingsDownloadComplete(Show show) {
                             Episode ep = show.getEpisode(seasonNum, episodeNum);

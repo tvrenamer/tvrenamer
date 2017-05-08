@@ -47,7 +47,6 @@ import org.eclipse.swt.widgets.Text;
 
 import org.tvrenamer.controller.AddEpisodeListener;
 import org.tvrenamer.controller.FileMover;
-import org.tvrenamer.controller.ListingsLookup;
 import org.tvrenamer.controller.MoveRunner;
 import org.tvrenamer.controller.ShowInformationListener;
 import org.tvrenamer.controller.ShowListingsListener;
@@ -649,7 +648,7 @@ public class UIStarter implements Observer,  AddEpisodeListener {
     }
 
     private void getShowListings(Show show, TableItem item, FileEpisode episode) {
-        ListingsLookup.getListings(show, new ShowListingsListener() {
+        show.addListingsListener(new ShowListingsListener() {
                 @Override
                 public void listingsDownloadComplete(Show show) {
                     listingsDownloaded(item, episode);
