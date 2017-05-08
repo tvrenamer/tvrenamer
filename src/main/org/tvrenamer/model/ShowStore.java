@@ -203,7 +203,6 @@ public class ShowStore {
                 }
 
                 logger.fine("Show options for '" + thisShow.getName() + "' downloaded");
-                showName.setShow(thisShow);
                 if (thisShow instanceof FailedShow) {
                     showName.nameNotFound(thisShow);
                 } else {
