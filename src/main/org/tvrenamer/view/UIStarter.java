@@ -651,12 +651,12 @@ public class UIStarter implements Observer,  AddEpisodeListener {
     private void getShowListings(Show show, TableItem item, FileEpisode episode) {
         ListingsLookup.getListings(show, new ShowListingsListener() {
                 @Override
-                public void downloadListingsComplete(Show show) {
+                public void listingsDownloadComplete(Show show) {
                     listingsDownloaded(item, episode);
                 }
 
                 @Override
-                public void downloadListingsFailed(Show show) {
+                public void listingsDownloadFailed(Show show) {
                     listingsFailed(item, episode);
                 }
             });
