@@ -2,6 +2,8 @@ package org.tvrenamer.model;
 
 import static org.tvrenamer.model.util.Constants.IMDB_BASE_URL;
 
+import org.tvrenamer.controller.ListingsLookup;
+import org.tvrenamer.controller.ShowListingsListener;
 import org.tvrenamer.controller.util.StringUtils;
 
 import java.util.LinkedList;
@@ -96,6 +98,23 @@ public class Show implements Comparable<Show> {
             }
         }
         return matchedShow;
+    }
+
+    /**
+     * Registers a listener interested in this Show's listings.  If we
+     * already have the listings, and we can notify the new listener
+     * immediately, and not have to iterate over the list of existing
+     * listeners.
+     *
+     * @param listener
+     *   the listener to add to the registrations
+     */
+    public synchronized void addListingsListener(ShowListingsListener listener) {
+        if (listener == null) {
+            logger.warning("cannot get listings without a listener");
+            return;
+        }
+        ListingsLookup.getListings(this, listener);
     }
 
     public String getId() {
