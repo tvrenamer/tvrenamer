@@ -348,7 +348,7 @@ public class ShowName implements Comparable<ShowName> {
             selected = showOptions.get(0);
         }
 
-        Show selectedShow = Show.getShow(selected.id, selected.actualName, selected.imdb);
+        Show selectedShow = Show.getShowInstance(selected.id, selected.actualName, selected.imdb);
         queryString.setShow(selectedShow);
         return selectedShow;
     }
