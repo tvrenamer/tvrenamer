@@ -120,11 +120,12 @@ public class ShowStore {
      * Download the show details if required, otherwise notify listener.
      * </p>
      * <ul>
-     * <li>if we have already downloaded the show then just notify the listener</li>
+     * <li>if we have already downloaded the show (the ShowName returns a matched show)
+     *     then just notify the listener</li>
      * <li>if we don't have the show, but are in the process of downloading the show
-     *     (exists in the show's listeners) then add the listener to the registration</li>
-     * <li>if we don't have the show and aren't downloading, then create the registration,
-     *     add the listener and kick off the download</li>
+     *     (the show already has listeners) then add the listener to the registration</li>
+     * <li>if we don't have the show and aren't downloading, then add the listener and
+     *     kick off the download</li>
      * </ul>
      *
      * @param filenameShow
@@ -134,14 +135,13 @@ public class ShowStore {
      */
     public static void getShow(String filenameShow, ShowInformationListener listener) {
         if (listener == null) {
-            logger.warning("cannot lookup show without a listener");
+            logger.warning("cannot look up show without a listener");
             return;
         }
         ShowName showName = ShowName.lookupShowName(filenameShow);
         Show show = showName.getMatchedShow();
 
         if (show == null) {
-            String queryString = showName.getQueryString();
             // Since "show" is null, we know we haven't downloaded the options for
             // this filenameShow yet; that is, we know we haven't FINISHED doing so.
             // But we might have started.  If the showName already has one or more
