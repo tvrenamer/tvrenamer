@@ -221,38 +221,43 @@ public class Show implements Comparable<Show> {
 
     private void dealWithConflicts(List<EpisodeInfo> conflicts) {
         for (EpisodeInfo info : conflicts) {
-            Episode episode = episodes.get(info.episodeId);
-            String msg = episode.getDifferenceMessage(info);
-            if (msg == null) {
-                logger.warning("handling again: " + info.episodeName);
+            if (info == null) {
+                logger.warning("received null episode info");
             } else {
-                logger.warning(msg);
-            }
-        }
-    }
-
-    void addEpisodes(final EpisodeInfo[] infos, final boolean logConflicts) {
-        List<EpisodeInfo> conflicts = new LinkedList<>();
-        for (EpisodeInfo info : infos) {
-            if (info != null) {
-                String episodeId = info.episodeId;
-                Episode existing = episodes.get(episodeId);
-                if (existing == null) {
-                    Episode episode = new Episode(info);
-                    episodes.put(episodeId, episode);
+                Episode episode = episodes.get(info.episodeId);
+                String msg = episode.getDifferenceMessage(info);
+                if (msg == null) {
+                    logger.warning("handling again: " + info.episodeName);
                 } else {
-                    conflicts.add(info);
+                    logger.warning(msg);
                 }
             }
         }
-        indexEpisodesBySeason();
-        if (logConflicts) {
-            dealWithConflicts(conflicts);
+    }
+
+    public boolean addOneEpisode(final EpisodeInfo info) {
+        if (info != null) {
+            String episodeId = info.episodeId;
+            Episode existing = episodes.get(episodeId);
+            if (existing == null) {
+                Episode episode = new Episode(info);
+                episodes.put(episodeId, episode);
+                return true;
+            }
         }
+        return false;
     }
 
     public void addEpisodes(final EpisodeInfo[] infos) {
-        addEpisodes(infos, true);
+        List<EpisodeInfo> conflicts = new LinkedList<>();
+        for (EpisodeInfo info : infos) {
+            boolean added = addOneEpisode(info);
+            if (!added) {
+                conflicts.add(info);
+            }
+        }
+        indexEpisodesBySeason();
+        dealWithConflicts(conflicts);
     }
 
     public synchronized void preferHeuristicOrdering() {

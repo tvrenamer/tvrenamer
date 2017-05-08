@@ -928,7 +928,6 @@ public class FileEpisodeTest {
         episode.setFilenameResolution(data.episodeResolution);
 
         Show show = ShowStore.getOrAddShow(data.filenameShow, data.properShowName);
-        show.preferProductionOrdering();
         episode.setShow(show);
 
         EpisodeInfo info = new EpisodeInfo.Builder()
@@ -937,10 +936,8 @@ public class FileEpisodeTest {
             .episodeNumber(data.episodeNumString)
             .episodeName(data.episodeTitle)
             .build();
-        EpisodeInfo[] dummyArray = new EpisodeInfo[1];
-        dummyArray[0] = info;
-        show.addEpisodes(dummyArray, false);
-
+        show.addOneEpisode(info);
+        show.preferProductionOrdering();
         episode.listingsComplete();
 
         return episode.getRenamedBasename();
