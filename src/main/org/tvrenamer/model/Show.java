@@ -134,9 +134,10 @@ public class Show implements Comparable<Show> {
         } else if (found.getTitle().equals(episode.getTitle())) {
             // This is less fine.  We've apparently created two objects to represent
             // the same data.  This should be fixed.
-            logger.warning("replacing episode object for show " + name + ", season "
+            logger.warning("replacing episode " + found.getEpisodeId()
+                           + " for show " + name + ", season "
                            + seasonNum + ", episode " + episodeNum + " (\""
-                           + found.getTitle() + "\")");
+                           + found.getTitle() + "\") with " + episode.getEpisodeId());
             season.put(episodeNum, episode);
         } else {
             // In this very unexpected case, we will not keep EITHER episode

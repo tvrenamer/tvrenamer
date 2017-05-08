@@ -42,6 +42,10 @@ public class Episode {
         return title;
     }
 
+    public String getEpisodeId() {
+        return episodeId;
+    }
+
     public String getSeasonNumber() {
         return seasonNumber;
     }
