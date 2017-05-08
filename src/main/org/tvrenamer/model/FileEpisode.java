@@ -296,10 +296,10 @@ public class FileEpisode {
         fileStatus = FileStatus.NO_FILE;
     }
 
-    public void setShow(Show show) {
+    public void setEpisodeShow(Show show) {
         actualShow = show;
         if (actualShow == null) {
-            logger.warning("setShow should never be called with null");
+            logger.warning("setEpisodeShow should never be called with null");
             seriesStatus = SeriesStatus.UNFOUND;
         } else if (actualShow instanceof FailedShow) {
             seriesStatus = SeriesStatus.UNFOUND;
