@@ -65,8 +65,8 @@ public class TVRenamer {
                 String foundName = matcher.group(1);
                 ShowName.lookupShowName(foundName);
                 episode.setFilenameShow(foundName);
-                episode.setSeasonNum(Integer.parseInt(matcher.group(2)));
-                episode.setEpisodeNum(Integer.parseInt(matcher.group(3)));
+                episode.setFilenameSeason(matcher.group(2));
+                episode.setFilenameEpisode(matcher.group(3));
                 episode.setFilenameResolution(resolution);
                 episode.setParsed();
 
