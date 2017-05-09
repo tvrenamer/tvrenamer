@@ -73,8 +73,6 @@ import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.JOptionPane;
-
 public class UIStarter implements Observer,  AddEpisodeListener {
     private static Logger logger = Logger.getLogger(UIStarter.class.getName());
     private static final int SELECTED_COLUMN = 0;
@@ -602,12 +600,8 @@ public class UIStarter implements Observer,  AddEpisodeListener {
                 }
             }
             return 0;
-        } catch (IllegalArgumentException argumentException) {
-            logger.log(Level.SEVERE, NO_DND, argumentException);
-            JOptionPane.showMessageDialog(null, NO_DND);
-            return 1;
         } catch (Exception exception) {
-            showMessageBox(SWTMessageBoxType.ERROR, "Error", UNKNOWN_EXCEPTION, exception);
+            showMessageBox(SWTMessageBoxType.ERROR, ERROR_LABEL, UNKNOWN_EXCEPTION, exception);
             logger.log(Level.SEVERE, UNKNOWN_EXCEPTION, exception);
             return 1;
         }
