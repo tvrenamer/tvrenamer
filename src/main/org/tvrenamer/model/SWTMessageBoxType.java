@@ -9,8 +9,12 @@ public enum SWTMessageBoxType {
     WARNING(SWT.ICON_WARNING),
     ERROR(SWT.ICON_ERROR);
 
-    public int swtIconValue;
+    private int swtIconValue;
     private SWTMessageBoxType(int swtIconValue) {
         this.swtIconValue = swtIconValue;
+    }
+
+    public int getSwtIconValue() {
+        return swtIconValue;
     }
 }
