@@ -48,7 +48,9 @@ public class UIUtils {
         return defaultFont;
     }
 
-    public static void showMessageBox(final SWTMessageBoxType type, final String title, final String message, final Exception exception) {
+    public static void showMessageBox(final SWTMessageBoxType type, final String title,
+                                      final String message, final Exception exception)
+    {
         if (shell == null) {
             // Shell not established yet, try using JOPtionPane instead
             try {
@@ -63,7 +65,7 @@ public class UIUtils {
         Display.getDefault().syncExec(new Runnable() {
             @Override
             public void run() {
-                MessageBox msgBox = new MessageBox(shell, type.swtIconValue);
+                MessageBox msgBox = new MessageBox(shell, type.getSwtIconValue());
                 msgBox.setText(title);
 
                 if (exception == null) {
