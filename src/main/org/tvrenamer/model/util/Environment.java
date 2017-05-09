@@ -2,6 +2,7 @@ package org.tvrenamer.model.util;
 
 import org.tvrenamer.controller.util.StringUtils;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -49,17 +50,24 @@ public class Environment {
             versionStream = Environment.class.getResourceAsStream("/src/main/tvrenamer.version");
         }
 
+        int bytesRead = -1;
         try {
-            int bytesRead = versionStream.read(buffer);
-            if (bytesRead < MIN_BYTES_FOR_VERSION) {
-                throw new RuntimeException("Unable to extract version from version file");
-            }
-            return StringUtils.makeString(buffer).trim();
+            bytesRead = versionStream.read(buffer);
         } catch (Exception e) {
             logger.log(Level.WARNING, "Exception when reading version file", e);
             // Has to be unchecked exception as in static block, otherwise
             // exception isn't actually handled (mainly for junit in ant)
             throw new RuntimeException("Exception when reading version file", e);
+        } finally {
+            try {
+                versionStream.close();
+            } catch (IOException ioe) {
+                logger.log(Level.WARNING, "Exception trying to close version file", ioe);
+            }
         }
+        if (bytesRead < MIN_BYTES_FOR_VERSION) {
+            throw new RuntimeException("Unable to extract version from version file");
+        }
+        return StringUtils.makeString(buffer).trim();
     }
 }
