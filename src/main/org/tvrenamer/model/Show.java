@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 /**
  * Represents a TV Show, with a name, url and list of seasons.
  */
-public class Show implements Comparable<Show> {
+public class Show {
     private static Logger logger = Logger.getLogger(Show.class.getName());
 
     /**
@@ -97,7 +97,8 @@ public class Show implements Comparable<Show> {
     /*
      * More instance variables
      */
-    private final String id;
+    private final String idString;
+    private final Integer idNum;
     private final String name;
     private final String dirName;
     private final String imdb;
@@ -118,21 +119,29 @@ public class Show implements Comparable<Show> {
      *
      * This class should not be used (directly) for any kind of "stand in".
      *
-     * @param id
+     * @param idString
      * @param name
      * @param imdb
      */
-    protected Show(String id, String name, String imdb) {
-        this.id = id;
+    protected Show(String idString, String name, String imdb) {
+        this.idString = idString;
         this.name = name;
         this.imdb = imdb;
         dirName = StringUtils.sanitiseTitle(name);
+
+        Integer parsedId = null;
+        try {
+            parsedId = Integer.parseInt(idString);
+        } catch (Exception e) {
+            logger.fine("Show's ID " + idString + " could not be parsed as integer");
+        }
+        idNum = parsedId;
 
         episodes = new ConcurrentHashMap<>();
         seasons = new ConcurrentHashMap<>();
         registrations = new ConcurrentLinkedQueue<>();
 
-        knownShows.put(id, this);
+        knownShows.put(idString, this);
     }
 
     /**
@@ -199,13 +208,14 @@ public class Show implements Comparable<Show> {
     }
 
     /**
-     * Get this Show's ID, as a String.
+     * Get this Show's ID, as an Integer.
      *
      * @return ID
-     *            the ID of the show from the provider, as a String
+     *            the ID of the show from the provider, as an Integer,
+     *            or null if the given ID was not an int
      */
-    public String getId() {
-        return id;
+    public Integer getId() {
+        return idNum;
     }
 
     /**
@@ -621,16 +631,7 @@ public class Show implements Comparable<Show> {
      */
     @Override
     public String toString() {
-        return "Show [" + name + ", id=" + id + ", imdb=" + imdb + ", " + episodes.size() + " episodes]";
-    }
-
-    /**
-     * Standard compareTo method to make this class comparable
-     *
-     * @return this object's relative ordering compared to the given object
-     */
-    @Override
-    public int compareTo(Show other) {
-        return Integer.parseInt(other.id) - Integer.parseInt(this.id);
+        return "Show [" + name + ", id=" + idString + ", imdb=" + imdb + ", "
+            + episodes.size() + " episodes]";
     }
 }
