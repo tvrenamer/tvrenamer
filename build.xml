@@ -253,15 +253,10 @@
 
   <target name="usage">
     <echo message="Usage: ant dist.{win, linux, osx, all}" />
-    <echo message="       tests {-Dproxy.enabled=true -Dproxy.host=hostname -Dproxy.port=portNumber {-Dproxy.user=username -Dproxy.password=password}}" />
+    <echo message="       tests" />
   </target>
 
-  <target name="proxy" if="proxy.enabled">
-    <setproxy proxyhost="${proxy.host}" proxyport="${proxy.port}"
-      proxyuser="${proxy.user}" proxypassword="${proxy.password}"/>
-  </target>
-
-  <target name="test" depends="clean, compile.test, proxy">
+  <target name="test" depends="clean, compile.test">
     <junit haltonerror="true" haltonfailure="true" printsummary="true" fork="no" forkmode="once">
       <formatter type="plain" usefile="false" />
 

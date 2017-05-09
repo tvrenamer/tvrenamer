@@ -86,10 +86,6 @@ public class Constants {
         + "You can move a file into a folder based on its show\n"
         + "without actually renaming the file";
     public static final String HELP_TOOLTIP = "Hover mouse over [?] to get help";
-    public static final String PROXY_TOOLTIP = "If you connect to the internet via a proxy server, "
-        + "enable and set the properties";
-    public static final String PROXY_USER_TOOLTIP = "If you connect to a windows domain enter "
-        + "domain\\username";
     public static final String GENERAL_TOOLTIP = " - TVRenamer will automatically move the files "
         + "to your 'TV' folder if you want it to.  \n"
         + " - It will move the file to <tv directory>/<series name>/<season prefix> #/ \n"
