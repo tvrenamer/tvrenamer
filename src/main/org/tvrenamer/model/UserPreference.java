@@ -1,7 +1,6 @@
 package org.tvrenamer.model;
 
 public enum UserPreference {
-    PROXY,
     REPLACEMENT_MASK,
     MOVE_ENABLED,
     RENAME_ENABLED,

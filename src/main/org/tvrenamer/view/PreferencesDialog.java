@@ -35,7 +35,6 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
 
-import org.tvrenamer.model.ProxySettings;
 import org.tvrenamer.model.ReplacementToken;
 import org.tvrenamer.model.SWTMessageBoxType;
 import org.tvrenamer.model.TVRenamerIOException;
@@ -64,12 +63,6 @@ public class PreferencesDialog extends Dialog {
     private Button seasonPrefixLeadingZeroCheckbox;
     private Text replacementStringText;
     private Text ignoreWordsText;
-    private Button proxyEnabledCheckbox;
-    private Text proxyHostText;
-    private Text proxyPortText;
-    private Button proxyAuthenticationRequiredCheckbox;
-    private Text proxyUsernameText;
-    private Text proxyPasswordText;
     private Button checkForUpdatesCheckbox;
     private Button recurseFoldersCheckbox;
 
@@ -115,7 +108,6 @@ public class PreferencesDialog extends Dialog {
 
         createGeneralTab();
         createRenameTab();
-        createProxyTab();
 
         createActionButtonGroup();
     }
@@ -363,90 +355,6 @@ public class PreferencesDialog extends Dialog {
         });
     }
 
-    private void createProxyTab() {
-        ProxySettings proxy = prefs.getProxy();
-
-        TabItem item = new TabItem(tabFolder, SWT.NULL);
-        item.setText("Proxy");
-
-        Composite proxyGroup = new Composite(tabFolder, SWT.NONE);
-        proxyGroup.setLayout(new GridLayout(3, false));
-        proxyGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 3, 1));
-        proxyGroup.setToolTipText("If you connect to the internet via a proxy server, enable and set the properties");
-
-        proxyEnabledCheckbox = new Button(proxyGroup, SWT.CHECK);
-        proxyEnabledCheckbox.setText("Proxy Enabled");
-        proxyEnabledCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 3, 1));
-        proxyEnabledCheckbox.setSelection(proxy.isEnabled());
-
-        Label proxyHostLabel = new Label(proxyGroup, SWT.NONE);
-        proxyHostLabel.setText("Proxy Host [?]");
-        proxyHostLabel.setToolTipText("The hostname or IP address of your proxy");
-
-        proxyHostText = new Text(proxyGroup, SWT.BORDER);
-        proxyHostText.setText(proxy.getHostname());
-        proxyHostText.setTextLimit(99);
-        proxyHostText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true, 2, 1));
-
-        Label proxyPortLabel = new Label(proxyGroup, SWT.NONE);
-        proxyPortLabel.setText("Proxy Port [?]");
-        proxyPortLabel.setToolTipText("The port of your proxy");
-
-        proxyPortText = new Text(proxyGroup, SWT.BORDER);
-        proxyPortText.setText(proxy.getPort());
-        proxyPortText.setTextLimit(99);
-        proxyPortText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true, 2, 1));
-
-        proxyAuthenticationRequiredCheckbox = new Button(proxyGroup, SWT.CHECK);
-        proxyAuthenticationRequiredCheckbox.setText("Proxy Authentication Required");
-        proxyAuthenticationRequiredCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER,
-                                                                       true, true, 3, 1));
-        proxyAuthenticationRequiredCheckbox.setSelection(proxy.isAuthenticationRequired());
-
-        Label proxyUsernameLabel = new Label(proxyGroup, SWT.NONE);
-        proxyUsernameLabel.setText("Proxy Username [?]");
-        proxyUsernameLabel.setToolTipText("If you connect to a windows domain enter domain\\username");
-
-        proxyUsernameText = new Text(proxyGroup, SWT.BORDER);
-        proxyUsernameText.setText(proxy.getUsername());
-        proxyUsernameText.setTextLimit(99);
-        proxyUsernameText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true, 2, 1));
-
-        Label proxyPasswordLabel = new Label(proxyGroup, SWT.NONE);
-        proxyPasswordLabel.setText("Proxy Password");
-
-        proxyPasswordText = new Text(proxyGroup, SWT.BORDER);
-        proxyPasswordText.setEchoChar('*');
-        proxyPasswordText.setText(proxy.getDecryptedPassword());
-        proxyPasswordText.setTextLimit(99);
-        proxyPasswordText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true, 2, 1));
-
-        // Setup initial enabling controls
-        toggleEnableControls(proxyEnabledCheckbox, proxyHostText, proxyPortText, proxyAuthenticationRequiredCheckbox);
-        toggleEnableControls(proxyAuthenticationRequiredCheckbox, proxyUsernameText, proxyPasswordText);
-
-        // Setup listeners
-        proxyEnabledCheckbox.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                if (proxyEnabledCheckbox.getSelection()) {
-                    toggleEnableControls(proxyEnabledCheckbox, proxyHostText, proxyPortText, proxyAuthenticationRequiredCheckbox);
-                } else {
-                    toggleEnableControls(proxyEnabledCheckbox, proxyHostText, proxyPortText, proxyAuthenticationRequiredCheckbox, proxyUsernameText, proxyPasswordText);
-                }
-            }
-        });
-
-        proxyAuthenticationRequiredCheckbox.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                toggleEnableControls(proxyAuthenticationRequiredCheckbox, proxyUsernameText, proxyPasswordText);
-            }
-        });
-
-        item.setControl(proxyGroup);
-    }
-
     private void createActionButtonGroup() {
         Composite bottomButtonsComposite = new Composite(preferencesShell, SWT.FILL);
         bottomButtonsComposite.setLayoutData(new GridData(SWT.END, SWT.CENTER, true, true, 0, 1));
@@ -500,18 +408,6 @@ public class PreferencesDialog extends Dialog {
         prefs.setRenameReplacementString(replacementStringText.getText());
         prefs.setIgnoreKeywords(Arrays.asList(ignoreWordsText.getText().split(IGNORE_WORDS_SPLIT_REGEX)));
         prefs.setRenameEnabled(renameEnabledCheckbox.getSelection());
-
-        ProxySettings proxySettings = new ProxySettings();
-        proxySettings.setEnabled(proxyEnabledCheckbox.getSelection());
-
-        proxySettings.setHostname(proxyHostText.getText());
-        proxySettings.setPort(proxyPortText.getText());
-
-        proxySettings.setAuthenticationRequired(proxyAuthenticationRequiredCheckbox.getSelection());
-        proxySettings.setUsername(proxyUsernameText.getText());
-        proxySettings.setPlainTextPassword(proxyPasswordText.getText());
-
-        prefs.setProxy(proxySettings);
 
         prefs.setCheckForUpdates(checkForUpdatesCheckbox.getSelection());
         prefs.setRecursivelyAddFolders(recurseFoldersCheckbox.getSelection());
