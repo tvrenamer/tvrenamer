@@ -44,7 +44,7 @@ import java.util.logging.Logger;
  * not able to make those inferences, but it would be good to add in the future.
  *
  */
-public class ShowName implements Comparable<ShowName> {
+public class ShowName {
     private static Logger logger = Logger.getLogger(ShowName.class.getName());
 
     /**
@@ -402,15 +402,5 @@ public class ShowName implements Comparable<ShowName> {
     @Override
     public String toString() {
         return "ShowName [" + foundName + "]";
-    }
-
-    /**
-     * Standard compareTo method to make this class comparable
-     *
-     * @return this object's relative ordering compared to the given object
-     */
-    @Override
-    public int compareTo(ShowName other) {
-        return foundName.compareTo(other.foundName);
     }
 }
