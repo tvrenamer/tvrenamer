@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
 /**
@@ -107,6 +108,8 @@ public class Show {
     private final Map<Integer, Map<Integer, Episode>> seasons;
     private final Queue<ShowListingsListener> registrations;
 
+    private final Queue<Future<Boolean>> lookups;
+
     // Not final.  Could be changed during the program's run.
     private NumberingScheme numberingScheme = NumberingScheme.GUESS;
 
@@ -140,6 +143,7 @@ public class Show {
         episodes = new ConcurrentHashMap<>();
         seasons = new ConcurrentHashMap<>();
         registrations = new ConcurrentLinkedQueue<>();
+        lookups = new ConcurrentLinkedQueue<>();
 
         knownShows.put(idString, this);
     }
@@ -179,6 +183,25 @@ public class Show {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Give this Show a reference to the task that is downloading its listings.
+     *
+     * We use a queue in case of synchronization problems.  If we do it right,
+     * there should never be more than one for any given show.
+     *
+     * We're not doing anything with these objects yet.  We don't really care
+     * about the return value.  We do care whether it actually finishes, and
+     * as I said, we care that we never run two tasks simultaneously for the
+     * same show, but testing those things will have to wait.  (TODO)
+     *
+     * @param future
+     *          the pending completion of the task to download listings
+     *          for this show
+     */
+    public void addFuture(Future<Boolean> future) {
+        lookups.add(future);
     }
 
     /**

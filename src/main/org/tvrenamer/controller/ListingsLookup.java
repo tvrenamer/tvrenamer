@@ -6,6 +6,7 @@ import org.tvrenamer.model.TVRenamerIOException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -70,7 +71,8 @@ public class ListingsLookup {
                     }
                 }
             };
-        THREAD_POOL.submit(showFetcher);
+        Future<Boolean> future = THREAD_POOL.submit(showFetcher);
+        show.addFuture(future);
     }
 
     /**
