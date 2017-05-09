@@ -8,7 +8,9 @@ import org.tvrenamer.model.util.Constants;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Logger;
 
 /**
@@ -55,6 +57,13 @@ public class Show implements Comparable<Show> {
         ABSOLUTE
     }
 
+    private enum DownloadStatus {
+        NOT_STARTED,
+        IN_PROGRESS,
+        SUCCESS,
+        FAILURE
+    }
+
     /* When going from a filename to a Show object, there's a class in the way
      * which helps avoid duplication.  If we have two files like:
      *    "Lost.S06E05.mp4"
@@ -95,9 +104,12 @@ public class Show implements Comparable<Show> {
 
     private final Map<String, Episode> episodes;
     private final Map<Integer, Map<Integer, Episode>> seasons;
+    private final Queue<ShowListingsListener> registrations;
 
     // Not final.  Could be changed during the program's run.
     private NumberingScheme numberingScheme = NumberingScheme.GUESS;
+
+    private DownloadStatus listingsStatus = DownloadStatus.NOT_STARTED;
 
     /**
      * Create a Show object for a show that the provider knows about.  Initially
@@ -118,6 +130,7 @@ public class Show implements Comparable<Show> {
 
         episodes = new ConcurrentHashMap<>();
         seasons = new ConcurrentHashMap<>();
+        registrations = new ConcurrentLinkedQueue<>();
 
         knownShows.put(id, this);
     }
@@ -142,6 +155,24 @@ public class Show implements Comparable<Show> {
     }
 
     /**
+     * Called to indicate the caller is about to initiate downloading the
+     * listings for this show.  If we find that the listings are already
+     * in progress (or, already finished), we return false, and the caller
+     * should abort.  Otherwise, we will return true, and we assume that
+     * means the caller will immediately initiate a download right after that,
+     * so we update the download status to "in progress".
+     *
+     * @return true if the listings need to be downloaded, false otherwise
+     */
+    public synchronized boolean beginDownload() {
+        if (listingsStatus == DownloadStatus.NOT_STARTED) {
+            listingsStatus = DownloadStatus.IN_PROGRESS;
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Registers a listener interested in this Show's listings.  If we
      * already have the listings, and we can notify the new listener
      * immediately, and not have to iterate over the list of existing
@@ -155,7 +186,16 @@ public class Show implements Comparable<Show> {
             logger.warning("cannot get listings without a listener");
             return;
         }
-        ListingsLookup.getListings(this, listener);
+        registrations.add(listener);
+        if (listingsStatus == DownloadStatus.NOT_STARTED) {
+            ListingsLookup.downloadListings(this);
+        } else if (listingsStatus == DownloadStatus.SUCCESS) {
+            listener.listingsDownloadComplete(this);
+        } else if (listingsStatus == DownloadStatus.FAILURE) {
+            listener.listingsDownloadFailed(this);
+        }
+        // Else, listings are currently in progress, and listener will be
+        // notified when they're complete.
     }
 
     /**
@@ -370,6 +410,33 @@ public class Show implements Comparable<Show> {
     }
 
     /**
+     * Called by ListingsLookup to let us know that it has finished trying to look up
+     * the listings for this Show, but it did not succeed.
+     *
+     * @param err
+     *     an exception that was thrown while trying to look up the listings.
+     *     May be null.
+     */
+    public synchronized void listingsFailed(Exception err) {
+        listingsStatus = DownloadStatus.FAILURE;
+        for (ShowListingsListener listener : registrations) {
+            listener.listingsDownloadFailed(this);
+        }
+    }
+
+    /**
+     * Called after we've added all the episodes to the hashmap.  At that point,
+     * we have the listings, and we can notify the listeners.
+     *
+     */
+    private synchronized void listingsSucceeded() {
+        listingsStatus = DownloadStatus.SUCCESS;
+        for (ShowListingsListener listener : registrations) {
+            listener.listingsDownloadComplete(this);
+        }
+    }
+
+    /**
      * Add a single episode to this Show's list.  Does not add the episode to the
      * (season number/episode number) index, nor does it generate any log messages
      * if anything goes wrong.  It is expected that the caller will handle any of
@@ -419,6 +486,7 @@ public class Show implements Comparable<Show> {
         }
         indexEpisodesBySeason();
         logEpisodeProblems(problems);
+        listingsSucceeded();
     }
 
     /**

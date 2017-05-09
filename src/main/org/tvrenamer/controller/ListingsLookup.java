@@ -3,40 +3,24 @@ package org.tvrenamer.controller;
 import org.tvrenamer.model.Show;
 import org.tvrenamer.model.TVRenamerIOException;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * A utility class to help with looking up show listings from the provider.
+ * This class does not manage the listeners, or deal with the epsisodes.
+ * It is just for managing threads and communication with the provider.
+ */
 public class ListingsLookup {
-
     private static Logger logger = Logger.getLogger(ListingsLookup.class.getName());
 
-    private static class ListingsRegistrations {
-        private final List<ShowListingsListener> listeners;
-
-        public ListingsRegistrations() {
-            this.listeners = new LinkedList<>();
-        }
-
-        public void addListener(ShowListingsListener listener) {
-            this.listeners.add(listener);
-        }
-
-        public List<ShowListingsListener> getListeners() {
-            return Collections.unmodifiableList(listeners);
-        }
-    }
-
-    private static final Map<String, ListingsRegistrations> listenersMap = new ConcurrentHashMap<>(100);
-
+    /**
+     * A pool of low-priority threads to execute the listings lookups.
+     */
     private static final ExecutorService THREAD_POOL
         = Executors.newCachedThreadPool(new ThreadFactory() {
                 // We want the lookup thread to run at the minimum priority, to try to
@@ -50,30 +34,29 @@ public class ListingsLookup {
                 }
             });
 
-    private static void notifyListeners(Show show) {
-        ListingsRegistrations registrations = listenersMap.get(show.getId());
-
-        if (registrations != null) {
-            for (ShowListingsListener listener : registrations.getListeners()) {
-                if (show.hasSeasons()) {
-                    listener.listingsDownloadComplete(show);
-                } else {
-                    listener.listingsDownloadFailed(show);
-                }
-            }
+    /**
+     * Spawn a thread to ask the provider to look up the listings for the given Show.
+     *
+     * This is public so it can be called from the Show class.  No one else should
+     * call it.  Other classes which are interested in show listings should call
+     * addListener() on the Show itself.
+     *
+     * @param show
+     *           the show to download listings for
+     */
+    public static void downloadListings(final Show show) {
+        if (!show.beginDownload()) {
+            logger.warning("should not call downloadListings; Show is already download[ing/ed].");
+            return;
         }
-    }
-
-    private static void downloadListings(final Show show) {
         Callable<Boolean> showFetcher = new Callable<Boolean>() {
                 @Override
                 public Boolean call() throws InterruptedException {
                     try {
                         TheTVDBProvider.getShowListing(show);
-                        notifyListeners(show);
                         return true;
                     } catch (TVRenamerIOException e) {
-                        notifyListeners(show);
+                        show.listingsFailed(e);
                         return false;
                     } catch (Exception e) {
                         // Because this is running in a separate thread, an uncaught
@@ -82,7 +65,7 @@ public class ListingsLookup {
                         // thread dies, one way or another.
                         logger.log(Level.WARNING, "generic exception doing getListings for "
                                    + show, e);
-                        notifyListeners(show);
+                        show.listingsFailed(e);
                         return false;
                     }
                 }
@@ -91,47 +74,16 @@ public class ListingsLookup {
     }
 
     /**
-     * <p>
-     * Download the show details if required, otherwise notify listener.
-     * </p>
-     * <ul>
-     * <li>if we already have the show listings (the Show has season info) then just  call the method on the listener</li>
-     * <li>if we don't have the listings, but are in the process of processing them (exists in listenersMap) then
-     * add the listener to the registration</li>
-     * <li>if we don't have the listings and aren't processing, then create the
-     registration, add the listener and kick off
-     * the download</li>
-     * </ul>
+     * Kill any threads that might be running, so the program can shut down.
      *
-     * @param show
-     *            the Show object representing the show
-     * @param listener
-     *            the listener to notify or register
      */
-    public static void getListings(final Show show, ShowListingsListener listener) {
-        String key = show.getId();
-        synchronized (listenersMap) {
-            ListingsRegistrations registrations = listenersMap.get(key);
-            if (registrations == null) {
-                registrations = new ListingsRegistrations();
-                listenersMap.put(key, registrations);
-            }
-            registrations.addListener(listener);
-        }
-
-        if (show.hasSeasons()) {
-            notifyListeners(show);
-            return;
-        }
-
-        downloadListings(show);
-    }
-
     public static void cleanUp() {
         THREAD_POOL.shutdownNow();
     }
 
-    public static void clear() {
-        listenersMap.clear();
-    }
+    /**
+     * This is a utility class; prevent it from being instantiated.
+     *
+     */
+    private ListingsLookup() { }
 }
