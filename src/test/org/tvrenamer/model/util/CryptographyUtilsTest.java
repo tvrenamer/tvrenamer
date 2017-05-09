@@ -2,6 +2,7 @@ package org.tvrenamer.model.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
@@ -48,9 +49,11 @@ public class CryptographyUtilsTest {
 
         long outputSize = Files.size(tempFile);
         byte[] buffer = new byte[(int) outputSize];
+        int bytesRead = -1;
         try (InputStream f = Files.newInputStream(tempFile)) {
-            f.read(buffer);
+            bytesRead = f.read(buffer);
         }
+        assertTrue(bytesRead > 0);
         String encryptedPasswordFromFile = new String(buffer);
 
         String decryptedEncryptedPasswordFromFile = CryptographyUtils.decrypt(encryptedPasswordFromFile);
