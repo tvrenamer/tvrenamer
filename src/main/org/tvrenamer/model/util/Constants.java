@@ -118,8 +118,6 @@ public class Constants {
         + "and not to rename them, either.  Therefore, there's no action to be taken.  "
         + "Open the Preferences dialog and enable \"Move\", \"Rename\", or both, in order "
         + "to take some action.";
-    public static final String NO_DND = "Drag and Drop is not currently supported "
-        + "on your operating system, please use the 'Browse Files' option above";
     public static final String UNKNOWN_EXCEPTION = "An error occurred, please check "
         + "the console output to see any errors:";
 
