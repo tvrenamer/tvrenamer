@@ -73,7 +73,7 @@ import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class UIStarter implements Observer,  AddEpisodeListener {
+public final class UIStarter implements Observer,  AddEpisodeListener {
     private static Logger logger = Logger.getLogger(UIStarter.class.getName());
     private static final int SELECTED_COLUMN = 0;
     private static final int CURRENT_FILE_COLUMN = 1;
