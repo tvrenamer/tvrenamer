@@ -55,7 +55,7 @@ public class TheTVDBProviderTest {
     @Test
     public void testGetShowOptionsAndListings() throws Exception {
         final String actualName = "Quintuplets";
-        final String showId = "73732";
+        final Integer showId = 73732;
         final String ep2Name = "Quintagious";
 
         final ShowName showName = ShowName.lookupShowName(actualName);
@@ -86,7 +86,7 @@ public class TheTVDBProviderTest {
     @Test
     public void testRegularEpisodePreference() throws Exception {
         final String actualName = "Firefly";
-        final String showId = "78874";
+        final Integer showId = 78874;
         final String dvdName = "The Train Job";
         final String productionName = "Bushwhacked";
 

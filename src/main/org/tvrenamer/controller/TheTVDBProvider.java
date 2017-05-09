@@ -65,7 +65,13 @@ public class TheTVDBProvider {
     private static String getShowListingXml(final Show show)
         throws TVRenamerIOException
     {
-        String showURL = BASE_LIST_URL + show.getId() + BASE_LIST_FILENAME;
+        Integer showId = show.getId();
+        if (showId == null) {
+            throw new TVRenamerIOException("cannot download listings for show "
+                                           + show.getName()
+                                           + " because it has no integer ID");
+        }
+        String showURL = BASE_LIST_URL + showId + BASE_LIST_FILENAME;
 
         logger.fine("Downloading episode listing from " + showURL);
 
