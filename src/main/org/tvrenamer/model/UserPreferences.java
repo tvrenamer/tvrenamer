@@ -83,7 +83,7 @@ public class UserPreferences extends Observable {
         seasonPrefixLeadingZero = false;
         moveEnabled = false;
         renameEnabled = true;
-        removeEmptiedDirectories = true;
+        removeEmptiedDirectories = false;
         renameReplacementMask = DEFAULT_REPLACEMENT_MASK;
         proxy = new ProxySettings();
         checkForUpdates = true;
