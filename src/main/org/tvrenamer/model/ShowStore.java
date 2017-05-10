@@ -189,8 +189,6 @@ public class ShowStore {
      *         matches the series information
      */
     private static void downloadShow(final ShowName showName) {
-        final String filenameShow = showName.getFoundName();
-        final String queryString = showName.getQueryString();
         Callable<Boolean> showFetcher = new Callable<Boolean>() {
             @Override
             public Boolean call() throws InterruptedException {
