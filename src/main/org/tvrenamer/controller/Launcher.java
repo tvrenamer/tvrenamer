@@ -16,17 +16,17 @@ public class Launcher {
     // Static initalisation block
     static {
         // Find logging.properties file inside jar
-        InputStream loggingConfigStream = Launcher.class.getResourceAsStream(LOGGING_PROPERTIES);
-
-        if (loggingConfigStream == null) {
-            System.err.println("Warning: logging properties not found.");
-        } else {
-            try {
+        try (InputStream loggingConfigStream
+             = Launcher.class.getResourceAsStream(LOGGING_PROPERTIES))
+        {
+            if (loggingConfigStream == null) {
+                System.err.println("Warning: logging properties not found.");
+            } else {
                 LogManager.getLogManager().readConfiguration(loggingConfigStream);
-            } catch (IOException e) {
-                System.err.println("Exception thrown while loading logging config");
-                e.printStackTrace();
             }
+        } catch (IOException e) {
+            System.err.println("Exception thrown while loading logging config");
+            e.printStackTrace();
         }
     }
 
