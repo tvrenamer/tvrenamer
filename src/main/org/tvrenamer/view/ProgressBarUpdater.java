@@ -5,8 +5,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.TaskItem;
 
-import org.tvrenamer.model.FileMoveIcon;
-
 import java.util.logging.Logger;
 
 public class ProgressBarUpdater {

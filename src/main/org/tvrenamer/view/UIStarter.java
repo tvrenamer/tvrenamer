@@ -52,7 +52,6 @@ import org.tvrenamer.controller.UpdateChecker;
 import org.tvrenamer.controller.util.StringUtils;
 import org.tvrenamer.model.EpisodeDb;
 import org.tvrenamer.model.FileEpisode;
-import org.tvrenamer.model.FileMoveIcon;
 import org.tvrenamer.model.NotFoundException;
 import org.tvrenamer.model.SWTMessageBoxType;
 import org.tvrenamer.model.Show;
