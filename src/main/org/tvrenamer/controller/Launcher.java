@@ -3,7 +3,6 @@ package org.tvrenamer.controller;
 import static org.tvrenamer.model.util.Constants.*;
 
 import org.tvrenamer.model.ShowStore;
-import org.tvrenamer.model.UserPreferences;
 import org.tvrenamer.view.UIStarter;
 
 import java.io.IOException;
@@ -46,8 +45,6 @@ public class Launcher {
      * it might be able to do different things depending on command-line arguments.
      */
     public static void main(String[] args) {
-        UserPreferences prefs = UserPreferences.getInstance();
-
         UIStarter ui = new UIStarter();
         ui.run();
         tvRenamerThreadShutdown();
