@@ -49,6 +49,7 @@ import org.tvrenamer.controller.MoveRunner;
 import org.tvrenamer.controller.ShowInformationListener;
 import org.tvrenamer.controller.ShowListingsListener;
 import org.tvrenamer.controller.UpdateChecker;
+import org.tvrenamer.controller.util.StringUtils;
 import org.tvrenamer.model.EpisodeDb;
 import org.tvrenamer.model.FileEpisode;
 import org.tvrenamer.model.FileMoveIcon;
@@ -746,7 +747,7 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
 
     private boolean isNameIgnored(String fileName) {
         for (int i = 0; i < ignoreKeywords.size(); i++) {
-            if (fileName.toLowerCase().contains(ignoreKeywords.get(i))) {
+            if (StringUtils.toLower(fileName).contains(ignoreKeywords.get(i))) {
                 return true;
             }
         }
