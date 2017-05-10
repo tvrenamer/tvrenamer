@@ -1,7 +1,7 @@
 <component name="libraryTable">
   <library name="xstream-1.4.9">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/lib/xstream-1.4.9.jar!/" />
+      <root url="jar://$PROJECT_DIR$/jars/main/xstream-1.4.9.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

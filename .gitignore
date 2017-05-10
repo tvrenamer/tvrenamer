@@ -8,6 +8,7 @@ build.properties
 /.idea/workspace.xml
 /.idea/tasks.xml
 /.idea/dictionaries/
+/.idea/inspectionProfiles/
 
 /commit.log
 /diff.diff
