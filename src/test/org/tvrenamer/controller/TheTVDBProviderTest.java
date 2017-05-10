@@ -123,7 +123,7 @@ public class TheTVDBProviderTest {
         assertEquals(dvdName, s01e02.getTitle());
     }
 
-    public static final List<EpisodeTestData> values = new LinkedList<>();
+    private static final List<EpisodeTestData> values = new LinkedList<>();
 
     /*
      * Below this comment is a series of another 60 or so episode title tests.  But

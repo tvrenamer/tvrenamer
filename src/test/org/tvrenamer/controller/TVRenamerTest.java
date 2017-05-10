@@ -13,7 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class TVRenamerTest {
-    public static final List<EpisodeTestData> values = new LinkedList<>();
+    private static final List<EpisodeTestData> values = new LinkedList<>();
 
     @BeforeClass
     public static void setupValues01() {
