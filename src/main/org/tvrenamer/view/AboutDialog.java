@@ -31,7 +31,8 @@ public class AboutDialog extends Dialog {
     private static Logger logger = Logger.getLogger(AboutDialog.class.getName());
 
     private static final String TVRENAMER_LICENSE_URL = "http://www.gnu.org/licenses/gpl-2.0.html";
-    private static Shell aboutShell;
+
+    private Shell aboutShell;
 
     /**
      * AboutDialog constructor
