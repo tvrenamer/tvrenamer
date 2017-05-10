@@ -7,17 +7,8 @@ public class EpisodeInfo {
     public final String episodeNumber;
     public final String episodeName;
     public final String firstAired;
-    // public final String overview;
-    // public final String productionCode;
-    // public final String language;
-    // public final String id;
-    // public final String seriesid;
-    // public final String seasonid;
-    // public final String lastupdated;
     public final String dvdSeason;
     public final String dvdEpisodeNumber;
-    public final String absoluteNumber;
-    public final String seriesId;
 
     public static class Builder {
         private String episodeId;
@@ -27,8 +18,6 @@ public class EpisodeInfo {
         private String firstAired;
         private String dvdSeason;
         private String dvdEpisodeNumber;
-        private String absoluteNumber;
-        private String seriesId;
 
         public Builder() {
         }
@@ -68,16 +57,6 @@ public class EpisodeInfo {
             return this;
         }
 
-        public Builder absoluteNumber(String val) {
-            absoluteNumber = val;
-            return this;
-        }
-
-        public Builder seriesId(String val) {
-            seriesId = val;
-            return this;
-        }
-
         public EpisodeInfo build() {
             return new EpisodeInfo(this);
         }
@@ -91,7 +70,5 @@ public class EpisodeInfo {
         firstAired = builder.firstAired;
         dvdSeason = builder.dvdSeason;
         dvdEpisodeNumber = builder.dvdEpisodeNumber;
-        absoluteNumber = builder.absoluteNumber;
-        seriesId = builder.seriesId;
     }
 }
