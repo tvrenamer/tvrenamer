@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 public class TVRenamer {
     private static Logger logger = Logger.getLogger(TVRenamer.class.getName());
 
-    public static final String[] REGEX = {
+    private static final String[] REGEX = {
         // this one works for titles with years:
         "(.+?\\d{4}[^a-zA-Z0-9]\\D*?)[sS]?(\\d\\d?)\\D*?(\\d\\d).*\\D(\\d+[pk]).*",
 
@@ -29,7 +29,7 @@ public class TVRenamer {
         "(.+[^a-zA-Z0-9]+)(\\d\\d?)(\\d\\d).*\\D(\\d+[pk]).*"
     };
 
-    public static final Pattern[] COMPILED_REGEX = new Pattern[REGEX.length * 2];
+    private static final Pattern[] COMPILED_REGEX = new Pattern[REGEX.length * 2];
 
     static {
         for (int i = 0; i < REGEX.length * 2; i++) {
