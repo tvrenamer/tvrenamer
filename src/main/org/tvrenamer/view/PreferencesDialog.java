@@ -215,12 +215,7 @@ public class PreferencesDialog extends Dialog {
         ignoreLabel.setToolTipText(IGNORE_LABEL_TOOLTIP);
 
         ignoreWordsText = new Text(generalGroup, SWT.BORDER);
-        java.util.List<String> ignoreList = prefs.getIgnoreKeywords();
-        String ignoreWords = "";
-        for (String s : ignoreList) {
-            ignoreWords += s;
-            ignoreWords += ",";
-        }
+        String ignoreWords = prefs.getIgnoredKeywordsString();
         ignoreWordsText.setText(ignoreWords);
         ignoreWordsText.setTextLimit(99);
         ignoreWordsText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true));
