@@ -339,7 +339,7 @@ public class Show {
      * @param effective
      *           the numbering scheme to use
      */
-    private void indexEpisodesBySeason(NumberingScheme effective) {
+    private synchronized void indexEpisodesBySeason(NumberingScheme effective) {
         seasons.clear();
         for (Episode episode : episodes.values()) {
             if (episode == null) {
@@ -384,7 +384,7 @@ public class Show {
      * decides if it's suitable to use the DVD ordering, and if not, uses the
      * standard production ordering.
      */
-    private void indexEpisodesBySeason() {
+    private synchronized void indexEpisodesBySeason() {
         if (numberingScheme == NumberingScheme.GUESS) {
             int withDVD = 0;
             int withoutDVD = 0;
