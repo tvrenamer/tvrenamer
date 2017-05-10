@@ -14,17 +14,21 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 public class UIUtils {
-
     private static Logger logger = Logger.getLogger(UIUtils.class.getName());
-    private static Shell shell;
+
+    private static Shell shell = null;
+
+    private UIUtils() {
+        // utility class; prevent instantiation
+    }
 
     /**
-     * Constructor.
+     * Give this class a pointer to the UI's shell.
      *
      * @param shell
      *            the shell to use.
      */
-    public UIUtils(Shell shell) {
+    public static void setShell(Shell shell) {
         UIUtils.shell = shell;
     }
 
