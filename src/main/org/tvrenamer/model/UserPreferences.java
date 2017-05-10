@@ -416,6 +416,20 @@ public class UserPreferences extends Observable {
     }
 
     /**
+     * @return a string containing the list of ignored keywords, separated by commas
+     */
+    public String getIgnoredKeywordsString() {
+        StringBuilder ignoreWords = new StringBuilder();
+        String sep = "";
+        for (String s : ignoreKeywords) {
+            ignoreWords.append(sep);
+            ignoreWords.append(s);
+            sep = ",";
+        }
+        return ignoreWords.toString();
+    }
+
+    /**
      * Sets the season prefix
      *
      * @param prefix the prefix for subfolders we would create to hold individual
