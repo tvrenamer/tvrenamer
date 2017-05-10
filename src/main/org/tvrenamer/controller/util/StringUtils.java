@@ -251,7 +251,7 @@ public class StringUtils {
      *
      * @param s1
      *            first string
-     * @param s1
+     * @param s2
      *            second string
      * @return true if the strings are equal
      */
