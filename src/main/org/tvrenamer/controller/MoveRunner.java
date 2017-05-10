@@ -1,7 +1,5 @@
 package org.tvrenamer.controller;
 
-import static org.tvrenamer.model.util.Constants.*;
-
 import org.tvrenamer.view.ProgressBarUpdater;
 
 import java.io.IOException;
