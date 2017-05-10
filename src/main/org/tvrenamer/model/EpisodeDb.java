@@ -146,6 +146,14 @@ public class EpisodeDb {
                                      final Path parent,
                                      final Path filename)
     {
+        if (parent == null) {
+            logger.warning("cannot add files; parent is null");
+            return;
+        }
+        if (filename == null) {
+            logger.warning("cannot add files; filename is null");
+            return;
+        }
         final Path fullpath = parent.resolve(filename);
         if (fileIsVisible(fullpath)) {
             if (Files.isDirectory(fullpath)) {
