@@ -147,7 +147,7 @@ public class FileMover implements Callable<Boolean> {
      */
     private boolean doActualMove(final Path srcPath, final Path destPath, final boolean tryRename) {
         logger.fine("Going to move\n  '" + srcPath + "'\n  '" + destPath + "'");
-        Path actualDest = null;
+        Path actualDest;
         if (tryRename) {
             try {
                 actualDest = Files.move(srcPath, destPath);
