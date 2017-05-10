@@ -28,10 +28,7 @@ public class FileUtilities {
             logger.log(Level.WARNING, "Error deleting file " + source, ioe);
             return false;
         }
-        if (Files.notExists(source)) {
-            return true;
-        }
-        return false;
+        return Files.notExists(source);
     }
 
     /**
@@ -57,18 +54,11 @@ public class FileUtilities {
             logger.warning("areSameDisk: path " + pathB + " does not exist.");
             return false;
         }
-        FileStore fsA = null;
-        FileStore fsB = null;
         try {
-            fsA = Files.getFileStore(pathA);
-            fsB = Files.getFileStore(pathB);
+            FileStore fsA = Files.getFileStore(pathA);
+            return fsA.equals(Files.getFileStore(pathB));
         } catch (IOException ioe) {
             logger.log(Level.WARNING, "IOException trying to get file stores.", ioe);
-            return false;
-        }
-        if (fsA.equals(fsB)) {
-            return true;
-        } else {
             return false;
         }
     }
@@ -90,10 +80,7 @@ public class FileUtilities {
             logger.log(Level.WARNING, "exception trying to create directory " + dir, ioe);
             return false;
         }
-        if (Files.exists(dir)) {
-            return true;
-        }
-        return false;
+        return Files.exists(dir);
     }
 
     public static boolean isDirEmpty(final Path dir) {
@@ -112,10 +99,7 @@ public class FileUtilities {
             logger.log(Level.WARNING, "exception trying to remove directory " + dir, ioe);
             return false;
         }
-        if (Files.notExists(dir)) {
-            return true;
-        }
-        return false;
+        return Files.notExists(dir);
     }
 
     public static boolean removeWhileEmpty(final Path dir) {
