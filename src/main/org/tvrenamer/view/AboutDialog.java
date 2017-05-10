@@ -174,25 +174,23 @@ public final class AboutDialog extends Dialog {
                 boolean updateAvailable = UpdateChecker.isUpdateAvailable();
 
                 if (updateAvailable) {
-                    StringBuilder messageBuilder = new StringBuilder();
-                    messageBuilder.append("There is a new version available!\n\n");
-                    messageBuilder.append("You are currently running ");
-                    messageBuilder.append(VERSION_NUMBER);
-                    messageBuilder.append(", but there is an update available\n\n");
-                    messageBuilder.append("Please visit ");
-                    messageBuilder.append(TVRENAMER_PROJECT_URL);
-                    messageBuilder.append(" to download the new version.");
+                    String message = "There is a new version available!\n\n"
+                        + "You are currently running "
+                        + VERSION_NUMBER
+                        + ", but there is an update available\n\n"
+                        + "Please visit "
+                        + TVRENAMER_PROJECT_URL
+                        + " to download the new version.";
 
-                    logger.fine(messageBuilder.toString());
-                    UIUtils.showMessageBox(SWTMessageBoxType.OK, "New Version Available!", messageBuilder.toString());
+                    logger.fine(message);
+                    UIUtils.showMessageBox(SWTMessageBoxType.OK, "New Version Available!", message);
                 } else {
-                    StringBuilder messageBuilder = new StringBuilder();
-                    messageBuilder.append("There is a no new version available\n\n");
-                    messageBuilder.append("Please check the website (");
-                    messageBuilder.append(TVRENAMER_PROJECT_URL);
-                    messageBuilder.append(") for any news or check back later.");
+                    String message = "There is a no new version available\n\n"
+                        + "Please check the website ("
+                        + TVRENAMER_PROJECT_URL
+                        + ") for any news or check back later.";
                     UIUtils.showMessageBox(SWTMessageBoxType.WARNING, "No New Version Available",
-                                           messageBuilder.toString());
+                                           message);
                 }
             }
         });
