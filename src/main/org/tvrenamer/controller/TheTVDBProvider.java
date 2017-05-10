@@ -146,8 +146,6 @@ public class TheTVDBProvider {
                 .firstAired(nodeTextValue(XPATH_AIRDATE, eNode))
                 .dvdSeason(nodeTextValue(XPATH_DVD_SEASON_NUM, eNode))
                 .dvdEpisodeNumber(nodeTextValue(XPATH_DVD_EPISODE_NUM, eNode))
-                .absoluteNumber(nodeTextValue(XPATH_EPISODE_NUM_ABS, eNode))
-                .seriesId(nodeTextValue(XPATH_EPISODE_SERIES_ID, eNode))
                 .build();
         } catch (Exception e) {
             logger.log(Level.WARNING, "exception parsing episode", e);

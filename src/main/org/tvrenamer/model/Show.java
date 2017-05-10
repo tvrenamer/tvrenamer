@@ -573,18 +573,6 @@ public class Show {
     }
 
     /**
-     * Sets the preferred numbering scheme to be "absolute", which means that we use the
-     * absolute (seasonless) numbering for indexing episodes.
-     *
-     * Then, actually rebuilds the index based on this preference.
-     */
-    // Private -- not supported -- haven't tested.  TODO.
-    private synchronized void preferAbsoluteOrdering() {
-        numberingScheme = NumberingScheme.ABSOLUTE;
-        indexEpisodesBySeason(NumberingScheme.ABSOLUTE);
-    }
-
-    /**
      * Look up an episode for the given season and episode of this show.
      * Returns null if no such episode was found.
      *

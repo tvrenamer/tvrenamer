@@ -221,10 +221,6 @@ public class MoveRunner implements Runnable {
 
         for (final FileMover pendingMove : episodes) {
             String moveToDir = pendingMove.getMoveToDirectory();
-            if (moveToDir == null) {
-                logger.warning("error: FileMover with null move-to directory");
-                continue;
-            }
             List<FileMover> existingDirMoves = getListValue(toMove, moveToDir);
             existingDirMoves.add(pendingMove);
         }

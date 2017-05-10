@@ -17,7 +17,6 @@ import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -43,7 +42,6 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.TaskBar;
 import org.eclipse.swt.widgets.TaskItem;
-import org.eclipse.swt.widgets.Text;
 
 import org.tvrenamer.controller.AddEpisodeListener;
 import org.tvrenamer.controller.FileMover;
@@ -473,63 +471,6 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
         editor.horizontalAlignment = SWT.CENTER;
         editor.grabHorizontal = true;
 
-        @SuppressWarnings("unused")
-        Listener tblEditListener = new Listener() {
-            @Override
-            public void handleEvent(Event event) {
-                Rectangle clientArea = resultsTable.getClientArea();
-                Point pt = new Point(event.x, event.y);
-                int index = resultsTable.getTopIndex();
-                while (index < resultsTable.getItemCount()) {
-                    boolean visible = false;
-                    final TableItem item = resultsTable.getItem(index);
-                    for (int i = 0; i < resultsTable.getColumnCount(); i++) {
-                        Rectangle rect = item.getBounds(i);
-                        if (rect.contains(pt)) {
-                            final int column = i;
-                            final Text text = new Text(resultsTable, SWT.NONE);
-                            Listener textListener = new Listener() {
-                                @Override
-                                @SuppressWarnings("fallthrough")
-                                public void handleEvent(final Event e) {
-                                    switch (e.type) {
-                                        case SWT.FocusOut:
-                                            item.setText(column, text.getText());
-                                            text.dispose();
-                                            break;
-                                        case SWT.Traverse:
-                                            switch (e.detail) {
-                                                case SWT.TRAVERSE_RETURN:
-                                                    item.setText(column, text.getText());
-                                                    // fall through
-                                                case SWT.TRAVERSE_ESCAPE:
-                                                    text.dispose();
-                                                    e.doit = false;
-                                            }
-                                            break;
-                                    }
-                                }
-                            };
-                            text.addListener(SWT.FocusOut, textListener);
-                            text.addListener(SWT.FocusIn, textListener);
-                            editor.setEditor(text, item, i);
-                            text.setText(item.getText(i));
-                            text.selectAll();
-                            text.setFocus();
-                            return;
-                        }
-                        if (!visible && rect.intersects(clientArea)) {
-                            visible = true;
-                        }
-                    }
-                    if (!visible) {
-                        return;
-                    }
-                    index++;
-                }
-            }
-        };
-        //resultsTable.addListener(SWT.MouseDown, tblEditListener);
         setupSelectionListener();
     }
 
