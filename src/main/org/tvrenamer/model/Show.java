@@ -79,7 +79,7 @@ public class Show {
      * separate ShowName objects created, one with "the" and one without.
      * But, that doesn't mean we have to create two Show objects.  Once
      * we query the provider and determine the ID of the show we're going
-     * to map to, we can look in "knownShows" to see if a show has already
+     * to map to, we can look in "KNOWN_SHOWS" to see if a show has already
      * been created for that ID.  If it has, return that object, and don't
      * create a new one.
      *
@@ -93,7 +93,7 @@ public class Show {
      * another usage of this map is that its values represent all the
      * Shows we have created, which can be useful information to have.
      */
-    private static Map<String, Show> knownShows = new ConcurrentHashMap<>();
+    private static final Map<String, Show> KNOWN_SHOWS = new ConcurrentHashMap<>();
 
     /*
      * More instance variables
@@ -123,8 +123,12 @@ public class Show {
      * This class should not be used (directly) for any kind of "stand in".
      *
      * @param idString
+     *     The ID of this show, from the provider, as a String
      * @param name
+     *     The proper name of this show, from the provider.  May contain a distinguisher,
+     *     such as a year.
      * @param imdb
+     *     The IMDB ID of this show, if known.  May be null.
      */
     protected Show(String idString, String name, String imdb) {
         this.idString = idString;
@@ -145,7 +149,7 @@ public class Show {
         registrations = new ConcurrentLinkedQueue<>();
         lookups = new ConcurrentLinkedQueue<>();
 
-        knownShows.put(idString, this);
+        KNOWN_SHOWS.put(idString, this);
     }
 
     /**
@@ -158,8 +162,8 @@ public class Show {
      */
     public static Show getShowInstance(String id, String name, String imdb) {
         Show matchedShow = null;
-        synchronized (knownShows) {
-            matchedShow = knownShows.get(id);
+        synchronized (KNOWN_SHOWS) {
+            matchedShow = KNOWN_SHOWS.get(id);
             if (matchedShow == null) {
                 matchedShow = new Show(id, name, imdb);
             }
