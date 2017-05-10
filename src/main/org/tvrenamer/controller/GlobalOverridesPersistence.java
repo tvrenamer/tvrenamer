@@ -25,7 +25,7 @@ public class GlobalOverridesPersistence {
     /**
      * Save the overrides object to the file.
      *
-     * @param prefs
+     * @param overrides
      *            the overrides object to save
      * @param path
      *            the path to save it to
