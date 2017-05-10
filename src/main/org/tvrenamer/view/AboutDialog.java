@@ -171,11 +171,9 @@ public final class AboutDialog extends Dialog {
         updateCheckButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                Boolean updateAvailable = UpdateChecker.isUpdateAvailable();
+                boolean updateAvailable = UpdateChecker.isUpdateAvailable();
 
-                if (updateAvailable == null) {
-                    // Don't need to do anything here as the error message has been displayed already
-                } else if (updateAvailable) {
+                if (updateAvailable) {
                     StringBuilder messageBuilder = new StringBuilder();
                     messageBuilder.append("There is a new version available!\n\n");
                     messageBuilder.append("You are currently running ");
