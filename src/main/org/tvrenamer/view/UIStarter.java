@@ -114,7 +114,7 @@ public class UIStarter implements Observer,  AddEpisodeListener {
         shell.setLayout(shellGridLayout);
 
         // Setup the util class
-        new UIUtils(shell);
+        UIUtils.setShell(shell);
 
         // Add controls to main shell
         setupMainWindow();
