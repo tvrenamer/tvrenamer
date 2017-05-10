@@ -1,5 +1,6 @@
 package org.tvrenamer.controller.util;
 
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.logging.Logger;
@@ -38,6 +39,17 @@ public class StringUtils {
                 return new DecimalFormat("#.# MB");
             }
         };
+
+
+    public static String makeString(byte[] buffer) {
+        String rval = "";
+        try {
+            rval = new String(buffer, "ASCII");
+        } catch (UnsupportedEncodingException uee) {
+            rval = "";
+        }
+        return rval;
+    }
 
     public static String makeDotTitle(String titleString) {
         String pass1 = titleString.replaceAll("(\\w)\\s+(\\w)", "$1.$2");

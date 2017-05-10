@@ -1,5 +1,7 @@
 package org.tvrenamer.model.util;
 
+import org.tvrenamer.controller.util.StringUtils;
+
 import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -52,7 +54,7 @@ public class Environment {
             if (bytesRead < MIN_BYTES_FOR_VERSION) {
                 throw new RuntimeException("Unable to extract version from version file");
             }
-            return new String(buffer).trim();
+            return StringUtils.makeString(buffer).trim();
         } catch (Exception e) {
             logger.log(Level.WARNING, "Exception when reading version file", e);
             // Has to be unchecked exception as in static block, otherwise
