@@ -825,7 +825,7 @@ public class TheTVDBProviderTest {
 
                     @Override
                     public void downloadFailed(Show show) {
-                        futureShow.complete(null);
+                        futureShow.complete(show);
                     }
                 });
             Show gotShow = futureShow.get(4, TimeUnit.SECONDS);
