@@ -163,7 +163,7 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
                         display.asyncExec(new Runnable() {
                             @Override
                             public void run() {
-                                updatesAvailableLink.setVisible(updatesAvailable);
+                                updatesAvailableLink.setVisible(true);
                             }
                         });
                     }
