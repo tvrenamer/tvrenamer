@@ -197,7 +197,7 @@ public class EpisodeTestData {
 
         public Integer getSeasonNum() {
             if (seasonNum == null) {
-                if (seasonNumString == null) {
+                if (seasonNumString != null) {
                     try {
                         return Integer.parseInt(seasonNumString);
                     } catch (NumberFormatException nfe) {
@@ -222,7 +222,7 @@ public class EpisodeTestData {
 
         public Integer getEpisodeNum() {
             if (episodeNum == null) {
-                if (episodeNumString == null) {
+                if (episodeNumString != null) {
                     try {
                         return Integer.parseInt(episodeNumString);
                     } catch (NumberFormatException nfe) {
