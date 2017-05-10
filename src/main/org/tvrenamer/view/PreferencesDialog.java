@@ -47,11 +47,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class PreferencesDialog extends Dialog {
-
     private static Logger logger = Logger.getLogger(PreferencesDialog.class.getName());
-    private static Shell preferencesShell;
-    private static int DND_OPERATIONS = DND.DROP_MOVE;
-    private TabFolder tabFolder;
+
+    private static final int DND_OPERATIONS = DND.DROP_MOVE;
 
     private final UserPreferences prefs;
 
@@ -65,6 +63,7 @@ public class PreferencesDialog extends Dialog {
     private Text ignoreWordsText;
     private Button checkForUpdatesCheckbox;
     private Button recurseFoldersCheckbox;
+    private Shell preferencesShell;
 
     /**
      * PreferencesDialog constructor
@@ -103,17 +102,17 @@ public class PreferencesDialog extends Dialog {
         helpLabel.setText(HELP_TOOLTIP);
         helpLabel.setLayoutData(new GridData(SWT.END, SWT.CENTER, true, true, shellGridLayout.numColumns, 1));
 
-        tabFolder = new TabFolder(preferencesShell, getStyle());
+        TabFolder tabFolder = new TabFolder(preferencesShell, getStyle());
         tabFolder.setLayoutData(new GridData(SWT.END, SWT.CENTER, true, true, shellGridLayout.numColumns, 1));
 
-        createGeneralTab();
-        createRenameTab();
+        createGeneralTab(tabFolder);
+        createRenameTab(tabFolder);
 
         createActionButtonGroup();
     }
 
 
-    private void createGeneralTab() {
+    private void createGeneralTab(TabFolder tabFolder) {
         TabItem item = new TabItem(tabFolder, SWT.NULL);
         item.setText(GENERAL_LABEL);
 
@@ -233,7 +232,7 @@ public class PreferencesDialog extends Dialog {
         item.setControl(generalGroup);
     }
 
-    private void createRenameTab() {
+    private void createRenameTab(TabFolder tabFolder) {
         TabItem item = new TabItem(tabFolder, SWT.NULL);
         item.setText(RENAMING_LABEL);
 
@@ -277,7 +276,7 @@ public class PreferencesDialog extends Dialog {
         item.setControl(replacementGroup);
     }
 
-    private static void createDragSource(final List sourceList) {
+    private void createDragSource(final List sourceList) {
         Transfer[] types = new Transfer[] { TextTransfer.getInstance() };
         DragSource dragSource = new DragSource(sourceList, DND_OPERATIONS);
         dragSource.setTransfer(types);
@@ -309,7 +308,7 @@ public class PreferencesDialog extends Dialog {
         });
     }
 
-    private static void createDropTarget(final Text targetText) {
+    private void createDropTarget(final Text targetText) {
         Transfer[] types = new Transfer[] { TextTransfer.getInstance() };
         DropTarget dropTarget = new DropTarget(targetText, DND_OPERATIONS);
         dropTarget.setTransfer(types);
