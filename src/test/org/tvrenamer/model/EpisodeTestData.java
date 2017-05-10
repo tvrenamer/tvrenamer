@@ -11,7 +11,15 @@ public class EpisodeTestData {
     private static final String DEFAULT_FILENAME_SUFFIX = ".avi";
     private static final String DEFAULT_REPLACEMENT_MASK = "%S [%sx%e] %t";
 
-    private static Integer fakeEpisodeIdCounter = 101;
+    private static class Counter {
+        private static int fakeEpisodeIdCounter = 101;
+
+        synchronized String getIndex() {
+            return String.valueOf(fakeEpisodeIdCounter++);
+        }
+    }
+
+    private static final Counter COUNTER = new Counter();
 
     // These attributes concern the filename
     public final String inputFilename;
@@ -282,9 +290,8 @@ public class EpisodeTestData {
 
         public String getEpisodeId() {
             if (episodeId == null) {
-                synchronized (fakeEpisodeIdCounter) {
-                    fakeEpisodeIdCounter++;
-                    return String.valueOf(fakeEpisodeIdCounter);
+                synchronized (COUNTER) {
+                    return COUNTER.getIndex();
                 }
             } else {
                 return episodeId;
