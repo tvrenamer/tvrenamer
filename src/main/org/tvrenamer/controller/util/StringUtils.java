@@ -3,10 +3,13 @@ package org.tvrenamer.controller.util;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.util.Locale;
 import java.util.logging.Logger;
 
 public class StringUtils {
     private static Logger logger = Logger.getLogger(StringUtils.class.getName());
+
+    public static final Locale THIS_LOCALE = Locale.getDefault();
 
     public static final ThreadLocal<DecimalFormat> DIGITS =
         new ThreadLocal<DecimalFormat>() {
@@ -40,6 +43,20 @@ public class StringUtils {
             }
         };
 
+    public static String toLower(String orig) {
+        if (orig == null) {
+            return "";
+        }
+        return orig.toLowerCase(THIS_LOCALE);
+    }
+
+    public static String toUpper(String orig) {
+        if (orig == null) {
+            return "";
+        }
+        return orig.toUpperCase(THIS_LOCALE);
+    }
+
 
     public static String makeString(byte[] buffer) {
         String rval = "";
@@ -59,7 +76,7 @@ public class StringUtils {
     }
 
     public static String removeLast(String input, String match) {
-        int idx = input.toLowerCase().lastIndexOf(match);
+        int idx = toLower(input).lastIndexOf(match);
         if (idx > 0) {
             input = input.substring(0, idx)
                 + input.substring(idx + match.length(), input.length());
@@ -129,7 +146,7 @@ public class StringUtils {
      *         punctuation, etc.
      */
     public static String makeQueryString(String text) {
-        return encodeSpecialCharacters(replacePunctuation(text).toLowerCase());
+        return toLower(encodeSpecialCharacters(replacePunctuation(text)));
     }
 
     /**

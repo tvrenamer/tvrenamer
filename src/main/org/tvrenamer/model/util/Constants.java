@@ -29,11 +29,8 @@ package org.tvrenamer.model.util;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Locale;
 
 public class Constants {
-
-    public static final Locale THIS_LOCALE = Locale.getDefault();
 
     public static final Charset TVR_CHARSET = Charset.forName("ISO-8859-1");
 
