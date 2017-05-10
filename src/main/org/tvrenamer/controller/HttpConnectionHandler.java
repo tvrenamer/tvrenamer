@@ -70,14 +70,19 @@ public class HttpConnectionHandler {
                     inputStream = conn.getInputStream();
                 }
 
-                // always specify encoding while reading streams
-                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
-
                 logger.finer("Before reading url stream");
 
                 String s;
-                while ((s = reader.readLine()) != null) {
-                    contents.append(s);
+                // always specify encoding while reading streams
+                try (BufferedReader reader
+                     = new BufferedReader(new InputStreamReader(inputStream, "UTF-8")))
+                {
+                    while ((s = reader.readLine()) != null) {
+                        contents.append(s);
+                    }
+                } catch (IOException ioe) {
+                    logger.log(Level.SEVERE, "error reading from stream: ", ioe);
+                    throw(ioe);
                 }
 
                 if (logger.isLoggable(Level.FINEST)) {
