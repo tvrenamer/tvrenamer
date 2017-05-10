@@ -355,7 +355,7 @@ public class EpisodeTestData {
 
         if (builder.inputFilename == null) {
             String resolutionString = EMPTY_STRING;
-            if ((episodeResolution != null) && (episodeResolution.length() > 0)) {
+            if (episodeResolution.length() > 0) {
                 resolutionString = separator + episodeResolution;
             }
             inputFilename = filenameShow
