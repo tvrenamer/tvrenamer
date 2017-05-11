@@ -36,12 +36,9 @@ import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
 
 import org.tvrenamer.model.ReplacementToken;
-import org.tvrenamer.model.SWTMessageBoxType;
-import org.tvrenamer.model.TVRenamerIOException;
 import org.tvrenamer.model.UserPreferences;
 
 import java.util.Arrays;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -405,14 +402,10 @@ public class PreferencesDialog extends Dialog {
 
         prefs.setCheckForUpdates(checkForUpdatesCheckbox.getSelection());
         prefs.setRecursivelyAddFolders(recurseFoldersCheckbox.getSelection());
+        prefs.setDestinationDirectory(destDirText.getText());
 
-        try {
-            prefs.setDestinationDirectory(destDirText.getText());
-        } catch (TVRenamerIOException e) {
-            UIUtils.showMessageBox(SWTMessageBoxType.ERROR, ERROR_LABEL, CANT_CREATE_DEST + ": "
-                + destDirText.getText());
-            logger.log(Level.WARNING, CANT_CREATE_DEST, e);
-        }
+        UIUtils.checkDestinationDirectory(prefs);
+
         UserPreferences.store(prefs);
     }
 

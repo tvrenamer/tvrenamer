@@ -104,6 +104,7 @@ public class Constants {
     public static final String RENAME_FORMAT_TOOLTIP = "The result of the rename, with the "
         + "tokens being replaced by the meaning above";
     public static final String CANT_CREATE_DEST = "Unable to create the destination directory";
+    public static final String MOVE_NOW_DISABLED = "Move is now disabled.";
     public static final String MOVE_INTRO = "Clicking this button will ";
     public static final String AND_RENAME = "rename and ";
     public static final String INTRO_MOVE_DIR = "move the selected files to the directory "

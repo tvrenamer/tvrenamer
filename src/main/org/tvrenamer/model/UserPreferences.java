@@ -5,7 +5,6 @@ import static org.tvrenamer.model.util.Constants.*;
 import org.tvrenamer.controller.UserPreferencesPersistence;
 import org.tvrenamer.controller.util.FileUtilities;
 import org.tvrenamer.controller.util.StringUtils;
-import org.tvrenamer.view.UIUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -35,42 +34,6 @@ public class UserPreferences extends Observable {
     private static final UserPreferences INSTANCE = load();
 
     /**
-     * Create the directory if it doesn't exist and we need it.
-     */
-    public void ensureDestDir() {
-        if (!moveEnabled) {
-            // It doesn't matter if the directory exists or not if move is not enabled.
-            return;
-        }
-
-        Path destPath = Paths.get(destDir);
-
-        String errorMessage;
-        if (Files.exists(destPath)) {
-            if (Files.isDirectory(destPath)) {
-                // destPath already exists; we're all set.
-                return;
-            }
-
-            // destDir exists but is not a directory.
-            errorMessage = "Destination path exists but is not a directory: '"
-                + destDir + "'. Move is now disabled";
-            // fall through to failure at bottom
-        } else if (FileUtilities.mkdirs(destPath)) {
-            // we have successfully created the destination directory
-            return;
-        } else {
-            errorMessage = "Couldn't create path: '"
-                + destDir + "'. Move is now disabled";
-            // fall through to failure
-        }
-
-        moveEnabled = false;
-        logger.warning(errorMessage);
-        UIUtils.showMessageBox(SWTMessageBoxType.ERROR, ERROR_LABEL, errorMessage);
-    }
-
-    /**
      * UserPreferences constructor which uses the defaults from {@link Constants}
      */
     private UserPreferences() {
@@ -88,8 +51,6 @@ public class UserPreferences extends Observable {
         recursivelyAddFolders = true;
         ignoreKeywords = new ArrayList<>();
         ignoreKeywords.add(DEFAULT_IGNORED_KEYWORD);
-
-        ensureDestDir();
     }
 
     /**
@@ -194,8 +155,6 @@ public class UserPreferences extends Observable {
             prefs = new UserPreferences();
         }
 
-        prefs.ensureDestDir();
-
         return prefs;
     }
 
@@ -235,15 +194,51 @@ public class UserPreferences extends Observable {
     }
 
     /**
+     * Create the directory if it doesn't exist and we need it.
+     */
+    public boolean ensureDestDir() {
+        if (!moveEnabled) {
+            // It doesn't matter if the directory exists or not if move is not enabled.
+            return true;
+        }
+
+        Path destPath = Paths.get(destDir);
+
+        String errorMessage;
+        if (Files.exists(destPath)) {
+            if (Files.isDirectory(destPath)) {
+                // destPath already exists; we're all set.
+                return true;
+            }
+
+            // destDir exists but is not a directory.
+            errorMessage = "Destination path exists but is not a directory: '"
+                + destDir + "'. Move is now disabled";
+            // fall through to failure at bottom
+        } else if (FileUtilities.mkdirs(destPath)) {
+            // we have successfully created the destination directory
+            return true;
+        } else {
+            errorMessage = "Couldn't create path: '"
+                + destDir + "'. Move is now disabled";
+            // fall through to failure
+        }
+
+        moveEnabled = false;
+        logger.warning(errorMessage);
+
+        return false;
+    }
+
+    /**
      * Sets the directory to move renamed files to.  Must be an absolute path, and the entire path
      * will be created if it doesn't exist.
      *
      * @param dir the path to the directory
      */
-    public void setDestinationDirectory(String dir) throws TVRenamerIOException {
+    public void setDestinationDirectory(String dir) {
         if (valuesAreDifferent(destDir, dir)) {
             destDir = dir;
-            ensureDestDir();
 
             preferenceChanged(UserPreference.DEST_DIR);
         }
