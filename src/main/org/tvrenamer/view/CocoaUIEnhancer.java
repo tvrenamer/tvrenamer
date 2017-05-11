@@ -32,6 +32,7 @@ import java.lang.reflect.Method;
  * <p>
  * This class is released under the Eclipse Public License (<a href="http://www.eclipse.org/legal/epl-v10.html">EPL</a>).
  */
+@SuppressWarnings("ALL")
 public class CocoaUIEnhancer {
 
     private static final long kAboutMenuItem = 0;
