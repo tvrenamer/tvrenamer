@@ -201,7 +201,7 @@ public class UserPreferences extends Observable {
      *
      * @return true if the destination directory exists -- at the time this method
      *              returns.  That is, it's true whether the directory was already
-     *              there, or if we successfully created it.  Returns false if the 
+     *              there, or if we successfully created it.  Returns false if the
      *              directory does not exist and could not be created.
      */
     public boolean ensureDestDir() {
