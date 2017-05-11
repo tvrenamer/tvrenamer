@@ -748,9 +748,8 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
     }
 
     private void deleteSelectedTableItems() {
-        int index = ITEM_NOT_IN_TABLE;
         for (final TableItem item : resultsTable.getSelection()) {
-            index = getTableItemIndex(item);
+            int index = getTableItemIndex(item);
             if (ITEM_NOT_IN_TABLE == index) {
                 logger.info("error: somehow selected item not found in table");
                 continue;

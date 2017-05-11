@@ -59,7 +59,7 @@ public class StringUtils {
 
 
     public static String makeString(byte[] buffer) {
-        String rval = "";
+        String rval;
         try {
             rval = new String(buffer, "ASCII");
         } catch (UnsupportedEncodingException uee) {
