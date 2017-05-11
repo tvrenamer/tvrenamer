@@ -16,7 +16,7 @@ public enum FileMoveIcon {
 
     public final Image icon;
 
-    private FileMoveIcon(String path) {
+    FileMoveIcon(String path) {
         InputStream stream = getClass().getResourceAsStream(path);
         if (stream != null) {
             icon = new Image(Display.getCurrent(), stream);

@@ -22,7 +22,7 @@ public enum ReplacementToken {
     private String token;
     private String description;
 
-    private ReplacementToken(String token, String description) {
+    ReplacementToken(String token, String description) {
         this.token = token;
         this.description = description;
     }
