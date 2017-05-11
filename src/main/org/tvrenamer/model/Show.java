@@ -233,9 +233,9 @@ public class Show {
         if (listingsStatus == DownloadStatus.NOT_STARTED) {
             ListingsLookup.downloadListings(this);
         } else if (listingsStatus == DownloadStatus.SUCCESS) {
-            listener.listingsDownloadComplete(this);
+            listener.listingsDownloadComplete();
         } else if (listingsStatus == DownloadStatus.FAILURE) {
-            listener.listingsDownloadFailed(this);
+            listener.listingsDownloadFailed(null);
         }
         // Else, listings are currently in progress, and listener will be
         // notified when they're complete.
@@ -464,7 +464,7 @@ public class Show {
     public synchronized void listingsFailed(Exception err) {
         listingsStatus = DownloadStatus.FAILURE;
         for (ShowListingsListener listener : registrations) {
-            listener.listingsDownloadFailed(this);
+            listener.listingsDownloadFailed(err);
         }
     }
 
@@ -476,7 +476,7 @@ public class Show {
     private synchronized void listingsSucceeded() {
         listingsStatus = DownloadStatus.SUCCESS;
         for (ShowListingsListener listener : registrations) {
-            listener.listingsDownloadComplete(this);
+            listener.listingsDownloadComplete();
         }
     }
 

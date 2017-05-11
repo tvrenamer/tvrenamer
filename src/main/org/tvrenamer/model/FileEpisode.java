@@ -321,8 +321,11 @@ public class FileEpisode {
         }
     }
 
-    public void listingsFailed() {
+    public void listingsFailed(Exception err) {
         seriesStatus = SeriesStatus.NO_LISTINGS;
+        if (err != null) {
+            logger.log(Level.WARNING, "failed to get listings for " + this, err);
+        }
         if (actualShow == null) {
             logger.warning("error: should not have tried to get listings, do not have show!");
         } else if (actualShow instanceof FailedShow) {
