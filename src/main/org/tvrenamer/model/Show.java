@@ -168,7 +168,7 @@ public class Show {
      * @return a Show with the given ID
      */
     public static Show getShowInstance(String id, String name, String imdb) {
-        Show matchedShow = null;
+        Show matchedShow;
         synchronized (KNOWN_SHOWS) {
             matchedShow = KNOWN_SHOWS.get(id);
             if (matchedShow == null) {
