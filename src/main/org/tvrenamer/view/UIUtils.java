@@ -1,11 +1,14 @@
 package org.tvrenamer.view;
 
+import static org.tvrenamer.model.util.Constants.*;
+
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import org.tvrenamer.model.SWTMessageBoxType;
+import org.tvrenamer.model.UserPreferences;
 
 import java.awt.HeadlessException;
 import java.util.logging.Level;
@@ -95,5 +98,14 @@ public class UIUtils {
             + "\nNote that proxies are not currently supported.";
         logger.log(Level.WARNING, message, exception);
         showMessageBox(SWTMessageBoxType.ERROR, "Error", message);
+    }
+
+    public static void checkDestinationDirectory(UserPreferences prefs) {
+        boolean success = prefs.ensureDestDir();
+        if (!success) {
+            logger.warning(CANT_CREATE_DEST);
+            showMessageBox(SWTMessageBoxType.ERROR, ERROR_LABEL, CANT_CREATE_DEST + ": '"
+                           + prefs.getDestinationDirectoryName() + "'. " + MOVE_NOW_DISABLED);
+        }
     }
 }

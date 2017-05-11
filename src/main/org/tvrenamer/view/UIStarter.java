@@ -114,6 +114,7 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
 
         // Setup the util class
         UIUtils.setShell(shell);
+        UIUtils.checkDestinationDirectory(prefs);
 
         // Add controls to main shell
         setupMainWindow();
@@ -885,6 +886,10 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
 
         if (upref == UserPreference.IGNORE_REGEX) {
             ignoreKeywords = observed.getIgnoreKeywords();
+        }
+
+        if (upref == UserPreference.DEST_DIR) {
+            UIUtils.checkDestinationDirectory(observed);
         }
     }
 
