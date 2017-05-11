@@ -34,7 +34,7 @@ public class UserPreferences extends Observable {
     private static final UserPreferences INSTANCE = load();
 
     /**
-     * UserPreferences constructor which uses the defaults from {@link Constants}
+     * UserPreferences constructor which uses the defaults from {@link org.tvrenamer.model.util.Constants}
      */
     private UserPreferences() {
         super();
@@ -141,6 +141,9 @@ public class UserPreferences extends Observable {
 
     /**
      * Load preferences from xml file
+     *
+     * @return an instance of UserPreferences, expected to be used as the singleton instance
+     *         for the class
      */
     public static UserPreferences load() {
         initialize();
@@ -195,6 +198,11 @@ public class UserPreferences extends Observable {
 
     /**
      * Create the directory if it doesn't exist and we need it.
+     *
+     * @return true if the destination directory exists -- at the time this method
+     *              returns.  That is, it's true whether the directory was already
+     *              there, or if we successfully created it.  Returns false if the 
+     *              directory does not exist and could not be created.
      */
     public boolean ensureDestDir() {
         if (!moveEnabled) {

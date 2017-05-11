@@ -198,6 +198,7 @@ public class StringUtils {
      * 1.2 MB).  Copied from gjt I/O library.
      *
      * @param length The size
+     * @return a formatted string
      * @since jEdit 4.4pre1
      */
     public static String formatFileSize(long length) {

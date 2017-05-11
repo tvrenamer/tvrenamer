@@ -43,6 +43,9 @@ public class Launcher {
      * All this application does is run the UI, with no arguments.  Configuration
      * comes from the PREFERENCES_FILE (see Constants.java).  But in the future,
      * it might be able to do different things depending on command-line arguments.
+     *
+     * @param args
+     *    not actually processed, at this time
      */
     public static void main(String[] args) {
         UIStarter ui = new UIStarter();
