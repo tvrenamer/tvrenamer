@@ -27,6 +27,7 @@ public class HttpConnectionHandler {
      *
      * @param urlString the URL as a String
      * @return String of the contents
+     * @throws TVRenamerIOException when there is an error connecting or reading the URL
      */
     public String downloadUrl(String urlString) throws TVRenamerIOException {
         try {

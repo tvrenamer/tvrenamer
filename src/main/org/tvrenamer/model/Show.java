@@ -158,6 +158,13 @@ public class Show {
      * been created.  Otherwise, we create a new Show, put it into the
      * table, and return it.
      *
+     * @param id
+     *     The ID of this show, from the provider, as a String
+     * @param name
+     *     The proper name of this show, from the provider.  May contain a distinguisher,
+     *     such as a year.
+     * @param imdb
+     *     The IMDB ID of this show, if known.  May be null.
      * @return a Show with the given ID
      */
     public static Show getShowInstance(String id, String name, String imdb) {
