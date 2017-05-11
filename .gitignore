@@ -2,6 +2,7 @@
 /dist/
 /lib/
 /build/
+/docs/
 
 build.properties
 
