@@ -78,6 +78,14 @@ public class MoveRunner implements Runnable {
      * If the given key is not present in the map, returns a new, empty list.
      * Otherwise, returns the value mapped to the key.
      *
+     * @param table
+     *    a mapping from a String to a list of FileMovers.  There is no assumption
+     *    about the meaning of the String key; it could be anything
+     * @param key
+     *    the key to look up in the table
+     * @return a List of (zero or more) StringMovers that is associated with the key,
+     *    in the table.  If no such list existed at the time this method was invoked,
+     *    it will be created and the association be made before the value is returned.
      */
     // TODO: make this a generic facility?
     private static List<FileMover> getListValue(Map<String, List<FileMover>> table,
@@ -104,7 +112,8 @@ public class MoveRunner implements Runnable {
      * @param moves the files which we want to move to the destination
      * @param existing the files which are already at the destination, and
      *        which the user has not specifically asked to move
-     * @return nothing; modifies the entries of "moves" in-place
+     *
+     * Returns nothing; modifies the entries of "moves" in-place
      */
     private static void addIndices(List<FileMover> moves, Set<Path> existing) {
         int index = existing.size();
@@ -122,9 +131,31 @@ public class MoveRunner implements Runnable {
     }
 
     /**
-     * Finds existing conflicts
+     * Finds existing conflicts; that is, files that are already in the
+     * destination that have an episode which conflicts with one (or
+     * more) that we want to move into the destination.
      *
+     * It should be noted that we don't expect these conflicts to be
+     * common.  Nevertheless, they can happen, and we are prepared to
+     * deal with them.
      *
+     * @param destDirName
+     *    the specific directory into which we'll be moving files
+     * @param basename
+     *     the base portion of a the source files; this means, the part
+     *     of their filepath without:<ul>
+     *     <li>the filename extension</li>
+     *     <li>the final dot (that precedes the filename extension</li>
+     *     <li>the directory</li></ul>
+     * So, for example, for "/Users/me/TV/Lost.S06E05.Lighthouse.avi",
+     * the basename would be "Lost.S06E05.Lighthouse".
+     * @param moves
+     *     a list of moves, all of which must have a destination directory
+     *     equivalent to destDirName, and all of which must have a source
+     *     basename equal to the given basename; very often will be a list
+     *     with just a single element
+     * @return a set of paths that have conflicts; may be empty, and
+     *         in fact almost always would be.
      */
     private static Set<Path> existingConflicts(String destDirName,
                                                String basename,
@@ -191,7 +222,10 @@ public class MoveRunner implements Runnable {
      * - can we integrate with a library that gives us information about the
      *   content (actual video quality, length, etc.)?
      *
-     *
+     * @param listOfMoves
+     *   a list of FileMover tasks to be done
+     * @param destDir
+     *   the name of the destination directory
      */
     private static void resolveConflicts(List<FileMover> listOfMoves, String destDir) {
         Map<String, List<FileMover>> basenames = new HashMap<>();
@@ -212,7 +246,10 @@ public class MoveRunner implements Runnable {
     /**
      * Turns a flat list of file moves into a hash map keyed on destination directory;
      *
-     *
+     * @param episodes
+     *   a list of FileMovers -- the move tasks to be done
+     * @return a mapping from directory names to a list of the FileMovers that will move
+     *   files into the directory with that name
      */
     private static Map<String, List<FileMover>> mapByDestDir(final List<FileMover> episodes) {
         final Map<String, List<FileMover>> toMove = new HashMap<>();

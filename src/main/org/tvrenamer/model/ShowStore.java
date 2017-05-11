@@ -1,104 +1,3 @@
-/**
- * ShowStore -- maps strings to Show objects.
- *
- * Note that, just for a single file, we may have up to five versions of the show's "name".
- * Let's look at an example.  Say we have a file named "Cosmos, A Space Time Odyssey S01E02.mp4".
- * The first thing we do is try to extract the show name from the filename.  If we do it right,
- * we'll get "Cosmos, A Space Time Odyssey".  That string is stored as the "filenameShow" of
- * the FileEpisode.
- *
- * Next, we'll want to query for that string.  But first we try to eliminate characters that
- * are either problematic, because they might serve as meta-characters in various contexts,
- * or simply irrelevant.  We consider show titles to essentially be case-insensitive, and
- * we don't think punctuation matters, at this point.  So we normalize the string.  Since
- * this is the text we're going to send to the provider to query for which actual show it
- * might match, I sometimes call this the "query string".  In this case, it would be
- * "cosmos a space time odyssey".
- *
- * Then, from the provider, we get back the actual show name: "Cosmos: A Spacetime Odyssey".
- *
- * But this is a bit of a problem, because Windows does not allow the colon character to
- * appear in filenames.  So we "sanitise" the title to "Cosmos - A Spacetime Odyssey".
- * That's four versions of the same show name.
- *
- * The fifth?  We allow users to set a preference to use dots instead of spaces in the
- * filenames, which would turn this into "Cosmos-A.Spacetime.Odyssey".
- *
- * (Note that I did say, "up to" five versions.  In the case of a show like "Futurama",
- * we'd likely only deal with two versions, upper-case and lower-case.)
- *
- * Once again, in table form:
- *  (1) filename show     | "Cosmos, A Space Time Odyssey"
- *  (2) query string      | "cosmos a space time odyssey"
- *  (3) actual show name  | "Cosmos: A Spacetime Odyssey"
- *  (4) sanitised name    | "Cosmos - A Spacetime Odyssey"
- *  (5) output name       | "Cosmos-A.Spacetime.Odyssey"
- *
- * Most of these transitions are simple string transformations, provided by StringUtils.java:
- *  (1) -> (2) makeQueryString
- *  (3) -> (4) sanitiseTitle
- *  (4) -> (5) makeDotTitle
- *
- * This file is how we get from (2) -> (3).  It maps query strings to Show objects, and the
- * Show objects obviously contain the actual show name.  So we have:
- *
- *  (1) -> (2)  makeQueryString
- *  (2) -> (3a) ShowStore.getShow
- *  (3a) -> (3) Show.getName
- *  (3) -> (4)  sanitiseTitle
- *  (4) -> (5)  makeDotTitle
- *
- * Note that makeQueryString should be idempotent.  If you already have a query string, and
- * you call makeQueryString on it, you should get back the identical string.
- *
- * One other small note, the "actual show name" is not necessarily the true, actual actual
- * show name.  In fact, the strings we consider as "actual show name" are expected to be
- * unique (not sure if I can say "guaranteed", that's kind of out of our hands), whereas
- * actual show names are not.  There was never a show called "Archer (2009)"; the show that
- * refers to was just called "Archer".  But The TVDB adds the date because there had been
- * a previous show called "Archer".
- *
- * This is true despite the fact that Shows also have a show ID, which is presumably even more
- * guaranteed to be unique.
- *
- * Given the assumption about the uniqueness of the "actual show name", we hope to have:
- *  (1) -> (2)  many to one
- *  (2) -> (3a) many to one
- *  (3a) -> (3) one to one
- *  (3) -> (4)  one to one
- *  (4) -> (5)  one to one
- *
- * I still must say "hope to have", because this does all depend on the idea that a show
- * is never identified by punctuation or case.  That is, if we had DIFFERENT shows, one
- * called "Cosmos: A Spacetime Odyssey" and the other called "Cosmos - A Spacetime Odyssey",
- * or the other called "Cosmos: a spacetime odyssey", we would not be able to accurately
- * tell them apart.  But it's a safe assumption that won't happen.
- *
- * On the other hand, we likely DO have issues involving the non-uniqueness of a title like
- * "Archer" or "The Office".  The fact that The TVDB assigns unique names to these series
- * does not necessarily help us much in doing the (2) -> (3a) mapping.
- *
- * What we might want to do in the future is make it potentially a many-to-many relation,
- * and say that calling getShow() does not necessarily pin down the exact series the file
- * refers to.  We might be able to figure it out later, based on additional information.
- * For example, if we're looking at "The Office, Season 8", we know it has to be the US
- * version, because the UK version didn't do that many seasons.  Or, if the actual episode
- * name is already embedded in the filename, we could try to match that up with the information
- * we get about episode listings.
- *
- * Perhaps the best option would be to have something in the UI to notify the user of the
- * ambiguity, make our best guess, and let the user correct it, if they like. But we don't
- * have that functionality, now.
- *
- * So, anyway, this class.  :)  Again, this is the (2) -> (3a) step, mapping query strings
- * to Show objects.  The real work here is when we take a query string, pass it to the
- * provider to get back a list of options, choose the best option, and return it to the
- * listener via callback.  But we do, of course, also store the mapping in a hash map, so
- * if a second file comes in with the same query string, we don't go look it up again,
- * but simply return the same answer we gave the first time.
- *
- */
-
 package org.tvrenamer.model;
 
 import org.tvrenamer.controller.ShowInformationListener;
@@ -109,6 +8,109 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
+/**
+ * ShowStore -- maps strings to Show objects.<p>
+ *
+ * Note that, just for a single file, we may have up to five versions of the show's "name".
+ * Let's look at an example.  Say we have a file named "Cosmos, A Space Time Odyssey S01E02.mp4".
+ * The first thing we do is try to extract the show name from the filename.  If we do it right,
+ * we'll get "Cosmos, A Space Time Odyssey".  That string is stored as the "filenameShow" of
+ * the FileEpisode.<p>
+ *
+ * Next, we'll want to query for that string.  But first we try to eliminate characters that
+ * are either problematic, because they might serve as meta-characters in various contexts,
+ * or simply irrelevant.  We consider show titles to essentially be case-insensitive, and
+ * we don't think punctuation matters, at this point.  So we normalize the string.  Since
+ * this is the text we're going to send to the provider to query for which actual show it
+ * might match, I sometimes call this the "query string".  In this case, it would be
+ * "cosmos a space time odyssey".<p>
+ *
+ * Then, from the provider, we get back the actual show name: "Cosmos: A Spacetime Odyssey".<p>
+ *
+ * But this is a bit of a problem, because Windows does not allow the colon character to
+ * appear in filenames.  So we "sanitise" the title to "Cosmos - A Spacetime Odyssey".
+ * That's four versions of the same show name.<p>
+ *
+ * The fifth?  We allow users to set a preference to use dots instead of spaces in the
+ * filenames, which would turn this into "Cosmos-A.Spacetime.Odyssey".<p>
+ *
+ * (Note that I did say, "up to" five versions.  In the case of a show like "Futurama",
+ * we'd likely only deal with two versions, upper-case and lower-case.  For "24", there
+ * is probably just the one version.)<p>
+ *
+ * Once again, in table form:
+ * <table summary="Versions of a show's name">
+ *  <tr><td>(1) filename show</td><td>"Cosmos, A Space Time Odyssey"</td></tr>
+ *  <tr><td>(2) query string</td>       <td>"cosmos a space time odyssey"</td></tr>
+ *  <tr><td>(3) actual show name</td>   <td>"Cosmos: A Spacetime Odyssey"</td></tr>
+ *  <tr><td>(4) sanitised name</td>     <td>"Cosmos - A Spacetime Odyssey"</td></tr>
+ *  <tr><td>(5) output name</td>        <td>"Cosmos-A.Spacetime.Odyssey"</td></tr></table><p>
+ *
+ * Most of these transitions are simple string transformations, provided by
+ * {@link org.tvrenamer.controller.util.StringUtils}:<ul>
+ *  <li>(1) -&gt;(2) makeQueryString</li>
+ *  <li>(3) -&gt;(4) sanitiseTitle</li>
+ *  <li>(4) -&gt;(5) makeDotTitle</li></ul><p>
+ *
+ * This file is how we get from (2) -&gt;(3).  It maps query strings to Show objects, and the
+ * Show objects obviously contain the actual show name.  So we have:<ul>
+ *
+ *  <li>(1) -&gt;(2)  makeQueryString</li>
+ *  <li>(2) -&gt;(3a) ShowStore.getShow</li>
+ *  <li>(3a) -&gt;(3) Show.getName</li>
+ *  <li>(3) -&gt;(4)  sanitiseTitle</li>
+ *  <li>(4) -&gt;(5)  makeDotTitle</li></ul><p>
+ *
+ * Note that makeQueryString should be idempotent.  If you already have a query string, and
+ * you call makeQueryString on it, you should get back the identical string.<p>
+ *
+ * One other small note, the "actual show name" is not necessarily the true, actual actual
+ * show name.  In fact, the strings we consider as "actual show name" are expected to be
+ * unique (not sure if I can say "guaranteed", that's kind of out of our hands), whereas
+ * actual show names are not.  There was never a show called "Archer (2009)"; the show that
+ * refers to was just called "Archer".  But The TVDB adds the date because there had been
+ * a previous show called "Archer".<p>
+ *
+ * This is true despite the fact that Shows also have a show ID, which is presumably even more
+ * guaranteed to be unique.<p>
+ *
+ * Given the assumption about the uniqueness of the "actual show name", we hope to have:<ul>
+ *  <li>(1) -&gt;(2)  many to one</li>
+ *  <li>(2) -&gt;(3a) many to one</li>
+ *  <li>(3a) -&gt;(3) one to one</li>
+ *  <li>(3) -&gt;(4)  one to one</li>
+ *  <li>(4) -&gt;(5)  one to one</li></ul><p>
+ *
+ * I still must say "hope to have", because this does all depend on the idea that a show
+ * is never identified by punctuation or case.  That is, if we had DIFFERENT shows, one
+ * called "Cosmos: A Spacetime Odyssey" and the other called "Cosmos - A Spacetime Odyssey",
+ * or the other called "Cosmos: a spacetime odyssey", we would not be able to accurately
+ * tell them apart.  But it's a safe assumption that won't happen.<p>
+ *
+ * On the other hand, we likely DO have issues involving the non-uniqueness of a title like
+ * "Archer" or "The Office".  The fact that The TVDB assigns unique names to these series
+ * does not necessarily help us much in doing the (2) -&gt;(3a) mapping.<p>
+ *
+ * What we might want to do in the future is make it potentially a many-to-many relation,
+ * and say that calling getShow() does not necessarily pin down the exact series the file
+ * refers to.  We might be able to figure it out later, based on additional information.
+ * For example, if we're looking at "The Office, Season 8", we know it has to be the US
+ * version, because the UK version didn't do that many seasons.  Or, if the actual episode
+ * name is already embedded in the filename, we could try to match that up with the information
+ * we get about episode listings.<p>
+ *
+ * Perhaps the best option would be to have something in the UI to notify the user of the
+ * ambiguity, make our best guess, and let the user correct it, if they like. But we don't
+ * have that functionality, now.<p>
+ *
+ * So, anyway, this class.  :)  Again, this is the (2) -&gt;(3a) step, mapping query strings
+ * to Show objects.  The real work here is when we take a query string, pass it to the
+ * provider to get back a list of options, choose the best option, and return it to the
+ * listener via callback.  But we do, of course, also store the mapping in a hash map, so
+ * if a second file comes in with the same query string, we don't go look it up again,
+ * but simply return the same answer we gave the first time.
+ *
+ */
 public class ShowStore {
 
     private static Logger logger = Logger.getLogger(ShowStore.class.getName());
@@ -185,8 +187,9 @@ public class ShowStore {
      * @param showName
      *    an object containing the part of the filename that is presumed to name
      *    the show, as well as the version of that string we can give the provider
-     * @return nothing; but via callback, sends the series from the list which best
-     *         matches the series information
+     *
+     * Returns nothing; but via callback, sends the series from the list which best
+     * matches the series information.
      */
     private static void downloadShow(final ShowName showName) {
         Callable<Boolean> showFetcher = new Callable<Boolean>() {
@@ -218,7 +221,7 @@ public class ShowStore {
 
     /**
      * Create a show and add it to the store, unless a show is already registered
-     * by the show name.<br />
+     * by the show name.<p>
      *
      * Added this distinct method to enable unit testing.  Unlike the "real" method
      * (<code>getShow</code>), this does not spawn a thread, connect to the internet,

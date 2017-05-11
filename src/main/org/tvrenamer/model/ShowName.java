@@ -11,38 +11,37 @@ import java.util.logging.Logger;
 
 /**
  * The ShowName class is an object that represents a string that is believed to represent
- * the name of a show.  Ultimately it will include a reference to the Show object.
+ * the name of a show.  Ultimately it will include a reference to the Show object.<p>
  *
- * Some examples may be helpful.  Let's say we have the following files:
- *   "The Office S01E02 Work Experience.mp4"
- *   "The Office S05E07.mp4"
- *   "the.office.s06e20.mkv"
- *   "the.office.us.s08e11.avi"
+ * Some examples may be helpful.  Let's say we have the following files:<ul>
+ *   <li>"The Office S01E02 Work Experience.mp4"</li>
+ *   <li>"The Office S05E07.mp4"</li>
+ *   <li>"the.office.s06e20.mkv"</li>
+ *   <li>"the.office.us.s08e11.avi"</li></ul><p>
  *
  * These would produce "filenameShow" values of "The Office ", "The Office ", "the.office.",
  * and "the.office.us", respectively.  The first two are the same, and therefore will map
- * to the same ShowName object.
+ * to the same ShowName object.<p>
  *
  * From the filenameShow, we create a query string, which normalizes the case and punctuation.
  * For the examples given, the query strings would be "the office", "the office", "the office",
  * and "the office us"; that is, the first *three* have the same value.  So even though there's
- * a separate ShowName object for the third file, it maps to the same QueryString.
+ * a separate ShowName object for the third file, it maps to the same QueryString.<p>
  *
  * The QueryString will be sent to the provider, which will potentially give us options for
  * shows it knows about, that match the query string.  We map each query string to a Show.
  * Potentially, multiple query strings can map to the same show.  For example, the strings
- * "the office" and "office" might map to the same show.
+ * "the office" and "office" might map to the same show.<p>
  *
  * This example was chosen because there are, in fact, two distinct shows called "The Office".
  * There are different ways to distinguish them, such as "The Office (US)", "The Office (UK)",
- * "The Office (2005)", etc.  But the filenames may not have these differentiators.
+ * "The Office (2005)", etc.  But the filenames may not have these differentiators.<p>
  *
  * Currently, we pick one Show for a given ShowName, even though in this example, the two
  * files actually do refer to separate shows.  We (as humans) know the first one is the BBC
  * version, because of the episode title; we know the second one is the NBC version, because
  * it is Season 5, and the BBC version didn't run that long.  Currently, this program is
  * not able to make those inferences, but it would be good to add in the future.
- *
  */
 public class ShowName {
     private static Logger logger = Logger.getLogger(ShowName.class.getName());
@@ -131,6 +130,10 @@ public class ShowName {
         /**
          * Factory-style method to obtain a QueryString.  If an object has already been created
          * for the query string we need for the found name, re-use it.
+         *
+         * @param foundName
+         *    the portion of the filename that is believed to represent the show's name
+         * @return a QueryString object for looking up the foundName
          */
         static QueryString lookupQueryString(String foundName) {
             String queryString = StringUtils.makeQueryString(foundName);
@@ -295,6 +298,8 @@ public class ShowName {
     /**
      * Create a stand-in Show object in the case of failure from the provider.
      *
+     * @param err any TVRenamerIOException that occurred trying to look up the show.
+     *            May be null.
      * @return a Show representing this ShowName
      */
     public Show getFailedShow(TVRenamerIOException err) {
@@ -306,6 +311,7 @@ public class ShowName {
     /**
      * Create a stand-in Show object in the case of failure from the provider.
      *
+     * @param actualName the formatted name of the Show for which we want a stand-in
      * @return a Show representing this ShowName
      */
     public Show getLocalShow(String actualName) {
