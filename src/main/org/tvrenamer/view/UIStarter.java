@@ -604,7 +604,7 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
             });
     }
 
-    private void tableItemFailed(TableItem item, FileEpisode episode) {
+    private void tableItemFailed(TableItem item) {
         display.asyncExec(new Runnable() {
                 @Override
                 public void run() {
@@ -638,7 +638,7 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
                     @Override
                     public void downloadFailed(Show show) {
                         episode.setEpisodeShow(show);
-                        tableItemFailed(item, episode);
+                        tableItemFailed(item);
                     }
                 });
         }
