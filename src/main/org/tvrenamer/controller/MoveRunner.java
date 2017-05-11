@@ -97,7 +97,7 @@ public class MoveRunner implements Runnable {
             return table.get(key);
         }
 
-        List<FileMover> newList = new LinkedList<FileMover>();
+        List<FileMover> newList = new LinkedList<>();
         table.put(key, newList);
         return newList;
     }
