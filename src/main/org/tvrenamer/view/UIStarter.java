@@ -569,8 +569,8 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
             });
     }
 
-    private void listingsFailed(TableItem item, FileEpisode episode) {
-        episode.listingsFailed();
+    private void listingsFailed(TableItem item, FileEpisode episode, Exception err) {
+        episode.listingsFailed(err);
         display.asyncExec(new Runnable() {
                 @Override
                 public void run() {
@@ -586,13 +586,13 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
     private void getShowListings(Show show, TableItem item, FileEpisode episode) {
         show.addListingsListener(new ShowListingsListener() {
                 @Override
-                public void listingsDownloadComplete(Show show) {
+                public void listingsDownloadComplete() {
                     listingsDownloaded(item, episode);
                 }
 
                 @Override
-                public void listingsDownloadFailed(Show show) {
-                    listingsFailed(item, episode);
+                public void listingsDownloadFailed(Exception err) {
+                    listingsFailed(item, episode, err);
                 }
             });
     }

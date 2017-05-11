@@ -865,7 +865,7 @@ public class TheTVDBProviderTest {
                     final CompletableFuture<String> future = new CompletableFuture<>();
                     show.addListingsListener(new ShowListingsListener() {
                         @Override
-                        public void listingsDownloadComplete(Show show) {
+                        public void listingsDownloadComplete() {
                             Episode ep = show.getEpisode(seasonNum, episodeNum);
                             if (ep == null) {
                                 future.complete("null episode");
@@ -876,7 +876,7 @@ public class TheTVDBProviderTest {
                         }
 
                         @Override
-                        public void listingsDownloadFailed(Show show) {
+                        public void listingsDownloadFailed(Exception err) {
                             future.complete("downloadFailed");
                         }
                     });
