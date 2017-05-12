@@ -10,7 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TVRenamer {
-    private static Logger logger = Logger.getLogger(TVRenamer.class.getName());
+    private static final Logger logger = Logger.getLogger(TVRenamer.class.getName());
 
     private static final String[] REGEX = {
         // this one works for titles with years:

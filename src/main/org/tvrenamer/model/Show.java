@@ -18,7 +18,7 @@ import java.util.logging.Logger;
  * Represents a TV Show, with a name, url and list of seasons.
  */
 public class Show {
-    private static Logger logger = Logger.getLogger(Show.class.getName());
+    private static final Logger logger = Logger.getLogger(Show.class.getName());
 
     /**
      * Values to indicate lack of information about where an episode occurs

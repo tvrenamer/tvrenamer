@@ -8,7 +8,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Environment {
-    private static Logger logger = Logger.getLogger(Environment.class.getName());
+    private static final Logger logger = Logger.getLogger(Environment.class.getName());
 
     public static final String USER_HOME = System.getProperty("user.home");
     public static final String USER_DIR = System.getProperty("user.dir");

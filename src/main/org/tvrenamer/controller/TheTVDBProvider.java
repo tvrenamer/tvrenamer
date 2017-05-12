@@ -27,7 +27,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 public class TheTVDBProvider {
-    private static Logger logger = Logger.getLogger(TheTVDBProvider.class.getName());
+    private static final Logger logger = Logger.getLogger(TheTVDBProvider.class.getName());
 
     private static final String API_KEY = "4A9560FF0B2670B2";
 

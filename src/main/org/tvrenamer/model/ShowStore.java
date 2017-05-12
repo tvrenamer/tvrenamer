@@ -113,7 +113,7 @@ import java.util.logging.Logger;
  */
 public class ShowStore {
 
-    private static Logger logger = Logger.getLogger(ShowStore.class.getName());
+    private static final Logger logger = Logger.getLogger(ShowStore.class.getName());
 
     private static final ExecutorService threadPool = Executors.newCachedThreadPool();
 

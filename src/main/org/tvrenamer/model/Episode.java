@@ -8,7 +8,7 @@ import java.time.format.DateTimeParseException;
 import java.util.logging.Logger;
 
 public class Episode {
-    private static Logger logger = Logger.getLogger(Episode.class.getName());
+    private static final Logger logger = Logger.getLogger(Episode.class.getName());
 
     private static final String EPISODE_DATE_FORMAT = "yyyy-MM-dd";
     // Unlike java.text.DateFormat, DateTimeFormatter is thread-safe, so we can create just one instance here.

@@ -8,7 +8,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class UpdateChecker {
-    private static Logger logger = Logger.getLogger(UpdateChecker.class.getName());
+    private static final Logger logger = Logger.getLogger(UpdateChecker.class.getName());
 
     /**
      * Checks if a newer version is available.

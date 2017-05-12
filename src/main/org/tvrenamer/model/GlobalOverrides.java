@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 public class GlobalOverrides {
-    private static Logger logger = Logger.getLogger(GlobalOverrides.class.getName());
+    private static final Logger logger = Logger.getLogger(GlobalOverrides.class.getName());
 
     private static final GlobalOverrides INSTANCE = load();
 

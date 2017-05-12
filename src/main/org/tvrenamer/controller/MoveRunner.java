@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class MoveRunner implements Runnable {
-    private static Logger logger = Logger.getLogger(MoveRunner.class.getName());
+    private static final Logger logger = Logger.getLogger(MoveRunner.class.getName());
 
     private static final int DEFAULT_TIMEOUT = 120;
     private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();

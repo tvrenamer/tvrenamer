@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 
 public class EpisodeDb {
 
-    private static Logger logger = Logger.getLogger(EpisodeDb.class.getName());
+    private static final Logger logger = Logger.getLogger(EpisodeDb.class.getName());
 
     private final Map<String, FileEpisode> episodes = new ConcurrentHashMap<>(1000);
     private final UserPreferences prefs = UserPreferences.getInstance();

@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 
 public class FileEpisode {
-    private static Logger logger = Logger.getLogger(FileEpisode.class.getName());
+    private static final Logger logger = Logger.getLogger(FileEpisode.class.getName());
 
     private enum ParseStatus {
         UNPARSED,

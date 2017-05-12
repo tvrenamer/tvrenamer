@@ -44,7 +44,7 @@ import java.util.logging.Logger;
  * not able to make those inferences, but it would be good to add in the future.
  */
 public class ShowName {
-    private static Logger logger = Logger.getLogger(ShowName.class.getName());
+    private static final Logger logger = Logger.getLogger(ShowName.class.getName());
 
     /**
      * Inner class to hold a query string.  The query string is what we send to the provider

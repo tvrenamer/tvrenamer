@@ -7,7 +7,7 @@ import java.util.Locale;
 import java.util.logging.Logger;
 
 public class StringUtils {
-    private static Logger logger = Logger.getLogger(StringUtils.class.getName());
+    private static final Logger logger = Logger.getLogger(StringUtils.class.getName());
 
     public static final Locale THIS_LOCALE = Locale.getDefault();
 
