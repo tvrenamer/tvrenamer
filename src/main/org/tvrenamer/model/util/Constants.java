@@ -56,8 +56,7 @@ public class Constants {
     public static final String ERROR_LABEL = "Error";
     public static final String EXIT_LABEL = "Exit";
     public static final String PREFERENCES_LABEL = "Preferences";
-    public static final String FILE_MOVE_THREAD_LABEL = "FileMoverThread";
-    public static final String RENAME_FAILED_LABEL = "Rename Failed";
+    public static final String FILE_MOVE_THREAD_LABEL = "MoveRunnerThread";
     public static final String RENAME_LABEL = "Rename Selected";
     public static final String JUST_MOVE_LABEL = "Move Selected";
     public static final String RENAME_AND_MOVE = "Rename && Move Selected";
