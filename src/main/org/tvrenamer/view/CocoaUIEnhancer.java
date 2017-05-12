@@ -253,11 +253,10 @@ class CocoaUIEnhancer {
 
     @SuppressWarnings("UnnecessaryBoxing")
     private static Object wrapPointer(long value ) {
-        Class<?> ptrClass = C.PTR_SIZEOF == 8 ? long.class : int.class;
-        if ( ptrClass == long.class ) {
-            return new Long( value );
+        if ( C.PTR_SIZEOF == 8 ) {
+            return Long.valueOf( value );
         } else {
-            return new Integer( (int) value );
+            return Integer.valueOf( (int) value );
         }
     }
 
