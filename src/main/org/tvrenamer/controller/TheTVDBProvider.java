@@ -58,6 +58,7 @@ public class TheTVDBProvider {
 
         logger.fine("About to download search results from " + searchURL);
 
+        //noinspection UnnecessaryLocalVariable
         String searchXmlText = new HttpConnectionHandler().downloadUrl(searchURL);
         return searchXmlText;
     }
@@ -75,6 +76,7 @@ public class TheTVDBProvider {
 
         logger.fine("Downloading episode listing from " + showURL);
 
+        //noinspection UnnecessaryLocalVariable
         String listingXmlText = new HttpConnectionHandler().downloadUrl(showURL);
         return listingXmlText;
     }

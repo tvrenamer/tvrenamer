@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 public class FileUtilities {
     private static final Logger logger = Logger.getLogger(FileUtilities.class.getName());
 
+    @SuppressWarnings("UnusedReturnValue")
     public static boolean deleteFile(Path source) {
         if (Files.notExists(source)) {
             logger.warning("cannot delete file, does not exist: " + source);
@@ -63,6 +64,7 @@ public class FileUtilities {
         }
     }
 
+    @SuppressWarnings("unused")
     public static boolean isSameFile(final Path path1, final Path path2) {
         try {
             return Files.isSameFile(path1, path2);
@@ -83,6 +85,7 @@ public class FileUtilities {
         return Files.exists(dir);
     }
 
+    @SuppressWarnings("WeakerAccess")
     public static boolean isDirEmpty(final Path dir) {
         try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(dir)) {
             return !dirStream.iterator().hasNext();
@@ -92,6 +95,7 @@ public class FileUtilities {
         }
     }
 
+    @SuppressWarnings("WeakerAccess")
     public static boolean rmdir(final Path dir) {
         try {
             Files.delete(dir);

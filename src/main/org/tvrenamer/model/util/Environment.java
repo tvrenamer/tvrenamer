@@ -12,6 +12,7 @@ public class Environment {
 
     public static final String USER_HOME = System.getProperty("user.home");
     public static final String USER_DIR = System.getProperty("user.dir");
+    @SuppressWarnings("WeakerAccess")
     public static final String OS_NAME = System.getProperty("os.name");
     public static final String TMP_DIR_NAME = System.getProperty("java.io.tmpdir");
 
@@ -21,6 +22,7 @@ public class Environment {
         MAC
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static OSType chooseOSType(String jvmSays) {
         if (jvmSays.contains("Mac")) {
             return OSType.MAC;
@@ -33,7 +35,9 @@ public class Environment {
 
     private static final OSType JVM_OS_TYPE = chooseOSType(OS_NAME);
     public static final boolean IS_MAC_OSX = (JVM_OS_TYPE == OSType.MAC);
+    @SuppressWarnings("unused")
     public static final boolean IS_WINDOWS = (JVM_OS_TYPE == OSType.WINDOWS);
+    @SuppressWarnings("unused")
     public static final boolean IS_UN_X = (JVM_OS_TYPE == OSType.LINUX);
 
     // If InputStream.read() fails, it returns -1.  So, anything less than zero is

@@ -50,6 +50,7 @@ public class CocoaUIEnhancer {
     /**
      * Class invoked via the Callback object to run the about and preferences actions.
      */
+    @SuppressWarnings({"UnusedParameters", "SameReturnValue", "unused"})
     private static class MenuHookObject {
         final Listener about;
         final Listener pref;
@@ -106,6 +107,7 @@ public class CocoaUIEnhancer {
      *            About and Quit menu items. If you do not wish to customize the
      *            About and Quit menu items, just pass <tt>null</tt> here.
      */
+    @SuppressWarnings("SameParameterValue")
     public CocoaUIEnhancer( String appName ) {
         this.appName = appName;
     }

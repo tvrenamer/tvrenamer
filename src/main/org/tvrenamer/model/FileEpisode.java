@@ -84,6 +84,7 @@ public class FileEpisode {
     // in the show's catalog, the file does not need to actually be present.
     private Path path;
     private String fileNameString;
+    @SuppressWarnings("unused")
     private boolean exists = false;
     private long fileSize = NO_FILE_SIZE;
 
@@ -105,10 +106,12 @@ public class FileEpisode {
     // The state of this object, not the state of the actual TV episode.
     private ParseStatus parseStatus = ParseStatus.UNPARSED;
     private SeriesStatus seriesStatus = SeriesStatus.NOT_STARTED;
+    @SuppressWarnings("unused")
     private FileStatus fileStatus = FileStatus.UNCHECKED;
 
     // This is the basic part of what we would rename the file to.  That is, we would
     // rename it to destinationFolder + baseForRename + filenameSuffix.
+    @SuppressWarnings("FieldCanBeLocal")
     private String baseForRename = null;
 
     // Initially we create the FileEpisode with nothing more than the path.
@@ -126,6 +129,7 @@ public class FileEpisode {
     }
 
     // Create FileEpisode with String; only for testing
+    @SuppressWarnings("WeakerAccess")
     public FileEpisode(String filename) {
         if (filename == null) {
             logger.severe(FILE_EPISODE_NEEDS_PATH);
@@ -138,6 +142,7 @@ public class FileEpisode {
     }
 
     // Create FileEpisode with no path; only for testing
+    @SuppressWarnings("WeakerAccess")
     public FileEpisode() {
         // We do not provide any way to create a FileEpisode with a null path
         // via the UI -- why would we?  Ultimately the program is to rename and
@@ -397,6 +402,7 @@ public class FileEpisode {
         return dateFormat.format(date);
     }
 
+    @SuppressWarnings("WeakerAccess")
     String getRenamedBasename() {
         String showName;
         if (actualShow == null) {

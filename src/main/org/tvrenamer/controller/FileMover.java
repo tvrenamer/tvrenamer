@@ -263,6 +263,7 @@ public class FileMover implements Callable<Boolean> {
         Path srcDir = srcPath.getParent();
 
         episode.setMoving();
+        //noinspection PointlessBooleanExpression
         if (false == doActualMove(srcPath, destPath, tryRename)) {
             return false;
         }

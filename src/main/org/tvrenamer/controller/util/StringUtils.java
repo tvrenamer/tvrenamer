@@ -71,6 +71,7 @@ public class StringUtils {
     public static String makeDotTitle(String titleString) {
         String pass1 = titleString.replaceAll("(\\w)\\s+(\\w)", "$1.$2");
         String pass2 = pass1.replaceAll("(\\w)\\s+(\\w)", "$1.$2");
+        @SuppressWarnings("UnnecessaryLocalVariable")
         String pass3 = pass2.replaceAll("\\s", "");
         return pass3;
     }
@@ -102,6 +103,7 @@ public class StringUtils {
         return title;
     }
 
+    @SuppressWarnings("WeakerAccess")
     public static String replacePunctuation(String s) {
         String rval = s;
 
@@ -279,6 +281,7 @@ public class StringUtils {
             return true;
         }
         for (int i = 0; i < strLen; i++) {
+            //noinspection PointlessBooleanExpression
             if ((Character.isWhitespace(str.charAt(i)) == false)) {
                 return false;
             }

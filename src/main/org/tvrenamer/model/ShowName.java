@@ -71,6 +71,7 @@ public class ShowName {
          * @return false if this QueryString had already been mapped to a show;
          *         true otherwise.
          */
+        @SuppressWarnings("UnusedReturnValue")
         synchronized boolean setShow(Show show) {
             if (matchedShow == null) {
                 matchedShow = show;
@@ -375,6 +376,7 @@ public class ShowName {
      *            "sanitising" filter.  The value should be appropriate
      *            for any supported filesystem (free from illegal characters)
      */
+    @SuppressWarnings("unused")
     public String getSanitised() {
         return sanitised;
     }
