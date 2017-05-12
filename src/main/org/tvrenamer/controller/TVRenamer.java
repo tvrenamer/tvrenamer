@@ -84,7 +84,7 @@ public class TVRenamer {
         return output;
     }
 
-    static String insertShowNameIfNeeded(final Path filePath) {
+    private static String insertShowNameIfNeeded(final Path filePath) {
         String pName = filePath.getFileName().toString();
         logger.fine("pName = " + pName);
         if (pName.matches("[sS]\\d\\d?[eE]\\d\\d?.*")) {

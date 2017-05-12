@@ -37,7 +37,7 @@ public class GlobalOverrides {
         return overrides;
     }
 
-    public static void store(GlobalOverrides overrides) {
+    private static void store(GlobalOverrides overrides) {
         GlobalOverridesPersistence.persist(overrides, OVERRIDES_FILE);
         logger.fine("Successfully saved/updated overrides");
     }

@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 
-public class UIUtils {
+class UIUtils {
     private static final Logger logger = Logger.getLogger(UIUtils.class.getName());
 
     private static Shell shell = null;

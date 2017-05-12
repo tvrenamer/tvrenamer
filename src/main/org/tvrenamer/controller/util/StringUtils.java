@@ -9,9 +9,9 @@ import java.util.logging.Logger;
 public class StringUtils {
     private static final Logger logger = Logger.getLogger(StringUtils.class.getName());
 
-    public static final Locale THIS_LOCALE = Locale.getDefault();
+    private static final Locale THIS_LOCALE = Locale.getDefault();
 
-    public static final ThreadLocal<DecimalFormat> DIGITS =
+    private static final ThreadLocal<DecimalFormat> DIGITS =
         new ThreadLocal<DecimalFormat>() {
             @Override
             protected DecimalFormat initialValue() {
@@ -19,7 +19,7 @@ public class StringUtils {
             }
         };
 
-    public static final ThreadLocal<DecimalFormat> TWO_OR_THREE =
+    private static final ThreadLocal<DecimalFormat> TWO_OR_THREE =
         new ThreadLocal<DecimalFormat>() {
             @Override
             protected DecimalFormat initialValue() {
@@ -27,7 +27,7 @@ public class StringUtils {
             }
         };
 
-    public static final ThreadLocal<DecimalFormat> KB_FORMAT =
+    private static final ThreadLocal<DecimalFormat> KB_FORMAT =
         new ThreadLocal<DecimalFormat>() {
             @Override
             protected DecimalFormat initialValue() {
@@ -35,7 +35,7 @@ public class StringUtils {
             }
         };
 
-    public static final ThreadLocal<DecimalFormat> MB_FORMAT =
+    private static final ThreadLocal<DecimalFormat> MB_FORMAT =
         new ThreadLocal<DecimalFormat>() {
             @Override
             protected DecimalFormat initialValue() {
