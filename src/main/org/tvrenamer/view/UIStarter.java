@@ -426,7 +426,7 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
             public void widgetSelected(SelectionEvent e) {
                 int newDirection = resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
                 resultsTable.setSortDirection(newDirection);
-                sortTable(selectedColumn, SELECTED_COLUMN);
+                sortTable(SELECTED_COLUMN);
                 resultsTable.setSortColumn(selectedColumn);
             }
         });
@@ -436,7 +436,7 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
             public void widgetSelected(SelectionEvent e) {
                 int newDirection = resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
                 resultsTable.setSortDirection(newDirection);
-                sortTable(sourceColumn, CURRENT_FILE_COLUMN);
+                sortTable(CURRENT_FILE_COLUMN);
                 resultsTable.setSortColumn(sourceColumn);
             }
         });
@@ -446,7 +446,7 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
             public void widgetSelected(SelectionEvent e) {
                 int newDirection = resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
                 resultsTable.setSortDirection(newDirection);
-                sortTable(destinationColumn, NEW_FILENAME_COLUMN);
+                sortTable(NEW_FILENAME_COLUMN);
                 resultsTable.setSortColumn(destinationColumn);
             }
         });
@@ -456,7 +456,7 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
             public void widgetSelected(SelectionEvent e) {
                 int newDirection = resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
                 resultsTable.setSortDirection(newDirection);
-                sortTable(statusColumn, STATUS_COLUMN);
+                sortTable(STATUS_COLUMN);
                 resultsTable.setSortColumn(statusColumn);
             }
         });
@@ -773,7 +773,7 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
         oldItem.dispose();
     }
 
-    private void sortTable(TableColumn col, int position) {
+    private void sortTable(int position) {
         // Get the items
         TableItem[] items = resultsTable.getItems();
         Collator collator = Collator.getInstance(Locale.getDefault());
