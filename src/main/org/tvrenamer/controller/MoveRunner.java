@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class MoveRunner implements Runnable {
     private static Logger logger = Logger.getLogger(MoveRunner.class.getName());
@@ -178,10 +179,9 @@ public class MoveRunner implements Runnable {
             }
         }
         if (!hits.isEmpty()) {
-            Set<Path> toMove = new HashSet<>();
-            for (FileMover move : moves) {
-                toMove.add(move.getCurrentPath());
-            }
+            Set<Path> toMove = moves.stream()
+                .map(FileMover::getCurrentPath)
+                .collect(Collectors.toSet());
             try {
                 for (Path pathToMove : toMove) {
                     Set<Path> newHits = new HashSet<>();
