@@ -99,9 +99,9 @@ public class TheTVDBProvider {
         }
     }
 
-    public static void readShowsFromInputSource(final DocumentBuilder bld,
-                                                final InputSource searchXmlSource,
-                                                final ShowName showName)
+    private static void readShowsFromInputSource(final DocumentBuilder bld,
+                                                 final InputSource searchXmlSource,
+                                                 final ShowName showName)
         throws TVRenamerIOException
     {
         try {

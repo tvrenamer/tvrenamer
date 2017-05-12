@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.LogManager;
 
-public class Launcher {
+class Launcher {
 
     // Static initalisation block
     static {

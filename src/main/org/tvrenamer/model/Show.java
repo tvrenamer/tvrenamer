@@ -132,7 +132,7 @@ public class Show {
      * @param imdb
      *     The IMDB ID of this show, if known.  May be null.
      */
-    protected Show(String idString, String name, String imdb) {
+    Show(String idString, String name, String imdb) {
         this.idString = idString;
         this.name = name;
         this.imdb = imdb;

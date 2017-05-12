@@ -16,7 +16,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
-public class HttpConnectionHandler {
+class HttpConnectionHandler {
 
     private static final Logger logger = Logger.getLogger(HttpConnectionHandler.class.getName());
     private static final int CONNECT_TIMEOUT_MS = 30000;
@@ -45,7 +45,7 @@ public class HttpConnectionHandler {
      * @return String of the URL contents
      * @throws TVRenamerIOException when there is an error connecting or reading the URL
      */
-    public String downloadUrl(URL url) throws TVRenamerIOException {
+    private String downloadUrl(URL url) throws TVRenamerIOException {
         InputStream inputStream = null;
         StringBuilder contents = new StringBuilder();
 

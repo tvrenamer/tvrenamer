@@ -62,7 +62,7 @@ public class EpisodeInfo {
         }
     }
 
-    public EpisodeInfo(Builder builder) {
+    private EpisodeInfo(Builder builder) {
         episodeId = builder.episodeId;
         seasonNumber = builder.seasonNumber;
         episodeNumber = builder.episodeNumber;

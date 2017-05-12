@@ -273,9 +273,9 @@ public class MoveRunner implements Runnable {
      *
      */
     @SuppressWarnings("SameParameterValue")
-    public MoveRunner(final List<FileMover> episodes,
-                      final ProgressBarUpdater updater,
-                      final int timeout)
+    private MoveRunner(final List<FileMover> episodes,
+                       final ProgressBarUpdater updater,
+                       final int timeout)
     {
         this.updater = updater;
         this.timeout = timeout;

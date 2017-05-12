@@ -261,7 +261,7 @@ public class ShowName {
      * @param foundName
      *            the name of the show as it appears in the filename
      */
-    public ShowName(String foundName) {
+    private ShowName(String foundName) {
         this.foundName = foundName;
         sanitised = StringUtils.sanitiseTitle(foundName);
         queryString = QueryString.lookupQueryString(foundName);

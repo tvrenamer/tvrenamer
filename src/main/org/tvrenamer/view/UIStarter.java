@@ -668,7 +668,7 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
         return null;
     }
 
-    public Label getProgressLabel(TableItem item) {
+    private Label getProgressLabel(TableItem item) {
         Label progressLabel = new Label(resultsTable, SWT.SHADOW_NONE | SWT.CENTER);
         TableEditor editor = new TableEditor(resultsTable);
         editor.grabHorizontal = true;

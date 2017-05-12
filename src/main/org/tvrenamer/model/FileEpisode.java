@@ -353,7 +353,7 @@ public class FileEpisode {
      * @return the name of the directory into which this file (the Path encapsulated
      *         within this FileEpisode) should be moved
      */
-    public String getMoveToDirectory() {
+    private String getMoveToDirectory() {
         String destPath = userPrefs.getDestinationDirectoryName();
         if (actualShow == null) {
             logger.warning("error: should not get move-to directory, do not have show!");

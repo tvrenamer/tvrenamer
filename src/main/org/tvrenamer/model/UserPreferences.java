@@ -64,7 +64,7 @@ public class UserPreferences extends Observable {
     /**
      * Deal with legacy files and set up
      */
-    public static void initialize() {
+    private static void initialize() {
         Path temp = null;
         logger.fine("configuration directory = " + CONFIGURATION_DIRECTORY.toAbsolutePath().toString());
         if (Files.exists(CONFIGURATION_DIRECTORY)) {
@@ -146,7 +146,7 @@ public class UserPreferences extends Observable {
      * @return an instance of UserPreferences, expected to be used as the singleton instance
      *         for the class
      */
-    public static UserPreferences load() {
+    private static UserPreferences load() {
         initialize();
 
         // retrieve from file and update in-memory copy

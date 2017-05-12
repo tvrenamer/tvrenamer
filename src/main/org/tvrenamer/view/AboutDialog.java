@@ -27,7 +27,7 @@ import java.util.logging.Logger;
 /**
  * The About Dialog box.
  */
-public final class AboutDialog extends Dialog {
+final class AboutDialog extends Dialog {
     private static final Logger logger = Logger.getLogger(AboutDialog.class.getName());
 
     private static final String TVRENAMER_LICENSE_URL = "http://www.gnu.org/licenses/gpl-2.0.html";
