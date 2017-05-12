@@ -615,17 +615,6 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
         return (ITEM_NOT_IN_TABLE != getTableItemIndex(item));
     }
 
-    public TableItem findItem(final FileEpisode ep) {
-        String filename = ep.getFilepath();
-        for (final TableItem item : resultsTable.getItems()) {
-            if (filename.equals(item.getText(CURRENT_FILE_COLUMN))) {
-                return item;
-            }
-        }
-
-        return null;
-    }
-
     private Label getProgressLabel(TableItem item) {
         Label progressLabel = new Label(resultsTable, SWT.SHADOW_NONE | SWT.CENTER);
         TableEditor editor = new TableEditor(resultsTable);
@@ -660,21 +649,6 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
         MoveRunner mover = new MoveRunner(pendingMoves, new ProgressBarUpdater(this));
 
         mover.runThread();
-    }
-
-    public static void setTableItemStatus(Display display, final TableItem item, final FileMoveIcon fmi) {
-        if (display.isDisposed()) {
-            return;
-        }
-        display.asyncExec(new Runnable() {
-            @Override
-            public void run() {
-                if (item.isDisposed()) {
-                    return;
-                }
-                item.setImage(STATUS_COLUMN, fmi.icon);
-            }
-        });
     }
 
     private TableItem createTableItem(Table tblResults, String fileName, FileEpisode episode) {
