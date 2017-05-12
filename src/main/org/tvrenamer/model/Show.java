@@ -475,9 +475,7 @@ public class Show {
      */
     private synchronized void listingsSucceeded() {
         listingsStatus = DownloadStatus.SUCCESS;
-        for (ShowListingsListener listener : registrations) {
-            listener.listingsDownloadComplete();
-        }
+        registrations.forEach(ShowListingsListener::listingsDownloadComplete);
     }
 
     /**
