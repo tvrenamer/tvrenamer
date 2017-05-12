@@ -222,16 +222,11 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
         display.dispose();
     }
 
-    private MenuItem makeMenuItem(Menu parent, String text, Listener listener, char shortcut) {
+    private void makeMenuItem(Menu parent, String text, Listener listener, char shortcut) {
         MenuItem newItem = new MenuItem(parent, SWT.PUSH);
         newItem.setText(text + "\tCtrl+" + shortcut);
         newItem.addListener(SWT.Selection, listener);
         newItem.setAccelerator(SWT.CONTROL | shortcut);
-
-        // We return the item so callers have the option, but by virtue of creating it
-        // with the proper parent in the first place, there's likely nothing else that
-        // needs to be done.
-        return newItem;
     }
 
     private void setupMenuBar() {
