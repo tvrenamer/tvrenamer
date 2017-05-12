@@ -52,7 +52,6 @@ import org.tvrenamer.controller.UpdateChecker;
 import org.tvrenamer.controller.util.StringUtils;
 import org.tvrenamer.model.EpisodeDb;
 import org.tvrenamer.model.FileEpisode;
-import org.tvrenamer.model.NotFoundException;
 import org.tvrenamer.model.SWTMessageBoxType;
 import org.tvrenamer.model.Show;
 import org.tvrenamer.model.ShowStore;
@@ -727,18 +726,12 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
 
     private TableItem createTableItem(Table tblResults, String fileName, FileEpisode episode) {
         TableItem item = new TableItem(tblResults, SWT.NONE);
-        String newFilename = fileName;
-        try {
-            // Set if the item is checked or not according
-            // to a list of banned keywords
-            item.setChecked(!isNameIgnored(newFilename));
 
-            newFilename = episode.getReplacementText();
-        } catch (NotFoundException e) {
-            newFilename = e.getMessage();
-            item.setChecked(false);
-            item.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
-        }
+        // Set if the item is checked or not according to a list of banned keywords
+        item.setChecked(!isNameIgnored(fileName));
+
+        String newFilename = episode.getReplacementText();
+
         item.setText(CURRENT_FILE_COLUMN, fileName);
         item.setText(NEW_FILENAME_COLUMN, newFilename);
         item.setImage(STATUS_COLUMN, FileMoveIcon.DOWNLOADING.icon);
