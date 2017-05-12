@@ -13,7 +13,7 @@ public class GlobalOverrides {
 
     private static final GlobalOverrides INSTANCE = load();
 
-    private Map<String, String> showNames;
+    private final Map<String, String> showNames;
 
     private GlobalOverrides() {
         showNames = new HashMap<>();

@@ -14,7 +14,7 @@ import java.util.logging.StreamHandler;
  */
 public class StdOutConsoleHandler extends StreamHandler {
 
-    private Formatter formatter = super.getFormatter();
+    private final Formatter formatter = super.getFormatter();
 
     @Override
     public synchronized void publish(LogRecord logRecord) {

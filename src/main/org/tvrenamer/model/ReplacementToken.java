@@ -19,8 +19,8 @@ public enum ReplacementToken {
     DATE_DAY_NUM("%d", "Day num"),
     DATE_DAY_NUMLZ("%0d", "Day num (with leading 0s)");
 
-    private String token;
-    private String description;
+    private final String token;
+    private final String description;
 
     ReplacementToken(String token, String description) {
         this.token = token;
