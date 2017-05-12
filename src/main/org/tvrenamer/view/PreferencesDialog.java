@@ -39,12 +39,10 @@ import org.tvrenamer.model.ReplacementToken;
 import org.tvrenamer.model.UserPreferences;
 
 import java.util.Arrays;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class PreferencesDialog extends Dialog {
-    private static Logger logger = Logger.getLogger(PreferencesDialog.class.getName());
 
     private static final int DND_OPERATIONS = DND.DROP_MOVE;
 
