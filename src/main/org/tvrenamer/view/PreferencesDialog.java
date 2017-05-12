@@ -126,9 +126,7 @@ public class PreferencesDialog extends Dialog {
         renameEnabledCheckbox.setText("Rename Enabled [?]");
         renameEnabledCheckbox.setSelection(prefs.isRenameEnabled());
         renameEnabledCheckbox.setLayoutData(new GridData(GridData.END, GridData.CENTER, true, true, 1, 1));
-        renameEnabledCheckbox.setToolTipText("Whether the 'rename' functionality is enabled.\n"
-                                             + "You can move a file into a folder based on its show\n"
-                                             + "without actually renaming the file");
+        renameEnabledCheckbox.setToolTipText(RENAME_ENABLED_TOOLTIP);
 
         Label destDirLabel = new Label(generalGroup, SWT.NONE);
         destDirLabel.setText(DEST_DIR_TEXT);

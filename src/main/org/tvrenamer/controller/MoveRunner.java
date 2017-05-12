@@ -1,5 +1,7 @@
 package org.tvrenamer.controller;
 
+import static org.tvrenamer.model.util.Constants.*;
+
 import org.tvrenamer.view.ProgressBarUpdater;
 
 import java.io.IOException;
@@ -277,7 +279,7 @@ public class MoveRunner implements Runnable {
         this.updater = updater;
         this.timeout = timeout;
 
-        progressThread.setName("MoveRunnerThread");
+        progressThread.setName(FILE_MOVE_THREAD_LABEL);
         progressThread.setDaemon(true);
 
         final Map<String, List<FileMover>> mappings = mapByDestDir(episodes);

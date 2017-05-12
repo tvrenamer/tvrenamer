@@ -184,7 +184,7 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
         quitButtonGridData.minimumWidth = 70;
         quitButtonGridData.widthHint = 70;
         quitButton.setLayoutData(quitButtonGridData);
-        quitButton.setText("Quit");
+        quitButton.setText(QUIT_LABEL);
 
         totalProgressBar = new ProgressBar(bottomButtonsComposite, SWT.SMOOTH);
         totalProgressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
