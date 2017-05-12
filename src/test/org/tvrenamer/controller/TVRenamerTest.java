@@ -707,7 +707,8 @@ public class TVRenamerTest {
         for (EpisodeTestData testInput : values) {
             String input = testInput.inputFilename;
             FileEpisode retval = new FileEpisode(input);
-            assertTrue(TVRenamer.parseFilename(retval));
+            TVRenamer.parseFilename(retval);
+            assertTrue(retval.wasParsed());
             assertEquals(input, testInput.filenameShow, retval.getFilenameShow());
             assertEquals(input, Integer.parseInt(testInput.seasonNumString), retval.getSeasonNum());
             assertEquals(input, Integer.parseInt(testInput.episodeNumString), retval.getEpisodeNum());

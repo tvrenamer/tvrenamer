@@ -45,7 +45,7 @@ public class TVRenamer {
         // singleton
     }
 
-    public static boolean parseFilename(final FileEpisode episode) {
+    public static void parseFilename(final FileEpisode episode) {
         Path filePath = episode.getPath();
         String withShowName = insertShowNameIfNeeded(filePath);
         String strippedName = stripJunk(withShowName);
@@ -70,12 +70,11 @@ public class TVRenamer {
                 episode.setFilenameResolution(resolution);
                 episode.setParsed();
 
-                return true;
+                return;
             }
         }
 
         episode.setFailToParse();
-        return false;
     }
 
     private static String stripJunk(String input) {
