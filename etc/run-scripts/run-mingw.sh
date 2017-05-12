@@ -47,6 +47,19 @@ usage ()
 # to come back to it.
 startdir=`pwd`
 
+# If the configuration is in the older style, transform it.
+# This actually is also done by the UserPreferences class, but simpler to
+# take care of it here, beforehand.
+if [ ! -d ~/.tvrenamer ]
+then
+  if [ -f ~/.tvrenamer ]
+  then
+    /bin/mv ~/.tvrenamer ~/prefs.xml
+    /bin/mkdir ~/.tvrenamer
+    /bin/mv ~/prefs.xml ~/.tvrenamer/prefs.xml
+  fi
+fi
+
 # Figure out where the script lives.  That tells us the project's root directory.
 proj=`dirname $0`
 cd ${proj}/../..
