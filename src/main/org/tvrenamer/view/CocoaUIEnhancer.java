@@ -8,7 +8,6 @@ import org.eclipse.swt.internal.Callback;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Listener;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -26,7 +25,7 @@ import java.lang.reflect.Method;
  *
  * This code was derived from
  * <a href="http://www.transparentech.com/opensource/cocoauienhancer">
- * TransparenTech Cocoa UI Enancer</a><p>
+ * TransparenTech Cocoa UI Enhancer</a><p>
  *
  * This class works with both the 32-bit and 64-bit versions of the SWT Cocoa
  * bindings.  <p>
@@ -34,16 +33,16 @@ import java.lang.reflect.Method;
  * This class is released under the Eclipse Public License
  * (<a href="http://www.eclipse.org/legal/epl-v10.html">EPL</a>).
  */
-public class CocoaUIEnhancer {
+class CocoaUIEnhancer {
+    private static final String SHARED_APPLICATION = "sharedApplication";
 
     private static final long kAboutMenuItem = 0;
     private static final long kPreferencesMenuItem = 2;
     private static final long kQuitMenuItem = 10;
 
-    static long sel_toolbarButtonClicked_;
-    static long sel_preferencesMenuItemSelected_;
-    static long sel_aboutMenuItemSelected_;
-    static Callback proc3Args;
+    private static long sel_preferencesMenuItemSelected_;
+    private static long sel_aboutMenuItemSelected_;
+    private static Callback proc3Args;
 
     private final String appName;
 
@@ -69,7 +68,7 @@ public class CocoaUIEnhancer {
          *    the selection
          * @param arg0
          *    not used
-         * @return an irrelevent value; ignore it
+         * @return an irrelevant value; ignore it
          */
         public int actionProc( int id, int sel, int arg0 ) {
             return (int) actionProc( (long) id, (long) sel, (long) arg0 );
@@ -84,16 +83,15 @@ public class CocoaUIEnhancer {
          *    the selection
          * @param arg0
          *    not used
-         * @return an irrelevent value; ignore it
+         * @return an irrelevant value; ignore it
          */
         public long actionProc( long id, long sel, long arg0 ) {
             if ( sel == sel_aboutMenuItemSelected_ ) {
                 about.handleEvent(null);
             } else if ( sel == sel_preferencesMenuItemSelected_ ) {
                 pref.handleEvent(null);
-            } else {
-                // Unknown selection!
             }
+            // else Unknown selection!
             // Return value is not used.
             return 99;
         }
@@ -145,6 +143,7 @@ public class CocoaUIEnhancer {
         }
 
         // Schedule disposal of callback object
+        //noinspection Convert2Lambda
         display.disposeExec( new Runnable() {
             @Override
             public void run() {
@@ -159,15 +158,13 @@ public class CocoaUIEnhancer {
         Class<?> osCls = classForName( "org.eclipse.swt.internal.cocoa.OS" );
 
         // Register names in objective-c.
-        if ( sel_toolbarButtonClicked_ == 0 ) {
-            sel_preferencesMenuItemSelected_ = registerName( osCls, "preferencesMenuItemSelected:" ); //$NON-NLS-1$
-            sel_aboutMenuItemSelected_ = registerName( osCls, "aboutMenuItemSelected:" ); //$NON-NLS-1$
-        }
+        sel_preferencesMenuItemSelected_ = registerName( osCls, "preferencesMenuItemSelected:" ); //$NON-NLS-1$
+        sel_aboutMenuItemSelected_ = registerName( osCls, "aboutMenuItemSelected:" ); //$NON-NLS-1$
 
         // Create an SWT Callback object that will invoke the actionProc method
         // of our internal callbackObject.
         proc3Args = new Callback( callbackObject, "actionProc", 3 ); //$NON-NLS-1$
-        Method getAddress = Callback.class.getMethod( "getAddress", new Class[0] );
+        Method getAddress = Callback.class.getMethod( "getAddress");
         Object object = getAddress.invoke( proc3Args, (Object[]) null );
         long proc3 = convertToLong( object );
         if ( proc3 == 0 ) {
@@ -199,7 +196,7 @@ public class CocoaUIEnhancer {
                 "@:@" } ); //$NON-NLS-1$
 
         // Get the Mac OS X Application menu.
-        Object sharedApplication = invoke( nsapplicationCls, "sharedApplication" );
+        Object sharedApplication = invokeSharedApplication( nsapplicationCls );
         Object mainMenu = invoke( sharedApplication, "mainMenu" );
         Object mainMenuItem = invoke( nsmenuCls, mainMenu, "itemAtIndex", new Object[] { wrapPointer( 0 ) } );
         Object appMenu = invoke( mainMenuItem, "submenu" );
@@ -228,7 +225,7 @@ public class CocoaUIEnhancer {
         // invoked.
         //
         // We don't need to set the target here as the current target is the
-        // SWTApplicationDelegate and we have registerd the new selectors on
+        // SWTApplicationDelegate and we have registered the new selectors on
         // it. So just set the new action to invoke the selector.
         invoke( nsmenuitemCls, prefMenuItem, "setAction",
                 new Object[] { wrapPointer( sel_preferencesMenuItemSelected_ ) } );
@@ -237,8 +234,7 @@ public class CocoaUIEnhancer {
     }
 
     private long registerName( Class<?> osCls, String name )
-            throws IllegalArgumentException, SecurityException, IllegalAccessException,
-            InvocationTargetException, NoSuchMethodException
+            throws IllegalArgumentException, SecurityException
     {
         Object object = invoke( osCls, "sel_registerName", new Object[] { name } );
         return convertToLong( object );
@@ -250,13 +246,13 @@ public class CocoaUIEnhancer {
             return i.longValue();
         }
         if ( object instanceof Long ) {
-            Long l = (Long) object;
-            return l.longValue();
+            return (Long) object;
         }
         return 0;
     }
 
-    private static Object wrapPointer( long value ) {
+    @SuppressWarnings("UnnecessaryBoxing")
+    private static Object wrapPointer(long value ) {
         Class<?> ptrClass = C.PTR_SIZEOF == 8 ? long.class : int.class;
         if ( ptrClass == long.class ) {
             return new Long( value );
@@ -295,20 +291,19 @@ public class CocoaUIEnhancer {
 
     private Class<?> classForName( String classname ) {
         try {
-            Class<?> cls = Class.forName( classname );
-            return cls;
+            return Class.forName( classname );
         } catch ( ClassNotFoundException e ) {
             throw new IllegalStateException( e );
         }
     }
 
-    private Object invoke( Class<?> cls, String methodName ) {
-        return invoke( cls, methodName, (Class<?>[]) null, (Object[]) null );
+    private Object invokeSharedApplication( Class<?> cls ) {
+        return invoke( cls, (Class<?>[]) null, (Object[]) null );
     }
 
-    private Object invoke( Class<?> cls, String methodName, Class<?>[] paramTypes, Object... arguments ) {
+    private Object invoke( Class<?> cls, Class<?>[] paramTypes, Object... arguments ) {
         try {
-            Method m = cls.getDeclaredMethod( methodName, paramTypes );
+            Method m = cls.getDeclaredMethod( SHARED_APPLICATION, paramTypes );
             return m.invoke( null, arguments );
         } catch ( Exception e ) {
             throw new IllegalStateException( e );
