@@ -65,20 +65,17 @@ class UIUtils {
             }
         }
 
-        Display.getDefault().syncExec(new Runnable() {
-            @Override
-            public void run() {
-                MessageBox msgBox = new MessageBox(shell, type.getSwtIconValue());
-                msgBox.setText(title);
+        Display.getDefault().syncExec(() -> {
+            MessageBox msgBox = new MessageBox(shell, type.getSwtIconValue());
+            msgBox.setText(title);
 
-                if (exception == null) {
-                    msgBox.setMessage(message);
-                } else {
-                    msgBox.setMessage(message + "\n" + exception.getLocalizedMessage());
-                }
-
-                msgBox.open();
+            if (exception == null) {
+                msgBox.setMessage(message);
+            } else {
+                msgBox.setMessage(message + "\n" + exception.getLocalizedMessage());
             }
+
+            msgBox.open();
         });
     }
 

@@ -9,7 +9,6 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -119,11 +118,7 @@ public class MoveRunner implements Runnable {
      */
     private static void addIndices(List<FileMover> moves, Set<Path> existing) {
         int index = existing.size();
-        moves.sort(new Comparator<FileMover>() {
-                public int compare(FileMover m1, FileMover m2) {
-                    return (int) (m2.getFileSize() - m1.getFileSize());
-                }
-            });
+        moves.sort((m1, m2) -> (int) (m2.getFileSize() - m1.getFileSize()));
         for (FileMover move : moves) {
             index++;
             if (index > 1) {

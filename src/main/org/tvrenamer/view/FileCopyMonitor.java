@@ -35,14 +35,11 @@ public class FileCopyMonitor implements ProgressObserver {
     @Override
     public void setValue(final long value) {
         if (loopCount++ % 500 == 0) {
-            display.asyncExec(new Runnable() {
-                @Override
-                public void run() {
-                    if (label.isDisposed()) {
-                        return;
-                    }
-                    label.setText(format.format((double) value / maximum));
+            display.asyncExec(() -> {
+                if (label.isDisposed()) {
+                    return;
                 }
+                label.setText(format.format((double) value / maximum));
             });
         }
     }
@@ -64,14 +61,11 @@ public class FileCopyMonitor implements ProgressObserver {
      */
     @Override
     public void setStatus(final String status) {
-        display.asyncExec(new Runnable() {
-            @Override
-            public void run() {
-                if (label.isDisposed()) {
-                    return;
-                }
-                label.setToolTipText(status);
+        display.asyncExec(() -> {
+            if (label.isDisposed()) {
+                return;
             }
+            label.setToolTipText(status);
         });
     }
 
@@ -81,15 +75,12 @@ public class FileCopyMonitor implements ProgressObserver {
     @Override
     public void cleanUp() {
         if (!display.isDisposed()) {
-            display.asyncExec(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (label.isDisposed()) {
-                            return;
-                        }
-                        label.dispose();
-                    }
-                });
+            display.asyncExec(() -> {
+                if (label.isDisposed()) {
+                    return;
+                }
+                label.dispose();
+            });
         }
     }
 

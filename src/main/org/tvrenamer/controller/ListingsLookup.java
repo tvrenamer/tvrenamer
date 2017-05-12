@@ -7,7 +7,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.ThreadFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -23,17 +22,12 @@ public class ListingsLookup {
      * A pool of low-priority threads to execute the listings lookups.
      */
     private static final ExecutorService THREAD_POOL
-        = Executors.newCachedThreadPool(new ThreadFactory() {
-                // We want the lookup thread to run at the minimum priority, to try to
-                // keep the UI as responsive as possible.
-                @Override
-                public Thread newThread(Runnable r) {
-                    Thread t = new Thread(r);
-                    t.setPriority(Thread.MIN_PRIORITY);
-                    t.setDaemon(true);
-                    return t;
-                }
-            });
+        = Executors.newCachedThreadPool(r -> {
+            Thread t = new Thread(r);
+            t.setPriority(Thread.MIN_PRIORITY);
+            t.setDaemon(true);
+            return t;
+        });
 
     /**
      * Spawn a thread to ask the provider to look up the listings for the given Show.
@@ -50,27 +44,24 @@ public class ListingsLookup {
             logger.warning("should not call downloadListings; Show is already download[ing/ed].");
             return;
         }
-        Callable<Boolean> showFetcher = new Callable<Boolean>() {
-                @Override
-                public Boolean call() throws InterruptedException {
-                    try {
-                        TheTVDBProvider.getShowListing(show);
-                        return true;
-                    } catch (TVRenamerIOException e) {
-                        show.listingsFailed(e);
-                        return false;
-                    } catch (Exception e) {
-                        // Because this is running in a separate thread, an uncaught
-                        // exception does not get caught by the main thread, and
-                        // prevents this thread from dying.  Try to make sure that the
-                        // thread dies, one way or another.
-                        logger.log(Level.WARNING, "generic exception doing getListings for "
-                                   + show, e);
-                        show.listingsFailed(e);
-                        return false;
-                    }
-                }
-            };
+        Callable<Boolean> showFetcher = () -> {
+            try {
+                TheTVDBProvider.getShowListing(show);
+                return true;
+            } catch (TVRenamerIOException e) {
+                show.listingsFailed(e);
+                return false;
+            } catch (Exception e) {
+                // Because this is running in a separate thread, an uncaught
+                // exception does not get caught by the main thread, and
+                // prevents this thread from dying.  Try to make sure that the
+                // thread dies, one way or another.
+                logger.log(Level.WARNING, "generic exception doing getListings for "
+                           + show, e);
+                show.listingsFailed(e);
+                return false;
+            }
+        };
         Future<Boolean> future = THREAD_POOL.submit(showFetcher);
         show.addFuture(future);
     }

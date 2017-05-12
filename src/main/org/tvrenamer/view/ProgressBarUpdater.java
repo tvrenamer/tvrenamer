@@ -31,16 +31,13 @@ public class ProgressBarUpdater {
      *
      */
     public void finish() {
-        display.asyncExec(new Runnable() {
-                @Override
-                public void run() {
-                    if (taskItem != null) {
-                        taskItem.setOverlayImage(null);
-                        taskItem.setProgressState(SWT.DEFAULT);
-                    }
-                    ui.refreshTable();
-                }
-            });
+        display.asyncExec(() -> {
+            if (taskItem != null) {
+                taskItem.setOverlayImage(null);
+                taskItem.setProgressState(SWT.DEFAULT);
+            }
+            ui.refreshTable();
+        });
     }
 
     /**
@@ -58,20 +55,17 @@ public class ProgressBarUpdater {
         }
 
         final float progress = (float) (totalNumFiles - nRemaining) / totalNumFiles;
-        display.asyncExec(new Runnable() {
-                @Override
-                public void run() {
-                    if (progressBar.isDisposed()) {
-                        return;
-                    }
-                    progressBar.setSelection(Math.round(progress * barSize));
-                    if (taskItem != null) {
-                        if (taskItem.isDisposed()) {
-                            return;
-                        }
-                        taskItem.setProgress(Math.round(progress * 100));
-                    }
+        display.asyncExec(() -> {
+            if (progressBar.isDisposed()) {
+                return;
+            }
+            progressBar.setSelection(Math.round(progress * barSize));
+            if (taskItem != null) {
+                if (taskItem.isDisposed()) {
+                    return;
                 }
-            });
+                taskItem.setProgress(Math.round(progress * 100));
+            }
+        });
     }
 }
