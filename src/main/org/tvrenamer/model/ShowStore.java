@@ -192,25 +192,22 @@ public class ShowStore {
      * matches the series information.
      */
     private static void downloadShow(final ShowName showName) {
-        Callable<Boolean> showFetcher = new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws InterruptedException {
-                Show thisShow;
-                try {
-                    TheTVDBProvider.getShowOptions(showName);
-                    thisShow = showName.selectShowOption();
-                } catch (TVRenamerIOException e) {
-                    thisShow = showName.getFailedShow(e);
-                }
-
-                logger.fine("Show options for '" + thisShow.getName() + "' downloaded");
-                if (thisShow instanceof FailedShow) {
-                    showName.nameNotFound(thisShow);
-                } else {
-                    showName.nameResolved(thisShow);
-                }
-                return true;
+        Callable<Boolean> showFetcher = () -> {
+            Show thisShow;
+            try {
+                TheTVDBProvider.getShowOptions(showName);
+                thisShow = showName.selectShowOption();
+            } catch (TVRenamerIOException e) {
+                thisShow = showName.getFailedShow(e);
             }
+
+            logger.fine("Show options for '" + thisShow.getName() + "' downloaded");
+            if (thisShow instanceof FailedShow) {
+                showName.nameNotFound(thisShow);
+            } else {
+                showName.nameResolved(thisShow);
+            }
+            return true;
         };
         threadPool.submit(showFetcher);
     }

@@ -27,7 +27,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
@@ -151,20 +150,12 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
         });
 
         // Show the label if updates are available (in a new thread)
-        Thread updateCheckThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                if (prefs.checkForUpdates()) {
-                    final boolean updatesAvailable = UpdateChecker.isUpdateAvailable();
+        Thread updateCheckThread = new Thread(() -> {
+            if (prefs.checkForUpdates()) {
+                final boolean updatesAvailable = UpdateChecker.isUpdateAvailable();
 
-                    if (updatesAvailable) {
-                        display.asyncExec(new Runnable() {
-                            @Override
-                            public void run() {
-                                updatesAvailableLink.setVisible(true);
-                            }
-                        });
-                    }
+                if (updatesAvailable) {
+                    display.asyncExec(() -> updatesAvailableLink.setVisible(true));
                 }
             }
         });
@@ -233,26 +224,9 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
         Menu menuBarMenu = new Menu(shell, SWT.BAR);
         Menu helpMenu;
 
-        Listener preferencesListener = new Listener() {
-            @Override
-            public void handleEvent(Event e) {
-                showPreferencesPane();
-            }
-        };
-
-        Listener aboutListener = new Listener() {
-            @Override
-            public void handleEvent(Event e) {
-                showAboutPane();
-            }
-        };
-
-        Listener quitListener = new Listener() {
-            @Override
-            public void handleEvent(Event e) {
-                uiCleanup();
-            }
-        };
+        Listener preferencesListener = e -> showPreferencesPane();
+        Listener aboutListener = e -> showAboutPane();
+        Listener quitListener = e -> uiCleanup();
 
         if (Environment.IS_MAC_OSX) {
             // Add the special Mac OSX Preferences, About and Quit menus.
@@ -334,7 +308,6 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
     }
 
     private void setupClearFilesButton() {
-
         clearFilesButton.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
                 resultsTable.removeAll();
@@ -343,34 +316,31 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
     }
 
     private void setupSelectionListener() {
-        resultsTable.addListener(SWT.Selection,
-            new Listener() {
-                public void handleEvent(Event event) {
-                    if (event.detail == SWT.CHECK) {
-                        TableItem eventItem = (TableItem) event.item;
-                        // This assumes that the current status of the TableItem
-                        // already reflects its toggled state, which appears to
-                        // be the case.
-                        boolean checked = eventItem.getChecked();
-                        boolean isSelected = false;
+        resultsTable.addListener(SWT.Selection, event -> {
+            if (event.detail == SWT.CHECK) {
+                TableItem eventItem = (TableItem) event.item;
+                // This assumes that the current status of the TableItem
+                // already reflects its toggled state, which appears to
+                // be the case.
+                boolean checked = eventItem.getChecked();
+                boolean isSelected = false;
 
-                        for (final TableItem item : resultsTable.getSelection()) {
-                            if (item == eventItem) {
-                                isSelected = true;
-                                break;
-                            }
-                        }
-                        if (isSelected) {
-                            for (final TableItem item : resultsTable.getSelection()) {
-                                item.setChecked(checked);
-                            }
-                        } else {
-                            resultsTable.deselectAll();
-                        }
+                for (final TableItem item : resultsTable.getSelection()) {
+                    if (item == eventItem) {
+                        isSelected = true;
+                        break;
                     }
-                    // else, it's a SELECTED event, which we just don't care about
                 }
-            });
+                if (isSelected) {
+                    for (final TableItem item : resultsTable.getSelection()) {
+                        item.setChecked(checked);
+                    }
+                } else {
+                    resultsTable.deselectAll();
+                }
+            }
+            // else, it's a SELECTED event, which we just don't care about
+        });
     }
 
     private void setupResultsTable() {
@@ -552,29 +522,23 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
 
     private void listingsDownloaded(TableItem item, FileEpisode episode) {
         episode.listingsComplete();
-        display.asyncExec(new Runnable() {
-                @Override
-                public void run() {
-                    if ( tableContainsTableItem(item) ) {
-                        item.setText(NEW_FILENAME_COLUMN, episode.getReplacementText());
-                        item.setImage(STATUS_COLUMN, FileMoveIcon.ADDED.icon);
-                    }
-                }
-            });
+        display.asyncExec(() -> {
+            if (tableContainsTableItem(item)) {
+                item.setText(NEW_FILENAME_COLUMN, episode.getReplacementText());
+                item.setImage(STATUS_COLUMN, FileMoveIcon.ADDED.icon);
+            }
+        });
     }
 
     private void listingsFailed(TableItem item, FileEpisode episode, Exception err) {
         episode.listingsFailed(err);
-        display.asyncExec(new Runnable() {
-                @Override
-                public void run() {
-                    if ( tableContainsTableItem(item) ) {
-                        item.setText(NEW_FILENAME_COLUMN, DOWNLOADING_FAILED);
-                        item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
-                        item.setChecked(false);
-                    }
-                }
-            });
+        display.asyncExec(() -> {
+            if (tableContainsTableItem(item)) {
+                item.setText(NEW_FILENAME_COLUMN, DOWNLOADING_FAILED);
+                item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
+                item.setChecked(false);
+            }
+        });
     }
 
     private void getShowListings(Show show, TableItem item, FileEpisode episode) {
@@ -593,28 +557,22 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
 
 
     private void tableItemDownloaded(TableItem item, FileEpisode episode) {
-        display.asyncExec(new Runnable() {
-                @Override
-                public void run() {
-                    if ( tableContainsTableItem(item) ) {
-                        item.setText(NEW_FILENAME_COLUMN, episode.getReplacementText());
-                        item.setImage(STATUS_COLUMN, FileMoveIcon.ADDED.icon);
-                    }
-                }
-            });
+        display.asyncExec(() -> {
+            if (tableContainsTableItem(item)) {
+                item.setText(NEW_FILENAME_COLUMN, episode.getReplacementText());
+                item.setImage(STATUS_COLUMN, FileMoveIcon.ADDED.icon);
+            }
+        });
     }
 
     private void tableItemFailed(TableItem item) {
-        display.asyncExec(new Runnable() {
-                @Override
-                public void run() {
-                    if ( tableContainsTableItem(item) ) {
-                        item.setText(NEW_FILENAME_COLUMN, BROKEN_PLACEHOLDER_FILENAME);
-                        item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
-                        item.setChecked(false);
-                    }
-                }
-            });
+        display.asyncExec(() -> {
+            if (tableContainsTableItem(item)) {
+                item.setText(NEW_FILENAME_COLUMN, BROKEN_PLACEHOLDER_FILENAME);
+                item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
+                item.setChecked(false);
+            }
+        });
     }
 
     @Override

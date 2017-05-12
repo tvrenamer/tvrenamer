@@ -12,8 +12,6 @@ import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.DropTargetListener;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.events.HelpEvent;
-import org.eclipse.swt.events.HelpListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -26,10 +24,8 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
@@ -139,18 +135,15 @@ class PreferencesDialog extends Dialog {
 
         final Button destDirButton = new Button(generalGroup, SWT.PUSH);
         destDirButton.setText(DEST_DIR_BUTTON_TEXT);
-        destDirButton.addListener(SWT.Selection, new Listener() {
-            @Override
-            public void handleEvent(Event event) {
-                DirectoryDialog directoryDialog = new DirectoryDialog(preferencesShell);
+        destDirButton.addListener(SWT.Selection, event -> {
+            DirectoryDialog directoryDialog = new DirectoryDialog(preferencesShell);
 
-                directoryDialog.setFilterPath(prefs.getDestinationDirectoryName());
-                directoryDialog.setText(DIR_DIALOG_TEXT);
+            directoryDialog.setFilterPath(prefs.getDestinationDirectoryName());
+            directoryDialog.setText(DIR_DIALOG_TEXT);
 
-                String dir = directoryDialog.open();
-                if (dir != null) {
-                    destDirText.setText(dir);
-                }
+            String dir = directoryDialog.open();
+            if (dir != null) {
+                destDirText.setText(dir);
             }
         });
 
@@ -185,13 +178,7 @@ class PreferencesDialog extends Dialog {
             }
         });
 
-        destDirText.addHelpListener(new HelpListener() {
-
-            @Override
-            public void helpRequested(HelpEvent e) {
-                System.out.println("helpRequested");
-            }
-        });
+        destDirText.addHelpListener(e -> System.out.println("helpRequested"));
 
         toggleEnableControls(moveEnabledCheckbox, destDirText, destDirButton, seasonPrefixText);
 
