@@ -10,7 +10,6 @@ import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -171,9 +170,8 @@ public class MoveRunner implements Runnable {
             try (DirectoryStream<Path> contents
                  = Files.newDirectoryStream(destDir, glob))
             {
-                Iterator<Path> it = contents.iterator();
-                while (it.hasNext()) {
-                    hits.add(it.next());
+                for (Path content : contents) {
+                    hits.add(content);
                 }
             } catch (IOException ioe) {
                 logger.log(Level.WARNING, "IO Exception descending " + destDir, ioe);
