@@ -17,7 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class UserPreferences extends Observable {
-    private static Logger logger = Logger.getLogger(UserPreferences.class.getName());
+    private static final Logger logger = Logger.getLogger(UserPreferences.class.getName());
 
     private String destDir;
     private String preloadFolder;

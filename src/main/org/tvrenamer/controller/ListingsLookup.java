@@ -17,7 +17,7 @@ import java.util.logging.Logger;
  * It is just for managing threads and communication with the provider.
  */
 public class ListingsLookup {
-    private static Logger logger = Logger.getLogger(ListingsLookup.class.getName());
+    private static final Logger logger = Logger.getLogger(ListingsLookup.class.getName());
 
     /**
      * A pool of low-priority threads to execute the listings lookups.

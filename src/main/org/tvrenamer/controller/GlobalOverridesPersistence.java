@@ -13,7 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class GlobalOverridesPersistence {
-    private static Logger logger = Logger.getLogger(GlobalOverridesPersistence.class.getName());
+    private static final Logger logger = Logger.getLogger(GlobalOverridesPersistence.class.getName());
 
     // Use reflection provider so the default constructor is called, thus calling the superclass constructor
     private static final XStream xstream = new XStream(new PureJavaReflectionProvider());

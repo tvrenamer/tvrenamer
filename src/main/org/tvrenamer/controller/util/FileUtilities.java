@@ -15,7 +15,7 @@ import java.util.logging.Logger;
  *
  */
 public class FileUtilities {
-    private static Logger logger = Logger.getLogger(FileUtilities.class.getName());
+    private static final Logger logger = Logger.getLogger(FileUtilities.class.getName());
 
     public static boolean deleteFile(Path source) {
         if (Files.notExists(source)) {

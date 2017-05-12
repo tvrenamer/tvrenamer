@@ -14,7 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class UserPreferencesPersistence {
-    private static Logger logger = Logger.getLogger(UserPreferencesPersistence.class.getName());
+    private static final Logger logger = Logger.getLogger(UserPreferencesPersistence.class.getName());
 
     // Use reflection provider so the default constructor is called, thus calling the superclass constructor
     // Instantiate the object so the Observable superclass is called corrected

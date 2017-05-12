@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 public class FileEpisodeTest {
-    private static Logger logger = Logger.getLogger(FileEpisodeTest.class.getName());
+    private static final Logger logger = Logger.getLogger(FileEpisodeTest.class.getName());
 
     /**
      * Just an unordered list of test data.
