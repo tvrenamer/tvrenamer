@@ -29,7 +29,7 @@ public class UserPreferences extends Observable {
     private String renameReplacementMask;
     private boolean checkForUpdates;
     private boolean recursivelyAddFolders;
-    private List<String> ignoreKeywords;
+    private final List<String> ignoreKeywords;
 
     private static final UserPreferences INSTANCE = load();
 

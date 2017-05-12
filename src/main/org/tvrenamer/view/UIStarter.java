@@ -93,7 +93,7 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
     private TaskItem taskItem = null;
 
     private UserPreferences prefs;
-    private EpisodeDb episodeMap = new EpisodeDb();
+    private final EpisodeDb episodeMap = new EpisodeDb();
 
     private void init() {
         // load preferences

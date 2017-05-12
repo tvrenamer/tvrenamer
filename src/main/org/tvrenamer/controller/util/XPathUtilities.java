@@ -11,10 +11,10 @@ import javax.xml.xpath.XPathFactory;
 
 public class XPathUtilities {
 
-    private static XPathFactory XPATH_FACTORY = XPathFactory.newInstance();
+    private static final XPathFactory XPATH_FACTORY = XPathFactory.newInstance();
     // We just create this one XPath object and use it for all shows, all episodes.
     // TODO: is there any issue with this?
-    private static XPath STD_XPATH = XPATH_FACTORY.newXPath();
+    private static final XPath STD_XPATH = XPATH_FACTORY.newXPath();
 
     public static NodeList nodeListValue(String name, Node eNode)
         throws XPathExpressionException

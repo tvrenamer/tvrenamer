@@ -175,9 +175,9 @@ public class ShowName {
      * the options we reject.
      */
     private static class ShowOption {
-        String id;
-        String actualName;
-        String imdb;
+        final String id;
+        final String actualName;
+        final String imdb;
 
         ShowOption(final String id, final String actualName, final String imdb) {
             this.id = id;

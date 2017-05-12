@@ -100,7 +100,7 @@ public class FileEpisode {
 
     // This class actually figures out the proposed new name for the file, so we need
     // a link to the user preferences to know how the user wants the file renamed.
-    private UserPreferences userPrefs = UserPreferences.getInstance();
+    private final UserPreferences userPrefs = UserPreferences.getInstance();
 
     // The state of this object, not the state of the actual TV episode.
     private ParseStatus parseStatus = ParseStatus.UNPARSED;
