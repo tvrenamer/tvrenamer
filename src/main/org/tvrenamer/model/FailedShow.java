@@ -8,8 +8,4 @@ public class FailedShow extends LocalShow {
         super(name);
         this.err = err;
     }
-
-    public FailedShow(String name) {
-        this(name, null);
-    }
 }
