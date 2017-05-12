@@ -47,7 +47,8 @@ public class Launcher {
      */
     public static void main(String[] args) {
         UIStarter ui = new UIStarter();
-        ui.run();
+        int status = ui.run();
         tvRenamerThreadShutdown();
+        System.exit(status);
     }
 }
