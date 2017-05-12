@@ -8,10 +8,8 @@ import org.tvrenamer.view.UIStarter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.LogManager;
-import java.util.logging.Logger;
 
 public class Launcher {
-    private static Logger logger = Logger.getLogger(Launcher.class.getName());
 
     // Static initalisation block
     static {

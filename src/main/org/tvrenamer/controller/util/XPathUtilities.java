@@ -3,8 +3,6 @@ package org.tvrenamer.controller.util;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import java.util.logging.Logger;
-
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -12,7 +10,6 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 public class XPathUtilities {
-    private static Logger logger = Logger.getLogger(XPathUtilities.class.getName());
 
     private static XPathFactory XPATH_FACTORY = XPathFactory.newInstance();
     // We just create this one XPath object and use it for all shows, all episodes.

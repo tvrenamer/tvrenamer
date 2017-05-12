@@ -5,10 +5,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.TaskItem;
 
-import java.util.logging.Logger;
-
 public class ProgressBarUpdater {
-    private static Logger logger = Logger.getLogger(ProgressBarUpdater.class.getName());
 
     private final UIStarter ui;
     private final Display display;
