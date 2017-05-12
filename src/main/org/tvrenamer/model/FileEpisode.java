@@ -169,10 +169,6 @@ public class FileEpisode {
         return filenameSeason;
     }
 
-    public void setSeasonNum(int seasonNum) {
-        this.seasonNum = seasonNum;
-    }
-
     public void setFilenameSeason(String filenameSeason) {
         this.filenameSeason = filenameSeason;
         try {
@@ -188,10 +184,6 @@ public class FileEpisode {
 
     public String getFilenameEpisode() {
         return filenameEpisode;
-    }
-
-    public void setEpisodeNum(int episodeNum) {
-        this.episodeNum = episodeNum;
     }
 
     public void setFilenameEpisode(String filenameEpisode) {
