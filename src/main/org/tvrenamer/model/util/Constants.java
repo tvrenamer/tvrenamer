@@ -1,3 +1,9 @@
+package org.tvrenamer.model.util;
+
+import java.nio.charset.Charset;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 /**
  * Constants.java -- the most important reason for this class to exist is for pieces of
  *    information that are shared throughout the program, so that if they should ever
@@ -23,13 +29,6 @@
  * inlined strings to resource files.  This just makes it easier to do it incrementally.
  *
  */
-
-package org.tvrenamer.model.util;
-
-import java.nio.charset.Charset;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 public class Constants {
 
     public static final Charset TVR_CHARSET = Charset.forName("ISO-8859-1");
