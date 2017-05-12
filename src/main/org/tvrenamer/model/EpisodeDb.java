@@ -182,8 +182,8 @@ public class EpisodeDb {
             Path path = Paths.get(pathPrefix);
             Path parent = path.getParent();
 
-            for (int i = 0; i < fileNames.length; i++) {
-                path = parent.resolve(fileNames[i]);
+            for (String fileName : fileNames) {
+                path = parent.resolve(fileName);
                 addFileIfVisible(contents, path);
             }
             publish(contents);

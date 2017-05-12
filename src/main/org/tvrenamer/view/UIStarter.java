@@ -746,8 +746,8 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
     }
 
     private boolean isNameIgnored(String fileName) {
-        for (int i = 0; i < ignoreKeywords.size(); i++) {
-            if (StringUtils.toLower(fileName).contains(ignoreKeywords.get(i))) {
+        for (String ignoreKeyword : ignoreKeywords) {
+            if (StringUtils.toLower(fileName).contains(ignoreKeyword)) {
                 return true;
             }
         }

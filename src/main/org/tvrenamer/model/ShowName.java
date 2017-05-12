@@ -334,8 +334,7 @@ public class ShowName {
         }
         // logger.info("got " + nOptions + " options for " + foundName);
         ShowOption selected = null;
-        for (int i=0; i<nOptions; i++) {
-            ShowOption s = showOptions.get(i);
+        for (ShowOption s : showOptions) {
             String actualName = s.actualName;
             if (foundName.equals(actualName)) {
                 if (selected == null) {
