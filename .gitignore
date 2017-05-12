@@ -8,3 +8,39 @@ build.properties
 
 /commit.log
 /diff.diff
+
+/docs/
+
+# This is a little over the top, but...
+# these are the files that are downloaded by ivy to run tests
+# and utilities in the master branch.  Ignore them if they happen
+# to be found here.
+/lib/AppleJavaExtensions-1.4.jar
+/lib/antlr-2.7.7.jar
+/lib/antlr4-runtime-4.5.3.jar
+/lib/asm-5.0.2.jar
+/lib/asm-commons-5.0.2.jar
+/lib/asm-debug-all-5.0.2.jar
+/lib/asm-tree-5.0.2.jar
+/lib/bcel-findbugs-6.0.jar
+/lib/checkstyle-7.1.1.jar
+/lib/commons-beanutils-1.9.2.jar
+/lib/commons-cli-1.3.1.jar
+/lib/commons-codec-1.4.jar
+/lib/commons-collections-3.2.2.jar
+/lib/commons-lang-2.6.jar
+/lib/commons-logging-1.1.1.jar
+/lib/dom4j-1.6.1.jar
+/lib/findbugs-3.0.1.jar
+/lib/guava-19.0.jar
+/lib/hamcrest-core-1.3.jar
+/lib/jFormatString-2.0.1.jar
+/lib/jaxen-1.1.6.jar
+/lib/jcip-annotations-1.0.jar
+/lib/jsr305-2.0.1.jar
+/lib/junit-4.12.jar
+/lib/mockito-all-1.8.5.jar
+/lib/xml-apis-1.0.b2.jar
+/lib/xmlpull-1.1.3.1.jar
+/lib/xpp3_min-1.1.4c.jar
+/lib/xstream-1.4.9.jar
