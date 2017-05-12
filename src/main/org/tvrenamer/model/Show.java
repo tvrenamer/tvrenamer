@@ -55,6 +55,7 @@ public class Show {
         GUESS,
         REGULAR,
         DVD_RELEASE,
+        @SuppressWarnings("unused")
         ABSOLUTE
     }
 
@@ -108,6 +109,7 @@ public class Show {
     private final Map<Integer, Map<Integer, Episode>> seasons;
     private final Queue<ShowListingsListener> registrations;
 
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private final Queue<Future<Boolean>> lookups;
 
     // Not final.  Could be changed during the program's run.
@@ -281,6 +283,7 @@ public class Show {
      * @return URL
      *            the IMDB URL for this show, if known
      */
+    @SuppressWarnings("unused")
     public String getImdbUrl() {
         return (imdb == null) ? "" : Constants.IMDB_BASE_URL + imdb;
     }
@@ -491,6 +494,7 @@ public class Show {
      *         <ul><li>if the episode couldn't be parsed</li>
      *             <li>if an  episode with the given ID was already present</li></ul>
      */
+    @SuppressWarnings("WeakerAccess")
     public boolean addOneEpisode(final EpisodeInfo info) {
         if (info != null) {
             String episodeId = info.episodeId;
@@ -543,6 +547,7 @@ public class Show {
      *
      * Then, actually rebuilds the index based on this preference.
      */
+    @SuppressWarnings("unused")
     public synchronized void preferHeuristicOrdering() {
         numberingScheme = NumberingScheme.GUESS;
         indexEpisodesBySeason();
@@ -560,6 +565,7 @@ public class Show {
      *
      * Then, actually rebuilds the index based on this preference.
      */
+    @SuppressWarnings("unused")
     public synchronized void preferProductionOrdering() {
         numberingScheme = NumberingScheme.REGULAR;
         indexEpisodesBySeason(NumberingScheme.REGULAR);
@@ -620,6 +626,7 @@ public class Show {
      *
      * @return a count of how many seasons we have for this Show
      */
+    @SuppressWarnings("unused")
     public boolean hasSeasons() {
         return (seasons.size() > 0);
     }
@@ -631,6 +638,7 @@ public class Show {
      *
      * @return a count of how many episodes we have for this Show
      */
+    @SuppressWarnings("unused")
     public boolean hasEpisodes() {
         return (episodes.size() > 0);
     }
@@ -640,6 +648,7 @@ public class Show {
      *
      * @return a count of how many episodes we have for this Show
      */
+    @SuppressWarnings("unused")
     public int getEpisodeCount() {
         return episodes.size();
     }

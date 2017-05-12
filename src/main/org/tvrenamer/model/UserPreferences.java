@@ -20,6 +20,7 @@ public class UserPreferences extends Observable {
     private static final Logger logger = Logger.getLogger(UserPreferences.class.getName());
 
     private String destDir;
+    @SuppressWarnings("CanBeFinal")
     private String preloadFolder;
     private String seasonPrefix;
     private boolean seasonPrefixLeadingZero;
@@ -341,6 +342,7 @@ public class UserPreferences extends Observable {
      * @param removeEmptiedDirectories whether or not we want the FileMover to delete
      *               directories when their last remaining contents have been moved away.
      */
+    @SuppressWarnings("unused")
     public void setRemoveEmptiedDirectories(boolean removeEmptiedDirectories) {
         if (valuesAreDifferent(this.removeEmptiedDirectories, removeEmptiedDirectories)) {
             this.removeEmptiedDirectories = removeEmptiedDirectories;

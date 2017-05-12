@@ -30,6 +30,7 @@ public class GlobalOverridesPersistence {
      * @param path
      *            the path to save it to
      */
+    @SuppressWarnings("SameParameterValue")
     public static void persist(GlobalOverrides overrides, Path path) {
         String xml = xstream.toXML(overrides);
 
@@ -48,6 +49,7 @@ public class GlobalOverridesPersistence {
      *            the path to read
      * @return the populated overrides object
      */
+    @SuppressWarnings("SameParameterValue")
     public static GlobalOverrides retrieve(Path path) {
         if (Files.exists(path)) {
             try (InputStream in = Files.newInputStream(path)) {

@@ -33,6 +33,7 @@ public class UserPreferencesPersistence {
      * @param prefs the preferences object to save
      * @param path the path to save it to
      */
+    @SuppressWarnings("SameParameterValue")
     public static void persist(UserPreferences prefs, Path path) {
         String xml = xstream.toXML(prefs);
 
@@ -48,6 +49,7 @@ public class UserPreferencesPersistence {
      * @param path the path to read
      * @return the populated preferences object
      */
+    @SuppressWarnings("SameParameterValue")
     public static UserPreferences retrieve(Path path) {
         if (Files.exists(path)) {
             try (InputStream in = Files.newInputStream(path)) {

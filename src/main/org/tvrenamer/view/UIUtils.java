@@ -93,6 +93,7 @@ public class UIUtils {
         showMessageBox(type, title, message, null);
     }
 
+    @SuppressWarnings("unused")
     public static void handleNoConnection(Exception exception) {
         String message = "Unable connect to the TV listing website, please check your internet connection.  "
             + "\nNote that proxies are not currently supported.";

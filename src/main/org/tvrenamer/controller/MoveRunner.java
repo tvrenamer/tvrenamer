@@ -272,6 +272,7 @@ public class MoveRunner implements Runnable {
      * @param timeout the number of seconds to allow each FileMover to run, before killing it
      *
      */
+    @SuppressWarnings("SameParameterValue")
     public MoveRunner(final List<FileMover> episodes,
                       final ProgressBarUpdater updater,
                       final int timeout)

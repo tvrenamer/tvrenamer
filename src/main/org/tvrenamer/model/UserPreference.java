@@ -13,5 +13,6 @@ public enum UserPreference {
 
     // Since these are only meaningful at startup, they probably should not be watched
     UPDATE_CHECK,
+    @SuppressWarnings("unused")
     PRELOAD_FOLDER
 }

@@ -37,6 +37,7 @@ public class StdOutConsoleFormatter extends Formatter {
         buffer.append(rec.getMessage());
 
         // Stacktrace
+        //noinspection ThrowableResultOfMethodCallIgnored
         Throwable throwable = rec.getThrown();
         if (throwable != null) {
             StringWriter sink = new StringWriter();
