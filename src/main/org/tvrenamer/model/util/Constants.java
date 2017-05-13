@@ -118,7 +118,7 @@ public class Constants {
     public static final String ERROR_PARSING_NUMBERS = ERROR_PARSING_XML
         + ": a field expected to be a number was not";
     public static final String ADDED_PLACEHOLDER_FILENAME = "Downloading ...";
-    public static final String BROKEN_PLACEHOLDER_FILENAME = "Unable to download show information";
+    public static final String BROKEN_PLACEHOLDER_FILENAME = "Unable to find show information";
     public static final String DOWNLOADING_FAILED = "Downloading show listings failed";
     public static final String DOWNLOADING_FAILED_MESSAGE = DOWNLOADING_FAILED
         + ".  Check internet connection";
