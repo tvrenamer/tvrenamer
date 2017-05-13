@@ -255,7 +255,7 @@ public class ShowName {
 
     /**
      * Create a ShowName object for the given "foundName" String.  The "foundName"
-     * is expected to be the exact String that was extracted by the TVRenamer parser
+     * is expected to be the exact String that was extracted by the FilenameParser
      * from the filename, that is believed to represent the show name.
      *
      * @param foundName
