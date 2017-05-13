@@ -363,9 +363,7 @@ public class StringUtils {
     /**
      * <p>Checks if a String is whitespace, empty ("") or null.</p>
      * Copied from
-     * <a href="http://commons.apache.org/lang/api-2.5/org/apache/commons/lang/StringUtils.html#isBlank(java.lang.String)">
-     *   Apache Commons Lang StringUtils
-     * </a>
+     * <a href="http://preview.tinyurl.com/lzx3gzj">Apache Commons Lang StringUtils</a>
      *
      * @param str the String to check, may be null
      * @return <code>true</code> if the String is null, empty or whitespace
@@ -387,9 +385,7 @@ public class StringUtils {
     /**
      * <p>Checks if a String is not empty (""), not null and not whitespace only.</p>
      * Copied from
-     * <a href="http://commons.apache.org/lang/api-2.5/org/apache/commons/lang/StringUtils.html#isNotBlank(java.lang.String)">
-     *   Apache Commons Lang StringUtils
-     * </a>
+     * <a href="http://preview.tinyurl.com/kvhh8oa">Apache Commons Lang StringUtils</a>
      *
      * @param str  the String to check, may be null
      * @return <code>true</code> if the String is not empty and not null and not whitespace
