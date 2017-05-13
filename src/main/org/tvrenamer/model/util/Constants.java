@@ -1,5 +1,6 @@
 package org.tvrenamer.model.util;
 
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -29,6 +30,8 @@ import java.nio.file.Paths;
  *
  */
 public class Constants {
+
+    public static final Charset TVR_CHARSET = Charset.forName("ISO-8859-1");
 
     public static final String APPLICATION_NAME = "TVRenamer";
 

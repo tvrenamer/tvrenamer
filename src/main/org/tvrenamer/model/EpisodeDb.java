@@ -97,6 +97,14 @@ public class EpisodeDb {
         return episodes.get(key);
     }
 
+    private boolean containsKey(String key) {
+        return episodes.containsKey(key);
+    }
+
+    private void clear() {
+        episodes.clear();
+    }
+
     private boolean fileIsVisible(Path path) {
         boolean isVisible = false;
         try {

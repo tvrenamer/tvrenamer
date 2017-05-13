@@ -46,10 +46,10 @@ public class TheTVDBProvider {
     private static final String XPATH_EPISODE_NUM = "EpisodeNumber";
     private static final String XPATH_EPISODE_NAME = "EpisodeName";
     private static final String XPATH_AIRDATE = "FirstAired";
-    // private static final String XPATH_EPISODE_SERIES_ID = "seriesid";
+    private static final String XPATH_EPISODE_SERIES_ID = "seriesid";
     private static final String XPATH_DVD_SEASON_NUM = "DVD_season";
     private static final String XPATH_DVD_EPISODE_NUM = "DVD_episodenumber";
-    // private static final String XPATH_EPISODE_NUM_ABS = "absolute_number";
+    private static final String XPATH_EPISODE_NUM_ABS = "absolute_number";
 
     private static String getShowSearchXml(final ShowName showName)
         throws TVRenamerIOException
@@ -148,6 +148,8 @@ public class TheTVDBProvider {
                 .firstAired(nodeTextValue(XPATH_AIRDATE, eNode))
                 .dvdSeason(nodeTextValue(XPATH_DVD_SEASON_NUM, eNode))
                 .dvdEpisodeNumber(nodeTextValue(XPATH_DVD_EPISODE_NUM, eNode))
+                .absoluteNumber(nodeTextValue(XPATH_EPISODE_NUM_ABS, eNode))
+                .seriesId(nodeTextValue(XPATH_EPISODE_SERIES_ID, eNode))
                 .build();
         } catch (Exception e) {
             logger.log(Level.WARNING, "exception parsing episode", e);

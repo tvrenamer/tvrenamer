@@ -17,6 +17,7 @@ import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -27,6 +28,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
@@ -41,6 +43,7 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.TaskBar;
 import org.eclipse.swt.widgets.TaskItem;
+import org.eclipse.swt.widgets.Text;
 
 import org.tvrenamer.controller.AddEpisodeListener;
 import org.tvrenamer.controller.FileMover;
@@ -436,6 +439,63 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
         editor.horizontalAlignment = SWT.CENTER;
         editor.grabHorizontal = true;
 
+        @SuppressWarnings("unused")
+        Listener tblEditListener = new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+                Rectangle clientArea = resultsTable.getClientArea();
+                Point pt = new Point(event.x, event.y);
+                int index = resultsTable.getTopIndex();
+                while (index < resultsTable.getItemCount()) {
+                    boolean visible = false;
+                    final TableItem item = resultsTable.getItem(index);
+                    for (int i = 0; i < resultsTable.getColumnCount(); i++) {
+                        Rectangle rect = item.getBounds(i);
+                        if (rect.contains(pt)) {
+                            final int column = i;
+                            final Text text = new Text(resultsTable, SWT.NONE);
+                            Listener textListener = new Listener() {
+                                @Override
+                                @SuppressWarnings("fallthrough")
+                                public void handleEvent(final Event e) {
+                                    switch (e.type) {
+                                        case SWT.FocusOut:
+                                            item.setText(column, text.getText());
+                                            text.dispose();
+                                            break;
+                                        case SWT.Traverse:
+                                            switch (e.detail) {
+                                                case SWT.TRAVERSE_RETURN:
+                                                    item.setText(column, text.getText());
+                                                    // fall through
+                                                case SWT.TRAVERSE_ESCAPE:
+                                                    text.dispose();
+                                                    e.doit = false;
+                                            }
+                                            break;
+                                    }
+                                }
+                            };
+                            text.addListener(SWT.FocusOut, textListener);
+                            text.addListener(SWT.FocusIn, textListener);
+                            editor.setEditor(text, item, i);
+                            text.setText(item.getText(i));
+                            text.selectAll();
+                            text.setFocus();
+                            return;
+                        }
+                        if (!visible && rect.intersects(clientArea)) {
+                            visible = true;
+                        }
+                    }
+                    if (!visible) {
+                        return;
+                    }
+                    index++;
+                }
+            }
+        };
+        //resultsTable.addListener(SWT.MouseDown, tblEditListener);
         setupSelectionListener();
     }
 
@@ -615,6 +675,17 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
         return (ITEM_NOT_IN_TABLE != getTableItemIndex(item));
     }
 
+    public TableItem findItem(final FileEpisode ep) {
+        String filename = ep.getFilepath();
+        for (final TableItem item : resultsTable.getItems()) {
+            if (filename.equals(item.getText(CURRENT_FILE_COLUMN))) {
+                return item;
+            }
+        }
+
+        return null;
+    }
+
     private Label getProgressLabel(TableItem item) {
         Label progressLabel = new Label(resultsTable, SWT.SHADOW_NONE | SWT.CENTER);
         TableEditor editor = new TableEditor(resultsTable);
@@ -649,6 +720,21 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
         MoveRunner mover = new MoveRunner(pendingMoves, new ProgressBarUpdater(this));
 
         mover.runThread();
+    }
+
+    public static void setTableItemStatus(Display display, final TableItem item, final FileMoveIcon fmi) {
+        if (display.isDisposed()) {
+            return;
+        }
+        display.asyncExec(new Runnable() {
+            @Override
+            public void run() {
+                if (item.isDisposed()) {
+                    return;
+                }
+                item.setImage(STATUS_COLUMN, fmi.icon);
+            }
+        });
     }
 
     private TableItem createTableItem(Table tblResults, String fileName, FileEpisode episode) {

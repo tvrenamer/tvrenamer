@@ -11,7 +11,7 @@ public enum FileMoveIcon {
     ADDED("/icons/SweetieLegacy/16-circle-blue.png"),
     DOWNLOADING("/icons/SweetieLegacy/16-clock.png"),
     RENAMING("/icons/SweetieLegacy/16-em-pencil.png"),
-    // SUCCESS("/icons/SweetieLegacy/16-em-check.png"),
+    SUCCESS("/icons/SweetieLegacy/16-em-check.png"),
     FAIL("/icons/SweetieLegacy/16-em-cross.png");
 
     public final Image icon;
