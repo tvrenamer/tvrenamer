@@ -140,7 +140,7 @@ public class FileEpisodeTest {
 
     // We're going to add a bunch of test cases to the list.  The first two have been in this file
     // for a long time (in a different form), and are testing specific functionality.  The rest
-    // are from the TVRenamer test.  In some cases, there's a strong hint as to what they're
+    // are from FilenameParserTest.  In some cases, there's a strong hint as to what they're
     // testing, and in others, maybe not so much.  Try to refine these test cases down and expand
     // them so that specific functionality is being tested.
     //
@@ -1019,7 +1019,7 @@ public class FileEpisodeTest {
      * We start off by making sure our preferences are what we want.  Then we get a Path.
      * We turn that path into a FileEpisode, which initially is basically just a shell.
      * We then fill in information based on the filename.  (In the real program, the parser
-     * in TVRenamer is used for this.)
+     * in FilenameParser is used for this.)
      *
      * Then, once we know the part of the filename that we think represents the show name,
      * we find the actual show name, and create a Show object to represent it.  We store

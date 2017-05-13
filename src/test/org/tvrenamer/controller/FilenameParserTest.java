@@ -43,7 +43,7 @@ import java.util.List;
  * the information from the provider.  Despite the name of the test, this
  * file does not test the actual renaming.)
  */
-public class TVRenamerTest {
+public class FilenameParserTest {
     private static final List<EpisodeTestData> values = new LinkedList<>();
 
     @BeforeClass
@@ -893,7 +893,7 @@ public class TVRenamerTest {
         for (EpisodeTestData testInput : values) {
             String input = testInput.inputFilename;
             FileEpisode retval = new FileEpisode(input);
-            TVRenamer.parseFilename(retval);
+            FilenameParser.parseFilename(retval);
             assertTrue(input, retval.wasParsed());
             assertEquals(input, testInput.filenameShow, retval.getFilenameShow());
             assertEquals(input, Integer.parseInt(testInput.seasonNumString), retval.getSeasonNum());

@@ -10,8 +10,8 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class TVRenamer {
-    private static final Logger logger = Logger.getLogger(TVRenamer.class.getName());
+public class FilenameParser {
+    private static final Logger logger = Logger.getLogger(FilenameParser.class.getName());
 
     private static final String FILENAME_BEGINS_WITH_SEASON
         = "(([sS]\\d\\d?[eE]\\d\\d?)|([sS]?\\d\\d?x\\d\\d\\d?)).*";
@@ -72,7 +72,7 @@ public class TVRenamer {
         }
     }
 
-    private TVRenamer() {
+    private FilenameParser() {
         // singleton
     }
 

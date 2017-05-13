@@ -9,7 +9,7 @@ package org.tvrenamer.model;
 
 import static org.tvrenamer.model.util.Constants.*;
 
-import org.tvrenamer.controller.TVRenamer;
+import org.tvrenamer.controller.FilenameParser;
 import org.tvrenamer.controller.util.StringUtils;
 
 import java.io.IOException;
@@ -146,7 +146,7 @@ public class FileEpisode {
         fileNameString = justNamePath.toString();
         filenameSuffix = StringUtils.getExtension(fileNameString);
         checkFile(true);
-        TVRenamer.parseFilename(this);
+        FilenameParser.parseFilename(this);
     }
 
     // Create FileEpisode with String; only for testing
