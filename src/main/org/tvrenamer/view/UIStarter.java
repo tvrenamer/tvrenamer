@@ -310,7 +310,7 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
     private void setupClearFilesButton() {
         clearFilesButton.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
-                resultsTable.removeAll();
+                deleteAllTableItems();
             }
         });
     }
@@ -689,6 +689,13 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
             item.dispose();
         }
         resultsTable.deselectAll();
+    }
+
+    private void deleteAllTableItems() {
+        for (final TableItem item : resultsTable.getItems()) {
+            episodeMap.remove(item.getText(CURRENT_FILE_COLUMN));
+        }
+        resultsTable.removeAll();
     }
 
     private void setSortedItem(int i, int j) {
