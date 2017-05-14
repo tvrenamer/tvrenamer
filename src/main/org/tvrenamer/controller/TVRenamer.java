@@ -16,19 +16,19 @@ public class TVRenamer {
 
     private static final String[] REGEX = {
         // this one works for titles with years:
-        "(.+?\\d{4}[^a-zA-Z0-9]\\D*?)[sS]?(\\d\\d?)\\D*?(\\d\\d).*\\D(\\d+[pk]).*",
+        "(.+?\\d{4}[^a-zA-Z0-9]\\D*?)[sS]?(\\d\\d?)\\D*?(\\d\\d).*",
 
         // this one matches SXXEXX:
-        "(.+?[^a-zA-Z0-9]\\D*?)[sS](\\d\\d?)[eE](\\d\\d?).*\\D(\\d+[pk]).*",
+        "(.+?[^a-zA-Z0-9]\\D*?)[sS](\\d\\d?)[eE](\\d\\d?).*",
 
         // this one matches sXX.eXX:
-        "(.+[^a-zA-Z0-9]\\D*?)[sS](\\d\\d?)\\D*?[eE](\\d\\d).*\\D(\\d+[pk]).*",
+        "(.+[^a-zA-Z0-9]\\D*?)[sS](\\d\\d?)\\D*?[eE](\\d\\d).*",
 
         // this one matches everything else:
-        "(.+[^a-zA-Z0-9]\\D*?)(\\d\\d?)\\D+(\\d\\d).*\\D(\\d+[pk]).*",
+        "(.+[^a-zA-Z0-9]\\D*?)(\\d\\d?)\\D+(\\d\\d).*",
 
         // truly last resort:
-        "(.+[^a-zA-Z0-9]+)(\\d\\d?)(\\d\\d).*\\D(\\d+[pk]).*"
+        "(.+[^a-zA-Z0-9]+)(\\d\\d?)(\\d\\d).*"
     };
 
     private static final Pattern[] COMPILED_REGEX = new Pattern[REGEX.length * 2];
@@ -36,9 +36,9 @@ public class TVRenamer {
     static {
         for (int i = 0; i < REGEX.length * 2; i++) {
             if (i / REGEX.length == 0) {
-                COMPILED_REGEX[i] = Pattern.compile(REGEX[i]);
+                COMPILED_REGEX[i] = Pattern.compile(REGEX[i] + RESOLUTION_REGEX);
             } else {
-                COMPILED_REGEX[i] = Pattern.compile(REGEX[i - REGEX.length].replace(RESOLUTION_REGEX, ""));
+                COMPILED_REGEX[i] = Pattern.compile(REGEX[i - REGEX.length]);
             }
         }
     }
