@@ -31,15 +31,26 @@ public class TVRenamer {
         "(.+[^a-zA-Z0-9]+)(\\d\\d?)(\\d\\d).*"
     };
 
+    // REGEX is a series of regular expressions for different patterns comprising
+    // show name, season number, and epsiode number.  We also want to be able to
+    // recognize episode resolution ("720p", etc.)  To make the resolution optional,
+    // we compile the patterns with the resolution first, and then compile the
+    // basic patterns.  So we need an array twice the size of REGEX to hold the
+    // two options for each.
     private static final Pattern[] COMPILED_REGEX = new Pattern[REGEX.length * 2];
 
     static {
-        for (int i = 0; i < REGEX.length * 2; i++) {
-            if (i / REGEX.length == 0) {
-                COMPILED_REGEX[i] = Pattern.compile(REGEX[i] + RESOLUTION_REGEX);
-            } else {
-                COMPILED_REGEX[i] = Pattern.compile(REGEX[i - REGEX.length]);
-            }
+        // Recognize the "with resolution" pattern first, since the basic patterns
+        // would always permit the resolution and just see it as "junk".
+
+        for (int i = 0; i < REGEX.length; i++) {
+            // Add the resolution regex to the end of the basic pattern
+            COMPILED_REGEX[i] = Pattern.compile(REGEX[i] + RESOLUTION_REGEX);
+        }
+        for (int i = 0; i < REGEX.length; i++) {
+            // Now add the basic patterns to the end of the array.
+            // That is, pattern 0 becomes compiled pattern 6, etc.
+            COMPILED_REGEX[i + REGEX.length] = Pattern.compile(REGEX[i]);
         }
     }
 
