@@ -181,6 +181,10 @@
           <property name="option" value="nospace"/>
           <property name="tokens" value="METHOD_CALL, LITERAL_NEW, SUPER_CTOR_CALL, METHOD_DEF, CTOR_DEF"/>
         </module>
+        <module name="ParenPad">
+          <property name="option" value="nospace"/>
+          <property name="tokens" value="METHOD_CALL, LITERAL_NEW, SUPER_CTOR_CALL, METHOD_DEF, CTOR_DEF"/>
+        </module>
         <module name="OperatorWrap">
             <property name="option" value="NL"/>
             <property name="tokens" value="PLUS, BOR, BAND, QUESTION, COLON"/>

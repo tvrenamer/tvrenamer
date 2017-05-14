@@ -54,7 +54,7 @@ class CocoaUIEnhancer {
         final Listener about;
         final Listener pref;
 
-        public MenuHookObject( Listener about, Listener pref ) {
+        public MenuHookObject(Listener about, Listener pref) {
             this.about = about;
             this.pref = pref;
         }
@@ -70,8 +70,8 @@ class CocoaUIEnhancer {
          *    not used
          * @return an irrelevant value; ignore it
          */
-        public int actionProc( int id, int sel, int arg0 ) {
-            return (int) actionProc( (long) id, (long) sel, (long) arg0 );
+        public int actionProc(int id, int sel, int arg0) {
+            return (int) actionProc((long) id, (long) sel, (long) arg0);
         }
 
         /**
@@ -85,10 +85,10 @@ class CocoaUIEnhancer {
          *    not used
          * @return an irrelevant value; ignore it
          */
-        public long actionProc( long id, long sel, long arg0 ) {
-            if ( sel == sel_aboutMenuItemSelected_ ) {
+        public long actionProc(long id, long sel, long arg0) {
+            if (sel == sel_aboutMenuItemSelected_) {
                 about.handleEvent(null);
-            } else if ( sel == sel_preferencesMenuItemSelected_ ) {
+            } else if (sel == sel_preferencesMenuItemSelected_) {
                 pref.handleEvent(null);
             }
             // else Unknown selection!
@@ -106,7 +106,7 @@ class CocoaUIEnhancer {
      *            About and Quit menu items, just pass <tt>null</tt> here.
      */
     @SuppressWarnings("SameParameterValue")
-    public CocoaUIEnhancer( String appName ) {
+    public CocoaUIEnhancer(String appName) {
         this.appName = appName;
     }
 
@@ -123,103 +123,103 @@ class CocoaUIEnhancer {
      * @param preferencesAction
      *            The action to run when the Preferences menu is invoked.
      */
-    public void hookApplicationMenu( Display display, Listener quitListener, Listener aboutAction,
-                                     Listener preferencesAction )
+    public void hookApplicationMenu(Display display, Listener quitListener, Listener aboutAction,
+                                     Listener preferencesAction)
     {
         // This is our callbackObject whose 'actionProc' method will be called
         // when the About or Preferences menuItem is invoked.
-        MenuHookObject target = new MenuHookObject( aboutAction, preferencesAction );
+        MenuHookObject target = new MenuHookObject(aboutAction, preferencesAction);
 
         try {
             // Initialize the menuItems.
-            initialize( target );
-        } catch ( Exception e ) {
-            throw new IllegalStateException( e );
+            initialize(target);
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
         }
 
         // Connect the quit/exit menu.
-        if ( !display.isDisposed() ) {
-            display.addListener( SWT.Close, quitListener );
+        if (!display.isDisposed()) {
+            display.addListener(SWT.Close, quitListener);
         }
 
         // Schedule disposal of callback object
         //noinspection Convert2Lambda
-        display.disposeExec( new Runnable() {
+        display.disposeExec(new Runnable() {
             @Override
             public void run() {
-                invoke( proc3Args, "dispose" );
+                invoke(proc3Args, "dispose");
             }
-        } );
+        });
     }
 
-    private void initialize( Object callbackObject )
+    private void initialize(Object callbackObject)
             throws Exception
     {
-        Class<?> osCls = classForName( "org.eclipse.swt.internal.cocoa.OS" );
+        Class<?> osCls = classForName("org.eclipse.swt.internal.cocoa.OS");
 
         // Register names in objective-c.
-        sel_preferencesMenuItemSelected_ = registerName( osCls, "preferencesMenuItemSelected:" ); //$NON-NLS-1$
-        sel_aboutMenuItemSelected_ = registerName( osCls, "aboutMenuItemSelected:" ); //$NON-NLS-1$
+        sel_preferencesMenuItemSelected_ = registerName(osCls, "preferencesMenuItemSelected:"); //$NON-NLS-1$
+        sel_aboutMenuItemSelected_ = registerName(osCls, "aboutMenuItemSelected:"); //$NON-NLS-1$
 
         // Create an SWT Callback object that will invoke the actionProc method
         // of our internal callbackObject.
-        proc3Args = new Callback( callbackObject, "actionProc", 3 ); //$NON-NLS-1$
-        Method getAddress = Callback.class.getMethod( "getAddress");
-        Object object = getAddress.invoke( proc3Args, (Object[]) null );
-        long proc3 = convertToLong( object );
-        if ( proc3 == 0 ) {
-            SWT.error( SWT.ERROR_NO_MORE_CALLBACKS );
+        proc3Args = new Callback(callbackObject, "actionProc", 3); //$NON-NLS-1$
+        Method getAddress = Callback.class.getMethod("getAddress");
+        Object object = getAddress.invoke(proc3Args, (Object[]) null);
+        long proc3 = convertToLong(object);
+        if (proc3 == 0) {
+            SWT.error(SWT.ERROR_NO_MORE_CALLBACKS);
         }
 
-        Class<?> nsmenuCls = classForName( "org.eclipse.swt.internal.cocoa.NSMenu" );
-        Class<?> nsmenuitemCls = classForName( "org.eclipse.swt.internal.cocoa.NSMenuItem" );
-        Class<?> nsstringCls = classForName( "org.eclipse.swt.internal.cocoa.NSString" );
-        Class<?> nsapplicationCls = classForName( "org.eclipse.swt.internal.cocoa.NSApplication" );
+        Class<?> nsmenuCls = classForName("org.eclipse.swt.internal.cocoa.NSMenu");
+        Class<?> nsmenuitemCls = classForName("org.eclipse.swt.internal.cocoa.NSMenuItem");
+        Class<?> nsstringCls = classForName("org.eclipse.swt.internal.cocoa.NSString");
+        Class<?> nsapplicationCls = classForName("org.eclipse.swt.internal.cocoa.NSApplication");
 
         // Instead of creating a new delegate class in objective-c, just use the
         // current SWTApplicationDelegate. An instance of this is a field of the
         // Cocoa Display object and is already the target for the menuItems. So
         // just get this class and add the new methods to it.
-        object = invoke( osCls, "objc_lookUpClass", new Object[] { "SWTApplicationDelegate" } );
-        long cls = convertToLong( object );
+        object = invoke(osCls, "objc_lookUpClass", new Object[] { "SWTApplicationDelegate" });
+        long cls = convertToLong(object);
 
         // Add the action callbacks for Preferences and About menu items.
-        invoke( osCls, "class_addMethod", new Object[] {
-                wrapPointer( cls ),
-                wrapPointer( sel_preferencesMenuItemSelected_ ),
-                wrapPointer( proc3 ),
-                "@:@" } ); //$NON-NLS-1$
-        invoke( osCls, "class_addMethod", new Object[] {
-                wrapPointer( cls ),
-                wrapPointer( sel_aboutMenuItemSelected_ ),
-                wrapPointer( proc3 ),
-                "@:@" } ); //$NON-NLS-1$
+        invoke(osCls, "class_addMethod", new Object[] {
+                wrapPointer(cls),
+                wrapPointer(sel_preferencesMenuItemSelected_),
+                wrapPointer(proc3),
+                "@:@" }); //$NON-NLS-1$
+        invoke(osCls, "class_addMethod", new Object[] {
+                wrapPointer(cls),
+                wrapPointer(sel_aboutMenuItemSelected_),
+                wrapPointer(proc3),
+                "@:@" }); //$NON-NLS-1$
 
         // Get the Mac OS X Application menu.
-        Object sharedApplication = invokeSharedApplication( nsapplicationCls );
-        Object mainMenu = invoke( sharedApplication, "mainMenu" );
-        Object mainMenuItem = invoke( nsmenuCls, mainMenu, "itemAtIndex", new Object[] { wrapPointer( 0 ) } );
-        Object appMenu = invoke( mainMenuItem, "submenu" );
+        Object sharedApplication = invokeSharedApplication(nsapplicationCls);
+        Object mainMenu = invoke(sharedApplication, "mainMenu");
+        Object mainMenuItem = invoke(nsmenuCls, mainMenu, "itemAtIndex", new Object[] { wrapPointer(0) });
+        Object appMenu = invoke(mainMenuItem, "submenu");
 
         // Create the About <application-name> menu command
         Object aboutMenuItem =
-            invoke( nsmenuCls, appMenu, "itemAtIndex", new Object[] { wrapPointer( kAboutMenuItem ) } );
-        if ( appName != null ) {
-            Object nsStr = invoke( nsstringCls, "stringWith", new Object[] { "About " + appName } );
-            invoke( nsmenuitemCls, aboutMenuItem, "setTitle", new Object[] { nsStr } );
+            invoke(nsmenuCls, appMenu, "itemAtIndex", new Object[] { wrapPointer(kAboutMenuItem) });
+        if (appName != null) {
+            Object nsStr = invoke(nsstringCls, "stringWith", new Object[] { "About " + appName });
+            invoke(nsmenuitemCls, aboutMenuItem, "setTitle", new Object[] { nsStr });
         }
         // Rename the quit action.
-        if ( appName != null ) {
+        if (appName != null) {
             Object quitMenuItem =
-                invoke( nsmenuCls, appMenu, "itemAtIndex", new Object[] { wrapPointer( kQuitMenuItem ) } );
-            Object nsStr = invoke( nsstringCls, "stringWith", new Object[] { "Quit " + appName } );
-            invoke( nsmenuitemCls, quitMenuItem, "setTitle", new Object[] { nsStr } );
+                invoke(nsmenuCls, appMenu, "itemAtIndex", new Object[] { wrapPointer(kQuitMenuItem) });
+            Object nsStr = invoke(nsstringCls, "stringWith", new Object[] { "Quit " + appName });
+            invoke(nsmenuitemCls, quitMenuItem, "setTitle", new Object[] { nsStr });
         }
 
         // Enable the Preferences menuItem.
         Object prefMenuItem =
-            invoke( nsmenuCls, appMenu, "itemAtIndex", new Object[] { wrapPointer( kPreferencesMenuItem ) } );
-        invoke( nsmenuitemCls, prefMenuItem, "setEnabled", new Object[] { true } );
+            invoke(nsmenuCls, appMenu, "itemAtIndex", new Object[] { wrapPointer(kPreferencesMenuItem) });
+        invoke(nsmenuitemCls, prefMenuItem, "setEnabled", new Object[] { true });
 
         // Set the action to execute when the About or Preferences menuItem is
         // invoked.
@@ -227,98 +227,98 @@ class CocoaUIEnhancer {
         // We don't need to set the target here as the current target is the
         // SWTApplicationDelegate and we have registered the new selectors on
         // it. So just set the new action to invoke the selector.
-        invoke( nsmenuitemCls, prefMenuItem, "setAction",
-                new Object[] { wrapPointer( sel_preferencesMenuItemSelected_ ) } );
-        invoke( nsmenuitemCls, aboutMenuItem, "setAction",
-                new Object[] { wrapPointer( sel_aboutMenuItemSelected_ ) } );
+        invoke(nsmenuitemCls, prefMenuItem, "setAction",
+                new Object[] { wrapPointer(sel_preferencesMenuItemSelected_) });
+        invoke(nsmenuitemCls, aboutMenuItem, "setAction",
+                new Object[] { wrapPointer(sel_aboutMenuItemSelected_) });
     }
 
-    private long registerName( Class<?> osCls, String name )
+    private long registerName(Class<?> osCls, String name)
             throws IllegalArgumentException, SecurityException
     {
-        Object object = invoke( osCls, "sel_registerName", new Object[] { name } );
-        return convertToLong( object );
+        Object object = invoke(osCls, "sel_registerName", new Object[] { name });
+        return convertToLong(object);
     }
 
-    private long convertToLong( Object object ) {
-        if ( object instanceof Integer ) {
+    private long convertToLong(Object object) {
+        if (object instanceof Integer) {
             Integer i = (Integer) object;
             return i.longValue();
         }
-        if ( object instanceof Long ) {
+        if (object instanceof Long) {
             return (Long) object;
         }
         return 0;
     }
 
     @SuppressWarnings("UnnecessaryBoxing")
-    private static Object wrapPointer(long value ) {
-        if ( C.PTR_SIZEOF == 8 ) {
-            return Long.valueOf( value );
+    private static Object wrapPointer(long value) {
+        if (C.PTR_SIZEOF == 8) {
+            return Long.valueOf(value);
         } else {
-            return Integer.valueOf( (int) value );
+            return Integer.valueOf((int) value);
         }
     }
 
-    private static Object invoke( Class<?> clazz, String methodName, Object[] args ) {
-        return invoke( clazz, null, methodName, args );
+    private static Object invoke(Class<?> clazz, String methodName, Object[] args) {
+        return invoke(clazz, null, methodName, args);
     }
 
-    private static Object invoke( Class<?> clazz, Object target, String methodName, Object[] args ) {
+    private static Object invoke(Class<?> clazz, Object target, String methodName, Object[] args) {
         try {
             Class<?>[] signature = new Class<?>[args.length];
-            for ( int i = 0; i < args.length; i++ ) {
+            for (int i = 0; i < args.length; i++) {
                 Class<?> thisClass = args[i].getClass();
-                if ( thisClass == Integer.class ) {
+                if (thisClass == Integer.class) {
                     signature[i] = int.class;
-                } else if ( thisClass == Long.class ) {
+                } else if (thisClass == Long.class) {
                     signature[i] = long.class;
-                } else if ( thisClass == Byte.class ) {
+                } else if (thisClass == Byte.class) {
                     signature[i] = byte.class;
-                } else if ( thisClass == Boolean.class ) {
+                } else if (thisClass == Boolean.class) {
                     signature[i] = boolean.class;
                 } else {
                     signature[i] = thisClass;
                 }
             }
-            Method method = clazz.getMethod( methodName, signature );
-            return method.invoke( target, args );
-        } catch ( Exception e ) {
-            throw new IllegalStateException( e );
+            Method method = clazz.getMethod(methodName, signature);
+            return method.invoke(target, args);
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
         }
     }
 
-    private Class<?> classForName( String classname ) {
+    private Class<?> classForName(String classname) {
         try {
-            return Class.forName( classname );
-        } catch ( ClassNotFoundException e ) {
-            throw new IllegalStateException( e );
+            return Class.forName(classname);
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException(e);
         }
     }
 
-    private Object invokeSharedApplication( Class<?> cls ) {
-        return invoke( cls, (Class<?>[]) null, (Object[]) null );
+    private Object invokeSharedApplication(Class<?> cls) {
+        return invoke(cls, (Class<?>[]) null, (Object[]) null);
     }
 
-    private Object invoke( Class<?> cls, Class<?>[] paramTypes, Object... arguments ) {
+    private Object invoke(Class<?> cls, Class<?>[] paramTypes, Object... arguments) {
         try {
-            Method m = cls.getDeclaredMethod( SHARED_APPLICATION, paramTypes );
-            return m.invoke( null, arguments );
-        } catch ( Exception e ) {
-            throw new IllegalStateException( e );
+            Method m = cls.getDeclaredMethod(SHARED_APPLICATION, paramTypes);
+            return m.invoke(null, arguments);
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
         }
     }
 
-    private Object invoke( Object obj, String methodName ) {
-        return invoke( obj, methodName, (Class<?>[]) null, (Object[]) null );
+    private Object invoke(Object obj, String methodName) {
+        return invoke(obj, methodName, (Class<?>[]) null, (Object[]) null);
     }
 
-    private Object invoke( Object obj, String methodName, Class<?>[] paramTypes, Object... arguments ) {
+    private Object invoke(Object obj, String methodName, Class<?>[] paramTypes, Object... arguments) {
         try {
-            Method m = obj.getClass().getDeclaredMethod( methodName, paramTypes );
-            return m.invoke( obj, arguments );
-        } catch ( Exception e ) {
-            throw new IllegalStateException( e );
+            Method m = obj.getClass().getDeclaredMethod(methodName, paramTypes);
+            return m.invoke(obj, arguments);
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
         }
     }
 }
