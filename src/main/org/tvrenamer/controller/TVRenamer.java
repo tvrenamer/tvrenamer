@@ -12,6 +12,8 @@ import java.util.regex.Pattern;
 public class TVRenamer {
     private static final Logger logger = Logger.getLogger(TVRenamer.class.getName());
 
+    private static final String RESOLUTION_REGEX = "\\D(\\d+[pk]).*";
+
     private static final String[] REGEX = {
         // this one works for titles with years:
         "(.+?\\d{4}[^a-zA-Z0-9]\\D*?)[sS]?(\\d\\d?)\\D*?(\\d\\d).*\\D(\\d+[pk]).*",
@@ -36,7 +38,7 @@ public class TVRenamer {
             if (i / REGEX.length == 0) {
                 COMPILED_REGEX[i] = Pattern.compile(REGEX[i]);
             } else {
-                COMPILED_REGEX[i] = Pattern.compile(REGEX[i - REGEX.length].replace("\\D(\\d+[pk]).*", ""));
+                COMPILED_REGEX[i] = Pattern.compile(REGEX[i - REGEX.length].replace(RESOLUTION_REGEX, ""));
             }
         }
     }
