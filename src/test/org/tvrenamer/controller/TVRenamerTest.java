@@ -16,6 +16,28 @@ public class TVRenamerTest {
     private static final List<EpisodeTestData> values = new LinkedList<>();
 
     @BeforeClass
+    public static void setupValuesThreeDigits() {
+        // This should be parsed as episode 105, not episode 10
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("The.Daily.Show.S22E105.D.L.Hughley.HDTV.x264")
+                   .filenameShow("The.Daily.Show.")
+                   .seasonNumString("22")
+                   .episodeNumString("105")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValuesNotThreeDigits() {
+        // Make sure this is parsed as episode 14, not episode 142
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Futurama.S07E14.2-D Blacktop.HDTV.x264")
+                   .filenameShow("Futurama.")
+                   .seasonNumString("07")
+                   .episodeNumString("14")
+                   .build());
+    }
+
+    @BeforeClass
     public static void setupValues01() {
         values.add(new EpisodeTestData.Builder()
                    .inputFilename("game.of.thrones.5x01.mp4")
