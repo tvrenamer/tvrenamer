@@ -36,7 +36,7 @@ public class TVRenamer {
             if (i / REGEX.length == 0) {
                 COMPILED_REGEX[i] = Pattern.compile(REGEX[i]);
             } else {
-                COMPILED_REGEX[i] = Pattern.compile(REGEX[i - REGEX.length].replace(".*\\D(\\d+[pk])", ""));
+                COMPILED_REGEX[i] = Pattern.compile(REGEX[i - REGEX.length].replace("\\D(\\d+[pk]).*", ""));
             }
         }
     }
