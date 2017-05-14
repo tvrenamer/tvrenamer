@@ -91,10 +91,12 @@ class PreferencesDialog extends Dialog {
 
         Label helpLabel = new Label(preferencesShell, SWT.NONE);
         helpLabel.setText(HELP_TOOLTIP);
-        helpLabel.setLayoutData(new GridData(SWT.END, SWT.CENTER, true, true, shellGridLayout.numColumns, 1));
+        helpLabel.setLayoutData(new GridData(SWT.END, SWT.CENTER, true, true,
+                                             shellGridLayout.numColumns, 1));
 
         TabFolder tabFolder = new TabFolder(preferencesShell, getStyle());
-        tabFolder.setLayoutData(new GridData(SWT.END, SWT.CENTER, true, true, shellGridLayout.numColumns, 1));
+        tabFolder.setLayoutData(new GridData(SWT.END, SWT.CENTER, true, true,
+                                             shellGridLayout.numColumns, 1));
 
         createGeneralTab(tabFolder);
         createRenameTab(tabFolder);
@@ -115,13 +117,15 @@ class PreferencesDialog extends Dialog {
         moveEnabledCheckbox = new Button(generalGroup, SWT.CHECK);
         moveEnabledCheckbox.setText(MOVE_ENABLED_TEXT);
         moveEnabledCheckbox.setSelection(prefs.isMoveEnabled());
-        moveEnabledCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 2, 1));
+        moveEnabledCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER,
+                                                       true, true, 2, 1));
         moveEnabledCheckbox.setToolTipText(MOVE_ENABLED_TOOLTIP);
 
         renameEnabledCheckbox = new Button(generalGroup, SWT.CHECK);
         renameEnabledCheckbox.setText("Rename Enabled [?]");
         renameEnabledCheckbox.setSelection(prefs.isRenameEnabled());
-        renameEnabledCheckbox.setLayoutData(new GridData(GridData.END, GridData.CENTER, true, true, 1, 1));
+        renameEnabledCheckbox.setLayoutData(new GridData(GridData.END, GridData.CENTER,
+                                                         true, true, 1, 1));
         renameEnabledCheckbox.setToolTipText(RENAME_ENABLED_TOOLTIP);
 
         Label destDirLabel = new Label(generalGroup, SWT.NONE);
@@ -154,12 +158,14 @@ class PreferencesDialog extends Dialog {
         seasonPrefixText = new Text(generalGroup, SWT.BORDER);
         seasonPrefixText.setText(prefs.getSeasonPrefixForDisplay());
         seasonPrefixText.setTextLimit(99);
-        seasonPrefixText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true, 2, 1));
+        seasonPrefixText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER,
+                                                    true, true, 2, 1));
 
         seasonPrefixLeadingZeroCheckbox = new Button(generalGroup, SWT.CHECK);
         seasonPrefixLeadingZeroCheckbox.setText(SEASON_PREFIX_ZERO_TEXT);
         seasonPrefixLeadingZeroCheckbox.setSelection(prefs.isSeasonPrefixLeadingZero());
-        seasonPrefixLeadingZeroCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER,
+        seasonPrefixLeadingZeroCheckbox.setLayoutData(new GridData(GridData.BEGINNING,
+                                                                   GridData.CENTER,
                                                                    true, true, 3, 1));
         seasonPrefixLeadingZeroCheckbox.setToolTipText(SEASON_PREFIX_ZERO_TOOLTIP);
 
@@ -185,7 +191,8 @@ class PreferencesDialog extends Dialog {
         moveEnabledCheckbox.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                toggleEnableControls(moveEnabledCheckbox, destDirText, destDirButton, seasonPrefixText);
+                toggleEnableControls(moveEnabledCheckbox, destDirText,
+                                     destDirButton, seasonPrefixText);
             }
         });
 
@@ -201,12 +208,14 @@ class PreferencesDialog extends Dialog {
 
         recurseFoldersCheckbox = new Button(generalGroup, SWT.CHECK);
         recurseFoldersCheckbox.setText(RECURSE_FOLDERS_TEXT);
-        recurseFoldersCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 3, 1));
+        recurseFoldersCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER,
+                                                          true, true, 3, 1));
         recurseFoldersCheckbox.setSelection(prefs.isRecursivelyAddFolders());
 
         checkForUpdatesCheckbox = new Button(generalGroup, SWT.CHECK);
         checkForUpdatesCheckbox.setText(CHECK_UPDATES_TEXT);
-        checkForUpdatesCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 3, 1));
+        checkForUpdatesCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER,
+                                                           true, true, 3, 1));
         checkForUpdatesCheckbox.setSelection(prefs.checkForUpdates());
 
         item.setControl(generalGroup);
@@ -225,7 +234,8 @@ class PreferencesDialog extends Dialog {
         renameTokensLabel.setToolTipText(RENAME_TOKEN_TOOLTIP);
 
         List renameTokensList = new List(replacementGroup, SWT.SINGLE);
-        renameTokensList.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true, 2, 1));
+        renameTokensList.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER,
+                                                    true, true, 2, 1));
         renameTokensList.add(ReplacementToken.SHOW_NAME.toString());
         renameTokensList.add(ReplacementToken.SEASON_NUM.toString());
         renameTokensList.add(ReplacementToken.SEASON_NUM_LEADING_ZERO.toString());
@@ -248,7 +258,8 @@ class PreferencesDialog extends Dialog {
         replacementStringText = new Text(replacementGroup, SWT.BORDER);
         replacementStringText.setText(prefs.getRenameReplacementString());
         replacementStringText.setTextLimit(99);
-        replacementStringText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true, 2, 1));
+        replacementStringText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER,
+                                                         true, true, 2, 1));
 
         createDragSource(renameTokensList);
         createDropTarget(replacementStringText);
@@ -274,7 +285,8 @@ class PreferencesDialog extends Dialog {
                 String listEntry = sourceList.getItem(sourceList.getSelectionIndex());
                 String token;
 
-                Matcher tokenMatcher =  Pattern.compile(REPLACEMENT_OPTIONS_LIST_ENTRY_REGEX).matcher(listEntry);
+                Pattern patt = Pattern.compile(REPLACEMENT_OPTIONS_LIST_ENTRY_REGEX);
+                Matcher tokenMatcher = patt.matcher(listEntry);
                 if (tokenMatcher.matches()) {
                     token = tokenMatcher.group(1);
                     event.data = token;
@@ -318,7 +330,7 @@ class PreferencesDialog extends Dialog {
             @Override
             public void drop(DropTargetEvent event) {
                 String data = (String) event.data;
-                //  TODO: This currently adds the dropped text onto the end, not where we dropped it
+                // TODO: This currently adds the dropped text onto the end, not where we dropped it
                 targetText.append(data);
             }
 
@@ -331,13 +343,16 @@ class PreferencesDialog extends Dialog {
 
     private void createActionButtonGroup() {
         Composite bottomButtonsComposite = new Composite(preferencesShell, SWT.FILL);
-        bottomButtonsComposite.setLayoutData(new GridData(SWT.END, SWT.CENTER, true, true, 0, 1));
+        bottomButtonsComposite.setLayoutData(new GridData(SWT.END, SWT.CENTER,
+                                                          true, true, 0, 1));
         bottomButtonsComposite.setLayout(new GridLayout(2, false));
-        GridData bottomButtonsCompositeGridData = new GridData(SWT.FILL, SWT.CENTER, true, true, 2, 1);
+        GridData bottomButtonsCompositeGridData = new GridData(SWT.FILL, SWT.CENTER,
+                                                               true, true, 2, 1);
         bottomButtonsComposite.setLayoutData(bottomButtonsCompositeGridData);
 
         Button cancelButton = new Button(bottomButtonsComposite, SWT.PUSH);
-        GridData cancelButtonGridData = new GridData(GridData.BEGINNING, GridData.CENTER, false, false);
+        GridData cancelButtonGridData = new GridData(GridData.BEGINNING, GridData.CENTER,
+                                                     false, false);
         cancelButtonGridData.minimumWidth = 150;
         cancelButtonGridData.widthHint = 150;
         cancelButton.setLayoutData(cancelButtonGridData);
@@ -380,7 +395,9 @@ class PreferencesDialog extends Dialog {
         prefs.setSeasonPrefix(seasonPrefixText.getText());
         prefs.setSeasonPrefixLeadingZero(seasonPrefixLeadingZeroCheckbox.getSelection());
         prefs.setRenameReplacementString(replacementStringText.getText());
-        prefs.setIgnoreKeywords(Arrays.asList(ignoreWordsText.getText().split(IGNORE_WORDS_SPLIT_REGEX)));
+        String ignoreWordsString = ignoreWordsText.getText();
+        String[] ignoreWords = ignoreWordsString.split(IGNORE_WORDS_SPLIT_REGEX);
+        prefs.setIgnoreKeywords(Arrays.asList(ignoreWords));
         prefs.setRenameEnabled(renameEnabledCheckbox.getSelection());
 
         prefs.setCheckForUpdates(checkForUpdatesCheckbox.getSelection());
