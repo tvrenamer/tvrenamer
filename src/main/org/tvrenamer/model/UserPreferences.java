@@ -541,6 +541,7 @@ public class UserPreferences extends Observable {
         return "UserPreferences [destDir=" + destDir + ", seasonPrefix=" + seasonPrefix
             + ", moveEnabled=" + moveEnabled + ", renameEnabled=" + renameEnabled
             + ", renameReplacementMask=" + renameReplacementMask
-            + ", checkForUpdates=" + checkForUpdates + ", setRecursivelyAddFolders=" + recursivelyAddFolders + "]";
+            + ", checkForUpdates=" + checkForUpdates
+            + ", setRecursivelyAddFolders=" + recursivelyAddFolders + "]";
     }
 }

@@ -86,7 +86,9 @@ class UIUtils {
      * @param title the window title
      * @param message the message content
      */
-    public static void showMessageBox(final SWTMessageBoxType type, final String title, final String message) {
+    public static void showMessageBox(final SWTMessageBoxType type,
+                                      final String title, final String message)
+    {
         showMessageBox(type, title, message, null);
     }
 
