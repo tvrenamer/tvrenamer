@@ -19,9 +19,8 @@ import java.util.logging.Logger;
 public class UserPreferences extends Observable {
     private static final Logger logger = Logger.getLogger(UserPreferences.class.getName());
 
+    private final String preloadFolder;
     private String destDir;
-    @SuppressWarnings("CanBeFinal")
-    private String preloadFolder;
     private String seasonPrefix;
     private boolean seasonPrefixLeadingZero;
     private boolean moveEnabled;
@@ -40,8 +39,8 @@ public class UserPreferences extends Observable {
     private UserPreferences() {
         super();
 
-        destDir = DEFAULT_DESTINATION_DIRECTORY.toString();
         preloadFolder = null;
+        destDir = DEFAULT_DESTINATION_DIRECTORY.toString();
         seasonPrefix = DEFAULT_SEASON_PREFIX;
         seasonPrefixLeadingZero = false;
         moveEnabled = false;
@@ -153,7 +152,7 @@ public class UserPreferences extends Observable {
         UserPreferences prefs = UserPreferencesPersistence.retrieve(PREFERENCES_FILE);
 
         if (prefs != null) {
-            logger.fine("Successfully read preferences from: " + PREFERENCES_FILE.toAbsolutePath());
+            logger.finer("Successfully read preferences from: " + PREFERENCES_FILE.toAbsolutePath());
             logger.fine("Successfully read preferences: " + prefs.toString());
         } else {
             prefs = new UserPreferences();
@@ -195,6 +194,15 @@ public class UserPreferences extends Observable {
      */
     private boolean valuesAreDifferent(Object originalValue, Object newValue) {
         return !originalValue.equals(newValue);
+    }
+
+    /**
+     * Gets the name of the directory to preload into the table.
+     *
+     * @return String naming the directory.
+     */
+    public String getPreloadFolder() {
+        return preloadFolder;
     }
 
     /**
@@ -246,20 +254,14 @@ public class UserPreferences extends Observable {
      * @param dir the path to the directory
      */
     public void setDestinationDirectory(String dir) {
+        // TODO: Our javadoc says it must be an absolute path, but how can we enforce that?
+        // Should we create the path, convert it to absolute, then back to a String, and
+        // then compare?  Also, what happens if ensureDestDir fails?
         if (valuesAreDifferent(destDir, dir)) {
             destDir = dir;
 
             preferenceChanged(UserPreference.DEST_DIR);
         }
-    }
-
-    /**
-     * Gets the name of the directory to preload into the table.
-     *
-     * @return String naming the directory.
-     */
-    public String getPreloadFolder() {
-        return preloadFolder;
     }
 
     /**
@@ -537,10 +539,10 @@ public class UserPreferences extends Observable {
      */
     @Override
     public String toString() {
-        return "UserPreferences [destDir=" + destDir + ", seasonPrefix=" + seasonPrefix
-            + ", moveEnabled=" + moveEnabled + ", renameEnabled=" + renameEnabled
-            + ", renameReplacementMask=" + renameReplacementMask
-            + ", checkForUpdates=" + checkForUpdates
-            + ", setRecursivelyAddFolders=" + recursivelyAddFolders + "]";
+        return "UserPreferences\n [destDir=" + destDir + ",\n  seasonPrefix=" + seasonPrefix
+            + ",\n  moveEnabled=" + moveEnabled + ",\n  renameEnabled=" + renameEnabled
+            + ",\n  renameReplacementMask=" + renameReplacementMask
+            + ",\n  checkForUpdates=" + checkForUpdates
+            + ",\n  setRecursivelyAddFolders=" + recursivelyAddFolders + "]";
     }
 }
