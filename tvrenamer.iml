@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="JAVA_MODULE" version="4">
-  <component name="FacetManager">
-    <facet type="IvyIDEA" name="IvyIDEA">
-      <configuration ivyFile="$MODULE_DIR$/ivy.xml" useProjectSettings="true" useCustomIvySettings="true" ivySettingsFile="" onlyResolveSelectedConfigs="false">
-        <propertiesSettings>
-          <propertiesFiles includeProjectLevelPropertiesFiles="true" />
-        </propertiesSettings>
-      </configuration>
-    </facet>
-  </component>
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$">
@@ -27,73 +18,5 @@
     <orderEntry type="library" name="commons-codec-1.4" level="project" />
     <orderEntry type="library" name="junit-4.12" level="project" />
     <orderEntry type="library" name="mockito-all-1.8.5" level="project" />
-    <orderEntry type="module-library">
-      <library name="IvyIDEA">
-        <CLASSES>
-          <root url="jar://$USER_HOME$/.ivy2/cache/com.puppycrawl.tools/checkstyle/jars/checkstyle-7.1.1.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/antlr/antlr/jars/antlr-2.7.7.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.antlr/antlr4-runtime/jars/antlr4-runtime-4.5.3.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/commons-beanutils/commons-beanutils/jars/commons-beanutils-1.9.2.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/commons-logging/commons-logging/jars/commons-logging-1.1.1.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/commons-collections/commons-collections/jars/commons-collections-3.2.2.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/commons-cli/commons-cli/jars/commons-cli-1.3.1.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/com.google.guava/guava/bundles/guava-19.0.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/com.google.code.findbugs/findbugs/jars/findbugs-3.0.1.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/net.jcip/jcip-annotations/jars/jcip-annotations-1.0.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/com.google.code.findbugs/jsr305/jars/jsr305-2.0.1.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/com.google.code.findbugs/bcel-findbugs/jars/bcel-findbugs-6.0.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/com.google.code.findbugs/jFormatString/jars/jFormatString-2.0.1.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/dom4j/dom4j/jars/dom4j-1.6.1.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/xml-apis/xml-apis/jars/xml-apis-1.0.b2.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.ow2.asm/asm-debug-all/jars/asm-debug-all-5.0.2.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.ow2.asm/asm-commons/jars/asm-commons-5.0.2.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.ow2.asm/asm-tree/jars/asm-tree-5.0.2.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.ow2.asm/asm/jars/asm-5.0.2.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/commons-lang/commons-lang/jars/commons-lang-2.6.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/com.apple/AppleJavaExtensions/jars/AppleJavaExtensions-1.4.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/jaxen/jaxen/bundles/jaxen-1.1.6.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.hamcrest/hamcrest-core/jars/hamcrest-core-1.3.jar!/" />
-        </CLASSES>
-        <JAVADOC>
-          <root url="jar://$USER_HOME$/.ivy2/cache/com.puppycrawl.tools/checkstyle/javadocs/checkstyle-7.1.1-javadoc.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.antlr/antlr4-runtime/javadocs/antlr4-runtime-4.5.3-javadoc.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/commons-beanutils/commons-beanutils/javadocs/commons-beanutils-1.9.2-javadoc.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/commons-logging/commons-logging/javadocs/commons-logging-1.1.1-javadoc.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/commons-collections/commons-collections/javadocs/commons-collections-3.2.2-javadoc.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/commons-cli/commons-cli/javadocs/commons-cli-1.3.1-javadoc.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/com.google.guava/guava/javadocs/guava-19.0-javadoc.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/com.google.code.findbugs/findbugs/javadocs/findbugs-3.0.1-javadoc.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/com.google.code.findbugs/bcel-findbugs/javadocs/bcel-findbugs-6.0-javadoc.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.ow2.asm/asm-debug-all/javadocs/asm-debug-all-5.0.2-javadoc.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.ow2.asm/asm-commons/javadocs/asm-commons-5.0.2-javadoc.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.ow2.asm/asm-tree/javadocs/asm-tree-5.0.2-javadoc.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.ow2.asm/asm/javadocs/asm-5.0.2-javadoc.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/commons-lang/commons-lang/javadocs/commons-lang-2.6-javadoc.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/jaxen/jaxen/javadocs/jaxen-1.1.6-javadoc.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.hamcrest/hamcrest-core/javadocs/hamcrest-core-1.3-javadoc.jar!/" />
-        </JAVADOC>
-        <SOURCES>
-          <root url="jar://$USER_HOME$/.ivy2/cache/com.puppycrawl.tools/checkstyle/sources/checkstyle-7.1.1-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.antlr/antlr4-runtime/sources/antlr4-runtime-4.5.3-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/commons-beanutils/commons-beanutils/sources/commons-beanutils-1.9.2-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/commons-logging/commons-logging/sources/commons-logging-1.1.1-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/commons-collections/commons-collections/sources/commons-collections-3.2.2-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/commons-cli/commons-cli/sources/commons-cli-1.3.1-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/com.google.guava/guava/sources/guava-19.0-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/com.google.code.findbugs/findbugs/sources/findbugs-3.0.1-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/net.jcip/jcip-annotations/sources/jcip-annotations-1.0-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/com.google.code.findbugs/bcel-findbugs/sources/bcel-findbugs-6.0-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/dom4j/dom4j/sources/dom4j-1.6.1-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/xml-apis/xml-apis/sources/xml-apis-1.0.b2-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.ow2.asm/asm-debug-all/sources/asm-debug-all-5.0.2-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.ow2.asm/asm-commons/sources/asm-commons-5.0.2-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.ow2.asm/asm-tree/sources/asm-tree-5.0.2-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.ow2.asm/asm/sources/asm-5.0.2-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/commons-lang/commons-lang/sources/commons-lang-2.6-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/jaxen/jaxen/sources/jaxen-1.1.6-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.hamcrest/hamcrest-core/sources/hamcrest-core-1.3-sources.jar!/" />
-        </SOURCES>
-      </library>
-    </orderEntry>
   </component>
 </module>
