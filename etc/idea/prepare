@@ -1,0 +1,111 @@
+#!/usr/bin/env python
+
+import sys
+import os
+import shutil
+import filecmp
+import logging
+
+# This is the relative path from the root of the repository to the script.
+# We get the script's actual directory, and expect it to end with this
+# subpath.  After we verify it ends with this, we can remove the subpath,
+# and be left with the repository top-level directory.
+scriptdir = os.path.join('etc', 'idea')
+
+sandbox = ''
+
+# The files to copy, and where to copy them to.  Each entry is a dict;
+# 'dst' should be a string naming the relative path (relative to the
+# top-level of the repository), with the path components separated
+# by forward slashes.  'src' is exactly the same, except it could be
+# a dict with keys 'darwin' and 'win32' for platform-specific files.
+idea = [  {'dst': 'tvrenamer.iml', 'src': 'etc/idea/tvrenamer.iml'},
+          {'dst': '.idea/.name', 'src': 'etc/idea/files/.name'},
+          {'dst': '.idea/codeStyleSettings.xml',
+           'src': 'etc/idea/files/codeStyleSettings.xml'},
+          {'dst': '.idea/compiler.xml', 'src': 'etc/idea/files/compiler.xml'},
+          {'dst': '.idea/misc.xml', 'src': 'etc/idea/files/misc.xml'},
+          {'dst': '.idea/modules.xml', 'src': 'etc/idea/files/modules.xml'},
+          {'dst': '.idea/vcs.xml', 'src': 'etc/idea/files/vcs.xml'},
+          {'dst': '.idea/copyright/profiles_settings.xml',
+           'src': 'etc/idea/files/copyright/profiles_settings.xml'},
+          {'dst': '.idea/libraries/commons_codec_1_4.xml',
+           'src': 'etc/idea/files/libraries/commons_codec_1_4.xml'},
+          {'dst': '.idea/libraries/swt_4_3.xml',
+           'src': { 'darwin': 'etc/idea/files/libraries/swt_4_3_osx.xml',
+                    'win32' : 'etc/idea/files/libraries/swt_4_3_win.xml' }},
+          {'dst': '.idea/libraries/xmlpull_1_1_3_1.xml',
+           'src': 'etc/idea/files/libraries/xmlpull_1_1_3_1.xml'},
+          {'dst': '.idea/libraries/xpp3_min_1_1_4c.xml',
+           'src': 'etc/idea/files/libraries/xpp3_min_1_1_4c.xml'},
+          {'dst': '.idea/libraries/xstream_1_4_9.xml',
+           'src': 'etc/idea/files/libraries/xstream_1_4_9.xml'},
+          {'dst': '.idea/libraries/junit_4_12.xml',
+           'src': 'etc/idea/files/libraries/junit_4_12.xml'},
+          {'dst': '.idea/libraries/mockito_all_1_8_5.xml',
+           'src': 'etc/idea/files/libraries/mockito_all_1_8_5.xml'} ]
+
+# Not actually used, just for reference.
+# These are files that might be created by IntelliJ, but which are personalized
+# and should NOT be shared, copied or modified
+nonvc_files = [ 'workspace.xml', 'tasks.xml', 'dictionaries', 'inspectionProfiles' ]
+
+def setup():
+    """Determine the path of the sandbox, and initialize the logger."""
+    global sandbox
+
+    logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
+
+    repodir = os.path.dirname(os.path.realpath(__file__))
+    if repodir.endswith(scriptdir):
+        sandbox = repodir[:-9]
+    else:
+        logging.error("bad repodir: {0}".format(repodir))
+        sys.exit(-1)
+
+def make_path(strng):
+    """Create an absolute, platform-appropriate path."""
+    return os.path.join(sandbox, *strng.split('/'))
+
+def install_file(srcfpath, dstfpath):
+    """Copy the src relative path to the dst relative path."""
+    srcfile = make_path(srcfpath)
+    if os.path.isfile(srcfile):
+        dstfile = make_path(dstfpath)
+        dstdir = os.path.dirname(dstfile)
+
+        if os.path.isfile(dstfile):
+            if (filecmp.cmp(srcfile, dstfile)):
+                logging.info("already in place: {0}".format(dstfile))
+                return
+            backup = srcfile + '.backup'
+            logging.info("backing up {0} to {1}".format(dstfile, backup))
+            shutil.move(dstfile, backup)
+        elif os.path.isdir(dstdir):
+            pass
+        else:
+            os.makedirs(dstdir)
+
+        logging.info("copying {0} into place as {1}".format(srcfile, dstfile))
+        shutil.copyfile(srcfile, dstfile)
+    else:
+        logging.error("srcfile {0} does not exist".format(srcfile))
+
+def restore():
+    """Iterate over all the files in the mapping, and install them."""
+    for mapping in idea:
+        srcval = mapping['src']
+        if type(srcval) is dict:
+            if sys.platform.startswith('darwin'):
+                sfpath = srcval['darwin']
+            else:
+                sfpath = srcval['win32']
+        else:
+            sfpath = srcval
+        install_file(sfpath, mapping['dst'])
+
+def run():
+    setup()
+    restore()
+
+run()
