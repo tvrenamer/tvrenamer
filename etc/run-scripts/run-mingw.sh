@@ -36,6 +36,12 @@ windowsize ()
   echo $1 | sed 's,^/\([a-zA-Z]\)/,\1:/,'
 }
 
+# To go in the other direction, we do need to change the slashes.
+unixize ()
+{
+  echo $1 | sed 's,^\([a-zA-Z]\):,/\1,' | tr '\\' '/'
+}
+
 usage ()
 {
   echo "Error: unrecognized argument $1"
@@ -47,16 +53,22 @@ usage ()
 # to come back to it.
 startdir=`pwd`
 
+userhome=${HOME}
+if [ -n "${USERPROFILE}" ]
+then
+  userhome=`unixize ${USERPROFILE}`
+fi
+
 # If the configuration is in the older style, transform it.
 # This actually is also done by the UserPreferences class, but simpler to
 # take care of it here, beforehand.
-if [ ! -d ~/.tvrenamer ]
+if [ ! -d ${userhome}/.tvrenamer ]
 then
-  if [ -f ~/.tvrenamer ]
+  if [ -f ${userhome}/.tvrenamer ]
   then
-    /bin/mv ~/.tvrenamer ~/prefs.xml
-    /bin/mkdir ~/.tvrenamer
-    /bin/mv ~/prefs.xml ~/.tvrenamer/prefs.xml
+    /bin/mv ${userhome}/.tvrenamer ${userhome}/prefs.xml
+    /bin/mkdir ${userhome}/.tvrenamer
+    /bin/mv ${userhome}/prefs.xml ${userhome}/.tvrenamer/prefs.xml
   fi
 fi
 
@@ -71,13 +83,7 @@ then
   if [ "$1" = "-build" ]
   then
     shift
-    if [ -n "$1" ]
-    then
-      usage $1
-    fi
     ant compile || exit 2
-  else
-    usage $1
   fi
 fi
 
@@ -94,4 +100,4 @@ do
 done
 export CLASSPATH
 
-java org.tvrenamer.controller.Launcher
+java org.tvrenamer.controller.Launcher $*
