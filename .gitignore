@@ -6,10 +6,8 @@
 
 build.properties
 
-/.idea/workspace.xml
-/.idea/tasks.xml
-/.idea/dictionaries/
-/.idea/inspectionProfiles/
+/tvrenamer.iml
+/.idea/
 
 /commit.log
 /diff.diff
