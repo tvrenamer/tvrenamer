@@ -42,13 +42,7 @@ then
   if [ "$1" = "-build" ]
   then
     shift
-    if [ -n "$1" ]
-    then
-      usage $1
-    fi
     ant compile || exit 2
-  else
-    usage $1
   fi
 fi
 
@@ -65,4 +59,4 @@ do
 done
 export CLASSPATH
 
-java -XstartOnFirstThread org.tvrenamer.controller.Launcher
+java -XstartOnFirstThread org.tvrenamer.controller.Launcher $*
