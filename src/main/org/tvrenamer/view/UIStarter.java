@@ -646,8 +646,8 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
             }
         }
 
-        MoveRunner mover = new MoveRunner(pendingMoves, new ProgressBarUpdater(this));
-
+        MoveRunner mover = new MoveRunner(pendingMoves);
+        mover.setUpdater(new ProgressBarUpdater(this));
         mover.runThread();
     }
 
