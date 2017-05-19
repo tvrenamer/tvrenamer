@@ -615,7 +615,7 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
         return (ITEM_NOT_IN_TABLE != getTableItemIndex(item));
     }
 
-    private Label getProgressLabel(TableItem item) {
+    public Label getProgressLabel(TableItem item) {
         Label progressLabel = new Label(resultsTable, SWT.SHADOW_NONE | SWT.CENTER);
         TableEditor editor = new TableEditor(resultsTable);
         editor.grabHorizontal = true;
@@ -640,8 +640,7 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
                     logger.info("selected but not ready: " + episode.getFilepath());
                     continue;
                 }
-                final FileCopyMonitor monitor = new FileCopyMonitor(display,
-                                                                    getProgressLabel(item));
+                final FileCopyMonitor monitor = new FileCopyMonitor(this, item);
                 pendingMoves.add(new FileMover(episode, monitor));
             }
         }
