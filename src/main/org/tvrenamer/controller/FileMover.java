@@ -25,17 +25,25 @@ public class FileMover implements Callable<Boolean> {
     private final Path destRoot;
     private final String destBasename;
     private final String destSuffix;
-    private final ProgressObserver observer;
     private final UserPreferences userPrefs = UserPreferences.getInstance();
+    private ProgressObserver observer = null;
     Integer destIndex = null;
 
-    public FileMover(FileEpisode episode, ProgressObserver observer) {
+    public FileMover(FileEpisode episode) {
         this.episode = episode;
-        this.observer = observer;
 
         destRoot = episode.getMoveToPath();
         destBasename = episode.getDestinationBasename();
         destSuffix = episode.getFilenameSuffix();
+    }
+
+    /**
+     * Sets the progress observer for this FileMover
+     *
+     * @param the observer to add
+     */
+    public void addObserver(ProgressObserver observer) {
+        this.observer = observer;
     }
 
     /**
