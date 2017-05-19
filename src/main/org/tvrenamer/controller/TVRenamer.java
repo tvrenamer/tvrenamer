@@ -12,6 +12,8 @@ import java.util.regex.Pattern;
 public class TVRenamer {
     private static final Logger logger = Logger.getLogger(TVRenamer.class.getName());
 
+    private static final String FILENAME_BEGINS_WITH_SEASON = "[sS]\\d\\d?[eE]\\d\\d?.*";
+
     private static final String RESOLUTION_REGEX = "\\D(\\d+[pk]).*";
 
     private static final String[] REGEX = {
@@ -105,7 +107,7 @@ public class TVRenamer {
     private static String insertShowNameIfNeeded(final Path filePath) {
         String pName = filePath.getFileName().toString();
         logger.fine("pName = " + pName);
-        if (pName.matches("[sS]\\d\\d?[eE]\\d\\d?.*")) {
+        if (pName.matches(FILENAME_BEGINS_WITH_SEASON)) {
             Path parent = filePath.getParent();
             String parentName = extractParentName(parent);
             if (StringUtils.toLower(parentName).startsWith("season")) {
