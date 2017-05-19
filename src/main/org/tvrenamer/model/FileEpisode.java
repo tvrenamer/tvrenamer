@@ -51,6 +51,10 @@ public class FileEpisode {
     private static final String FILE_SEPARATOR_STRING = java.io.File.separator;
     private static final long NO_FILE_SIZE = -1L;
 
+    // Allow titles long enough to include this one:
+    // "The One With The Thanksgiving Flashbacks (a.k.a. The One With All The Thanksgivings)"
+    private static final int MAX_TITLE_LENGTH = 85;
+
     // This is the one final field in this class; it's the one thing that should never
     // change in a FileEpisode.
     private final String filenameSuffix;
@@ -420,6 +424,11 @@ public class FileEpisode {
         LocalDate airDate = null;
         if (actualEpisode != null) {
             titleString = actualEpisode.getTitle();
+            int len = titleString.length();
+            if (len > MAX_TITLE_LENGTH) {
+                logger.fine("truncating episode title " + titleString);
+                titleString = titleString.substring(0, MAX_TITLE_LENGTH);
+            }
             airDate = actualEpisode.getAirDate();
             if (airDate == null) {
                 logger.log(Level.WARNING, "Episode air date not found for '" + toString() + "'");
