@@ -7,9 +7,6 @@ It will take an ugly filename like **Lost.S06E05.DD51.720p.WEB-DL.AVC-FUSiON.mkv
 ## [Screenshot](https://github.com/tvrenamer/tvrenamer/wiki/Screenshots)
 ![Screenshot](https://raw.githubusercontent.com/wiki/tvrenamer/tvrenamer/tvrenamer-0.5b2.png)
 
-## Connectivity Issues
-If you are receiving errors about "unable to connect to internet" please [download version 0.7.2](https://github.com/tvrenamer/tvrenamer/releases/tag/0.7.2). Note that [Java 8](https://java.com/en/download) is required.
-
 ## Features
  * Rename many different shows at once from information from [TheTVDB](http://thetvdb.com/)
  * Customise the format and content of the resulting filename
@@ -38,8 +35,11 @@ If you are receiving errors about "unable to connect to internet" please [downlo
     1. Execute the run script via `./run-linux.sh`
     
 ## Common Problems
+### Connectivity Issues
+If you are receiving errors about "unable to connect to internet" please [download version 0.7.2](https://github.com/tvrenamer/tvrenamer/releases/tag/0.7.2). Note that [Java 8](https://java.com/en/download) is required.
+
 ### Java version issues
-*Java version 8* is required..  Type `java -version` into your terminal and ensure that the output is similar to:
+*Java version 8* is required.  Type `java -version` into your terminal and ensure that the output is similar to:
 
     $ java -version
     java version "1.8.0_81"
