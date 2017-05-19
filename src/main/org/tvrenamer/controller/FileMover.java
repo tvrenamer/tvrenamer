@@ -163,7 +163,7 @@ public class FileMover implements Callable<Boolean> {
             }
         } else {
             logger.info("different disks: " + srcPath + " and " + destPath);
-            observer.setMaximum(episode.getFileSize());
+            observer.initialize(episode.getFileSize());
             boolean success = copyAndDelete(srcPath, destPath);
             // TODO: what about file attributes?  In the case of owner, it might be
             // desirable to change it, or not.  What about writability?  And the
