@@ -163,6 +163,46 @@ public class FileEpisodeTest {
     }
 
     @BeforeClass
+    public static void setupValuesLongName() {
+        // This example has a very, very long episode title, and yet, still not too long
+        // for us to allow it.  It should be incorporated into the filename untouched.
+        values.add(new EpisodeTestData.Builder()
+                   .filenameShow("Friends")
+                   .properShowName("Friends")
+                   .seasonNumString("05")
+                   .episodeNumString("08")
+                   .filenameSuffix(".avi")
+                   .episodeTitle("The One With The Thanksgiving Flashbacks"
+                                 + " (a.k.a. The One With All The Thanksgivings)")
+                   .replacementMask("%S S%0sE%0e %t")
+                   .expectedReplacement("Friends S05E08 The One With The Thanksgiving Flashbacks"
+                                        + " (a.k.a. The One With All The Thanksgivings)")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValuesTooLongName() {
+        // This example has an episode title which is simply too long to be included
+        // in a filename.  We should truncate it appropriately.
+        values.add(new EpisodeTestData.Builder()
+                   .filenameShow("Clerks")
+                   .properShowName("Clerks")
+                   .seasonNumString("01")
+                   .episodeNumString("05")
+                   .filenameSuffix(".mp4")
+                   .episodeTitle("Dante and Randal and Jay and Silent Bob and"
+                                 + " a Bunch of New Characters and Lando,"
+                                 + " Take Part in a Whole Bunch of Movie Parodies"
+                                 + " Including But Not Exclusive To, The Bad News Bears,"
+                                 + " The Last Starfighter, Indiana Jones and the Temple"
+                                 + " of Doom, Plus a HS Reunion")
+                   .replacementMask("%S S%0sE%0e %t")
+                   .expectedReplacement("Clerks S01E05 Dante and Randal and Jay and Silent Bob"
+                                        + " and a Bunch of New Characters and Lando, Take")
+                   .build());
+    }
+
+    @BeforeClass
     public static void setupValuesBadSuffix() {
         // This example essentially has no filename suffix, in reality.  Instead it has
         // "junk" after its final dot.  Luckily, it works out just the same.  If we used
