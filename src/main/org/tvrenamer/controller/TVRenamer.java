@@ -13,6 +13,7 @@ public class TVRenamer {
     private static final Logger logger = Logger.getLogger(TVRenamer.class.getName());
 
     private static final String FILENAME_BEGINS_WITH_SEASON = "[sS]\\d\\d?[eE]\\d\\d?.*";
+    private static final String DIR_LOOKS_LIKE_SEASON = "[sS][0-3]\\d";
 
     private static final String RESOLUTION_REGEX = "\\D(\\d+[pk]).*";
 
@@ -110,7 +111,9 @@ public class TVRenamer {
         if (pName.matches(FILENAME_BEGINS_WITH_SEASON)) {
             Path parent = filePath.getParent();
             String parentName = extractParentName(parent);
-            if (StringUtils.toLower(parentName).startsWith("season")) {
+            if (StringUtils.toLower(parentName).startsWith("season")
+                || parentName.matches(DIR_LOOKS_LIKE_SEASON))
+            {
                 parent = parent.getParent();
                 parentName = extractParentName(parent);
             }
