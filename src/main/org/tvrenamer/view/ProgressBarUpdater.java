@@ -5,7 +5,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.TaskItem;
 
-public class ProgressBarUpdater {
+import org.tvrenamer.model.ProgressUpdater;
+
+public class ProgressBarUpdater implements ProgressUpdater {
 
     private final UIStarter ui;
     private final Display display;
@@ -30,6 +32,7 @@ public class ProgressBarUpdater {
      * Cleans up the progress bar and the task item
      *
      */
+    @Override
     public void finish() {
         display.asyncExec(() -> {
             if (taskItem != null) {
@@ -49,6 +52,7 @@ public class ProgressBarUpdater {
      * @param nRemaining
      *            the number of files left to be moved
      */
+    @Override
     public void setProgress(final int totalNumFiles, final int nRemaining) {
         if (display.isDisposed()) {
             return;

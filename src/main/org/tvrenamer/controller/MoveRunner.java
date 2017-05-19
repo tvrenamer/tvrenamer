@@ -2,7 +2,7 @@ package org.tvrenamer.controller;
 
 import static org.tvrenamer.model.util.Constants.*;
 
-import org.tvrenamer.view.ProgressBarUpdater;
+import org.tvrenamer.model.ProgressUpdater;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -34,7 +34,7 @@ public class MoveRunner implements Runnable {
 
     private final Thread progressThread = new Thread(this);
     private final Queue<Future<Boolean>> futures = new LinkedList<>();
-    private final ProgressBarUpdater updater;
+    private final ProgressUpdater updater;
     private final int numMoves;
     private final int timeout;
 
@@ -263,13 +263,13 @@ public class MoveRunner implements Runnable {
      * bar, using the specified timeout.
      *
      * @param episodes a list of FileMovers to execute
-     * @param updater a ProgressBarUpdater to be informed of our progress
+     * @param updater a ProgressUpdater to be informed of our progress
      * @param timeout the number of seconds to allow each FileMover to run, before killing it
      *
      */
     @SuppressWarnings("SameParameterValue")
     private MoveRunner(final List<FileMover> episodes,
-                       final ProgressBarUpdater updater,
+                       final ProgressUpdater updater,
                        final int timeout)
     {
         this.updater = updater;
@@ -299,10 +299,10 @@ public class MoveRunner implements Runnable {
      * bar, using the default timeout.
      *
      * @param episodes a list of FileMovers to execute
-     * @param updater a ProgressBarUpdater to be informed of our progress
+     * @param updater a ProgressUpdater to be informed of our progress
      *
      */
-    public MoveRunner(final List<FileMover> episodes, final ProgressBarUpdater updater) {
+    public MoveRunner(final List<FileMover> episodes, final ProgressUpdater updater) {
         this(episodes, updater, DEFAULT_TIMEOUT);
     }
 
