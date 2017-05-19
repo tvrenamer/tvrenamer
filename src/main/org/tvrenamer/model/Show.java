@@ -510,7 +510,7 @@ public class Show {
     public Episode getEpisode(int seasonNum, int episodeNum) {
         Map<Integer, Episode> season = seasons.get(seasonNum);
         if (season == null) {
-            logger.warning("no season " + seasonNum + " found for show " + name);
+            logger.fine("no season " + seasonNum + " found for show " + name);
             return null;
         }
         Episode episode = season.get(episodeNum);
@@ -568,7 +568,6 @@ public class Show {
      *
      * @return a count of how many episodes we have for this Show
      */
-    @SuppressWarnings("unused")
     public boolean hasEpisodes() {
         return (episodes.size() > 0);
     }
