@@ -343,6 +343,27 @@ public class StringUtils {
     }
 
     /**
+     * Reverse the effect of encodeSpecialCharacters
+     *
+     * @param input
+     *            string to decode
+     * @return human-friendly representation of input
+     */
+    public static String decodeSpecialCharacters(String input) {
+        if (input == null || input.length() == 0) {
+            return "";
+        }
+
+        input = input.replaceAll("&amp; ", "& ");
+
+        // Don't encode string within xml data strings
+        if (!input.startsWith("<?xml")) {
+            input = input.replaceAll("%20", " ");
+        }
+        return input;
+    }
+
+    /**
      * Compares two strings, considering null equal to null.
      *
      * @param s1
