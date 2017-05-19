@@ -640,8 +640,9 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
                     logger.info("selected but not ready: " + episode.getFilepath());
                     continue;
                 }
-                final FileCopyMonitor monitor = new FileCopyMonitor(this, item);
-                pendingMoves.add(new FileMover(episode, monitor));
+                FileMover pendingMove = new FileMover(episode);
+                pendingMove.addObserver(new FileCopyMonitor(this, item));
+                pendingMoves.add(pendingMove);
             }
         }
 
