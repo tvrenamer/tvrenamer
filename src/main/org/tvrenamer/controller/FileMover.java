@@ -163,8 +163,13 @@ public class FileMover implements Callable<Boolean> {
             }
         } else {
             logger.info("different disks: " + srcPath + " and " + destPath);
-            observer.initialize(episode.getFileSize());
+            if (observer != null) {
+                observer.initialize(episode.getFileSize());
+            }
             boolean success = copyAndDelete(srcPath, destPath);
+            if (observer != null) {
+                observer.cleanUp();
+            }
             // TODO: what about file attributes?  In the case of owner, it might be
             // desirable to change it, or not.  What about writability?  And the
             // newer, more system-specific attributes, like "this file was downloaded
@@ -295,7 +300,7 @@ public class FileMover implements Callable<Boolean> {
             // into a subfunction, and set the episode here for any of the failure cases.
             success = tryToMoveFile();
         } catch (Exception e) {
-            logger.warning("exception caught doing file move: " + e);
+            logger.log(Level.WARNING, "exception caught doing file move", e);
         }
         if (success) {
             episode.setRenamed();
