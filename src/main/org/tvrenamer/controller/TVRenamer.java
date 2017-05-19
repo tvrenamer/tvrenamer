@@ -3,6 +3,7 @@ package org.tvrenamer.controller;
 import org.tvrenamer.controller.util.StringUtils;
 import org.tvrenamer.model.FileEpisode;
 import org.tvrenamer.model.ShowName;
+import org.tvrenamer.model.util.Constants;
 
 import java.nio.file.Path;
 import java.util.logging.Logger;
@@ -111,8 +112,9 @@ public class TVRenamer {
         if (pName.matches(FILENAME_BEGINS_WITH_SEASON)) {
             Path parent = filePath.getParent();
             String parentName = extractParentName(parent);
-            if (StringUtils.toLower(parentName).startsWith("season")
-                || parentName.matches(DIR_LOOKS_LIKE_SEASON))
+            while (StringUtils.toLower(parentName).startsWith("season")
+                   || parentName.matches(DIR_LOOKS_LIKE_SEASON)
+                   || parentName.equals(Constants.DUPLICATES_DIRECTORY))
             {
                 parent = parent.getParent();
                 parentName = extractParentName(parent);
