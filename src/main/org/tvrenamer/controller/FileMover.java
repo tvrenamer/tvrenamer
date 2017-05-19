@@ -169,6 +169,7 @@ public class FileMover implements Callable<Boolean> {
             // desirable to change it, or not.  What about writability?  And the
             // newer, more system-specific attributes, like "this file was downloaded
             // from the internet"?
+            observer.cleanUp();
             if (success) {
                 actualDest = destPath;
             } else {
@@ -281,7 +282,7 @@ public class FileMover implements Callable<Boolean> {
      *
      * Using the attributes set in this instance, execute the move functionality.
      * In reality, this method is little more than a wrapper for getting the return
-     * value right and cleaning up the observer afterwards.
+     * value right.
      *
      * @return true on success, false otherwise.
      */
@@ -295,12 +296,6 @@ public class FileMover implements Callable<Boolean> {
             success = tryToMoveFile();
         } catch (Exception e) {
             logger.warning("exception caught doing file move: " + e);
-        } finally {
-            // We only use the label if we're doing the "copy-and-delete" method.
-            // But we have created it beforehand, not knowing which method we'd be using.
-            // So, regardless of how we tried to move the file, and regardless of whether
-            // it succeeded or not, we need to get rid of the label.
-            observer.cleanUp();
         }
         if (success) {
             episode.setRenamed();
