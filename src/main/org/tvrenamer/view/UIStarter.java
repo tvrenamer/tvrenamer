@@ -537,7 +537,7 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
         episode.listingsFailed(err);
         display.asyncExec(() -> {
             if (tableContainsTableItem(item)) {
-                item.setText(NEW_FILENAME_COLUMN, DOWNLOADING_FAILED);
+                item.setText(NEW_FILENAME_COLUMN, episode.getReplacementText());
                 item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
                 item.setChecked(false);
             }
@@ -568,10 +568,10 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
         });
     }
 
-    private void tableItemFailed(TableItem item) {
+    private void tableItemFailed(TableItem item, FileEpisode episode) {
         display.asyncExec(() -> {
             if (tableContainsTableItem(item)) {
-                item.setText(NEW_FILENAME_COLUMN, BROKEN_PLACEHOLDER_FILENAME);
+                item.setText(NEW_FILENAME_COLUMN, episode.getReplacementText());
                 item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
                 item.setChecked(false);
             }
@@ -618,7 +618,7 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
                     @Override
                     public void downloadFailed(Show show) {
                         episode.setEpisodeShow(show);
-                        tableItemFailed(item);
+                        tableItemFailed(item, episode);
                         noteShowFailure(fileName, show);
                     }
                 });

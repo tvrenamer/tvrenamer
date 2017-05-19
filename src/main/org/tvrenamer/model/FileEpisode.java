@@ -359,7 +359,7 @@ public class FileEpisode {
         } else {
             actualEpisode = actualShow.getEpisode(seasonNum, episodeNum);
             if (actualEpisode == null) {
-                logger.log(Level.SEVERE, "Season #" + seasonNum + ", Episode #"
+                logger.log(Level.FINE, "Season #" + seasonNum + ", Episode #"
                            + episodeNum + " not found for show '"
                            + filenameShow + "'");
                 seriesStatus = SeriesStatus.NO_MATCH;
@@ -532,6 +532,24 @@ public class FileEpisode {
         }
     }
 
+    private String getNoMatchPlaceholder() {
+        return EPISODE_NOT_FOUND + " <" + actualShow.getName() + " / " + actualShow.getId()
+            + ">: " + " season " + seasonNum + ", episode " + episodeNum + " not found";
+    }
+
+    private String getNoListingsPlaceholder() {
+        return EPISODE_NOT_FOUND + " <" + actualShow.getName() + " / " + actualShow.getId()
+            + ">: " + DOWNLOADING_FAILED;
+    }
+
+    private String getNoShowPlaceholder() {
+        ShowName showName = ShowName.lookupShowName(filenameShow);
+        String queryString = showName.getQueryString();
+        return BROKEN_PLACEHOLDER_FILENAME + " \""
+            + StringUtils.decodeSpecialCharacters(queryString)
+            + "\"";
+    }
+
     private String getShowNamePlaceholder() {
         return "<" + actualShow.getName() + ">";
     }
@@ -560,16 +578,16 @@ public class FileEpisode {
                 }
             }
             case NO_MATCH: {
-                return BROKEN_PLACEHOLDER_FILENAME;
+                return getNoMatchPlaceholder();
             }
             case NO_LISTINGS: {
-                return DOWNLOADING_FAILED;
+                return getNoListingsPlaceholder();
             }
             case GOT_SHOW: {
                 return getShowNamePlaceholder();
             }
             case UNFOUND: {
-                return BROKEN_PLACEHOLDER_FILENAME;
+                return getNoShowPlaceholder();
             }
             default: {
                 if (seriesStatus != SeriesStatus.NOT_STARTED) {
