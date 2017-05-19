@@ -28,6 +28,16 @@ public class FileCopyMonitor implements ProgressObserver {
     }
 
     /**
+     * Update the maximum value.
+     *
+     * @param value the new maximum value
+     */
+    @Override
+    public void initialize(final long max) {
+        maximum = max;
+    }
+
+    /**
      * Update the progress value.
      *
      * @param value the new value
@@ -42,16 +52,6 @@ public class FileCopyMonitor implements ProgressObserver {
                 label.setText(format.format((double) value / maximum));
             });
         }
-    }
-
-    /**
-     * Update the maximum value.
-     *
-     * @param value the new maximum value
-     */
-    @Override
-    public void setMaximum(final long value) {
-        maximum = value;
     }
 
     /**
