@@ -47,7 +47,9 @@ public class MoveRunner implements Runnable {
     public void run() {
         while (true) {
             int remaining = futures.size();
-            updater.setProgress(numMoves, remaining);
+            if (updater != null) {
+                updater.setProgress(numMoves, remaining);
+            }
 
             if (remaining > 0) {
                 final Future<Boolean> future = futures.remove();
@@ -58,7 +60,9 @@ public class MoveRunner implements Runnable {
                     logger.log(Level.WARNING, "exception executing move", e);
                 }
             } else {
-                updater.finish();
+                if (updater != null) {
+                    updater.finish();
+                }
                 return;
             }
         }
