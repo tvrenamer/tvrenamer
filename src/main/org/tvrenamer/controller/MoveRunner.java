@@ -299,18 +299,6 @@ public class MoveRunner implements Runnable {
     }
 
     /**
-     * Creates a MoveRunner to move all the episodes in the list, and update the progress
-     * bar, using the default timeout.
-     *
-     * @param episodes a list of FileMovers to execute
-     * @param updater a ProgressUpdater to be informed of our progress
-     *
-     */
-    public MoveRunner(final List<FileMover> episodes, final ProgressUpdater updater) {
-        this(episodes, updater, DEFAULT_TIMEOUT);
-    }
-
-    /**
      * Creates a MoveRunner to move all the episodes in the list, using the default timeout.
      *
      * @param episodes a list of FileMovers to execute
