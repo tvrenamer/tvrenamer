@@ -34,9 +34,9 @@ public class MoveRunner implements Runnable {
 
     private final Thread progressThread = new Thread(this);
     private final Queue<Future<Boolean>> futures = new LinkedList<>();
-    private final ProgressUpdater updater;
     private final int numMoves;
     private final int timeout;
+    private ProgressUpdater updater = null;
 
     /**
      * Does the activity of the thread, which is to dequeue a move task, and block
@@ -308,6 +308,26 @@ public class MoveRunner implements Runnable {
      */
     public MoveRunner(final List<FileMover> episodes, final ProgressUpdater updater) {
         this(episodes, updater, DEFAULT_TIMEOUT);
+    }
+
+    /**
+     * Creates a MoveRunner to move all the episodes in the list, using the default timeout.
+     *
+     * @param episodes a list of FileMovers to execute
+     *
+     */
+    public MoveRunner(final List<FileMover> episodes) {
+        this(episodes, null, DEFAULT_TIMEOUT);
+    }
+
+    /**
+     * Set the progress updater for this MoveRunner.
+     *
+     * @param updater a ProgressUpdater to be informed of our progress
+     *
+     */
+    public void setUpdater(final ProgressUpdater updater) {
+        this.updater = updater;
     }
 
     /**
