@@ -59,6 +59,17 @@ public class TVRenamerTest {
     }
 
     @BeforeClass
+    public static void setupValues02a() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("MyShows/drama/widescreen/24/8x21.720p.hdtv.x264-immerse.mkv")
+                   .filenameShow("24 ")
+                   .seasonNumString("8")
+                   .episodeNumString("21")
+                   .episodeResolution("720p")
+                   .build());
+    }
+
+    @BeforeClass
     public static void setupValues03() {
         values.add(new EpisodeTestData.Builder()
                    .inputFilename("24.S07.E18.720p.BlueRay.x264-SiNNERS.mkv")
@@ -200,6 +211,16 @@ public class TVRenamerTest {
         values.add(new EpisodeTestData.Builder()
                    .inputFilename("/TV/Lost/Lost [2x07].mkv")
                    .filenameShow("Lost [")
+                   .seasonNumString("2")
+                   .episodeNumString("7")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues161() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("/TV/Lost/2x07.mkv")
+                   .filenameShow("Lost ")
                    .seasonNumString("2")
                    .episodeNumString("7")
                    .build());
