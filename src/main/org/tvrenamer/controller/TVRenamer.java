@@ -97,14 +97,20 @@ public class TVRenamer {
         return output;
     }
 
+    private static String extractParentName(Path parent) {
+        Path parentPathname = parent.getFileName();
+        return parentPathname.toString();
+    }
+
     private static String insertShowNameIfNeeded(final Path filePath) {
         String pName = filePath.getFileName().toString();
         logger.fine("pName = " + pName);
         if (pName.matches("[sS]\\d\\d?[eE]\\d\\d?.*")) {
             Path parent = filePath.getParent();
-            String parentName = parent.getFileName().toString();
+            String parentName = extractParentName(parent);
             if (StringUtils.toLower(parentName).startsWith("season")) {
-                parentName = parent.getParent().getFileName().toString();
+                parent = parent.getParent();
+                parentName = extractParentName(parent);
             }
             logger.fine("appending parent directory '" + parentName + "' to filename '" + pName + "'");
             return parentName + " " + pName;
