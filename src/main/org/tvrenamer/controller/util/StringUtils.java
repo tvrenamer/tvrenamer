@@ -177,6 +177,42 @@ public class StringUtils {
     }
 
     /**
+     * Reverse the effect of encodeUrlCharacters
+     *
+     * @param input
+     *            string to decode
+     * @return human-friendly representation of input
+     */
+    public static String decodeUrlCharacters(String input) {
+        if (input == null || input.length() == 0) {
+            return "";
+        }
+
+        String rval = input.replaceAll("%20", " ");
+        rval = rval.replaceAll("%25", "&");
+
+        return rval;
+    }
+
+    /**
+     * Replaces URL metacharacters with ASCII hex codes
+     *
+     * @param input
+     *            string to encode
+     * @return URL-safe representation of input
+     */
+    public static String encodeUrlCharacters(String input) {
+        if (input == null || input.length() == 0) {
+            return "";
+        }
+
+        String rval = input.replaceAll(" ", "%20");
+        rval = rval.replaceAll("&", "%25");
+
+        return rval;
+    }
+
+    /**
      * Transform a string which we believe represents a show name, to the string we will
      * use for the query.
      *
@@ -193,7 +229,7 @@ public class StringUtils {
      *         punctuation, etc.
      */
     public static String makeQueryString(String text) {
-        return toLower(encodeSpecialCharacters(replacePunctuation(text)));
+        return toLower(encodeUrlCharacters(replacePunctuation(text)));
     }
 
     /**
