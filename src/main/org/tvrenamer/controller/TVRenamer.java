@@ -17,6 +17,10 @@ public class TVRenamer {
         = "(([sS]\\d\\d?[eE]\\d\\d?)|([sS]?\\d\\d?x\\d\\d\\d?)).*";
     private static final String DIR_LOOKS_LIKE_SEASON = "[sS][0-3]\\d";
 
+    // We sometimes find folders like "MyShow.Season02"; in this case, we want to
+    // strip away ".Season02" and be left with just "MyShow".
+    private static final String EXCESS_SEASON = "[^A-Za-z]Season[ _-]?\\d\\d?";
+
     private static final String RESOLUTION_REGEX = "\\D(\\d+[pk]).*";
 
     private static final String[] REGEX = {
@@ -113,7 +117,8 @@ public class TVRenamer {
 
     private static String extractParentName(Path parent) {
         Path parentPathname = parent.getFileName();
-        return parentPathname.toString();
+        String parentName = parentPathname.toString();
+        return parentName.replaceFirst(EXCESS_SEASON, "");
     }
 
     private static String insertShowNameIfNeeded(final Path filePath) {
