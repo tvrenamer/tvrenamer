@@ -149,7 +149,11 @@ public class StringUtilsTest {
     @Test
     public void testReplacePunctuation() {
         assertEquals("Marvels Agents of SHIELD",
+                     StringUtils.replacePunctuation("Marvel's.Agents.of.S.H.I.E.L.D."));
+        assertEquals("Marvels Agents of SHIELD",
                      StringUtils.replacePunctuation("Marvel's Agents of S.H.I.E.L.D."));
+        assertEquals("Marvels Agents of SHIELD",
+                     StringUtils.replacePunctuation("Marvel's Agents of SHIELD"));
         assertEquals("Star Trek The Next Generation",
                      StringUtils.replacePunctuation("Star Trek: The Next Generation"));
         assertEquals("Monty Pythons Flying Circus",
@@ -180,5 +184,9 @@ public class StringUtilsTest {
         assertEquals("Starving", StringUtils.replacePunctuation("Star-ving"));
         assertEquals("big bang theory", StringUtils.replacePunctuation("big-bang-theory"));
         assertEquals("american dad", StringUtils.replacePunctuation("american-dad"));
+        assertEquals("Cosmos A Space Time Odyssey",
+                     StringUtils.replacePunctuation("Cosmos.A.Space.Time.Odyssey."));
+        assertEquals("How I Met Your Mother",
+                     StringUtils.replacePunctuation("How.I.Met.Your.Mother."));
     }
 }
