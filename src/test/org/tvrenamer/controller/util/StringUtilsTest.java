@@ -163,6 +163,7 @@ public class StringUtilsTest {
         assertEquals("Brooklyn Nine Nine",
                      StringUtils.replacePunctuation("Brooklyn Nine-Nine"));
         assertEquals("Murder She Wrote", StringUtils.replacePunctuation("Murder, She Wrote"));
+        assertEquals("Murder She Wrote", StringUtils.replacePunctuation("Murder-She-Wrote"));
         assertEquals("Andy Barker PI", StringUtils.replacePunctuation("Andy Barker, P.I."));
         assertEquals("Sit Down Shut Up", StringUtils.replacePunctuation("Sit Down, Shut Up"));
         assertEquals("The Real ONeals", StringUtils.replacePunctuation("The Real O'Neals"));
@@ -177,5 +178,7 @@ public class StringUtilsTest {
         assertEquals("Blackish", StringUtils.replacePunctuation("Black-ish"));
         assertEquals("Mr Robot", StringUtils.replacePunctuation("Mr. Robot"));
         assertEquals("Starving", StringUtils.replacePunctuation("Star-ving"));
+        assertEquals("big bang theory", StringUtils.replacePunctuation("big-bang-theory"));
+        assertEquals("american dad", StringUtils.replacePunctuation("american-dad"));
     }
 }
