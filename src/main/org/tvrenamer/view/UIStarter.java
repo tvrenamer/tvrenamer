@@ -494,6 +494,7 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
             // Start the shell
             shell.pack();
             shell.open();
+            resultsTable.setFocus();
 
             // Load the preload folder into the episode map, which will call
             // us back with the list of files once they've been loaded.
