@@ -14,7 +14,7 @@ public class TVRenamer {
     private static final Logger logger = Logger.getLogger(TVRenamer.class.getName());
 
     private static final String FILENAME_BEGINS_WITH_SEASON
-        = "(([sS]\\d\\d?[eE]\\d\\d?)|(\\d\\d?x\\d\\d\\d?)).*";
+        = "(([sS]\\d\\d?[eE]\\d\\d?)|([sS]?\\d\\d?x\\d\\d\\d?)).*";
     private static final String DIR_LOOKS_LIKE_SEASON = "[sS][0-3]\\d";
 
     private static final String RESOLUTION_REGEX = "\\D(\\d+[pk]).*";
@@ -32,8 +32,8 @@ public class TVRenamer {
         // this one matches sXX.eXX:
         "(.+[^a-zA-Z0-9]\\D*?)[sS](\\d\\d?)\\D*?[eE](\\d\\d).*",
 
-        // this one matches SSxEE
-        "(.+[^a-zA-Z0-9]\\D*?)(\\d\\d?)x(\\d\\d\\d?).*",
+        // this one matches SSxEE, with an optional leading "S"
+        "(.+[^a-zA-Z0-9]\\D*?)[Ss](\\d\\d?)x(\\d\\d\\d?).*",
 
         // this one matches SXXYY; note, must be exactly four digits
         "(.+?[^a-zA-Z0-9]\\D*?)[sS](\\d\\d)(\\d\\d)\\D.*",
