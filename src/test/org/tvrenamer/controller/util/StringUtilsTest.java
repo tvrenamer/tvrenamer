@@ -169,9 +169,10 @@ public class StringUtilsTest {
         assertEquals("Murder She Wrote", StringUtils.replacePunctuation("Murder, She Wrote"));
         assertEquals("Murder She Wrote", StringUtils.replacePunctuation("Murder-She-Wrote"));
         assertEquals("Andy Barker PI", StringUtils.replacePunctuation("Andy Barker, P.I."));
+        assertEquals("Laverne & Shirley", StringUtils.replacePunctuation("Laverne & Shirley"));
         assertEquals("Sit Down Shut Up", StringUtils.replacePunctuation("Sit Down, Shut Up"));
         assertEquals("The Real ONeals", StringUtils.replacePunctuation("The Real O'Neals"));
-        assertEquals("The Office US", StringUtils.replacePunctuation("The Office (US)"));
+        assertEquals("The Office (US)", StringUtils.replacePunctuation("The Office (US)"));
         assertEquals("That 70s Show", StringUtils.replacePunctuation("That '70s Show"));
         assertEquals("Eerie Indiana", StringUtils.replacePunctuation("Eerie, Indiana"));
         assertEquals("American Dad", StringUtils.replacePunctuation("American Dad!"));
@@ -194,6 +195,9 @@ public class StringUtilsTest {
     public void testReplacePunctuation2() {
         // The apostrophe (single quote) is treated specially: simply removed
         assertEquals("New Girl", StringUtils.replacePunctuation("Ne'w Girl"));
+        // Parentheses and ampersand are left alone
+        assertEquals("New (Girl)", StringUtils.replacePunctuation("New (Girl)"));
+        assertEquals("New & Girl", StringUtils.replacePunctuation("New & Girl"));
         // Other punctuation gets replaced by a space
         assertEquals("New Girl", StringUtils.replacePunctuation("New\\Girl"));
         assertEquals("New Girl", StringUtils.replacePunctuation("New\"Girl"));
