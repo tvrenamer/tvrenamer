@@ -100,7 +100,7 @@ public class StringUtils {
         title = title.replace(">", ""); // replace '>' with ''
         title = title.replace("\"", "'"); // replace '"' with "'"
         title = title.replace("`", "'"); // replace '`' with "'"
-        return title;
+        return title.trim();
     }
 
     /**
