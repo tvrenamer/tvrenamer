@@ -25,6 +25,9 @@ public class TVRenamer {
         // this one matches SXXEXX:
         "(.+?[^a-zA-Z0-9]\\D*?)[sS](\\d\\d?)[eE](\\d\\d*).*",
 
+        // this one matches Season-XX-Episode-XX:
+        "(.+?[^a-zA-Z0-9]\\D*?)Season[- ](\\d\\d?)[- ]?Episode[- ](\\d\\d*).*",
+
         // this one matches sXX.eXX:
         "(.+[^a-zA-Z0-9]\\D*?)[sS](\\d\\d?)\\D*?[eE](\\d\\d).*",
 
