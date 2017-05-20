@@ -161,7 +161,7 @@ public class StringUtils {
         }
 
         // transform "CamelCaps" => "Camel Caps"
-        rval = rval.replaceAll("(\\p{Lower})(\\p{Upper})", "$1 $2");
+        rval = rval.replaceAll("(\\p{Lower})([\\p{Upper}\\p{Digit}])", "$1 $2");
 
         // borrowed from http://stackoverflow.com/a/17099039
         // condenses acronyms (".S.H.I.E.L.D." -> " SHIELD")
