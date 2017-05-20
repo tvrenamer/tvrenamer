@@ -189,4 +189,39 @@ public class StringUtilsTest {
         assertEquals("How I Met Your Mother",
                      StringUtils.replacePunctuation("How.I.Met.Your.Mother."));
     }
+
+    @Test
+    public void testReplacePunctuation2() {
+        // The apostrophe (single quote) is treated specially: simply removed
+        assertEquals("New Girl", StringUtils.replacePunctuation("Ne'w Girl"));
+        // Other punctuation gets replaced by a space
+        assertEquals("New Girl", StringUtils.replacePunctuation("New\\Girl"));
+        assertEquals("New Girl", StringUtils.replacePunctuation("New\"Girl"));
+        assertEquals("New Girl", StringUtils.replacePunctuation("New!Girl"));
+        assertEquals("New Girl", StringUtils.replacePunctuation("New#Girl"));
+        assertEquals("New Girl", StringUtils.replacePunctuation("New$Girl"));
+        assertEquals("New Girl", StringUtils.replacePunctuation("New%Girl"));
+        assertEquals("New Girl", StringUtils.replacePunctuation("New*Girl"));
+        assertEquals("New Girl", StringUtils.replacePunctuation("New+Girl"));
+        assertEquals("New Girl", StringUtils.replacePunctuation("New,Girl"));
+        assertEquals("New Girl", StringUtils.replacePunctuation("New-Girl"));
+        assertEquals("New Girl", StringUtils.replacePunctuation("New.Girl"));
+        assertEquals("New Girl", StringUtils.replacePunctuation("New/Girl"));
+        assertEquals("New Girl", StringUtils.replacePunctuation("New:Girl"));
+        assertEquals("New Girl", StringUtils.replacePunctuation("New;Girl"));
+        assertEquals("New Girl", StringUtils.replacePunctuation("New<Girl"));
+        assertEquals("New Girl", StringUtils.replacePunctuation("New=Girl"));
+        assertEquals("New Girl", StringUtils.replacePunctuation("New>Girl"));
+        assertEquals("New Girl", StringUtils.replacePunctuation("New?Girl"));
+        assertEquals("New Girl", StringUtils.replacePunctuation("New@Girl"));
+        assertEquals("New Girl", StringUtils.replacePunctuation("New[Girl"));
+        assertEquals("New Girl", StringUtils.replacePunctuation("New]Girl"));
+        assertEquals("New Girl", StringUtils.replacePunctuation("New^Girl"));
+        assertEquals("New Girl", StringUtils.replacePunctuation("New_Girl"));
+        assertEquals("New Girl", StringUtils.replacePunctuation("New`Girl"));
+        assertEquals("New Girl", StringUtils.replacePunctuation("New{Girl"));
+        assertEquals("New Girl", StringUtils.replacePunctuation("New|Girl"));
+        assertEquals("New Girl", StringUtils.replacePunctuation("New}Girl"));
+        assertEquals("New Girl", StringUtils.replacePunctuation("New~Girl"));
+    }
 }
