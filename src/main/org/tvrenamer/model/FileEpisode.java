@@ -25,10 +25,22 @@ import java.util.regex.Matcher;
 public class FileEpisode {
     private static final Logger logger = Logger.getLogger(FileEpisode.class.getName());
 
+    /**
+     * A status for how much we know about the filename.
+     *
+     * <ul>
+     * <li>PARSED means that we believe we have extracted all the required information from
+     *     the filename</li>
+     * <li>BAD_PARSE means we're not going to try to query for this FileEpisode, because
+     *     we could not find the show name.</li>
+     * <li>UNPARSED means we haven't yet finished examining the filename.</li>
+     * </ul>
+     *
+     */
     private enum ParseStatus {
-        UNPARSED,
         PARSED,
-        BAD_PARSE
+        BAD_PARSE,
+        UNPARSED
     }
 
     private enum SeriesStatus {
