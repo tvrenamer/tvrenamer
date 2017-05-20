@@ -304,7 +304,7 @@ public class FileEpisode {
             seriesStatus = SeriesStatus.UNFOUND;
         } else if (actualShow instanceof FailedShow) {
             seriesStatus = SeriesStatus.UNFOUND;
-            logger.log(Level.WARNING, "failed to get show for " + this,
+            logger.log(Level.FINE, "failed to get show for " + fileNameString,
                        ((FailedShow) show).getError());
         } else {
             seriesStatus = SeriesStatus.GOT_SHOW;
