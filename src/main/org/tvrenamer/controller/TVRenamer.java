@@ -35,6 +35,9 @@ public class TVRenamer {
         // this one matches SSxEE
         "(.+[^a-zA-Z0-9]\\D*?)(\\d\\d?)x(\\d\\d\\d?).*",
 
+        // this one matches SXXYY; note, must be exactly four digits
+        "(.+?[^a-zA-Z0-9]\\D*?)[sS](\\d\\d)(\\d\\d)\\D.*",
+
         // this one matches everything else:
         "(.+[^a-zA-Z0-9]\\D*?)(\\d\\d?)\\D+(\\d\\d).*",
 
