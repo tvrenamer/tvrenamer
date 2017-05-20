@@ -145,10 +145,7 @@ public class StringUtils {
     public static String replacePunctuation(String s) {
         String rval = s;
 
-        // condenses acronyms (S.H.I.E.L.D. -> SHIELD)
-        rval = rval.replaceAll("(\\p{Upper})[.]", "$1");
-
-        // The apostrophe is kind of different, because it's often found within a word, including
+        // The apostrophe is kind of unique, because it's usually found within a word, including
         // in show titles: "Bob's Burgers", "The Real O'Neals", "What's Happening", "Don't Trust..."
         // For these, replacing the apostrophe with a space confuses the database; it's much better
         // to simply remove the apostrophe.
@@ -163,11 +160,15 @@ public class StringUtils {
             rval = rval.replaceAll("(\\p{Lower})-(\\p{Lower})", "$1$2");
         }
 
-        // replaces remaining punctuation (",", ".", etc) with spaces
-        rval = rval.replaceAll("\\p{Punct}", " ");
-
         // transform "CamelCaps" => "Camel Caps"
         rval = rval.replaceAll("(\\p{Lower})(\\p{Upper})", "$1 $2");
+
+        // borrowed from http://stackoverflow.com/a/17099039
+        // condenses acronyms (".S.H.I.E.L.D." -> " SHIELD")
+        rval = rval.replaceAll("(?<=(^|[. ])[\\S&&\\D])[.](?=[\\S&&\\D]([.]|$))", "");
+
+        // replaces remaining punctuation (",", ".", etc) with spaces
+        rval = rval.replaceAll("\\p{Punct}", " ");
 
         // get rid of superfluous whitespace
         rval = rval.replaceAll(" [ ]+", " ").trim();
