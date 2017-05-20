@@ -103,6 +103,44 @@ public class StringUtils {
         return title;
     }
 
+    /**
+     * This method is intended to return true if the given string is composed
+     * purely of entirely-lower-case words separated by hyphens.
+     *
+     * To do this, we say the following:<ul>
+     * <li>it must contain a hyphen</li>
+     * <li>it must not contain a capital letter (must be all lower case)</li>
+     * <li>it must not contain whitespace
+     * <ul><li>if there's whitespace, then it doesn't purely use hyphens
+     *         as separators</li></ul></li>
+     * <li>it must not contain the dot character
+     * <ul><li>if there's a dot, then it probably doesn't purely use hyphens
+     *         as separators</li></ul></li>
+     * </ul>
+     *
+     * This is already pretty involved for such a simple thing, and it's still
+     * not perfect.  But it's a pretty good heuristic.
+     */
+    private static boolean isLowerCaseWithHyphens(String s) {
+        boolean status = false;
+        for (int i=0; i<s.length(); i++) {
+            char c = s.charAt(i);
+            if (Character.isUpperCase(c)) {
+                return false;
+            }
+            if (c == '.') {
+                return false;
+            }
+            if (Character.isWhitespace(c)) {
+                return false;
+            }
+            if (c == '-') {
+                status = true;
+            }
+        }
+        return status;
+    }
+
     @SuppressWarnings("WeakerAccess")
     public static String replacePunctuation(String s) {
         String rval = s;
@@ -116,8 +154,14 @@ public class StringUtils {
         // to simply remove the apostrophe.
         rval = rval.replaceAll("'", "");
 
-        // A hyphen in the middle of a word also should not be broken up into two words
-        rval = rval.replaceAll("(\\p{Lower})-(\\p{Lower})", "$1$2");
+        // A hyphen in the middle of a word also should not be broken up into two words.
+        // But there's an exception; see doc of isLowerCaseWithHyphens.
+        boolean allLower = isLowerCaseWithHyphens(s);
+        if (allLower) {
+            rval = rval.replaceAll("(\\p{Lower})-(\\p{Lower})", "$1 $2");
+        } else {
+            rval = rval.replaceAll("(\\p{Lower})-(\\p{Lower})", "$1$2");
+        }
 
         // replaces remaining punctuation (",", ".", etc) with spaces
         rval = rval.replaceAll("\\p{Punct}", " ");
