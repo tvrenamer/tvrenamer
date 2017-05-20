@@ -167,8 +167,17 @@ public class StringUtils {
         // condenses acronyms (".S.H.I.E.L.D." -> " SHIELD")
         rval = rval.replaceAll("(?<=(^|[. ])[\\S&&\\D])[.](?=[\\S&&\\D]([.]|$))", "");
 
-        // replaces remaining punctuation (",", ".", etc) with spaces
-        rval = rval.replaceAll("\\p{Punct}", " ");
+        // Replaces most remaining punctuation with spaces
+
+        // The first few characters in the character class (hyphen, dot, underscore)
+        // are likely to be used as separator characters.  The colon, question mark,
+        // and exclamation point seem reasonable to appear in show names.  Most of the
+        // rest are very unlikely to appear, and probably don't need to be handled at
+        // all.  But this is basically the longstanding behavior, so let's just leave
+        // it like this unless and until we have a specific reason to change.
+        rval = rval.replaceAll("[-._!?$\\[:,;\\\\#%=@`\"\\]}{~><^/+|*]", " ");
+
+        // Note, punctuation NOT modified, just left in place: parentheses, ampersand
 
         // get rid of superfluous whitespace
         rval = rval.replaceAll(" [ ]+", " ").trim();
