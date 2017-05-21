@@ -43,12 +43,35 @@ public class FileEpisode {
         UNPARSED
     }
 
+    /**
+     * A status for how much we know about the Series and its listings.
+     *
+     * These are essentially in order, from most complete to least complete.
+     *
+     * <ul>
+     * <li>GOT_LISTINGS means we have matched this FileEpisode to an actual Episode,
+     *     based on the season and episode information we extracted from the filename</li>
+     * <li>NO_MATCH means we resolved the Show and downloaded the listings, but did
+     *     not find a match for the season and episode information</li>
+     * <li>NO_LISTINGS means something went wrong trying to download the Show's listings,
+     *     and we don't have any episode information</li>
+     * <li>GOT_SHOW is exactly the same state of information as NO_LISTINGS; the difference
+     *     is, GOT_SHOW means we are in the process of trying to download listings, whereas
+     *     NO_LISTINGS means we tried and have given up</li>
+     * <li>UNFOUND means we were unable to map the supposed show name that we found in the
+     *     filename, to an actual show from the provider</li>
+     * <li>NOT_STARTED means we have not started to query for information about the show.
+     *     In this case, to know more about what's going on, we need to look at the parse
+     *     status.  Refer to its comments for elaboration.</li>
+     * </ul>
+     */
     private enum SeriesStatus {
-        NOT_STARTED,
+        GOT_LISTINGS,
+        NO_MATCH,
+        NO_LISTINGS,
         GOT_SHOW,
         UNFOUND,
-        GOT_LISTINGS,
-        NO_LISTINGS
+        NOT_STARTED
     }
 
     private enum FileStatus {
@@ -323,7 +346,12 @@ public class FileEpisode {
     public boolean listingsComplete() {
         if (actualShow == null) {
             logger.warning("error: should not get listings, do not have show!");
-            seriesStatus = SeriesStatus.UNFOUND;
+            seriesStatus = SeriesStatus.NOT_STARTED;
+            return false;
+        }
+
+        if (!actualShow.hasEpisodes()) {
+            seriesStatus = SeriesStatus.NO_LISTINGS;
             return false;
         }
 
@@ -338,7 +366,7 @@ public class FileEpisode {
             logger.info("Season #" + seasonNum + ", Episode #"
                         + episodeNum + " not found for show '"
                         + filenameShow + "'");
-            seriesStatus = SeriesStatus.NO_LISTINGS;
+            seriesStatus = SeriesStatus.NO_MATCH;
             return false;
         }
 
@@ -516,15 +544,6 @@ public class FileEpisode {
      */
     public String getReplacementText() {
         switch (seriesStatus) {
-            case NOT_STARTED: {
-                return ADDED_PLACEHOLDER_FILENAME;
-            }
-            case GOT_SHOW: {
-                return getShowNamePlaceholder();
-            }
-            case UNFOUND: {
-                return BROKEN_PLACEHOLDER_FILENAME;
-            }
             case GOT_LISTINGS: {
                 if (userPrefs.isRenameEnabled()) {
                     String newFilename = getRenamedBasename() + filenameSuffix;
@@ -542,13 +561,34 @@ public class FileEpisode {
                     return fileNameString;
                 }
             }
+            case NO_MATCH: {
+                return EPISODE_NOT_FOUND;
+            }
             case NO_LISTINGS: {
                 return DOWNLOADING_FAILED;
             }
-            default: {
-                logger.warning("internal error, seriesStatus check apparently not exhaustive: "
-                               + seriesStatus);
+            case GOT_SHOW: {
+                return getShowNamePlaceholder();
+            }
+            case UNFOUND: {
                 return BROKEN_PLACEHOLDER_FILENAME;
+            }
+            default: {
+                if (seriesStatus != SeriesStatus.NOT_STARTED) {
+                    logger.warning("internal error, seriesStatus check apparently not exhaustive: "
+                                   + seriesStatus);
+                }
+                switch (parseStatus) {
+                    case UNPARSED: {
+                        return EMPTY_STRING;
+                    }
+                    case BAD_PARSE: {
+                        return BAD_PARSE_MESSAGE;
+                    }
+                    default: {
+                        return ADDED_PLACEHOLDER_FILENAME;
+                    }
+                }
             }
         }
     }
