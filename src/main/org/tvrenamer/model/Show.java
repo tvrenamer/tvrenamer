@@ -488,7 +488,7 @@ public class Show {
     public Episode getEpisode(int seasonNum, int episodeNum) {
         Map<Integer, Episode> season = seasons.get(seasonNum);
         if (season == null) {
-            logger.warning("no season " + seasonNum + " found for show " + name);
+            logger.fine("no season " + seasonNum + " found for show " + name);
             return null;
         }
         Episode episode = season.get(episodeNum);
