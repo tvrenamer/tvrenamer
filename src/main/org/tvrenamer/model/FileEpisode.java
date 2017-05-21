@@ -324,9 +324,9 @@ public class FileEpisode {
 
         actualEpisode = actualShow.getEpisode(seasonNum, episodeNum);
         if (actualEpisode == null) {
-            logger.log(Level.SEVERE, "Season #" + seasonNum + ", Episode #"
-                       + episodeNum + " not found for show '"
-                       + filenameShow + "'");
+            logger.info("Season #" + seasonNum + ", Episode #"
+                        + episodeNum + " not found for show '"
+                        + filenameShow + "'");
             seriesStatus = SeriesStatus.NO_LISTINGS;
             return false;
         }
