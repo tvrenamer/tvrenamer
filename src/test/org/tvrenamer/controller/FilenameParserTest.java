@@ -1051,6 +1051,16 @@ public class FilenameParserTest {
                    .build());
     }
 
+    @BeforeClass
+    public static void setupValues95() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("/TV/Dexter/407.Slack.Tide.hdtv.x264-sys.mkv")
+                   .filenameShow("Dexter ")
+                   .seasonNumString("4")
+                   .episodeNumString("07")
+                   .build());
+    }
+
     @Test
     public void testParseFileName() {
         for (EpisodeTestData testInput : values) {
