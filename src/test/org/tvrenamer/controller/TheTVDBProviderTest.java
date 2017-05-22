@@ -71,6 +71,7 @@ public class TheTVDBProviderTest {
         assertEquals(showId, best.getId());
         assertEquals(actualName, best.getName());
 
+        best.clearEpisodes();
         TheTVDBProvider.getShowListing(best);
 
         best.preferProductionOrdering();
@@ -108,6 +109,7 @@ public class TheTVDBProviderTest {
         assertEquals(actualName, best.getName());
 
         best.preferDvdOrdering();
+        best.clearEpisodes();
         TheTVDBProvider.getShowListing(best);
 
         Episode s01e02 = null;
