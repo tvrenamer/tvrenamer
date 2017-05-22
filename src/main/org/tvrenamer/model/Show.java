@@ -588,6 +588,23 @@ public class Show {
     }
 
     /**
+     * Clears any episodes from this Show.  Safe to call even if Show has no episodes.
+     */
+    public void clearEpisodes() {
+        episodes.clear();
+        seasons.clear();
+    }
+
+    /**
+     * Clears any episodes from all Shows.
+     */
+    public static void clearAllEpisodes() {
+        for (Show show : KNOWN_SHOWS.values()) {
+            show.clearEpisodes();
+        }
+    }
+
+    /**
      * Look up an episode for the given season and episode of this show.
      * Returns null if no such episode was found.
      *
