@@ -28,7 +28,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-public class TheTVDBProvider {
+class TheTVDBProvider {
     private static final Logger logger = Logger.getLogger(TheTVDBProvider.class.getName());
 
     // The unique API key for our application

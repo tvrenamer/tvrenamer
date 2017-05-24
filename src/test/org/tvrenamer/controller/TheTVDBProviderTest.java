@@ -245,7 +245,8 @@ public class TheTVDBProviderTest {
      * to download a lot of data by choosing a series with just one season.
      *
      */
-    @Test
+    // @Test
+    @SuppressWarnings("unused")
     public void testGetShowOptionsAndListings() throws Exception {
         testSeriesNameAndEpisodeTitle(new EpisodeTestData.Builder()
                                       .properShowName("Quintuplets")
@@ -352,7 +353,8 @@ public class TheTVDBProviderTest {
      * So this test is intended to verify that the bug is fixed, and check
      * that we don't regress.
      */
-    @Test
+    // @Test
+    @SuppressWarnings("unused")
     public void testSeasonMatchesEpisode() throws Exception {
         final String dvdTitle = "The Why of Fry";
         final String airedTitle = "A Leela of Her Own";
@@ -1163,7 +1165,8 @@ public class TheTVDBProviderTest {
         }
     }
 
-    @Test
+    // @Test
+    @SuppressWarnings("unused")
     public void testGetEpisodeTitle() {
         for (EpisodeTestData testInput : values) {
             if (testInput.episodeTitle != null) {
