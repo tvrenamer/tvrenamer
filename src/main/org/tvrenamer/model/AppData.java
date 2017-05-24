@@ -14,6 +14,7 @@ public class AppData {
     private int widthSource = SOURCE_COLUMN_DEFAULT_WIDTH;
     private int widthDest = DEST_COLUMN_DEFAULT_WIDTH;
     private int widthStatus = STATUS_COLUMN_DEFAULT_WIDTH;
+    private String apiToken = null;
 
     private static final AppData INSTANCE = load();
 
@@ -105,6 +106,22 @@ public class AppData {
      */
     public int getWidthStatus() {
         return widthStatus;
+    }
+
+    /**
+     * Sets the API JWT Token
+     *
+     * @param token the token to use for API calls against TheTVDB's API
+     */
+    public void setApiToken(String token) {
+        apiToken = token;
+    }
+
+    /**
+     * @return the token to use for API calls against TheTVDB's API
+     */
+    public String getApiToken() {
+        return apiToken;
     }
 
     /**
