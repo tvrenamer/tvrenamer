@@ -32,6 +32,8 @@ public class UserPreferences extends Observable {
     private boolean recursivelyAddFolders;
     private final List<String> ignoreKeywords;
 
+    private String apiToken;
+
     private static final UserPreferences INSTANCE = load();
 
     /**
@@ -52,6 +54,8 @@ public class UserPreferences extends Observable {
         recursivelyAddFolders = true;
         ignoreKeywords = new ArrayList<>();
         ignoreKeywords.add(DEFAULT_IGNORED_KEYWORD);
+
+        apiToken = null;
     }
 
     /**
@@ -533,6 +537,25 @@ public class UserPreferences extends Observable {
         }
     }
 
+
+    /**
+     * Sets the API JWT Token
+     *
+     * @param token the token to use for API calls against TheTVDB's API
+     */
+    public void setApiToken(String token) {
+        apiToken = token;
+
+        preferenceChanged(UserPreference.API_TOKEN);
+    }
+
+    /**
+     * @return the token to use for API calls against TheTVDB's API
+     */
+    public String getApiToken() {
+        return apiToken;
+    }
+
     /**
      * @return a string displaying attributes of this object
      */
@@ -541,6 +564,7 @@ public class UserPreferences extends Observable {
         return "UserPreferences [destDir=" + destDir + ", seasonPrefix=" + seasonPrefix
             + ", moveEnabled=" + moveEnabled + ", renameEnabled=" + renameEnabled
             + ", renameReplacementMask=" + renameReplacementMask
-            + ", checkForUpdates=" + checkForUpdates + ", setRecursivelyAddFolders=" + recursivelyAddFolders + "]";
+            + ", checkForUpdates=" + checkForUpdates + ", setRecursivelyAddFolders=" + recursivelyAddFolders
+            + ", apiToken=" + apiToken + "]";
     }
 }

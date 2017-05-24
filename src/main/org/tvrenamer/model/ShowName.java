@@ -285,6 +285,21 @@ public class ShowName {
      *    the show's id in the TVDB database
      * @param seriesName
      *    the "official" show name
+     */
+    public void addShowOption(final Integer tvdbId,
+                              final String seriesName)
+    {
+        ShowOption option = new ShowOption(tvdbId.toString(), seriesName, null);
+        showOptions.add(option);
+    }
+
+    /**
+     * Add a possible Show option that could be mapped to this ShowName
+     *
+     * @param tvdbId
+     *    the show's id in the TVDB database
+     * @param seriesName
+     *    the "official" show name
      * @param imdbId
      *    the show's id in IMDB
      */

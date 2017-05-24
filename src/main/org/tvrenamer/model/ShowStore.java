@@ -1,7 +1,7 @@
 package org.tvrenamer.model;
 
 import org.tvrenamer.controller.ShowInformationListener;
-import org.tvrenamer.controller.TheTVDBProvider;
+import org.tvrenamer.controller.TheTVDBSwaggerProvider;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -195,7 +195,7 @@ public class ShowStore {
         Callable<Boolean> showFetcher = () -> {
             Show thisShow;
             try {
-                TheTVDBProvider.getShowOptions(showName);
+                TheTVDBSwaggerProvider.getShowOptions(showName);
                 thisShow = showName.selectShowOption();
             } catch (TVRenamerIOException e) {
                 thisShow = showName.getFailedShow(e);

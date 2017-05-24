@@ -46,7 +46,7 @@ public class ListingsLookup {
         }
         Callable<Boolean> showFetcher = () -> {
             try {
-                TheTVDBProvider.getShowListing(show);
+                TheTVDBSwaggerProvider.getShowListing(show);
                 return true;
             } catch (TVRenamerIOException e) {
                 show.listingsFailed(e);
