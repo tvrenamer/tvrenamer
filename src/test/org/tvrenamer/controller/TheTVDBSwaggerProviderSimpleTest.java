@@ -25,12 +25,13 @@ public class TheTVDBSwaggerProviderSimpleTest {
 
     @Test
     public void testGetShowListing() throws Exception {
-        Show show = Show.getShowInstance("79501", "Heroes", null);
+        Show show = Show.getShowInstance("72218", "Smallville", null);
         TheTVDBSwaggerProvider.getShowListing(show);
         assertTrue(show.hasSeasons());
         assertTrue(show.hasEpisodes());
 
-        System.out.println(show);
+        assertNotNull(show.getEpisode(9, 15));
+
     }
 
     @Test

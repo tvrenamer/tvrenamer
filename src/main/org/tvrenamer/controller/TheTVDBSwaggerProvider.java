@@ -76,6 +76,10 @@ public class TheTVDBSwaggerProvider {
         return get(BASE_URL + "/series/" + id + "/episodes");
     }
 
+    private static String getSeriesEpisodes(final Integer id, final Integer page) throws IOException {
+        return get(BASE_URL + "/series/" + id + "/episodes?page=" + page);
+    }
+
     public static void getShowOptions(final ShowName showName) throws TVRenamerIOException {
         String responseJSON = "";
         try {
@@ -129,7 +133,13 @@ public class TheTVDBSwaggerProvider {
         Moshi moshi = new Moshi.Builder().build();
         JsonAdapter<EpisodesResponse> adapter = moshi.adapter(EpisodesResponse.class);
 
-        List<Episode> episodeList = adapter.fromJson(response).data;
+        EpisodesResponse episodesResponse = adapter.fromJson(response);
+
+        if (episodesResponse.links.next != null) {
+            readEpisodesFromSearchResponse(getSeriesEpisodes(show.getId(), episodesResponse.links.next), show);
+        }
+
+        List<Episode> episodeList = episodesResponse.data;
 
         List<EpisodeInfo> episodeInfos = new LinkedList<>();
 
@@ -150,7 +160,15 @@ public class TheTVDBSwaggerProvider {
     }
 
     static class EpisodesResponse {
+        Links links;
         List<Episode> data;
+    }
+
+    static class Links {
+        Integer first;
+        Integer last;
+        Integer next;
+        Integer prev;
     }
 
     static class Episode {
