@@ -18,7 +18,7 @@ then
 fi
 
 # libraries -- hard-coded.  The first one is platform-specific.
-loclibs="swt-osx64-4.3.jar commons-codec-1.4.jar xstream-1.4.9.jar xmlpull-1.1.3.1.jar xpp3_min-1.1.4c.jar"
+loclibs="swt-osx64-4.3.jar commons-codec-1.4.jar xstream-1.4.9.jar xmlpull-1.1.3.1.jar xpp3_min-1.1.4c.jar moshi-1.5.0.jar okhttp-3.8.0.jar okio-1.13.0.jar"
 
 usage ()
 {
