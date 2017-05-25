@@ -18,17 +18,22 @@
 
 package org.tvrenamer.controller;
 
+import static org.junit.Assert.*;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tvrenamer.model.*;
+import org.tvrenamer.model.Episode;
+import org.tvrenamer.model.EpisodeTestData;
+import org.tvrenamer.model.LocalShow;
+import org.tvrenamer.model.Show;
+import org.tvrenamer.model.ShowName;
+import org.tvrenamer.model.ShowStore;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
-import static org.junit.Assert.*;
 
 public class TheTVDBSwaggerProviderTest {
 

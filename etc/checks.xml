@@ -177,6 +177,9 @@
             <property name="sortImportsInGroupAlphabetically" value="true"/>
             <property name="customImportOrderRules" value="STATIC###THIRD_PARTY_PACKAGE###STANDARD_JAVA_PACKAGE"/>
         </module>
+        <module name="AvoidStarImport">
+          <property name="allowStaticMemberImports" value="true"/>
+        </module>
         <module name="MethodParamPad">
           <property name="option" value="nospace"/>
           <property name="tokens" value="METHOD_CALL, LITERAL_NEW, SUPER_CTOR_CALL, METHOD_DEF, CTOR_DEF"/>

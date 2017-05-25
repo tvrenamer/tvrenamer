@@ -2,8 +2,16 @@ package org.tvrenamer.controller;
 
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
-import okhttp3.*;
-import org.tvrenamer.model.*;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import org.tvrenamer.model.EpisodeInfo;
+import org.tvrenamer.model.Show;
+import org.tvrenamer.model.ShowName;
+import org.tvrenamer.model.TVRenamerIOException;
+import org.tvrenamer.model.UserPreferences;
 
 import java.io.IOException;
 import java.util.LinkedList;
