@@ -23,8 +23,6 @@ public class TheTVDBSwaggerProvider {
 
     private static final OkHttpClient client = new OkHttpClient();
 
-//    private static final String JWT = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE0OTU2MTk2NjIsImlkIjoidHZyZW5hbWVyIiwib3JpZ19pYXQiOjE0OTU1MzMyNjJ9.kurEOWOxV4bJgPrDgFOxfmc1iCAoFQEiVYn2dwWED1PLZnqyShNzfw8pPNYdlc6KWaLkrHhz9kwMnplc--1PYfOTPIOMGERtMw63aTgVg4a2kXkE-T2BArZK3FIqU3ufjiXZn5PZJSRTD3GA7WlEPNtMZlzfVqRJJb85xi7MdXay5_DEN9rNPYIGYxszHwFgWyY21jlKgFPAyzXvPHiEsgL9g9p8j0wCpObQV8biklyW-kCoaUgB-g4rdbAJAFLJtHyziVxChQ3jcO2WJpRGD4JLf-r5DMtuqCEEwdlKuixALcq6vfh1EHhDUq7UgE5aTIN7M4cfXmR2LuTYW_6ukQ";
-
     static class LoginResponse {
         String token;
     }
