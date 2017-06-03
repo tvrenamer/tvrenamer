@@ -69,7 +69,6 @@ public class TheTVDBProviderTest {
 
         TheTVDBProvider.getShowListing(best);
 
-        best.preferProductionOrdering();
         Episode s1e02 = best.getEpisode(1, 2);
         assertNotNull("result of calling getEpisode(1, 2) on " + actualName + " came back null",
                       s1e02);
@@ -88,7 +87,6 @@ public class TheTVDBProviderTest {
         final String actualName = "Firefly";
         final Integer showId = 78874;
         final String dvdName = "The Train Job";
-        final String productionName = "Bushwhacked";
 
         final ShowName showName = ShowName.lookupShowName(actualName);
         TheTVDBProvider.getShowOptions(showName);
@@ -99,27 +97,13 @@ public class TheTVDBProviderTest {
         assertEquals(showId, best.getId());
         assertEquals(actualName, best.getName());
 
-        best.preferDvdOrdering();
         TheTVDBProvider.getShowListing(best);
 
         Episode s01e02 = null;
 
-        best.preferHeuristicOrdering();
         s01e02 = best.getEpisode(1, 2);
         assertNotNull("result of calling getEpisode(1, 2) on " + actualName
                       + "with heuristic ordering came back null", s01e02);
-        assertEquals(dvdName, s01e02.getTitle());
-
-        best.preferProductionOrdering();
-        s01e02 = best.getEpisode(1, 2);
-        assertNotNull("result of calling getEpisode(1, 2) on " + actualName
-                      + " with production ordering came back null", s01e02);
-        assertEquals(productionName, s01e02.getTitle());
-
-        best.preferDvdOrdering();
-        s01e02 = best.getEpisode(1, 2);
-        assertNotNull("result of calling getEpisode(1, 2) on " + actualName
-                      + " with DVD ordering came back null", s01e02);
         assertEquals(dvdName, s01e02.getTitle());
     }
 
