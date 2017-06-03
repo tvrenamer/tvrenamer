@@ -1037,7 +1037,7 @@ public class FileEpisodeTest {
             .episodeName(data.episodeTitle)
             .build();
         show.addOneEpisode(info);
-        show.preferProductionOrdering();
+        show.indexEpisodesBySeason();
         episode.listingsComplete();
 
         return episode.getRenamedBasename();
