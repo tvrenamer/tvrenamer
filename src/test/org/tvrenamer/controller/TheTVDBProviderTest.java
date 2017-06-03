@@ -405,8 +405,10 @@ public class TheTVDBProviderTest {
                    .build());
     }
 
-    @BeforeClass
+    // @BeforeClass
     public static void setupValues29() {
+        // Comment this out because Offspring has three untitled episodes with
+        // the same season and episode, but different IDs
         values.add(new EpisodeTestData.Builder()
                    .queryString("offspring")
                    .seasonNum(5)
@@ -425,8 +427,10 @@ public class TheTVDBProviderTest {
                    .build());
     }
 
-    @BeforeClass
+    // @BeforeClass
     public static void setupValues31() {
+        // Comment this out because Robot Chicken has a conflict between DVD
+        // and regular numbering.
         values.add(new EpisodeTestData.Builder()
                    .queryString("robot chicken")
                    .seasonNum(7)
@@ -465,8 +469,10 @@ public class TheTVDBProviderTest {
                    .build());
     }
 
-    @BeforeClass
+    // @BeforeClass
     public static void setupValues35() {
+        // Comment this out because the episode listing for The Good Wife
+        // currently (2017/06/02) comes through unparseable.
         values.add(new EpisodeTestData.Builder()
                    .queryString("the good wife")
                    .seasonNum(5)
@@ -475,8 +481,10 @@ public class TheTVDBProviderTest {
                    .build());
     }
 
-    @BeforeClass
+    // @BeforeClass
     public static void setupValues36() {
+        // Comment this out because trying options for "the walking dead"
+        // include a "Series Not Permitted"
         values.add(new EpisodeTestData.Builder()
                    .queryString("the walking dead")
                    .seasonNum(4)
@@ -665,8 +673,10 @@ public class TheTVDBProviderTest {
                    .build());
     }
 
-    @BeforeClass
+    // @BeforeClass
     public static void setupValues55() {
+        // Comment this out because "strike back" apparently no longer
+        // resolves to the correct show.
         values.add(new EpisodeTestData.Builder()
                    .queryString("strike back")
                    .seasonNum(1)
@@ -735,8 +745,10 @@ public class TheTVDBProviderTest {
                    .build());
     }
 
-    @BeforeClass
+    // @BeforeClass
     public static void setupValues62() {
+        // Comment this out because "Lucifer" has conflicting special episodes
+        // (season "0", episode "2")
         values.add(new EpisodeTestData.Builder()
                    .queryString("lucifer")
                    .seasonNum(2)
@@ -837,7 +849,7 @@ public class TheTVDBProviderTest {
         }
     }
 
-    // @Test
+    @Test
     public void testGetEpisodeTitle() {
         for (EpisodeTestData testInput : values) {
             if (testInput.episodeTitle != null) {
