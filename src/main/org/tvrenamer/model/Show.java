@@ -304,8 +304,8 @@ public class Show {
             // etc.  But it could also be used for this case.
             logger.warning("two episodes found for show " + name + ", season "
                            + seasonNum + ", episode " + episodeNum + ": \""
-                           + found.getTitle() + "\" and \""
-                           + episode.getTitle() + "\"");
+                           + found.getTitle() + "\" (" + found.getEpisodeId() + ") and \""
+                           + episode.getTitle() + "\" (" + episode.getEpisodeId() + ")");
         }
     }
 
