@@ -483,8 +483,8 @@ public class TheTVDBProviderTest {
 
     // @BeforeClass
     public static void setupValues36() {
-        // Comment this out because trying options for "the walking dead"
-        // include a "Series Not Permitted"
+        // Trying options for "the walking dead" gives a "Series Not Permitted".
+        // We issue a warning, but it's not really a problem.
         values.add(new EpisodeTestData.Builder()
                    .queryString("the walking dead")
                    .seasonNum(4)
