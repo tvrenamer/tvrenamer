@@ -174,7 +174,8 @@ public class TheTVDBProvider {
             Document doc = dbf.parse(listingsXmlSource);
             episodeList = nodeListValue(XPATH_EPISODE_LIST, doc);
         } catch (XPathExpressionException | SAXException | DOMException e) {
-            logger.log(Level.WARNING, e.getMessage(), e);
+            logger.log(Level.WARNING, "exception parsing episodes for " + show + ": "
+                       + e.getMessage(), e);
             throw new TVRenamerIOException(ERROR_PARSING_XML, e);
         } catch (NumberFormatException nfe) {
             logger.log(Level.WARNING, nfe.getMessage(), nfe);
