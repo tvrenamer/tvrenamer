@@ -59,7 +59,11 @@ public class TheTVDBProviderTest {
         final String ep2Name = "Quintagious";
 
         final ShowName showName = ShowName.lookupShowName(actualName);
-        TheTVDBProvider.getShowOptions(showName);
+        try {
+            TheTVDBProvider.getShowOptions(showName);
+        } catch (Exception e) {
+            fail("exception getting show options for " + actualName);
+        }
         assertTrue(showName.hasShowOptions());
         Show best = showName.selectShowOption();
         assertNotNull(best);
@@ -89,7 +93,11 @@ public class TheTVDBProviderTest {
         final String dvdName = "The Train Job";
 
         final ShowName showName = ShowName.lookupShowName(actualName);
-        TheTVDBProvider.getShowOptions(showName);
+        try {
+            TheTVDBProvider.getShowOptions(showName);
+        } catch (Exception e) {
+            fail("exception getting show options for " + actualName);
+        }
         assertTrue(showName.hasShowOptions());
         Show best = showName.selectShowOption();
         assertNotNull(best);
@@ -877,7 +885,7 @@ public class TheTVDBProviderTest {
                         }
                     });
 
-                    String got = future.get(15, TimeUnit.SECONDS);
+                    String got = future.get(30, TimeUnit.SECONDS);
                     assertEquals(testInput.episodeTitle, got);
                 } catch (TimeoutException e) {
                     String failMsg = "timeout trying to query for " + queryString
