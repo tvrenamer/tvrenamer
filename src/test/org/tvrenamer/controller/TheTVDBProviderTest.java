@@ -81,7 +81,6 @@ public class TheTVDBProviderTest {
             TheTVDBProvider.getShowOptions(showName);
         } catch (Exception e) {
             fail("exception getting show options for " + actualName);
-            return null;
         }
         assertTrue(showName.hasShowOptions());
         final Show best = showName.selectShowOption();
