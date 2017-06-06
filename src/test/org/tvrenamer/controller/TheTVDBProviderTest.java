@@ -59,7 +59,11 @@ public class TheTVDBProviderTest {
         final String ep2Name = "Quintagious";
 
         final ShowName showName = ShowName.lookupShowName(actualName);
-        TheTVDBProvider.getShowOptions(showName);
+        try {
+            TheTVDBProvider.getShowOptions(showName);
+        } catch (Exception e) {
+            fail("exception getting show options for " + actualName);
+        }
         assertTrue(showName.hasShowOptions());
         Show best = showName.selectShowOption();
         assertNotNull(best);
@@ -91,7 +95,11 @@ public class TheTVDBProviderTest {
         final String productionName = "Bushwhacked";
 
         final ShowName showName = ShowName.lookupShowName(actualName);
-        TheTVDBProvider.getShowOptions(showName);
+        try {
+            TheTVDBProvider.getShowOptions(showName);
+        } catch (Exception e) {
+            fail("exception getting show options for " + actualName);
+        }
         assertTrue(showName.hasShowOptions());
         Show best = showName.selectShowOption();
         assertNotNull(best);
