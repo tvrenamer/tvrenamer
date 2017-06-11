@@ -30,35 +30,6 @@ public class Show {
     public static final int NO_SEASON = -1;
     public static final int NO_EPISODE = 0;
 
-    /**
-     * Episode numbers are not definitive.  Production companies sometimes
-     * re-order them.  In particular, they take liberties when releasing
-     * DVDs.  The TVDB tries to keep track of the original, production order,
-     * as well as the DVD ordering (when applicable).  The truth is that some
-     * shows still have ambiguity beyond these options, but those are the two
-     * basic options available.
-     *
-     * Therefore, within the code, we offer the option to order a show based
-     * on production ordering, or based on DVD ordering.  Or, we allow it to
-     * be set to "GUESS", which means that we look at all the episode information
-     * we have, and use DVD ordering if we have DVD information on enough of
-     * them, otherwise we choose production ordering.
-     *
-     * We also have an "absolute" ordering option, though this hasn't been
-     * tested well.
-     *
-     * Currently, we actually do not have anything in the UI to expose this to
-     * users.  The default value is "GUESS", and that's all that will be used,
-     * outside of the unit tests.  But we may be able to expose it in the future.
-     */
-    private enum NumberingScheme {
-        GUESS,
-        REGULAR,
-        DVD_RELEASE,
-        @SuppressWarnings("unused")
-        ABSOLUTE
-    }
-
     private enum DownloadStatus {
         NOT_STARTED,
         IN_PROGRESS,
@@ -111,9 +82,6 @@ public class Show {
 
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private final Queue<Future<Boolean>> lookups;
-
-    // Not final.  Could be changed during the program's run.
-    private NumberingScheme numberingScheme = NumberingScheme.GUESS;
 
     private DownloadStatus listingsStatus = DownloadStatus.NOT_STARTED;
 
@@ -336,24 +304,28 @@ public class Show {
             // etc.  But it could also be used for this case.
             logger.warning("two episodes found for show " + name + ", season "
                            + seasonNum + ", episode " + episodeNum + ": \""
-                           + found.getTitle() + "\" and \""
-                           + episode.getTitle() + "\"");
+                           + found.getTitle() + "\" (" + found.getEpisodeId() + ") and \""
+                           + episode.getTitle() + "\" (" + episode.getEpisodeId() + ")");
         }
     }
 
     /**
-     * Build an index of this show's episodes, by season and episode number,
-     * according to the given numbering scheme.
+     * Build an index of this show's episodes, by season and episode number.
+     *
+     * Episode numbers are not definitive.  Production companies sometimes
+     * re-order them.  In particular, they take liberties when releasing
+     * DVDs.  The TVDB tries to keep track of the original, production order,
+     * as well as the DVD ordering (when applicable).  The truth is that some
+     * shows still have ambiguity beyond these options, but those are the two
+     * basic options available.
      *
      * Does not change the episode list at all; just organizes them into seasons
      * and episode numbers.
      *
      * Clears the season index before beginning, and iterates over all known episodes.
      *
-     * @param effective
-     *           the numbering scheme to use
      */
-    private synchronized void indexEpisodesBySeason(NumberingScheme effective) {
+    public synchronized void indexEpisodesBySeason() {
         seasons.clear();
         for (Episode episode : episodes.values()) {
             if (episode == null) {
@@ -361,18 +333,12 @@ public class Show {
                 return;
             }
 
-            String seasonNumString;
-            String episodeNumString;
-            if (effective == NumberingScheme.REGULAR) {
+            String seasonNumString = episode.getDvdSeasonNumber();
+            String episodeNumString = episode.getDvdEpisodeNumber();
+
+            if (StringUtils.isBlank(seasonNumString) || StringUtils.isBlank(episodeNumString)) {
                 seasonNumString = episode.getSeasonNumber();
                 episodeNumString = episode.getEpisodeNumber();
-            } else if (effective == NumberingScheme.DVD_RELEASE) {
-                seasonNumString = episode.getDvdSeasonNumber();
-                episodeNumString = episode.getDvdEpisodeNumber();
-            } else {
-                // not supported
-                seasonNumString = "";
-                episodeNumString = "";
             }
 
             Integer seasonNum = StringUtils.stringToInt(seasonNumString);
@@ -387,45 +353,6 @@ public class Show {
             }
 
             addEpisodeToSeason(seasonNum, episodeNum, episode);
-        }
-    }
-
-    /**
-     * Build an index of this show's episodes, by season and episode number,
-     * according to the current numbering scheme.
-     *
-     * If the current numbering scheme is "GUESS", analyzes the episodes and
-     * decides if it's suitable to use the DVD ordering, and if not, uses the
-     * standard production ordering.
-     */
-    private synchronized void indexEpisodesBySeason() {
-        if (numberingScheme == NumberingScheme.GUESS) {
-            int withDVD = 0;
-            int withoutDVD = 0;
-            for (Episode episode : episodes.values()) {
-                if (episode == null) {
-                    logger.severe("internal error creating episodes for " + name);
-                    return;
-                }
-
-                Integer seasonNum = StringUtils.stringToInt(episode.getDvdSeasonNumber());
-                Integer episodeNum = StringUtils.stringToInt(episode.getDvdEpisodeNumber());
-
-                if ((seasonNum == null) || (episodeNum == null)) {
-                    withoutDVD++;
-                } else {
-                    withDVD++;
-                }
-            }
-            // Make the threshold 75%.  That's probably low, but the program has a history
-            // of preferring DVD episode numbers, and 75% is easy to do.
-            if (withDVD > (withoutDVD * 3)) {
-                indexEpisodesBySeason(NumberingScheme.DVD_RELEASE);
-            } else {
-                indexEpisodesBySeason(NumberingScheme.REGULAR);
-            }
-        } else {
-            indexEpisodesBySeason(numberingScheme);
         }
     }
 
@@ -536,58 +463,6 @@ public class Show {
     }
 
     /**
-     * Sets the preferred numbering scheme to be "heuristic", which means that we would
-     * prefer to use DVD ordering for the episodes, but will use standard production
-     * ordering if not enough episodes have DVD numbering information.
-     *
-     * Note that the decision to use DVD or production numbering is on a per-Show basis.
-     * If we decide to use DVD numbering, and there are a few episodes that do not have
-     * DVD information, we don't "fall back" to the other ordering.  Those episodes are
-     * simply not indexed (though they continue to exist in the show's list of episodes.)
-     *
-     * Then, actually rebuilds the index based on this preference.
-     */
-    @SuppressWarnings("unused")
-    public synchronized void preferHeuristicOrdering() {
-        numberingScheme = NumberingScheme.GUESS;
-        indexEpisodesBySeason();
-    }
-
-    /**
-     * Sets the preferred numbering scheme to be "production", which means that we
-     * use the standard production ordering for indexing episodes.
-     *
-     * Note that the decision to use DVD or production numbering is on a per-Show basis.
-     * In the unlikely case that there are a few episodes that do not have standard
-     * production ordering information, but do have DVD information, we don't "fall back"
-     * to DVD ordering for those episodes.  The episodes are simply not indexed (though
-     * they continue to exist in the show's list of episodes.)
-     *
-     * Then, actually rebuilds the index based on this preference.
-     */
-    @SuppressWarnings("unused")
-    public synchronized void preferProductionOrdering() {
-        numberingScheme = NumberingScheme.REGULAR;
-        indexEpisodesBySeason(NumberingScheme.REGULAR);
-    }
-
-    /**
-     * Sets the preferred numbering scheme to be "DVD", which means that we use the
-     * DVD ordering for indexing episodes.
-     *
-     * Note that the decision to use DVD or production numbering is on a per-Show basis.
-     * If there are a few episodes that do not have DVD information, we don't "fall
-     * back" to the production ordering.  Those episodes are simply not indexed (though
-     * they continue to exist in the show's list of episodes.)
-     *
-     * Then, actually rebuilds the index based on this preference.
-     */
-    public synchronized void preferDvdOrdering() {
-        numberingScheme = NumberingScheme.DVD_RELEASE;
-        indexEpisodesBySeason(NumberingScheme.DVD_RELEASE);
-    }
-
-    /**
      * Look up an episode for the given season and episode of this show.
      * Returns null if no such episode was found.
      *
@@ -617,6 +492,35 @@ public class Show {
                     + ", found " + episode);
 
         return episode;
+    }
+
+    /**
+     * Find out if the results of querying for this show indicate that the API
+     * is no longer supported.
+     *
+     * @return true if the API is deprecated; false otherwise.
+     */
+    public boolean isApiDeprecated() {
+        // This method may return true for a subclass of Show (FailedShow).
+        // But for direct instances of the parent class (this class), we
+        // always return false.
+        return false;
+    }
+
+    /**
+     * Log the reason for the show's failure to the given logger.
+     *
+     * This method does not check to see IF the show has failed.  It assumes
+     * the caller has some reason to assume there was a failure, and tries
+     * to provide as much information as it can.
+     *
+     * @param logger the logger object to send the failure message to
+     */
+    public void logShowFailure(Logger logger) {
+        // This method does not make sense for this direct class.
+        // It has a more interesting implementation in its subclass.
+        logger.info("unexpected failure getting show for " + name
+                    + "; got " + this);
     }
 
     /**
