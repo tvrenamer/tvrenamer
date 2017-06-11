@@ -1,7 +1,7 @@
 # TVRenamer
 [![Build Status](https://travis-ci.org/tvrenamer/tvrenamer.svg?branch=master)](https://travis-ci.org/tvrenamer/tvrenamer)
 ## About
-TVRenamer is a Java GUI utility to rename TV episodes from TV listings  
+TVRenamer is a Java GUI utility to rename TV episodes from TV listings
 It will take an ugly filename like **Lost.S06E05.DD51.720p.WEB-DL.AVC-FUSiON.mkv** and rename it to **Lost [6x05] Lighthouse.mkv**
 
 ## [Screenshot](https://github.com/tvrenamer/tvrenamer/wiki/Screenshots)
@@ -15,6 +15,16 @@ It will take an ugly filename like **Lost.S06E05.DD51.720p.WEB-DL.AVC-FUSiON.mkv
  * Optionally move renamed files, i.e. a NAS or external HDD
 
 ## Usage & Download
+
+> ## Please Note
+> Your virus software may display a false positive on the Windows executable. This is reported in the issue:
+>  [#238](https://github.com/tvrenamer/tvrenamer/issues/238)
+> This software is open source and contains no viruses. You can inspect the source and build it yourself if you're interested. We do not know why the virus detection software thinks there's a virus; possibly it's simply because the program will rename your files, which some programs may be overly protective about.
+>
+> If you get a message from your virus software, we would ask that you report it to the makers of the virus software, as a bug in their product, reporting a false positive.
+>
+> Again, we assure you the program contains no viruses.
+
 [Download](http://tvrenamer.github.com) the correct version for your operating system (OSX, Windows, Linux) and architecture (32 or 64 bit)
 
   * On Windows:
@@ -25,7 +35,7 @@ It will take an ugly filename like **Lost.S06E05.DD51.720p.WEB-DL.AVC-FUSiON.mkv
     1. Double click the .app file
   * On Linux:
     1. Unzip the downloaded file somewhere, possibly your Desktop
-    1. It is easiest to add TVRenamer to the top Gnome bar (no need for the terminal).  Add a ['Custom Application Launcher'](http://library.gnome.org/users/user-guide/2.32/gospanel-34.html.en) with the below settings:  
+    1. It is easiest to add TVRenamer to the top Gnome bar (no need for the terminal).  Add a ['Custom Application Launcher'](http://library.gnome.org/users/user-guide/2.32/gospanel-34.html.en) with the below settings:
     Type: Application  
     Name: TVRenamer  
     Command: <location of unzipped file from (1.)>/TVRenamer-&lt;version&gt;/run-linux.sh  
