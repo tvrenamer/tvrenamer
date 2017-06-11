@@ -1,5 +1,6 @@
 package org.tvrenamer.model.util;
 
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -29,6 +30,8 @@ import java.nio.file.Paths;
  *
  */
 public class Constants {
+
+    public static final Charset TVR_CHARSET = Charset.forName("UTF-8");
 
     public static final String APPLICATION_NAME = "TVRenamer";
 
@@ -113,6 +116,16 @@ public class Constants {
         + "to take some action.";
     public static final String UNKNOWN_EXCEPTION = "An error occurred, please check "
         + "the console output to see any errors:";
+
+    public static final String TO_DOWNLOAD = "Please visit " + TVRENAMER_PROJECT_URL
+        + " to download the new version.";
+    public static final String GET_UPDATE_MESSAGE = "This version of TVRenamer is no longer "
+        + "functional.  There is a new version available, which should work. "
+        + TO_DOWNLOAD;
+    public static final String NEED_UPDATE = "This version of TVRenamer is no longer "
+        + "functional.  There is a not currently a new version available, but please "
+        + "check " + TVRENAMER_PROJECT_URL + " to see when one comes available.";
+    public static final String API_DISCONTINUED = "API apparently discontinued";
 
     public static final String ERROR_PARSING_XML = "Error parsing XML";
     public static final String ERROR_PARSING_NUMBERS = ERROR_PARSING_XML
