@@ -53,7 +53,6 @@ public class TheTVDBProvider {
     private static final String XPATH_SHOW = "/Data/Series";
     private static final String XPATH_SHOWID = "seriesid";
     private static final String XPATH_NAME = "SeriesName";
-    private static final String XPATH_IMDB = "IMDB_ID";
     private static final String SERIES_NOT_PERMITTED = "** 403: Series Not Permitted **";
 
     // The URL to get, to receive listings for a specific given series.
@@ -136,13 +135,12 @@ public class TheTVDBProvider {
             Node eNode = shows.item(i);
             String seriesName = nodeTextValue(XPATH_NAME, eNode);
             String tvdbId = nodeTextValue(XPATH_SHOWID, eNode);
-            String imdbId = nodeTextValue(XPATH_IMDB, eNode);
 
             if (SERIES_NOT_PERMITTED.equals(seriesName)) {
                 logger.warning("ignoring unpermitted option for "
                                + showName.getFoundName());
             } else {
-                showName.addShowOption(tvdbId, seriesName, imdbId);
+                showName.addShowOption(tvdbId, seriesName);
             }
         }
     }

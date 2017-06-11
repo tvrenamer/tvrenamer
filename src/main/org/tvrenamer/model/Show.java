@@ -3,7 +3,6 @@ package org.tvrenamer.model;
 import org.tvrenamer.controller.ListingsLookup;
 import org.tvrenamer.controller.ShowListingsListener;
 import org.tvrenamer.controller.util.StringUtils;
-import org.tvrenamer.model.util.Constants;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -74,7 +73,6 @@ public class Show {
     private final Integer idNum;
     private final String name;
     private final String dirName;
-    private final String imdb;
 
     private final Map<String, Episode> episodes;
     private final Map<Integer, Map<Integer, Episode>> seasons;
@@ -87,7 +85,7 @@ public class Show {
 
     /**
      * Create a Show object for a show that the provider knows about.  Initially
-     * we just get the show's name and ID, and an IMDB ID if known, but soon the
+     * we just get the show's name and ID, but soon the
      * Show will be augmented with all of its episodes.
      *
      * This class should not be used (directly) for any kind of "stand in".
@@ -97,13 +95,10 @@ public class Show {
      * @param name
      *     The proper name of this show, from the provider.  May contain a distinguisher,
      *     such as a year.
-     * @param imdb
-     *     The IMDB ID of this show, if known.  May be null.
      */
-    Show(String idString, String name, String imdb) {
+    Show(String idString, String name) {
         this.idString = idString;
         this.name = name;
-        this.imdb = imdb;
         dirName = StringUtils.sanitiseTitle(name);
 
         Integer parsedId = null;
@@ -133,16 +128,14 @@ public class Show {
      * @param name
      *     The proper name of this show, from the provider.  May contain a distinguisher,
      *     such as a year.
-     * @param imdb
-     *     The IMDB ID of this show, if known.  May be null.
      * @return a Show with the given ID
      */
-    public static Show getShowInstance(String id, String name, String imdb) {
+    public static Show getShowInstance(String id, String name) {
         Show matchedShow;
         synchronized (KNOWN_SHOWS) {
             matchedShow = KNOWN_SHOWS.get(id);
             if (matchedShow == null) {
-                matchedShow = new Show(id, name, imdb);
+                matchedShow = new Show(id, name);
             }
         }
         return matchedShow;
@@ -243,17 +236,6 @@ public class Show {
      */
     public String getDirName() {
         return dirName;
-    }
-
-    /**
-     * Get a string version of the IMDB URL, if the IMDB id is known.
-     *
-     * @return URL
-     *            the IMDB URL for this show, if known
-     */
-    @SuppressWarnings("unused")
-    public String getImdbUrl() {
-        return (imdb == null) ? "" : Constants.IMDB_BASE_URL + imdb;
     }
 
     /**
@@ -608,7 +590,7 @@ public class Show {
      */
     @Override
     public String toString() {
-        return "Show [" + name + ", id=" + idString + ", imdb=" + imdb + ", "
+        return "Show [" + name + ", id=" + idString + ", "
             + episodes.size() + " episodes]";
     }
 }

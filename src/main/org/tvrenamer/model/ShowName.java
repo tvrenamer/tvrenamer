@@ -178,12 +178,10 @@ public class ShowName {
     private static class ShowOption {
         final String id;
         final String actualName;
-        final String imdb;
 
-        ShowOption(final String id, final String actualName, final String imdb) {
+        ShowOption(final String id, final String actualName) {
             this.id = id;
             this.actualName = actualName;
-            this.imdb = imdb;
         }
     }
 
@@ -285,14 +283,9 @@ public class ShowName {
      *    the show's id in the TVDB database
      * @param seriesName
      *    the "official" show name
-     * @param imdbId
-     *    the show's id in IMDB
      */
-    public void addShowOption(final String tvdbId,
-                              final String seriesName,
-                              final String imdbId)
-    {
-        ShowOption option = new ShowOption(tvdbId, seriesName, imdbId);
+    public void addShowOption(final String tvdbId, final String seriesName) {
+        ShowOption option = new ShowOption(tvdbId, seriesName);
         showOptions.add(option);
     }
 
@@ -353,7 +346,7 @@ public class ShowName {
             selected = showOptions.get(0);
         }
 
-        Show selectedShow = Show.getShowInstance(selected.id, selected.actualName, selected.imdb);
+        Show selectedShow = Show.getShowInstance(selected.id, selected.actualName);
         queryString.setShow(selectedShow);
         return selectedShow;
     }
