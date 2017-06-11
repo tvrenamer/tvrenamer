@@ -148,8 +148,6 @@ public class Constants {
     private static final String PREFERENCES_FILENAME = "prefs.xml";
     private static final String OVERRIDES_FILENAME = "overrides.xml";
 
-    public static final String IMDB_BASE_URL = "http://www.imdb.com/title/";
-
     @SuppressWarnings("WeakerAccess")
     public static final Path USER_HOME_DIR = Paths.get(Environment.USER_HOME);
     public static final Path WORKING_DIRECTORY = Paths.get(Environment.USER_DIR);

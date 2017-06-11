@@ -16,6 +16,6 @@ public class LocalShow extends Show {
     }
 
     public LocalShow(String name) {
-        super(fakeId(), name, null);
+        super(fakeId(), name);
     }
 }
