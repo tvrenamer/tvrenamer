@@ -857,7 +857,7 @@ public class TheTVDBProviderTest {
         }
     }
 
-    @Test
+    // @Test
     public void testGetEpisodeTitle() {
         for (EpisodeTestData testInput : values) {
             if (testInput.episodeTitle != null) {
@@ -885,7 +885,7 @@ public class TheTVDBProviderTest {
                         }
                     });
 
-                    String got = future.get(30, TimeUnit.SECONDS);
+                    String got = future.get(15, TimeUnit.SECONDS);
                     assertEquals(testInput.episodeTitle, got);
                 } catch (TimeoutException e) {
                     String failMsg = "timeout trying to query for " + queryString
