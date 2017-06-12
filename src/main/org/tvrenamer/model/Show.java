@@ -539,6 +539,35 @@ public class Show {
     }
 
     /**
+     * Find out if the results of querying for this show indicate that the API
+     * is no longer supported.
+     *
+     * @return true if the API is deprecated; false otherwise.
+     */
+    public boolean isApiDeprecated() {
+        // This method may return true for a subclass of Show (FailedShow).
+        // But for direct instances of the parent class (this class), we
+        // always return false.
+        return false;
+    }
+
+    /**
+     * Log the reason for the show's failure to the given logger.
+     *
+     * This method does not check to see IF the show has failed.  It assumes
+     * the caller has some reason to assume there was a failure, and tries
+     * to provide as much information as it can.
+     *
+     * @param logger the logger object to send the failure message to
+     */
+    public void logShowFailure(Logger logger) {
+        // This method does not make sense for this direct class.
+        // It has a more interesting implementation in its subclass.
+        logger.info("unexpected failure getting show for " + name
+                    + "; got " + this);
+    }
+
+    /**
      * Find out whether or not there are seasons associated with this show.
      * Generally this indicates that the show's listings have been downloaded,
      * the episodes have been organized into seasons, and the show is ready to go.
