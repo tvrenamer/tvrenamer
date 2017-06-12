@@ -129,7 +129,7 @@ public class FileEpisode {
 
     // After we've looked up the filenameShow from the provider, we should get back an
     // actual Show object.  This is true even if the show was not found; in that case,
-    // we should get an instance of a FailedShow.
+    // we should get a failed Show.
     private Show actualShow = null;
 
     // This class represents a file on disk, with fields that indicate which episode we
@@ -337,7 +337,7 @@ public class FileEpisode {
         if (actualShow == null) {
             logger.warning("setEpisodeShow should never be called with null");
             seriesStatus = SeriesStatus.NOT_STARTED;
-        } else if (actualShow instanceof FailedShow) {
+        } else if (actualShow.isFailedShow()) {
             seriesStatus = SeriesStatus.UNFOUND;
         } else {
             seriesStatus = SeriesStatus.GOT_SHOW;
@@ -349,7 +349,7 @@ public class FileEpisode {
             logger.warning("error: should not get listings, do not have show!");
             seriesStatus = SeriesStatus.NOT_STARTED;
             return false;
-        } else if (actualShow instanceof FailedShow) {
+        } else if (actualShow.isFailedShow()) {
             logger.warning("error: should not get listings, have a failed show!");
             seriesStatus = SeriesStatus.UNFOUND;
             return false;
@@ -379,7 +379,7 @@ public class FileEpisode {
         }
         if (actualShow == null) {
             logger.warning("error: should not have tried to get listings, do not have show!");
-        } else if (actualShow instanceof FailedShow) {
+        } else if (actualShow.isFailedShow()) {
             logger.warning("error: should not have tried to get listings, have a failed show!");
         }
     }
@@ -401,7 +401,7 @@ public class FileEpisode {
         String destPath = userPrefs.getDestinationDirectoryName();
         if (actualShow == null) {
             logger.warning("error: should not get move-to directory, do not have show!");
-        } else if (actualShow instanceof FailedShow) {
+        } else if (actualShow.isFailedShow()) {
             logger.warning("error: should not get move-to directory, have a failed show!");
         } else {
             String dirname = actualShow.getDirName();
@@ -453,10 +453,10 @@ public class FileEpisode {
             logger.warning("should not be renaming without an actual Show.");
             showName = filenameShow;
         } else {
-            if (actualShow instanceof FailedShow) {
-                logger.warning("should not be renaming with a FailedShow.");
+            if (actualShow.isFailedShow()) {
+                logger.warning("should not be renaming with a failed Show.");
             }
-            // We can use getName() even if it was a FailedShow
+            // We can use getName() even if it was a failed Show
             showName = actualShow.getName();
         }
 

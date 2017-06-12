@@ -2,6 +2,7 @@ package org.tvrenamer.model;
 
 import org.tvrenamer.controller.ListingsLookup;
 import org.tvrenamer.controller.ShowListingsListener;
+import org.tvrenamer.controller.TheTVDBProvider;
 import org.tvrenamer.controller.util.StringUtils;
 
 import java.util.LinkedList;
@@ -11,6 +12,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -28,6 +30,8 @@ public class Show {
      */
     public static final int NO_SEASON = -1;
     public static final int NO_EPISODE = 0;
+
+    private static int fakeSeriesId = 0;
 
     private enum DownloadStatus {
         NOT_STARTED,
@@ -59,86 +63,150 @@ public class Show {
      * It doesn't cause anything to break, it just results in a lot of
      * unnecessary work.
      *
-     * Note we even put LocalShows in here, too, even though it does not
-     * serve the purpose of avoiding unnecessary work.  That's because
-     * another usage of this map is that its values represent all the
-     * Shows we have created, which can be useful information to have.
      */
-    private static final Map<String, Show> KNOWN_SHOWS = new ConcurrentHashMap<>();
+    private static final Map<Integer, Show> KNOWN_SHOWS = new ConcurrentHashMap<>();
+    private static final Map<String, Show> UNKNOWN_SHOWS = new ConcurrentHashMap<>();
 
-    /*
-     * More instance variables
+    private static synchronized int fakeId() {
+        return --fakeSeriesId;
+    }
+
+    /**
+     * In the case of a successfully found show, the show ID is a positive integer.
+     * But the idNum may be negative in a show we didn't find.
      */
-    private final String idString;
-    private final Integer idNum;
+    private final int idNum;
+
+    /**
+     * The best, most presentable name of the show, ideally with proper capitalization,
+     * punctuation, etc.  In the case of a successfully found show, this should be the
+     * exact text we get back from the provider.
+     */
     private final String name;
+
+    /**
+     * A String that names the Show, but in a way that can be used as a directory name,
+     * or within a file name.
+     */
+    // TODO: this should be guaranteed to be unique.  In practice, it probably already
+    // will be, but it's currently theoretically possible for two show names to map
+    // to the same dirName.
     private final String dirName;
 
-    private final Map<String, Episode> episodes;
-    private final Map<Integer, Map<Integer, Episode>> seasons;
-    private final Queue<ShowListingsListener> registrations;
+    private final boolean isFailed;
+    private final TVRenamerIOException err;
 
-    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
-    private final Queue<Future<Boolean>> lookups;
+    /**
+     * A mapping from episode ID to Episode object.  These are all the Episodes we
+     * received for the Show, even including those that don't map properly to a
+     * season and episode.
+     */
+    private final Map<String, Episode> episodes = new ConcurrentHashMap<>();
 
+    /**
+     * A mapping from season number to a "Season", where a "Season" is just
+     * a mapping from episode number to Episode object.
+     */
+    private final Map<Integer, Map<Integer, Episode>> seasons = new ConcurrentHashMap<>();
+
+    private final Queue<ShowListingsListener> registrations = new ConcurrentLinkedQueue<>();
+    private final Queue<Future<Boolean>> lookups = new ConcurrentLinkedQueue<>();
+
+    /**
+     * The current status of downloading listings for the Show.
+     */
     private DownloadStatus listingsStatus = DownloadStatus.NOT_STARTED;
 
     /**
-     * Create a Show object for a show that the provider knows about.  Initially
-     * we just get the show's name and ID, but soon the
-     * Show will be augmented with all of its episodes.
+     * Create a Show object for a show that the provider knows about.  Initially we just get
+     * the show's name and ID, but soon the Show will be augmented with all of its episodes.
      *
-     * This class should not be used (directly) for any kind of "stand in".
-     *
-     * @param idString
-     *     The ID of this show, from the provider, as a String
+     * @param idNum
+     *     The ID of this show, from the provider, as an int
      * @param name
      *     The proper name of this show, from the provider.  May contain a distinguisher,
      *     such as a year.
      */
-    Show(String idString, String name) {
-        this.idString = idString;
+    private Show(int idNum, String name) {
+        this.idNum = idNum;
         this.name = name;
+        this.err = null;
+        isFailed = false;
         dirName = StringUtils.sanitiseTitle(name);
 
-        Integer parsedId = null;
-        try {
-            parsedId = Integer.parseInt(idString);
-        } catch (Exception e) {
-            logger.fine("Show's ID " + idString + " could not be parsed as integer");
+        if (idNum > 0) {
+            KNOWN_SHOWS.put(idNum, this);
+        } else {
+            UNKNOWN_SHOWS.put(name, this);
         }
-        idNum = parsedId;
+    }
 
-        episodes = new ConcurrentHashMap<>();
-        seasons = new ConcurrentHashMap<>();
-        registrations = new ConcurrentLinkedQueue<>();
-        lookups = new ConcurrentLinkedQueue<>();
+    /**
+     * Create a Show object for a show that the provider does not know about,
+     * but which is not considered "failed".  Give it a fake ID number.
+     *
+     * @param name
+     *     The best version we can come up with for the name of this show,
+     *     given that we did not get a hit from the provider.
+     */
+    Show(String name) {
+        this(fakeId(), name);
+    }
 
-        KNOWN_SHOWS.put(idString, this);
+    /**
+     * Create a stand-in Show object for a show that we were unable to look up.
+     *
+     * @param name
+     *     The best version we can come up with for the name of this show,
+     *     given that we did not get a hit from the provider.
+     * @param err
+     *     An error that occurred while looking up this show; may be null.
+     */
+    public Show(String name, TVRenamerIOException err) {
+        idNum = fakeId();
+        this.name = name;
+        this.err = err;
+        isFailed = true;
+        dirName = StringUtils.sanitiseTitle(name);
+
+        UNKNOWN_SHOWS.put(name, this);
     }
 
     /**
      * "Factory"-type static method to get an instance of a Show.  Looks
-     * up the ID in a hash table, and returns the object if it's already
+     * up the info in a hash table, and returns the object if it's already
      * been created.  Otherwise, we create a new Show, put it into the
      * table, and return it.
      *
-     * @param id
-     *     The ID of this show, from the provider, as a String
      * @param name
      *     The proper name of this show, from the provider.  May contain a distinguisher,
      *     such as a year.
-     * @return a Show with the given ID
+     * @return a Show with the given ID, or a stand-in show
      */
-    public static Show getShowInstance(String id, String name) {
-        Show matchedShow;
-        synchronized (KNOWN_SHOWS) {
-            matchedShow = KNOWN_SHOWS.get(id);
-            if (matchedShow == null) {
-                matchedShow = new Show(id, name);
+    public static Show getShowInstance(int id, String name) {
+        Show matchedShow = null;
+        if (id > 0) {
+            synchronized (KNOWN_SHOWS) {
+                matchedShow = KNOWN_SHOWS.get(id);
             }
+            if (matchedShow != null) {
+                return matchedShow;
+            }
+            return new Show(id, name);
         }
-        return matchedShow;
+
+        // If we get here, id <= 0
+        synchronized (UNKNOWN_SHOWS) {
+            matchedShow = UNKNOWN_SHOWS.get(name);
+        }
+        if (matchedShow != null) {
+            return matchedShow;
+        }
+        logger.warning("Show " + name + " cannot be looked up"
+                       + " because it has no integer ID");
+        // Calling the one-arg constructor means it's a "local" show, one
+        // we didn't find in the provider's db.
+        return new Show(name);
     }
 
     /**
@@ -205,20 +273,20 @@ public class Show {
     }
 
     /**
-     * Get this Show's ID, as an Integer.
+     * Get this Show's ID, as an int.
      *
      * @return ID
-     *            the ID of the show from the provider, as an Integer,
-     *            or null if the given ID was not an int
+     *            the ID of the show from the provider, as an int
      */
-    public Integer getId() {
+    public int getId() {
         return idNum;
     }
 
     /**
-     * Get this Show's actual, well-formatted name.  This may include a distinguisher,
-     * such as a year, if the Show's name is not unique.  This may contain punctuation
-     * characters which are not suitable for filenames, as well as non-ASCII characters.
+     * Get this Show's actual, well-formatted name, as well as we know it.
+     * This may include a distinguisher, such as a year, if the Show's name
+     * is not otherwise unique.  This may contain punctuation characters
+     * which are not suitable for filenames, as well as non-ASCII characters.
      *
      * @return show name
      *            the name of the show from the provider
@@ -236,6 +304,29 @@ public class Show {
      */
     public String getDirName() {
         return dirName;
+    }
+
+    /**
+     * Return whether or not this is a "local" show.
+     *
+     * A "local" show is one that is not found in the provider.  It's generally a
+     * sort of a substitute, and can also be thought of as "fake" in some way.
+     * It is assigned an ID meant to not conflict with any of the "real" shows
+     * we get from the provider.
+     *
+     * @return true the show is "local", false if it was found in the provider's db
+     */
+    public boolean isLocalShow() {
+        return (idNum < 0);
+    }
+
+    /**
+     * Return whether or not this is a "local" show.
+     *
+     * @return true the show is "local", false if it was found in the provider's db
+     */
+    public boolean isFailedShow() {
+        return isFailed;
     }
 
     /**
@@ -527,22 +618,25 @@ public class Show {
      * @return true if the API is deprecated; false otherwise.
      */
     public boolean isApiDeprecated() {
-        // This method may return true for a subclass of Show (FailedShow).
-        // But for direct instances of the parent class (this class), we
-        // always return false.
+        if (isFailed && (err != null)) {
+            return TheTVDBProvider.isApiDiscontinuedError(err);
+        }
         return false;
     }
 
     /**
      * Log the reason for the show's failure to the given logger.
      *
-     * This method does not check to see IF the show has failed.  It assumes
-     * the caller has some reason to assume there was a failure, and tries
-     * to provide as much information as it can.
+     * This method assumes the caller has some reason to assume there was a failure,
+     * and tries to provide as much information as it can.
      *
      * @param logger the logger object to send the failure message to
      */
     public void logShowFailure(Logger logger) {
+        if (isFailed) {
+            logger.log(Level.WARNING, "failed to get show for " + getName(), err);
+            return;
+        }
         // This method does not make sense for this direct class.
         // It has a more interesting implementation in its subclass.
         logger.info("unexpected failure getting show for " + name
@@ -589,7 +683,7 @@ public class Show {
      */
     @Override
     public String toString() {
-        return "Show [" + name + ", id=" + idString + ", "
+        return "Show [" + name + ", id=" + idNum + ", "
             + episodes.size() + " episodes]";
     }
 }
