@@ -4,6 +4,7 @@ import org.tvrenamer.controller.util.StringUtils;
 import org.tvrenamer.model.TVRenamerIOException;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -91,6 +92,15 @@ class HttpConnectionHandler {
                     logger.log(Level.FINEST, "Url stream:\n{0}", contents.toString());
                 }
             }
+        } catch (FileNotFoundException e) {
+            String message = "FileNotFoundException when attempting to download"
+                + " and parse URL " + url;
+            // We don't necessarily consider FileNotFoundException to be "severe".
+            // That's why it's handled first, as a special case.  We create and
+            // throw the TVRenamerIOException in the same way as any other exception;
+            // we just don't log it at the same level.
+            logger.fine(message);
+            throw new TVRenamerIOException(message, e);
         } catch (Exception e) {
             String message = "Exception when attempting to download and parse URL " + url;
             logger.log(Level.SEVERE, message, e);

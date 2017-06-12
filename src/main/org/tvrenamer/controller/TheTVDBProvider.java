@@ -16,8 +16,11 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringReader;
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,18 +32,36 @@ import javax.xml.xpath.XPathExpressionException;
 public class TheTVDBProvider {
     private static final Logger logger = Logger.getLogger(TheTVDBProvider.class.getName());
 
+    // The unique API key for our application
     private static final String API_KEY = "4A9560FF0B2670B2";
 
-    private static final String BASE_SEARCH_URL = "http://www.thetvdb.com/api/GetSeries.php?seriesname=";
+    // The proposed day on which the v1 API will cease to be supported.
+    private static final LocalDate SUNSET = LocalDate.of(2017, Month.OCTOBER, 1);
+
+    // Whether or not we should try making v1 API calls
+    private static boolean apiIsDeprecated = false;
+
+    // The base information for the provider
+    private static final String DEFAULT_SITE_URL = "http://thetvdb.com/";
+    private static final String API_URL = DEFAULT_SITE_URL + "api/";
+
+    // The URL to get, to receive options for a given series search string.
+    // Note, does not take API key.
+    private static final String BASE_SEARCH_URL = API_URL + "GetSeries.php?seriesname=";
+
+    // These are the tags that we use to extract the relevant information from the show document.
     private static final String XPATH_SHOW = "/Data/Series";
     private static final String XPATH_SHOWID = "seriesid";
     private static final String XPATH_NAME = "SeriesName";
-    private static final String XPATH_IMDB = "IMDB_ID";
-    private static final String BASE_LIST_URL = "http://thetvdb.com/api/" + API_KEY + "/series/";
-    private static final String BASE_LIST_FILENAME = "/all/" + DEFAULT_LANGUAGE + XML_SUFFIX;
-    private static final String XPATH_EPISODE_LIST = "/Data/Episode";
     private static final String SERIES_NOT_PERMITTED = "** 403: Series Not Permitted **";
 
+    // The URL to get, to receive listings for a specific given series.
+    private static final String BASE_LIST_URL = API_URL + API_KEY + "/series/";
+    private static final String BASE_LIST_FILENAME = "/all/" + DEFAULT_LANGUAGE + XML_SUFFIX;
+
+    // These are the tags that we use to extract the episode information
+    // from the listings document.
+    private static final String XPATH_EPISODE_LIST = "/Data/Episode";
     private static final String XPATH_EPISODE_ID = "id";
     private static final String XPATH_SEASON_NUM = "SeasonNumber";
     private static final String XPATH_EPISODE_NUM = "EpisodeNumber";
@@ -51,9 +72,31 @@ public class TheTVDBProvider {
     private static final String XPATH_DVD_EPISODE_NUM = "DVD_episodenumber";
     // private static final String XPATH_EPISODE_NUM_ABS = "absolute_number";
 
+    public static boolean isApiDiscontinuedError(Throwable e) {
+        if (0 > LocalDate.now().compareTo(SUNSET)) {
+            return false;
+        }
+        while (e != null) {
+            if (e instanceof FileNotFoundException) {
+                apiIsDeprecated = true;
+                return true;
+            }
+            e = e.getCause();
+        }
+        return false;
+    }
+
+    public static boolean isApiDeprecated() {
+        return apiIsDeprecated;
+    }
+
     private static String getShowSearchXml(final ShowName showName)
         throws TVRenamerIOException
     {
+        if (apiIsDeprecated) {
+            throw new TVRenamerIOException(API_DISCONTINUED, null);
+        }
+
         String searchURL = BASE_SEARCH_URL + showName.getQueryString();
 
         logger.fine("About to download search results from " + searchURL);
@@ -66,6 +109,10 @@ public class TheTVDBProvider {
     private static String getShowListingXml(final Show show)
         throws TVRenamerIOException
     {
+        if (apiIsDeprecated) {
+            throw new TVRenamerIOException(API_DISCONTINUED, null);
+        }
+
         Integer showId = show.getId();
         if (showId == null) {
             throw new TVRenamerIOException("cannot download listings for show "
@@ -88,13 +135,12 @@ public class TheTVDBProvider {
             Node eNode = shows.item(i);
             String seriesName = nodeTextValue(XPATH_NAME, eNode);
             String tvdbId = nodeTextValue(XPATH_SHOWID, eNode);
-            String imdbId = nodeTextValue(XPATH_IMDB, eNode);
 
             if (SERIES_NOT_PERMITTED.equals(seriesName)) {
                 logger.warning("ignoring unpermitted option for "
                                + showName.getFoundName());
             } else {
-                showName.addShowOption(tvdbId, seriesName, imdbId);
+                showName.addShowOption(tvdbId, seriesName);
             }
         }
     }
@@ -133,7 +179,11 @@ public class TheTVDBProvider {
         } catch (TVRenamerIOException tve) {
             String msg  = "error parsing XML from " + searchXml + " for series "
                 + showName.getFoundName();
-            logger.log(Level.WARNING, msg, tve);
+            if (isApiDiscontinuedError(tve)) {
+                throw new TVRenamerIOException(API_DISCONTINUED, tve);
+            } else {
+                logger.log(Level.WARNING, msg, tve);
+            }
             throw new TVRenamerIOException(msg, tve);
         }
     }
@@ -174,7 +224,8 @@ public class TheTVDBProvider {
             Document doc = dbf.parse(listingsXmlSource);
             episodeList = nodeListValue(XPATH_EPISODE_LIST, doc);
         } catch (XPathExpressionException | SAXException | DOMException e) {
-            logger.log(Level.WARNING, e.getMessage(), e);
+            logger.log(Level.WARNING, "exception parsing episodes for " + show + ": "
+                       + e.getMessage(), e);
             throw new TVRenamerIOException(ERROR_PARSING_XML, e);
         } catch (NumberFormatException nfe) {
             logger.log(Level.WARNING, nfe.getMessage(), nfe);

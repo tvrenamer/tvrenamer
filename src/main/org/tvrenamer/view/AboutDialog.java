@@ -103,8 +103,11 @@ final class AboutDialog extends Dialog {
         applicationLabel.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true));
 
         Label versionLabel = new Label(aboutShell, SWT.NONE);
-        versionLabel.setFont(new Font(aboutShell.getDisplay(), getDefaultSystemFont().getName(), getDefaultSystemFont()
-            .getHeight() + 2, SWT.BOLD));
+        versionLabel.setFont(new Font(aboutShell.getDisplay(),
+                                      getDefaultSystemFont().getName(),
+                                      getDefaultSystemFont().getHeight() + 2,
+                                      SWT.BOLD));
+
         versionLabel.setText("Version: " + VERSION_NUMBER);
         versionLabel.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true));
 

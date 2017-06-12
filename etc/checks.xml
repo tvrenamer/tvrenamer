@@ -26,10 +26,10 @@
         <module name="FileContentsHolder"/>
         <module name="OuterTypeFilename"/>
         <module name="LineLength">
-            <property name="max" value="212"/>
+            <property name="max" value="110"/>
         </module>
         <module name="MethodLength">
-            <property name="max" value="175"/>
+            <property name="max" value="115"/>
         </module>
         <module name="OneTopLevelClass"/>
         <module name="NoLineWrap"/>
@@ -176,6 +176,9 @@
         <module name="CustomImportOrder">
             <property name="sortImportsInGroupAlphabetically" value="true"/>
             <property name="customImportOrderRules" value="STATIC###THIRD_PARTY_PACKAGE###STANDARD_JAVA_PACKAGE"/>
+        </module>
+        <module name="AvoidStarImport">
+          <property name="allowStaticMemberImports" value="true"/>
         </module>
         <module name="MethodParamPad">
           <property name="option" value="nospace"/>
