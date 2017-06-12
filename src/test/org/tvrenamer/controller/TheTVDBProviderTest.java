@@ -29,7 +29,6 @@ import org.junit.Test;
 
 import org.tvrenamer.model.Episode;
 import org.tvrenamer.model.EpisodeTestData;
-import org.tvrenamer.model.LocalShow;
 import org.tvrenamer.model.Show;
 import org.tvrenamer.model.ShowName;
 import org.tvrenamer.model.ShowStore;
@@ -55,7 +54,7 @@ public class TheTVDBProviderTest {
     @Test
     public void testGetShowOptionsAndListings() throws Exception {
         final String actualName = "Quintuplets";
-        final Integer showId = 73732;
+        final int showId = 73732;
         final String ep2Name = "Quintagious";
 
         final ShowName showName = ShowName.lookupShowName(actualName);
@@ -67,7 +66,7 @@ public class TheTVDBProviderTest {
         assertTrue(showName.hasShowOptions());
         Show best = showName.selectShowOption();
         assertNotNull(best);
-        assertFalse(best instanceof LocalShow);
+        assertFalse(best.isLocalShow());
         assertEquals(showId, best.getId());
         assertEquals(actualName, best.getName());
 
@@ -90,7 +89,7 @@ public class TheTVDBProviderTest {
     @Test
     public void testRegularEpisodePreference() throws Exception {
         final String actualName = "Firefly";
-        final Integer showId = 78874;
+        final int showId = 78874;
         final String dvdName = "The Train Job";
 
         final ShowName showName = ShowName.lookupShowName(actualName);
@@ -102,7 +101,7 @@ public class TheTVDBProviderTest {
         assertTrue(showName.hasShowOptions());
         Show best = showName.selectShowOption();
         assertNotNull(best);
-        assertFalse(best instanceof LocalShow);
+        assertFalse(best.isLocalShow());
         assertEquals(showId, best.getId());
         assertEquals(actualName, best.getName());
 
@@ -827,7 +826,7 @@ public class TheTVDBProviderTest {
                 fail("could not parse show name input " + queryString);
                 return null;
             }
-            assertFalse(gotShow instanceof LocalShow);
+            assertFalse(gotShow.isLocalShow());
             // assertEquals(testInput.actualShowName, gotShow.getName());
             return gotShow;
         } catch (TimeoutException e) {

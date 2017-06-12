@@ -176,10 +176,10 @@ public class ShowName {
      * the options we reject.
      */
     private static class ShowOption {
-        final String id;
+        final int id;
         final String actualName;
 
-        ShowOption(final String id, final String actualName) {
+        ShowOption(final Integer id, final String actualName) {
             this.id = id;
             this.actualName = actualName;
         }
@@ -242,8 +242,7 @@ public class ShowName {
      * viable option, and provide a stand-in object.
      *
      * @param show
-     *    the LocalShow object (presumably a FailedShow) representing the string
-     *    we searched for.
+     *    the Show object representing the string we searched for.
      */
     public void nameNotFound(Show show) {
         synchronized (queryString) {
@@ -284,9 +283,29 @@ public class ShowName {
      * @param seriesName
      *    the "official" show name
      */
-    public void addShowOption(final String tvdbId, final String seriesName) {
+    public void addShowOption(final int tvdbId, final String seriesName) {
         ShowOption option = new ShowOption(tvdbId, seriesName);
         showOptions.add(option);
+    }
+
+    /**
+     * Add a possible Show option that could be mapped to this ShowName
+     *
+     * @param idString
+     *    the show's id in the TVDB database, as a String
+     * @param seriesName
+     *    the "official" show name
+     */
+    public void addShowOption(final String idString, final String seriesName) {
+        Integer parsedId = null;
+        try {
+            parsedId = Integer.parseInt(idString);
+        } catch (Exception e) {
+            logger.warning("Show option's ID " + idString + " could not be parsed "
+                           + " as an integer; not adding as option");
+            return;
+        }
+        addShowOption(parsedId, seriesName);
     }
 
     /**
@@ -297,7 +316,7 @@ public class ShowName {
      * @return a Show representing this ShowName
      */
     public Show getFailedShow(TVRenamerIOException err) {
-        Show standIn = new FailedShow(foundName, err);
+        Show standIn = new Show(foundName, err);
         queryString.setShow(standIn);
         return standIn;
     }
@@ -309,7 +328,7 @@ public class ShowName {
      * @return a Show representing this ShowName
      */
     public Show getLocalShow(String actualName) {
-        Show standIn = new LocalShow(actualName);
+        Show standIn = new Show(actualName);
         queryString.setShow(standIn);
         return standIn;
     }
