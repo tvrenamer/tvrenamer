@@ -163,9 +163,6 @@ public class StringUtils {
         // transform "CamelCaps" => "Camel Caps"
         rval = rval.replaceAll("(\\p{Lower})([\\p{Upper}\\p{Digit}])", "$1 $2");
 
-        // example: "30Rock" => "30 Rock"
-        rval = rval.replaceAll("(\\p{Digit})([\\p{Upper}])", "$1 $2");
-
         // borrowed from http://stackoverflow.com/a/17099039
         // condenses acronyms (".S.H.I.E.L.D." -> " SHIELD")
         rval = rval.replaceAll("(?<=(^|[. ])[\\S&&\\D])[.](?=[\\S&&\\D]([.]|$))", "");
@@ -343,27 +340,6 @@ public class StringUtils {
     }
 
     /**
-     * Reverse the effect of encodeSpecialCharacters
-     *
-     * @param input
-     *            string to decode
-     * @return human-friendly representation of input
-     */
-    public static String decodeSpecialCharacters(String input) {
-        if (input == null || input.length() == 0) {
-            return "";
-        }
-
-        input = input.replaceAll("&amp; ", "& ");
-
-        // Don't encode string within xml data strings
-        if (!input.startsWith("<?xml")) {
-            input = input.replaceAll("%20", " ");
-        }
-        return input;
-    }
-
-    /**
      * Compares two strings, considering null equal to null.
      *
      * @param s1
@@ -382,7 +358,9 @@ public class StringUtils {
     /**
      * <p>Checks if a String is whitespace, empty ("") or null.</p>
      * Copied from
-     * <a href="http://preview.tinyurl.com/lzx3gzj">Apache Commons Lang StringUtils</a>
+     * <a href="http://commons.apache.org/lang/api-2.5/org/apache/commons/lang/StringUtils.html#isBlank(java.lang.String)">
+     *   Apache Commons Lang StringUtils
+     * </a>
      *
      * @param str the String to check, may be null
      * @return <code>true</code> if the String is null, empty or whitespace
@@ -404,7 +382,9 @@ public class StringUtils {
     /**
      * <p>Checks if a String is not empty (""), not null and not whitespace only.</p>
      * Copied from
-     * <a href="http://preview.tinyurl.com/kvhh8oa">Apache Commons Lang StringUtils</a>
+     * <a href="http://commons.apache.org/lang/api-2.5/org/apache/commons/lang/StringUtils.html#isNotBlank(java.lang.String)">
+     *   Apache Commons Lang StringUtils
+     * </a>
      *
      * @param str  the String to check, may be null
      * @return <code>true</code> if the String is not empty and not null and not whitespace

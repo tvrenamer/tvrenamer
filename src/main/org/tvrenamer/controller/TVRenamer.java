@@ -14,7 +14,7 @@ public class TVRenamer {
     private static final Logger logger = Logger.getLogger(TVRenamer.class.getName());
 
     private static final String FILENAME_BEGINS_WITH_SEASON
-        = "(([sS]\\d\\d?[eE]\\d\\d?)|([sS]?\\d\\d?[x.]?\\d\\d\\d?)).*";
+        = "(([sS]\\d\\d?[eE]\\d\\d?)|([sS]?\\d\\d?x\\d\\d\\d?)).*";
     private static final String DIR_LOOKS_LIKE_SEASON = "[sS][0-3]\\d";
 
     // We sometimes find folders like "MyShow.Season02"; in this case, we want to
