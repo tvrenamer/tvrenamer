@@ -229,7 +229,7 @@ public class MoveRunner implements Runnable {
     private static void resolveConflicts(List<FileMover> listOfMoves, String destDir) {
         Map<String, List<FileMover>> basenames = new HashMap<>();
         for (FileMover move : listOfMoves) {
-            getListValue(basenames, move.getDestBasename()).add(move);
+            getListValue(basenames, move.getDesiredDestName()).add(move);
         }
         for (Map.Entry<String, List<FileMover>> entry : basenames.entrySet()) {
             String basename = entry.getKey();
