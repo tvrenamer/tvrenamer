@@ -17,30 +17,19 @@ import java.util.logging.Logger;
 public class FileUtilities {
     private static final Logger logger = Logger.getLogger(FileUtilities.class.getName());
 
-    /**
-     * Delete the given file.  This method is intended to be used with "regular" files;
-     * to delete an empty directory, use rmdir().
-     *
-     * (Implementation detail: this method actually should work fine to remove an empty
-     *  directory; the preference for rmdir() is purely a convention.)
-     *
-     * @param file
-     *    the file to be deleted
-     * @return
-     *    true if the file existed and was deleted; false if not
-     */
-    public static boolean deleteFile(Path file) {
-        if (Files.notExists(file)) {
-            logger.warning("cannot delete file, does not exist: " + file);
+    @SuppressWarnings("UnusedReturnValue")
+    public static boolean deleteFile(Path source) {
+        if (Files.notExists(source)) {
+            logger.warning("cannot delete file, does not exist: " + source);
             return false;
         }
         try {
-            Files.delete(file);
+            Files.delete(source);
         } catch (IOException ioe) {
-            logger.log(Level.WARNING, "Error deleting file " + file, ioe);
+            logger.log(Level.WARNING, "Error deleting file " + source, ioe);
             return false;
         }
-        return Files.notExists(file);
+        return Files.notExists(source);
     }
 
     /**
@@ -75,18 +64,7 @@ public class FileUtilities {
         }
     }
 
-    /**
-     * Return true if the given arguments refer to the same actual file on the
-     * file system.  On file systems that support symbolic links, two Paths could
-     * be the same file even if their locations appear completely different.
-     *
-     * @param path1
-     *    first Path to compare
-     * @param path2
-     *    second Path to compare
-     * @return
-     *    true if the paths refer to the same file, false if they don't
-     */
+    @SuppressWarnings("unused")
     public static boolean isSameFile(final Path path1, final Path path2) {
         try {
             return Files.isSameFile(path1, path2);
@@ -97,20 +75,6 @@ public class FileUtilities {
         }
     }
 
-    /**
-     * Creates a directory by creating all nonexistent parent directories first.
-     * No exception is thrown if the directory could not be created because it
-     * already exists.
-     *
-     * If this method fails, then it may do so after creating some, but not all,
-     * of the parent directories.
-     *
-     * @param dir - the directory to create
-     * @return
-     *    true if the the directory exists at the conclusion of this method:
-     *    that is, true if the directory already existed, or if we created it;
-     *    false if it we could not create the directory
-     */
     public static boolean mkdirs(final Path dir) {
         try {
             Files.createDirectories(dir);
@@ -121,14 +85,7 @@ public class FileUtilities {
         return Files.exists(dir);
     }
 
-    /**
-     * Return true if the given argument is an empty directory.
-     *
-     * @param dir
-     *    the directory to check for emptiness
-     * @return
-     *    true if the path existed and was an empty directory; false otherwise
-     */
+    @SuppressWarnings("WeakerAccess")
     public static boolean isDirEmpty(final Path dir) {
         try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(dir)) {
             return !dirStream.iterator().hasNext();
@@ -138,18 +95,8 @@ public class FileUtilities {
         }
     }
 
-    /**
-     * If the given argument is an empty directory, remove it.
-     *
-     * @param dir
-     *    the directory to delete if empty
-     * @return
-     *    true if the path existed and was deleted; false if not
-     */
+    @SuppressWarnings("WeakerAccess")
     public static boolean rmdir(final Path dir) {
-        if (!Files.isDirectory(dir)) {
-            return false;
-        }
         try {
             Files.delete(dir);
         } catch (IOException ioe) {
@@ -159,14 +106,6 @@ public class FileUtilities {
         return Files.notExists(dir);
     }
 
-    /**
-     * If the given argument is an empty directory, remove it; and then, check
-     * if removing it caused its parent to be empty, and if so, remove the parent;
-     * and so on, until we hit a non-empty directory.
-     *
-     * @param dir
-     *    the leaf directory to check for emptiness
-     */
     public static boolean removeWhileEmpty(final Path dir) {
         if (dir == null) {
             return false;
