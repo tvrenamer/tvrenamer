@@ -92,6 +92,10 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
     private TaskItem taskItem = null;
 
     private UserPreferences prefs;
+    private Thread updateCheckThread = null;
+    private boolean updateIsAvailable = false;
+    private boolean apiDeprecated = false;
+
     private final EpisodeDb episodeMap = new EpisodeDb();
 
     private void init() {
@@ -150,13 +154,11 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
         });
 
         // Show the label if updates are available (in a new thread)
-        Thread updateCheckThread = new Thread(() -> {
-            if (prefs.checkForUpdates()) {
-                final boolean updatesAvailable = UpdateChecker.isUpdateAvailable();
+        updateCheckThread = new Thread(() -> {
+            updateIsAvailable = UpdateChecker.isUpdateAvailable();
 
-                if (updatesAvailable) {
-                    display.asyncExec(() -> updatesAvailableLink.setVisible(true));
-                }
+            if (updateIsAvailable && prefs.checkForUpdates()) {
+                display.asyncExec(() -> updatesAvailableLink.setVisible(true));
             }
         });
         updateCheckThread.start();
@@ -535,7 +537,7 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
         episode.listingsFailed(err);
         display.asyncExec(() -> {
             if (tableContainsTableItem(item)) {
-                item.setText(NEW_FILENAME_COLUMN, episode.getReplacementText());
+                item.setText(NEW_FILENAME_COLUMN, DOWNLOADING_FAILED);
                 item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
                 item.setChecked(false);
             }
@@ -566,14 +568,33 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
         });
     }
 
-    private void tableItemFailed(TableItem item, FileEpisode episode) {
+    private void tableItemFailed(TableItem item) {
         display.asyncExec(() -> {
             if (tableContainsTableItem(item)) {
-                item.setText(NEW_FILENAME_COLUMN, episode.getReplacementText());
+                item.setText(NEW_FILENAME_COLUMN, BROKEN_PLACEHOLDER_FILENAME);
                 item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
                 item.setChecked(false);
             }
         });
+    }
+
+    private synchronized void noteShowFailure(final String fileName, final Show show) {
+        if (!apiDeprecated) {
+            if (show.isApiDeprecated()) {
+                apiDeprecated = true;
+                try {
+                    updateCheckThread.join();
+                } catch (InterruptedException e) {
+                    updateIsAvailable = false;
+                }
+                showMessageBox(SWTMessageBoxType.ERROR, ERROR_LABEL,
+                               updateIsAvailable ? GET_UPDATE_MESSAGE : NEED_UPDATE);
+            } else {
+                show.logShowFailure(logger);
+            }
+            // else, do nothing.  Once we have detected the deprecated API, and
+            // posted a dialog about it, it's no longer worth noting.
+        }
     }
 
     @Override
@@ -597,7 +618,8 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
                     @Override
                     public void downloadFailed(Show show) {
                         episode.setEpisodeShow(show);
-                        tableItemFailed(item, episode);
+                        tableItemFailed(item);
+                        noteShowFailure(fileName, show);
                     }
                 });
         }

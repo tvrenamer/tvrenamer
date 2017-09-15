@@ -71,7 +71,6 @@ public class TheTVDBProviderTest {
         assertEquals(showId, best.getId());
         assertEquals(actualName, best.getName());
 
-        best.clearEpisodes();
         TheTVDBProvider.getShowListing(best);
 
         Episode s1e02 = best.getEpisode(1, 2);
@@ -106,7 +105,6 @@ public class TheTVDBProviderTest {
         assertEquals(showId, best.getId());
         assertEquals(actualName, best.getName());
 
-        best.clearEpisodes();
         TheTVDBProvider.getShowListing(best);
 
         Episode s01e02 = null;
@@ -415,8 +413,10 @@ public class TheTVDBProviderTest {
                    .build());
     }
 
-    @BeforeClass
+    // @BeforeClass
     public static void setupValues29() {
+        // Comment this out because Offspring has three untitled episodes with
+        // the same season and episode, but different IDs
         values.add(new EpisodeTestData.Builder()
                    .queryString("offspring")
                    .seasonNum(5)
@@ -435,8 +435,10 @@ public class TheTVDBProviderTest {
                    .build());
     }
 
-    @BeforeClass
+    // @BeforeClass
     public static void setupValues31() {
+        // Comment this out because Robot Chicken has a conflict between DVD
+        // and regular numbering.
         values.add(new EpisodeTestData.Builder()
                    .queryString("robot chicken")
                    .seasonNum(7)
@@ -475,8 +477,10 @@ public class TheTVDBProviderTest {
                    .build());
     }
 
-    @BeforeClass
+    // @BeforeClass
     public static void setupValues35() {
+        // Comment this out because the episode listing for The Good Wife
+        // currently (2017/06/02) comes through unparseable.
         values.add(new EpisodeTestData.Builder()
                    .queryString("the good wife")
                    .seasonNum(5)
@@ -485,8 +489,10 @@ public class TheTVDBProviderTest {
                    .build());
     }
 
-    @BeforeClass
+    // @BeforeClass
     public static void setupValues36() {
+        // Trying options for "the walking dead" gives a "Series Not Permitted".
+        // We issue a warning, but it's not really a problem.
         values.add(new EpisodeTestData.Builder()
                    .queryString("the walking dead")
                    .seasonNum(4)
@@ -675,8 +681,10 @@ public class TheTVDBProviderTest {
                    .build());
     }
 
-    @BeforeClass
+    // @BeforeClass
     public static void setupValues55() {
+        // Comment this out because "strike back" apparently no longer
+        // resolves to the correct show.
         values.add(new EpisodeTestData.Builder()
                    .queryString("strike back")
                    .seasonNum(1)
@@ -745,8 +753,10 @@ public class TheTVDBProviderTest {
                    .build());
     }
 
-    @BeforeClass
+    // @BeforeClass
     public static void setupValues62() {
+        // Comment this out because "Lucifer" has conflicting special episodes
+        // (season "0", episode "2")
         values.add(new EpisodeTestData.Builder()
                    .queryString("lucifer")
                    .seasonNum(2)
@@ -847,7 +857,7 @@ public class TheTVDBProviderTest {
         }
     }
 
-    // @Test
+    @Test
     public void testGetEpisodeTitle() {
         for (EpisodeTestData testInput : values) {
             if (testInput.episodeTitle != null) {
@@ -875,7 +885,7 @@ public class TheTVDBProviderTest {
                         }
                     });
 
-                    String got = future.get(15, TimeUnit.SECONDS);
+                    String got = future.get(30, TimeUnit.SECONDS);
                     assertEquals(testInput.episodeTitle, got);
                 } catch (TimeoutException e) {
                     String failMsg = "timeout trying to query for " + queryString

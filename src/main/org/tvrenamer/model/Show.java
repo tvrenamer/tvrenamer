@@ -463,50 +463,6 @@ public class Show {
     }
 
     /**
-     * Creates Episodes, and adds them to this Show, for each of the given EpisodeInfos.
-     * Relies on addOneEpisode() to create and verify the episode.  Collects failures
-     * from addOneEpisode(), and logs messages about them.  Generally a "problem" means
-     * that we have found two (or more) episodes with the same season and episode
-     * information.  Another problem could be that we got a null episodeInfo, though
-     * there's very little information we can give, in that case.
-     *
-     * After all the episodes are added, creates an index of the episodes by season and
-     * episode number, according to the current numbering scheme.
-     *
-     * @param infos
-     *    a List containing information about the episodes, downloaded from the provider
-     */
-    public void addEpisodes(List<EpisodeInfo> infos) {
-        List<EpisodeInfo> problems = new LinkedList<>();
-        for (EpisodeInfo info : infos) {
-            boolean added = addOneEpisode(info);
-            if (!added) {
-                problems.add(info);
-            }
-        }
-        indexEpisodesBySeason();
-        logEpisodeProblems(problems);
-        listingsSucceeded();
-    }
-
-    /**
-     * Clears any episodes from this Show.  Safe to call even if Show has no episodes.
-     */
-    public void clearEpisodes() {
-        episodes.clear();
-        seasons.clear();
-    }
-
-    /**
-     * Clears any episodes from all Shows.
-     */
-    public static void clearAllEpisodes() {
-        for (Show show : KNOWN_SHOWS.values()) {
-            show.clearEpisodes();
-        }
-    }
-
-    /**
      * Look up an episode for the given season and episode of this show.
      * Returns null if no such episode was found.
      *
@@ -528,7 +484,7 @@ public class Show {
     public Episode getEpisode(int seasonNum, int episodeNum) {
         Map<Integer, Episode> season = seasons.get(seasonNum);
         if (season == null) {
-            logger.fine("no season " + seasonNum + " found for show " + name);
+            logger.warning("no season " + seasonNum + " found for show " + name);
             return null;
         }
         Episode episode = season.get(episodeNum);
@@ -536,6 +492,35 @@ public class Show {
                     + ", found " + episode);
 
         return episode;
+    }
+
+    /**
+     * Find out if the results of querying for this show indicate that the API
+     * is no longer supported.
+     *
+     * @return true if the API is deprecated; false otherwise.
+     */
+    public boolean isApiDeprecated() {
+        // This method may return true for a subclass of Show (FailedShow).
+        // But for direct instances of the parent class (this class), we
+        // always return false.
+        return false;
+    }
+
+    /**
+     * Log the reason for the show's failure to the given logger.
+     *
+     * This method does not check to see IF the show has failed.  It assumes
+     * the caller has some reason to assume there was a failure, and tries
+     * to provide as much information as it can.
+     *
+     * @param logger the logger object to send the failure message to
+     */
+    public void logShowFailure(Logger logger) {
+        // This method does not make sense for this direct class.
+        // It has a more interesting implementation in its subclass.
+        logger.info("unexpected failure getting show for " + name
+                    + "; got " + this);
     }
 
     /**
@@ -557,6 +542,7 @@ public class Show {
      *
      * @return a count of how many episodes we have for this Show
      */
+    @SuppressWarnings("unused")
     public boolean hasEpisodes() {
         return (episodes.size() > 0);
     }

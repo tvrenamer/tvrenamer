@@ -1,6 +1,5 @@
 package org.tvrenamer.model.util;
 
-import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -30,8 +29,6 @@ import java.nio.file.Paths;
  *
  */
 public class Constants {
-
-    public static final Charset TVR_CHARSET = Charset.forName("UTF-8");
 
     public static final String APPLICATION_NAME = "TVRenamer";
 
@@ -131,10 +128,8 @@ public class Constants {
     public static final String ERROR_PARSING_NUMBERS = ERROR_PARSING_XML
         + ": a field expected to be a number was not";
     public static final String ADDED_PLACEHOLDER_FILENAME = "Downloading ...";
-    public static final String EPISODE_NOT_FOUND = "Could not get episode for show";
     public static final String BROKEN_PLACEHOLDER_FILENAME = "Unable to find show information";
     public static final String DOWNLOADING_FAILED = "Downloading show listings failed";
-    public static final String BAD_PARSE_MESSAGE = "Did not extract show name from filename";
     public static final String DOWNLOADING_FAILED_MESSAGE = DOWNLOADING_FAILED
         + ".  Check internet connection";
     public static final String FILE_EPISODE_NEEDS_PATH = "cannot create FileEpisode with no path";

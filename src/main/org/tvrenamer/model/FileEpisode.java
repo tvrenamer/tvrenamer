@@ -25,53 +25,18 @@ import java.util.regex.Matcher;
 public class FileEpisode {
     private static final Logger logger = Logger.getLogger(FileEpisode.class.getName());
 
-    /**
-     * A status for how much we know about the filename.
-     *
-     * <ul>
-     * <li>PARSED means that we believe we have extracted all the required information from
-     *     the filename</li>
-     * <li>BAD_PARSE means we're not going to try to query for this FileEpisode, because
-     *     we could not find the show name.</li>
-     * <li>UNPARSED means we haven't yet finished examining the filename.</li>
-     * </ul>
-     *
-     */
     private enum ParseStatus {
+        UNPARSED,
         PARSED,
-        BAD_PARSE,
-        UNPARSED
+        BAD_PARSE
     }
 
-    /**
-     * A status for how much we know about the Series and its listings.
-     *
-     * These are essentially in order, from most complete to least complete.
-     *
-     * <ul>
-     * <li>GOT_LISTINGS means we have matched this FileEpisode to an actual Episode,
-     *     based on the season and episode information we extracted from the filename</li>
-     * <li>NO_MATCH means we resolved the Show and downloaded the listings, but did
-     *     not find a match for the season and episode information</li>
-     * <li>NO_LISTINGS means something went wrong trying to download the Show's listings,
-     *     and we don't have any episode information</li>
-     * <li>GOT_SHOW is exactly the same state of information as NO_LISTINGS; the difference
-     *     is, GOT_SHOW means we are in the process of trying to download listings, whereas
-     *     NO_LISTINGS means we tried and have given up</li>
-     * <li>UNFOUND means we were unable to map the supposed show name that we found in the
-     *     filename, to an actual show from the provider</li>
-     * <li>NOT_STARTED means we have not started to query for information about the show.
-     *     In this case, to know more about what's going on, we need to look at the parse
-     *     status.  Refer to its comments for elaboration.</li>
-     * </ul>
-     */
     private enum SeriesStatus {
-        GOT_LISTINGS,
-        NO_MATCH,
-        NO_LISTINGS,
+        NOT_STARTED,
         GOT_SHOW,
         UNFOUND,
-        NOT_STARTED
+        GOT_LISTINGS,
+        NO_LISTINGS
     }
 
     private enum FileStatus {
@@ -336,11 +301,9 @@ public class FileEpisode {
         actualShow = show;
         if (actualShow == null) {
             logger.warning("setEpisodeShow should never be called with null");
-            seriesStatus = SeriesStatus.NOT_STARTED;
+            seriesStatus = SeriesStatus.UNFOUND;
         } else if (actualShow instanceof FailedShow) {
             seriesStatus = SeriesStatus.UNFOUND;
-            logger.log(Level.FINE, "failed to get show for " + fileNameString,
-                       ((FailedShow) show).getError());
         } else {
             seriesStatus = SeriesStatus.GOT_SHOW;
         }
@@ -349,19 +312,17 @@ public class FileEpisode {
     public void listingsComplete() {
         if (actualShow == null) {
             logger.warning("error: should not get listings, do not have show!");
-            seriesStatus = SeriesStatus.NOT_STARTED;
+            seriesStatus = SeriesStatus.UNFOUND;
         } else if (actualShow instanceof FailedShow) {
             logger.warning("error: should not get listings, have a failed show!");
             seriesStatus = SeriesStatus.UNFOUND;
-        } else if (!actualShow.hasEpisodes()) {
-            seriesStatus = SeriesStatus.NO_LISTINGS;
         } else {
             actualEpisode = actualShow.getEpisode(seasonNum, episodeNum);
             if (actualEpisode == null) {
-                logger.log(Level.FINE, "Season #" + seasonNum + ", Episode #"
+                logger.log(Level.SEVERE, "Season #" + seasonNum + ", Episode #"
                            + episodeNum + " not found for show '"
                            + filenameShow + "'");
-                seriesStatus = SeriesStatus.NO_MATCH;
+                seriesStatus = SeriesStatus.NO_LISTINGS;
             } else {
                 // Success!!!
                 seriesStatus = SeriesStatus.GOT_LISTINGS;
@@ -529,24 +490,6 @@ public class FileEpisode {
         }
     }
 
-    private String getNoMatchPlaceholder() {
-        return EPISODE_NOT_FOUND + " <" + actualShow.getName() + " / " + actualShow.getId()
-            + ">: " + " season " + seasonNum + ", episode " + episodeNum + " not found";
-    }
-
-    private String getNoListingsPlaceholder() {
-        return EPISODE_NOT_FOUND + " <" + actualShow.getName() + " / " + actualShow.getId()
-            + ">: " + DOWNLOADING_FAILED;
-    }
-
-    private String getNoShowPlaceholder() {
-        ShowName showName = ShowName.lookupShowName(filenameShow);
-        String queryString = showName.getQueryString();
-        return BROKEN_PLACEHOLDER_FILENAME + " \""
-            + StringUtils.decodeSpecialCharacters(queryString)
-            + "\"";
-    }
-
     private String getShowNamePlaceholder() {
         return "<" + actualShow.getName() + ">";
     }
@@ -557,6 +500,15 @@ public class FileEpisode {
      */
     public String getReplacementText() {
         switch (seriesStatus) {
+            case NOT_STARTED: {
+                return ADDED_PLACEHOLDER_FILENAME;
+            }
+            case GOT_SHOW: {
+                return getShowNamePlaceholder();
+            }
+            case UNFOUND: {
+                return BROKEN_PLACEHOLDER_FILENAME;
+            }
             case GOT_LISTINGS: {
                 if (userPrefs.isRenameEnabled()) {
                     String newFilename = getRenamedBasename() + filenameSuffix;
@@ -574,34 +526,13 @@ public class FileEpisode {
                     return fileNameString;
                 }
             }
-            case NO_MATCH: {
-                return getNoMatchPlaceholder();
-            }
             case NO_LISTINGS: {
-                return getNoListingsPlaceholder();
-            }
-            case GOT_SHOW: {
-                return getShowNamePlaceholder();
-            }
-            case UNFOUND: {
-                return getNoShowPlaceholder();
+                return DOWNLOADING_FAILED;
             }
             default: {
-                if (seriesStatus != SeriesStatus.NOT_STARTED) {
-                    logger.warning("internal error, seriesStatus check apparently not exhaustive: "
-                                   + seriesStatus);
-                }
-                switch (parseStatus) {
-                    case UNPARSED: {
-                        return EMPTY_STRING;
-                    }
-                    case BAD_PARSE: {
-                        return BAD_PARSE_MESSAGE;
-                    }
-                    default: {
-                        return ADDED_PLACEHOLDER_FILENAME;
-                    }
-                }
+                logger.warning("internal error, seriesStatus check apparently not exhaustive: "
+                               + seriesStatus);
+                return BROKEN_PLACEHOLDER_FILENAME;
             }
         }
     }
