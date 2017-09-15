@@ -181,7 +181,6 @@ public class StringUtilsTest {
         assertEquals("The X Files", StringUtils.replacePunctuation("The X-Files"));
         assertEquals("Myth Busters", StringUtils.replacePunctuation("MythBusters"));
         assertEquals("Blackish", StringUtils.replacePunctuation("Black-ish"));
-        assertEquals("30 Rock", StringUtils.replacePunctuation("30Rock"));
         assertEquals("Mr Robot", StringUtils.replacePunctuation("Mr. Robot"));
         assertEquals("Starving", StringUtils.replacePunctuation("Star-ving"));
         assertEquals("big bang theory", StringUtils.replacePunctuation("big-bang-theory"));
