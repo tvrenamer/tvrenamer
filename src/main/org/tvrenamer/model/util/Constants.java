@@ -31,19 +31,35 @@ import java.nio.file.Paths;
 public class Constants {
 
     public static final String APPLICATION_NAME = "TVRenamer";
+    public static final String ABOUT_LABEL = "About " + APPLICATION_NAME;
+    public static final String TVRENAMER_DESCRIPTION = APPLICATION_NAME
+        + " is a Java GUI utility to rename TV episodes from TV listings";
 
     public static final String VERSION_NUMBER = Environment.readVersionNumber();
+    public static final String VERSION_LABEL = "Version: " + VERSION_NUMBER;
 
     public static final String TVRENAMER_PROJECT_URL = "http://tvrenamer.org";
     public static final String TVRENAMER_DOWNLOAD_URL = TVRENAMER_PROJECT_URL + "/downloads";
-    public static final String TVRENAMER_PROJECT_ISSUES_URL = TVRENAMER_PROJECT_URL + "/issues";
+    public static final String TVRENAMER_ISSUES_URL = TVRENAMER_PROJECT_URL + "/issues";
     public static final String TVRENAMER_VERSION_URL = TVRENAMER_PROJECT_URL + "/version";
     public static final String TVRENAMER_REPOSITORY_URL = TVRENAMER_PROJECT_URL + "/source";
     public static final String TVRENAMER_SUPPORT_EMAIL = "support@tvrenamer.org";
+    public static final String TVRENAMER_LICENSE_URL = "http://www.gnu.org/licenses/gpl-2.0.html";
+
+    public static final String EMAIL_LINK = "mailto:" + TVRENAMER_SUPPORT_EMAIL;
+
+    public static final String LICENSE_TEXT_1 = "Licensed under the ";
+    public static final String LICENSE_TEXT_2 = "GNU General Public License v2";
+    public static final String PROJECT_PAGE = "Project Page";
+    public static final String ISSUE_TRACKER = "Issue Tracker";
+    public static final String SEND_SUPPORT_EMAIL = "Send support email";
+    public static final String SOURCE_CODE_LINK = "Source Code";
 
     public static final String XML_SUFFIX = ".xml";
     public static final String ICON_PARENT_DIRECTORY = "res";
     public static final String TVRENAMER_ICON_PATH = "/icons/tvrenamer.png";
+    public static final String TVRENAMER_ICON_DIRECT_PATH =
+        ICON_PARENT_DIRECTORY + TVRENAMER_ICON_PATH;
     public static final String LOGGING_PROPERTIES = "/logging.properties";
     public static final String DEVELOPER_DEFAULT_OVERRIDES_FILENAME = "etc/default-overrides.xml";
 
@@ -52,6 +68,7 @@ public class Constants {
     public static final String SAVE_LABEL = "Save";
     public static final String ERROR_LABEL = "Error";
     public static final String EXIT_LABEL = "Exit";
+    public static final String OK_LABEL = "OK";
     public static final String PREFERENCES_LABEL = "Preferences";
     public static final String FILE_MOVE_THREAD_LABEL = "MoveRunnerThread";
     public static final String RENAME_LABEL = "Rename Selected";
@@ -114,6 +131,14 @@ public class Constants {
     public static final String UNKNOWN_EXCEPTION = "An error occurred, please check "
         + "the console output to see any errors:";
 
+    public static final String UPDATE_TEXT = "Check for Updates...";
+    public static final String NEW_VERSION_TITLE = "New Version Available!";
+    public static final String NEW_VERSION_AVAILABLE = "There is a new version available!\n\n"
+        + "You are currently running " + VERSION_NUMBER + ", but there is an update available\n\n"
+        + "Please visit " + TVRENAMER_PROJECT_URL + " to download the new version.";
+    public static final String NO_NEW_VERSION_TITLE = "No New Version Available";
+    public static final String NO_NEW_VERSION_AVAILABLE = "There is no new version available\n\n"
+        + "Please check the website (" + TVRENAMER_PROJECT_URL + ") for any news or check back later.";
     public static final String TO_DOWNLOAD = "Please visit " + TVRENAMER_PROJECT_URL
         + " to download the new version.";
     public static final String GET_UPDATE_MESSAGE = "This version of TVRenamer is no longer "
