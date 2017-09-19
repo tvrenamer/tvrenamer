@@ -239,23 +239,9 @@ public class FileMover implements Callable<Boolean> {
             }
             filename = destBasename + VERSION_SEPARATOR_STRING + destIndex + destSuffix;
         }
-        if (Files.notExists(destDir)) {
-            try {
-                Files.createDirectories(destDir);
-            } catch (IOException ioe) {
-                logger.log(Level.SEVERE, "Unable to create directory " + destDir, ioe);
-                return false;
-            }
-        }
-        if (!Files.exists(destDir)) {
-            logger.warning("could not create destination directory " + destDir
-                           + "; not attempting to move " + srcPath);
-            return false;
-        }
-        if (!Files.isDirectory(destDir)) {
-            logger.warning("cannot use specified destination " + destDir
-                           + "because it is not a directory; not attempting to move "
-                           + srcPath);
+
+        if (!FileUtilities.ensureWritableDirectory(destDir)) {
+            logger.warning("not attempting to move " + srcPath);
             return false;
         }
 
