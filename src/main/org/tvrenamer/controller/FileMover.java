@@ -213,6 +213,30 @@ public class FileMover implements Callable<Boolean> {
     }
 
     /**
+     * Execute the move using real paths.  Also does side-effects, like
+     * updating the FileEpisode.
+     *
+     * @return true on success, false otherwise.
+     */
+    private boolean tryToMoveRealPaths(Path realSrc, Path destPath, Path destDir) {
+        boolean tryRename = FileUtilities.areSameDisk(realSrc, destDir);
+        Path srcDir = realSrc.getParent();
+
+        episode.setMoving();
+        boolean success = doActualMove(realSrc, destPath, tryRename);
+        if (!success) {
+            logger.info("failed to move " + realSrc);
+            return false;
+        }
+
+        logger.info("successful:\n  " + realSrc + "\n  " + destPath);
+        if (userPrefs.isRemoveEmptiedDirectories()) {
+            FileUtilities.removeWhileEmpty(srcDir);
+        }
+        return true;
+    }
+
+    /**
      * Check/verify numerous things, and if everything is as it should be,
      * execute the move.
      *
@@ -231,6 +255,13 @@ public class FileMover implements Callable<Boolean> {
             episode.setDoesNotExist();
             return false;
         }
+        Path realSrc = srcPath;
+        try {
+            realSrc = srcPath.toRealPath();
+        } catch (IOException ioe) {
+            logger.warning("could not get real path of " + srcPath);
+            return false;
+        }
         Path destDir = destRoot;
         String filename = destBasename + destSuffix;
         if (destIndex != null) {
@@ -245,35 +276,24 @@ public class FileMover implements Callable<Boolean> {
             return false;
         }
 
+        try {
+            destDir = destDir.toRealPath();
+        } catch (IOException ioe) {
+            logger.warning("could not get real path of " + destDir);
+            return false;
+        }
+
         Path destPath = destDir.resolve(filename);
         if (Files.exists(destPath)) {
-            if (destPath.equals(srcPath)) {
+            if (destPath.equals(realSrc)) {
                 logger.info("nothing to be done to " + srcPath);
                 return true;
             }
             logger.warning("cannot move; destination exists:\n  " + destPath);
             return false;
         }
-        if (!Files.isWritable(destDir)) {
-            logger.warning("cannot write file to " + destDir);
-            return false;
-        }
 
-        boolean tryRename = FileUtilities.areSameDisk(srcPath, destDir);
-        Path srcDir = srcPath.getParent();
-
-        episode.setMoving();
-        //noinspection PointlessBooleanExpression
-        if (false == doActualMove(srcPath, destPath, tryRename)) {
-            return false;
-        }
-
-        logger.info("successful:\n  " + srcPath.toAbsolutePath().toString()
-                    + "\n  " + destPath.toAbsolutePath().toString());
-        if (userPrefs.isRemoveEmptiedDirectories()) {
-            FileUtilities.removeWhileEmpty(srcDir);
-        }
-        return true;
+        return tryToMoveRealPaths(realSrc, destPath, destDir);
     }
 
     /**
