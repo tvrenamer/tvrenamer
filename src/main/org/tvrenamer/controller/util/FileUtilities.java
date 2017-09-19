@@ -93,6 +93,43 @@ public class FileUtilities {
         return Files.exists(dir);
     }
 
+    /**
+     * Takes a Path which is a directory that the user wants to write into.  Makes sure
+     * that the directory exists (or creates it if it doesn't) and is writable.  If the
+     * directory cannot be created, or is not a directory, or is not writable, this method
+     * fails.
+     *
+     * @param destDir
+     *    the Path that the caller will want to write into
+     * @return true if, upon completion of this method, the desired Path exists, is a
+     *         directory, and is writable.  False otherwise.
+     */
+    public static boolean ensureWritableDirectory(final Path destDir) {
+        if (Files.notExists(destDir)) {
+            try {
+                Files.createDirectories(destDir);
+            } catch (IOException ioe) {
+                logger.log(Level.SEVERE, "Unable to create directory " + destDir, ioe);
+                return false;
+            }
+        }
+        if (!Files.exists(destDir)) {
+            logger.warning("could not create destination directory " + destDir);
+            return false;
+        }
+        if (!Files.isDirectory(destDir)) {
+            logger.warning("cannot use specified destination " + destDir
+                           + " because it is not a directory");
+            return false;
+        }
+        if (!Files.isWritable(destDir)) {
+            logger.warning("cannot write file to " + destDir);
+            return false;
+        }
+
+        return true;
+    }
+
     @SuppressWarnings("WeakerAccess")
     public static boolean isDirEmpty(final Path dir) {
         try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(dir)) {
