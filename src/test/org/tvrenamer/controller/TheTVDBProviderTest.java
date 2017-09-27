@@ -43,6 +43,22 @@ import java.util.concurrent.TimeoutException;
 public class TheTVDBProviderTest {
 
     /**
+     * Fails if the given title does not match the expected title within the EpisodeTestData.
+     *
+     * @param epdata contains all the relevant information about the episode to look up, and
+     *               what we expect to get back about it
+     * @param foundTitle the value that was found for the episode title
+     */
+    public void assertEpisodeTitle(final EpisodeTestData epdata, final String foundTitle) {
+        final String expectedTitle = epdata.episodeTitle;
+        if (!expectedTitle.equals(foundTitle)) {
+            fail("expected title of season " + epdata.seasonNum + ", episode " + epdata.episodeNum
+                 + " of " + epdata.properShowName + " to be \"" + expectedTitle
+                 + "\", but got \"" + foundTitle + "\"");
+        }
+    }
+
+    /**
      * Contacts the provider to look up a show and an episode, and returns true if we found the show
      * and the episode title matches the given expected value.
      *
@@ -80,12 +96,7 @@ public class TheTVDBProviderTest {
             return null;
         }
         final String foundTitle = ep.getTitle();
-        final String dvdTitle = epdata.episodeTitle;
-        if (!dvdTitle.equals(foundTitle)) {
-            fail("expected title of season " + epdata.seasonNum + ", episode " + epdata.episodeNum
-                 + " of " + actualName + " to be \"" + dvdTitle
-                 + "\", but got \"" + foundTitle + "\"");
-        }
+        assertEpisodeTitle(epdata, foundTitle);
         return foundTitle;
     }
 
@@ -962,7 +973,7 @@ public class TheTVDBProviderTest {
                     });
 
                     String got = future.get(30, TimeUnit.SECONDS);
-                    assertEquals(testInput.episodeTitle, got);
+                    assertEpisodeTitle(testInput, got);
                 } catch (TimeoutException e) {
                     String failMsg = "timeout trying to query for " + queryString
                         + ", season " + seasonNum + ", episode " + episodeNum;
