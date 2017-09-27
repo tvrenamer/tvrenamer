@@ -67,10 +67,13 @@ public class TheTVDBProviderTest {
      *
      * @param epdata contains all the relevant information about the episode to look up, and
      *               what we expect to get back about it
+     * @param doCheck whether or not to check that the episode title matches the expected
      * @return the title of the given episode of the show returned by the provider, or null
      *         if we didn't get an episode title
      */
-    public String testSeriesNameAndEpisodeTitle(final EpisodeTestData epdata) throws Exception {
+    public String testSeriesNameAndEpisode(final EpisodeTestData epdata, boolean doCheck)
+        throws Exception
+    {
         final String actualName = epdata.properShowName;
         final ShowName showName = ShowName.lookupShowName(actualName);
 
@@ -96,8 +99,26 @@ public class TheTVDBProviderTest {
             return null;
         }
         final String foundTitle = ep.getTitle();
-        assertEpisodeTitle(epdata, foundTitle);
+        if (doCheck) {
+            assertEpisodeTitle(epdata, foundTitle);
+        }
         return foundTitle;
+    }
+
+    /**
+     * Contacts the provider to look up a show and an episode, and returns true if we found the show
+     * and the episode title matches the given expected value.
+     *
+     * Note that this method does not simply waits for the providers responses.  We don't use
+     * callbacks here, so we're not testing that aspect of the real program.
+     *
+     * @param epdata contains all the relevant information about the episode to look up, and
+     *               what we expect to get back about it
+     * @return the title of the given episode of the show returned by the provider, or null
+     *         if we didn't get an episode title
+     */
+    public String testSeriesNameAndEpisodeTitle(final EpisodeTestData epdata) throws Exception {
+        return testSeriesNameAndEpisode(epdata, true);
     }
 
     /**
