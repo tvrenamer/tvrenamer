@@ -43,6 +43,53 @@ import java.util.concurrent.TimeoutException;
 public class TheTVDBProviderTest {
 
     /**
+     * Contacts the provider to look up a show and an episode, and returns true if we found the show
+     * and the episode title matches the given expected value.
+     *
+     * Note that this method does not simply waits for the providers responses.  We don't use
+     * callbacks here, so we're not testing that aspect of the real program.
+     *
+     * @param epdata contains all the relevant information about the episode to look up, and
+     *               what we expect to get back about it
+     * @return the title of the given episode of the show returned by the provider, or null
+     *         if we didn't get an episode title
+     */
+    public String testSeriesNameAndEpisodeTitle(final EpisodeTestData epdata) throws Exception {
+        final String actualName = epdata.properShowName;
+        final ShowName showName = ShowName.lookupShowName(actualName);
+
+        try {
+            TheTVDBProvider.getShowOptions(showName);
+        } catch (Exception e) {
+            fail("exception getting show options for " + actualName);
+            return null;
+        }
+        assertTrue(showName.hasShowOptions());
+        final Show best = showName.selectShowOption();
+        assertNotNull(best);
+        assertFalse(best instanceof LocalShow);
+        assertEquals(epdata.showId, String.valueOf(best.getId()));
+        assertEquals(actualName, best.getName());
+
+        TheTVDBProvider.getShowListing(best);
+
+        final Episode ep = best.getEpisode(epdata.seasonNum, epdata.episodeNum);
+        if (ep == null) {
+            fail("result of calling getEpisode(" + epdata.seasonNum + ", " + epdata.episodeNum
+                 + ") on " + actualName + " came back null");
+            return null;
+        }
+        final String foundTitle = ep.getTitle();
+        final String dvdTitle = epdata.episodeTitle;
+        if (!dvdTitle.equals(foundTitle)) {
+            fail("expected title of season " + epdata.seasonNum + ", episode " + epdata.episodeNum
+                 + " of " + actualName + " to be \"" + dvdTitle
+                 + "\", but got \"" + foundTitle + "\"");
+        }
+        return foundTitle;
+    }
+
+    /**
      * Remember the show, "Quintuplets"?  No?  Good.  The less popular a show is,
      * it figures, the less likely it is for anyone to be editing it.  It's not
      * likely to have a reunion special, or a reboot, or anything of that nature.
@@ -54,32 +101,13 @@ public class TheTVDBProviderTest {
      */
     @Test
     public void testGetShowOptionsAndListings() throws Exception {
-        final String actualName = "Quintuplets";
-        final Integer showId = 73732;
-        final String ep2Name = "Quintagious";
-
-        final ShowName showName = ShowName.lookupShowName(actualName);
-        try {
-            TheTVDBProvider.getShowOptions(showName);
-        } catch (Exception e) {
-            fail("exception getting show options for " + actualName);
-        }
-        assertTrue(showName.hasShowOptions());
-        Show best = showName.selectShowOption();
-        assertNotNull(best);
-        assertFalse(best instanceof LocalShow);
-        assertEquals(showId, best.getId());
-        assertEquals(actualName, best.getName());
-
-        TheTVDBProvider.getShowListing(best);
-
-        Episode s1e02 = best.getEpisode(1, 2);
-        assertNotNull("result of calling getEpisode(1, 2) on " + actualName + " came back null",
-                      s1e02);
-        assertEquals(ep2Name, s1e02.getTitle());
-
-        // This is probably too likely to change.
-        // assertEquals(1, options.size());
+        testSeriesNameAndEpisodeTitle(new EpisodeTestData.Builder()
+                                      .properShowName("Quintuplets")
+                                      .showId("73732")
+                                      .seasonNum(1)
+                                      .episodeNum(2)
+                                      .episodeTitle("Quintagious")
+                                      .build());
     }
 
     /**
@@ -88,31 +116,13 @@ public class TheTVDBProviderTest {
      */
     @Test
     public void testRegularEpisodePreference() throws Exception {
-        final String actualName = "Firefly";
-        final Integer showId = 78874;
-        final String dvdName = "The Train Job";
-
-        final ShowName showName = ShowName.lookupShowName(actualName);
-        try {
-            TheTVDBProvider.getShowOptions(showName);
-        } catch (Exception e) {
-            fail("exception getting show options for " + actualName);
-        }
-        assertTrue(showName.hasShowOptions());
-        Show best = showName.selectShowOption();
-        assertNotNull(best);
-        assertFalse(best instanceof LocalShow);
-        assertEquals(showId, best.getId());
-        assertEquals(actualName, best.getName());
-
-        TheTVDBProvider.getShowListing(best);
-
-        Episode s01e02 = null;
-
-        s01e02 = best.getEpisode(1, 2);
-        assertNotNull("result of calling getEpisode(1, 2) on " + actualName
-                      + "with heuristic ordering came back null", s01e02);
-        assertEquals(dvdName, s01e02.getTitle());
+        testSeriesNameAndEpisodeTitle(new EpisodeTestData.Builder()
+                                      .properShowName("Firefly")
+                                      .showId("78874")
+                                      .seasonNum(1)
+                                      .episodeNum(2)
+                                      .episodeTitle("The Train Job")
+                                      .build());
     }
 
     private static final List<EpisodeTestData> values = new LinkedList<>();
