@@ -157,6 +157,44 @@ public class TheTVDBProviderTest {
                                       .build());
     }
 
+    /**
+     * Third download test.  This one is chosen to ensure we are consistent
+     * with the numbering scheme.  If we use DVD ordering, it should be for
+     * DVD season _and_ DVD episode, and if we use regular, it should be
+     * both regular.
+     *
+     * This assumes the following information:
+     *    DVD season 4, DVD episode 10: "The Why of Fry"
+     *    air season 4, air episode 10: "A Leela of Her Own"
+     *    air season 4, DVD episode 10: "Where the Buggalo Roam"
+     *
+     * Of course, it makes no sense to look at "air season" and "DVD episode".
+     * But that's what we accidentally did in early versions of the program.
+     * So this test is intended to verify that the bug is fixed, and check
+     * that we don't regress.
+     */
+    @Test
+    public void testSeasonMatchesEpisode() throws Exception {
+        final String dvdTitle = "The Why of Fry";
+        final String airedTitle = "A Leela of Her Own";
+        final String jumbledTitle = "Where the Buggalo Roam";
+        EpisodeTestData s04e10 = new EpisodeTestData.Builder()
+            .properShowName("Futurama")
+            .showId("73871")
+            .seasonNum(4)
+            .episodeNum(10)
+            .episodeTitle(dvdTitle)
+            .build();
+        final String foundTitle = testSeriesNameAndEpisode(s04e10, false);
+        if (airedTitle.equals(foundTitle)) {
+            fail("expected to get DVD ordering for Futurama, but got over-the-air ordering");
+        }
+        if (jumbledTitle.equals(foundTitle)) {
+            fail("expected to get purely DVD ordering for Futurama, but got over-the-air season");
+        }
+        assertEpisodeTitle(s04e10, foundTitle);
+    }
+
     private static final List<EpisodeTestData> values = new LinkedList<>();
 
     /*
