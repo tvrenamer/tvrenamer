@@ -1,10 +1,6 @@
 package org.tvrenamer.model;
 
-import java.util.logging.Logger;
-
 public class EpisodeTestData {
-    private static final Logger logger = Logger.getLogger(EpisodeTestData.class.getName());
-
     private static final String EMPTY_STRING = "";
     private static final String DEFAULT_SEPARATOR = ".";
     private static final String DEFAULT_SHOW_ID = "1";
