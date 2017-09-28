@@ -17,6 +17,14 @@ import java.util.logging.Logger;
 public class FileUtilities {
     private static final Logger logger = Logger.getLogger(FileUtilities.class.getName());
 
+    public static void loggingOff() {
+        logger.setLevel(Level.SEVERE);
+    }
+
+    public static void loggingOn() {
+        logger.setLevel(Level.INFO);
+    }
+
     @SuppressWarnings("UnusedReturnValue")
     public static boolean deleteFile(Path source) {
         if (Files.notExists(source)) {
