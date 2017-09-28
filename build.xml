@@ -74,7 +74,6 @@
   <target name="compile.test" depends="compile">
     <javac srcdir="${src.test}" destdir="${build}" classpathref="classpath.test" debug="true" debuglevel="lines,vars,source" includeantruntime="false" />
     <copy file="${version.file}" todir="${build}" />
-    <copy file="${logging.file}" todir="${build}" />
   </target>
 
   <macrodef name="build.jar" description="Compiles the source then creates an executable jar for the given platform">
