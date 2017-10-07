@@ -408,7 +408,7 @@ public class Show {
      * we have the listings, and we can notify the listeners.
      *
      */
-    private synchronized void listingsSucceeded() {
+    public synchronized void listingsSucceeded() {
         listingsStatus = DownloadStatus.SUCCESS;
         registrations.forEach(ShowListingsListener::listingsDownloadComplete);
     }
@@ -454,7 +454,7 @@ public class Show {
      * @param infos
      *    an array containing information about the episodes, downloaded from the provider
      */
-    public void addEpisodes(final EpisodeInfo[] infos) {
+    public void addEpisodeInfos(final EpisodeInfo[] infos) {
         List<EpisodeInfo> problems = new LinkedList<>();
         for (EpisodeInfo info : infos) {
             boolean added = addOneEpisode(info);
@@ -464,7 +464,6 @@ public class Show {
         }
         indexEpisodesBySeason();
         logEpisodeProblems(problems);
-        listingsSucceeded();
     }
 
     /**
