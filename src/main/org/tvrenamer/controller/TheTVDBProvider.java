@@ -250,7 +250,8 @@ public class TheTVDBProvider {
             for (int i = 0; i < episodeCount; i++) {
                 episodeInfos[i] = createEpisodeInfo(episodes.item(i));
             }
-            show.addEpisodes(episodeInfos);
+            show.addEpisodeInfos(episodeInfos);
+            show.listingsSucceeded();
 
         } catch (DOMException dom) {
             logger.log(Level.WARNING, dom.getMessage(), dom);
