@@ -337,11 +337,13 @@ public class ShowName {
         ShowOption selected = null;
         for (ShowOption s : showOptions) {
             String actualName = s.actualName;
-            if (foundName.equals(actualName)) {
+            // Possibly instead of ignore case, we should make the foundName be
+            // properly capitalized, and then we can do an exact comparison.
+            if (foundName.equalsIgnoreCase(actualName)) {
                 if (selected == null) {
                     selected = s;
                 } else {
-                    // TODO: could check language?  other criteria?
+                    // TODO: could check language?  other criteria?  Case sensitive?
                     logger.warning("multiple exact hits for " + foundName
                                    + "; choosing first one");
                 }
