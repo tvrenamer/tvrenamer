@@ -71,4 +71,10 @@ public class EpisodeInfo {
         dvdSeason = builder.dvdSeason;
         dvdEpisodeNumber = builder.dvdEpisodeNumber;
     }
+
+    public String toString() {
+        return "dvd season " + dvdSeason + ", dvd episode " + dvdEpisodeNumber
+            + ", " + episodeName + "; season " + seasonNumber + ", episode "
+            + episodeNumber;
+    }
 }
