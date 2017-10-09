@@ -43,7 +43,7 @@ public class Show extends ShowOption {
     private final String dirName;
 
     final Map<String, Episode> episodes;
-    private final Map<Integer, Map<Integer, Episode>> seasons;
+    private final Map<Integer, Season> seasons;
     final Queue<ShowListingsListener> registrations;
 
     /**
@@ -117,40 +117,12 @@ public class Show extends ShowOption {
     private void addEpisodeToSeason(Episode episode, EpisodePlacement placement) {
         // Check to see if there's already an existing episode.  Only applies if we
         // have a valid placement.
-        Map<Integer, Episode> season = seasons.get(placement.season);
+        Season season = seasons.get(placement.season);
         if (season == null) {
-            season = new ConcurrentHashMap<>();
+            season = new Season(this, placement.season);
             seasons.put(placement.season, season);
         }
-        Episode found = season.remove(placement.episode);
-        if (found == null) {
-            // This is the expected case; we should only be adding the episode to
-            // the index a single time.
-            season.put(placement.episode, episode);
-        } else if (found == episode) {
-            // Well, this is unfortunate; if it happens, investigate why.  But it's
-            // fine.  We still have a unique object.
-            season.put(placement.episode, episode);
-        } else if (found.getTitle().equals(episode.getTitle())) {
-            // This is less fine.  We've apparently created two objects to represent
-            // the same data.  This should be fixed.
-            logger.warning("replacing episode " + found.getEpisodeId()
-                           + " for show " + name + ", season "
-                           + placement.season + ", episode " + placement.episode + " (\""
-                           + found.getTitle() + "\") with " + episode.getEpisodeId());
-            season.put(placement.episode, episode);
-        } else {
-            // In this very unexpected case, we will not keep EITHER episode
-            // in the table.  Remember that both will be in the unordered List
-            // of episodes.  A future feature may be that when an episode is not
-            // found in the seasons map, for whatever reason, to search through
-            // the episode list.  This could be for "special" episodes, DVD extras,
-            // etc.  But it could also be used for this case.
-            logger.warning("two episodes found for show " + name + ", season "
-                           + placement.season + ", episode " + placement.episode + ": \""
-                           + found.getTitle() + "\" (" + found.getEpisodeId() + ") and \""
-                           + episode.getTitle() + "\" (" + episode.getEpisodeId() + ")");
-        }
+        season.addEpisode(episode, placement.episode);
     }
 
     /**
@@ -298,7 +270,7 @@ public class Show extends ShowOption {
      *    Null if no such episode was found.
      */
     public Episode getEpisode(EpisodePlacement placement) {
-        Map<Integer, Episode> season = seasons.get(placement.season);
+        Season season = seasons.get(placement.season);
         if (season == null) {
             logger.fine("no season " + placement.season + " found for show " + name);
             return null;
