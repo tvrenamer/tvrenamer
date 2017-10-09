@@ -77,13 +77,14 @@ public class Show {
     private final String imdb;
 
     private final Map<String, Episode> episodes;
-    private final Map<Integer, Map<Integer, Episode>> seasons;
+    private final Map<Integer, Season> seasons;
     private final Queue<ShowListingsListener> registrations;
 
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private final Queue<Future<Boolean>> lookups;
 
     private DownloadStatus listingsStatus = DownloadStatus.NOT_STARTED;
+    private EpisodeOptions.Ordering orderingPreference = EpisodeOptions.Ordering.DVD;
 
     /**
      * Create a Show object for a show that the provider knows about.  Initially
@@ -257,108 +258,126 @@ public class Show {
     }
 
     /**
-     * Add an episode to a season's index of episodes.
+     * Find the right place -- season number and episode number -- in the given map
+     * for the given information.
      *
-     * This method is independent of which number scheme is being used.  That is,
-     * it's up to the caller to pass in the correct arguments for the current
-     * numbering scheme.
-     *
-     * @param seasonNum
-     *           the season of the episode to return
-     * @param episodeNum
-     *           the episode, within the given season, of the episode to return
-     * @param episode
-     *           the episode to add at the given indices
+     * @param seasons
+     *          a map of maps representing the seasons for this show
+     * @param seasonNumberString
+     *          a string representing the season of the episode; might be null
+     *          or something that doesn't look like an integer
+     * @param episodeNumberString
+     *          a string representing the episode number of the episode;
+     *          might be null or something that doesn't look like an integer
+     * @return the EpisodeOptions that is where the given season and episode go,
+     *    or null if we couldn't determine the season
      */
-    private void addEpisodeToSeason(int seasonNum, int episodeNum, Episode episode) {
-        // Check to see if there's already an existing episode.  Only applies if we
-        // have a valid season number and episode number.
-        Map<Integer, Episode> season = seasons.get(seasonNum);
+    private EpisodeOptions lookupOptions(Map<Integer, Map<Integer, EpisodeOptions>> seasons,
+                                         final String seasonNumberString,
+                                         final String episodeNumberString)
+    {
+        // stringToInt handles null or empty values ok
+        Integer seasonNum = StringUtils.stringToInt(seasonNumberString);
+        if (seasonNum == null) {
+            return null;
+        }
+
+        Map<Integer, EpisodeOptions> season = seasons.get(seasonNum);
         if (season == null) {
             season = new ConcurrentHashMap<>();
             seasons.put(seasonNum, season);
         }
-        Episode found = season.remove(episodeNum);
-        if (found == null) {
-            // This is the expected case; we should only be adding the episode to
-            // the index a single time.
-            season.put(episodeNum, episode);
-        } else if (found == episode) {
-            // Well, this is unfortunate; if it happens, investigate why.  But it's
-            // fine.  We still have a unique object.
-            season.put(episodeNum, episode);
-        } else if (found.getTitle().equals(episode.getTitle())) {
-            // This is less fine.  We've apparently created two objects to represent
-            // the same data.  This should be fixed.
-            logger.warning("replacing episode " + found.getEpisodeId()
-                           + " for show " + name + ", season "
-                           + seasonNum + ", episode " + episodeNum + " (\""
-                           + found.getTitle() + "\") with " + episode.getEpisodeId());
-            season.put(episodeNum, episode);
-        } else {
-            // In this very unexpected case, we will not keep EITHER episode
-            // in the table.  Remember that both will be in the unordered List
-            // of episodes.  A future feature may be that when an episode is not
-            // found in the seasons map, for whatever reason, to search through
-            // the episode list.  This could be for "special" episodes, DVD extras,
-            // etc.  But it could also be used for this case.
-            logger.warning("two episodes found for show " + name + ", season "
-                           + seasonNum + ", episode " + episodeNum + ": \""
-                           + found.getTitle() + "\" (" + found.getEpisodeId() + ") and \""
-                           + episode.getTitle() + "\" (" + episode.getEpisodeId() + ")");
+
+        Integer episodeNum = StringUtils.stringToInt(episodeNumberString);
+        if (episodeNum == null) {
+            episodeNum = 0;
         }
+
+        EpisodeOptions options = season.get(episodeNum);
+        if (options == null) {
+            options = new EpisodeOptions();
+            season.put(episodeNum, options);
+        }
+
+        return options;
+    }
+
+    /**
+     * Add an episode in the right place into the given map.
+     *
+     * @param seasons
+     *          a map of maps representing the seasons for this show
+     * @param ordering
+     *          whether we want to add the episode in its DVD ordering,
+     *          or its aired ordering
+     * @param episode
+     *           the episode to add into the index
+     * @return true if the episode was added (which it will be if it has season
+     *         information); false if it wasn't
+     */
+    private boolean addEpisode(Map<Integer, Map<Integer, EpisodeOptions>> seasons,
+                               final EpisodeOptions.Ordering ordering,
+                               final Episode episode)
+    {
+        EpisodeOptions options = null;
+
+        if (ordering == EpisodeOptions.Ordering.DVD) {
+            options = lookupOptions(seasons,
+                                    episode.getDvdSeasonNumber(),
+                                    episode.getDvdEpisodeNumber());
+        } else {
+            options = lookupOptions(seasons,
+                                    episode.getSeasonNumber(),
+                                    episode.getEpisodeNumber());
+        }
+        if (options == null) {
+            return false;
+        }
+
+        options.addEpisode(ordering, episode);
+        return true;
     }
 
     /**
      * Build an index of this show's episodes, by season and episode number.
      *
-     * Episode numbers are not definitive.  Production companies sometimes
-     * re-order them.  In particular, they take liberties when releasing
-     * DVDs.  The TVDB tries to keep track of the original, production order,
-     * as well as the DVD ordering (when applicable).  The truth is that some
-     * shows still have ambiguity beyond these options, but those are the two
-     * basic options available.
+     * Episode numbers are not definitive.  Production companies sometimes re-order them.
+     * In particular, they take liberties when releasing DVDs.  The TVDB tries to keep track
+     * of the original, production order, as well as the DVD ordering (when applicable).
+     * The truth is that some shows still have ambiguity beyond these options, but those are
+     * the two basic options available.
      *
-     * Does not change the episode list at all; just organizes them into seasons
-     * and episode numbers.
+     * Does not change the episode list at all; just organizes them into seasons and episode
+     * numbers.
      *
-     * Clears the season index before beginning, and iterates over all known episodes.
-     *
+     * Uses a temporary data structure (just a Map, not any TVRenamer-specific class) to build
+     * the indices, then after all episodes are processed, clears away any previous Seasons,
+     * and creates new, immutable ones based on the temporary data structures.
      */
     public synchronized void indexEpisodesBySeason() {
-        seasons.clear();
+        final Map<Integer, Map<Integer, EpisodeOptions>> tempSeasons = new ConcurrentHashMap<>();
+
         for (Episode episode : episodes.values()) {
             if (episode == null) {
                 logger.severe("internal error creating episodes for " + name);
-                return;
-            }
-
-            String seasonNumString = episode.getDvdSeasonNumber();
-            String episodeNumString = episode.getDvdEpisodeNumber();
-
-            // stringToInt handles null or empty values ok
-            Integer seasonNum = StringUtils.stringToInt(seasonNumString);
-            Integer episodeNum = StringUtils.stringToInt(episodeNumString);
-
-            // If we don't have good DVD information, fall back on over-the-air info.
-            if ((seasonNum == null) || (episodeNum == null)) {
-                seasonNumString = episode.getSeasonNumber();
-                episodeNumString = episode.getEpisodeNumber();
-                seasonNum = StringUtils.stringToInt(seasonNumString);
-                episodeNum = StringUtils.stringToInt(episodeNumString);
-            }
-
-            // If we still don't have info, we can't index this episode
-            if ((seasonNum == null) || (episodeNum == null)) {
-                // Note, in this case, the Episode will be created and will be added to the
-                // list of episodes, but will not be added to the season/episode organization.
-                logger.fine("episode \"" + episode.getTitle() + "\" of show " + name
-                            + " has non-numeric season: " + seasonNumString);
                 continue;
             }
 
-            addEpisodeToSeason(seasonNum, episodeNum, episode);
+            boolean indexed = addEpisode(tempSeasons, EpisodeOptions.Ordering.DVD, episode);
+            indexed |= addEpisode(tempSeasons, EpisodeOptions.Ordering.AIR, episode);
+
+            // If we still don't have info, we can't index this episode
+            if (!indexed) {
+                // Note, the Episode has been created and will remain in the list of
+                // episodes, but will not be added to the season/episode organization.
+                logger.fine("episode \"" + episode.getTitle() + "\" of show " + name
+                            + " could not be indexed");
+            }
         }
+        seasons.clear();
+        tempSeasons.forEach((n, s) -> {
+            seasons.put(n, new Season(this, n, s));
+        });
     }
 
     /**
@@ -486,16 +505,12 @@ public class Show {
      *    Null if no such episode was found.
      */
     public Episode getEpisode(int seasonNum, int episodeNum) {
-        Map<Integer, Episode> season = seasons.get(seasonNum);
+        Season season = seasons.get(seasonNum);
         if (season == null) {
             logger.warning("no season " + seasonNum + " found for show " + name);
             return null;
         }
-        Episode episode = season.get(episodeNum);
-        logger.fine("for season " + seasonNum + ", episode " + episodeNum
-                    + ", found " + episode);
-
-        return episode;
+        return season.get(orderingPreference, episodeNum);
     }
 
     /**
