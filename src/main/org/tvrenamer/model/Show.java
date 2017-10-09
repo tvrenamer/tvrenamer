@@ -336,14 +336,19 @@ public class Show {
             String seasonNumString = episode.getDvdSeasonNumber();
             String episodeNumString = episode.getDvdEpisodeNumber();
 
-            if (StringUtils.isBlank(seasonNumString) || StringUtils.isBlank(episodeNumString)) {
-                seasonNumString = episode.getSeasonNumber();
-                episodeNumString = episode.getEpisodeNumber();
-            }
-
+            // stringToInt handles null or empty values ok
             Integer seasonNum = StringUtils.stringToInt(seasonNumString);
             Integer episodeNum = StringUtils.stringToInt(episodeNumString);
 
+            // If we don't have good DVD information, fall back on over-the-air info.
+            if ((seasonNum == null) || (episodeNum == null)) {
+                seasonNumString = episode.getSeasonNumber();
+                episodeNumString = episode.getEpisodeNumber();
+                seasonNum = StringUtils.stringToInt(seasonNumString);
+                episodeNum = StringUtils.stringToInt(episodeNumString);
+            }
+
+            // If we still don't have info, we can't index this episode
             if ((seasonNum == null) || (episodeNum == null)) {
                 // Note, in this case, the Episode will be created and will be added to the
                 // list of episodes, but will not be added to the season/episode organization.
