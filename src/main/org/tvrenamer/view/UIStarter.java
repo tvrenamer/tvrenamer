@@ -22,6 +22,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
@@ -509,6 +510,21 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         return rval;
     }
 
+    private void setComboBoxProposedDest(final TableItem item,
+                                        final FileEpisode ep,
+                                        final List<String> options)
+    {
+        final Combo combo = new Combo(resultsTable, SWT.DROP_DOWN | SWT.READ_ONLY);
+        options.forEach(combo::add);
+        combo.setText(options.get(0));
+        combo.addModifyListener(e -> ep.setChosenEpisode(combo.getSelectionIndex()));
+        item.setData(combo);
+
+        final TableEditor editor = new TableEditor(resultsTable);
+        editor.grabHorizontal = true;
+        editor.setEditor(combo, item, NEW_FILENAME_COLUMN);
+    }
+
     /**
      * Fill in the value for the "Proposed File" column of the given row, with the text
      * we get from the given episode.  This is the only method that should ever set
@@ -521,7 +537,26 @@ public final class UIStarter implements Observer, AddEpisodeListener {
      *    the FileEpisode to use to obtain the text
      */
     private void setProposedDestColumn(final TableItem item, final FileEpisode ep) {
-        item.setText(NEW_FILENAME_COLUMN, ep.getReplacementText());
+        final Object itemData = item.getData();
+        if (itemData != null) {
+            final Control oldCombo = (Control) itemData;
+            if (!oldCombo.isDisposed()) {
+                oldCombo.dispose();
+            }
+        }
+
+        final List<String> options = ep.getReplacementText();
+        int count = options.size();
+        if (count == 0) {
+            item.setText(NEW_FILENAME_COLUMN, ADDED_PLACEHOLDER_FILENAME);
+            return;
+        }
+
+        if (count == 1) {
+            item.setText(NEW_FILENAME_COLUMN, options.get(0));
+        } else {
+            setComboBoxProposedDest(item, ep, options);
+        }
     }
 
     private void listingsDownloaded(TableItem item, FileEpisode episode) {
