@@ -22,6 +22,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
@@ -509,11 +510,26 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         return rval;
     }
 
+    private void setComboBoxProposedDest(final TableItem item,
+                                         final FileEpisode ep,
+                                         final List<String> options)
+    {
+        final Combo combo = new Combo(resultsTable, SWT.DROP_DOWN | SWT.READ_ONLY);
+        options.forEach(combo::add);
+        combo.setText(options.get(0));
+        combo.addModifyListener(e -> ep.setChosenEpisode(combo.getSelectionIndex()));
+        item.setData(combo);
+
+        final TableEditor editor = new TableEditor(resultsTable);
+        editor.grabHorizontal = true;
+        editor.setEditor(combo, item, NEW_FILENAME_COLUMN);
+    }
+
     /**
      * Fill in the value for the "Proposed File" column of the given row, with the text
      * we get from the given episode.  This is the only method that should ever set
      * this text, to ensure that the text of each row is ALWAYS the value returned by
-     * getReplacementText() on the associated episode.
+     * getReplacementOptions() on the associated episode.
      *
      * @param item
      *    the row in the table to set the text of the "Proposed File" column
@@ -522,6 +538,23 @@ public final class UIStarter implements Observer, AddEpisodeListener {
      */
     private void setProposedDestColumn(final TableItem item, final FileEpisode ep) {
         item.setText(NEW_FILENAME_COLUMN, ep.getReplacementText());
+
+        final Object itemData = item.getData();
+        if (itemData != null) {
+            final Control oldCombo = (Control) itemData;
+            if (!oldCombo.isDisposed()) {
+                oldCombo.dispose();
+            }
+        }
+
+        if (ep.hasOptions()) {
+            final List<String> options = ep.getReplacementOptions();
+            if (options.size() > 1) {
+                setComboBoxProposedDest(item, ep, options);
+            } else {
+                logger.warning("should not be using options when there are less than 2");
+            }
+        }
     }
 
     private void listingsDownloaded(TableItem item, FileEpisode episode) {
@@ -741,7 +774,27 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         item.setText(NEW_FILENAME_COLUMN, oldItem.getText(NEW_FILENAME_COLUMN));
         item.setImage(STATUS_COLUMN, oldItem.getImage(STATUS_COLUMN));
 
+        final Object itemData = oldItem.getData();
         oldItem.dispose();
+        if (itemData != null) {
+            final TableEditor newEditor = new TableEditor(resultsTable);
+            newEditor.grabHorizontal = true;
+            newEditor.setEditor((Combo) itemData, item, NEW_FILENAME_COLUMN);
+            item.setData(itemData);
+        }
+    }
+
+    private static String itemDestDisplayedText(final TableItem item) {
+        synchronized (item) {
+            final Object data = item.getData();
+            if (data == null) {
+                return item.getText(NEW_FILENAME_COLUMN);
+            }
+            final Combo combo = (Combo) data;
+            final int selected = combo.getSelectionIndex();
+            final String[] options = combo.getItems();
+            return options[selected];
+        }
     }
 
     private String getResultsTableTextValue(TableItem[] items, int row, int column) {
@@ -750,6 +803,8 @@ public final class UIStarter implements Observer, AddEpisodeListener {
                 return (items[row].getChecked()) ? "1" : "0";
             case STATUS_COLUMN:
                 return items[row].getImage(column).toString();
+            case NEW_FILENAME_COLUMN:
+                return itemDestDisplayedText(items[row]);
             default:
                 return items[row].getText(column);
         }
