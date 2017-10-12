@@ -507,11 +507,26 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         return rval;
     }
 
+    /**
+     * Fill in the value for the "Proposed File" column of the given row, with the text
+     * we get from the given episode.  This is the only method that should ever set
+     * this text, to ensure that the text of each row is ALWAYS the value returned by
+     * getReplacementText() on the associated episode.
+     *
+     * @param item
+     *    the row in the table to set the text of the "Proposed File" column
+     * @param ep
+     *    the FileEpisode to use to obtain the text
+     */
+    private void setProposedDestColumn(final TableItem item, final FileEpisode ep) {
+        item.setText(NEW_FILENAME_COLUMN, ep.getReplacementText());
+    }
+
     private void listingsDownloaded(TableItem item, FileEpisode episode) {
         boolean epFound = episode.listingsComplete();
         display.asyncExec(() -> {
             if (tableContainsTableItem(item)) {
-                item.setText(NEW_FILENAME_COLUMN, episode.getReplacementText());
+                setProposedDestColumn(item, episode);
                 if (epFound) {
                     item.setImage(STATUS_COLUMN, FileMoveIcon.ADDED.icon);
                     item.setChecked(true);
@@ -527,7 +542,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         episode.listingsFailed(err);
         display.asyncExec(() -> {
             if (tableContainsTableItem(item)) {
-                item.setText(NEW_FILENAME_COLUMN, DOWNLOADING_FAILED);
+                setProposedDestColumn(item, episode);
                 item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
                 item.setChecked(false);
             }
@@ -552,16 +567,16 @@ public final class UIStarter implements Observer, AddEpisodeListener {
     private void tableItemDownloaded(TableItem item, FileEpisode episode) {
         display.asyncExec(() -> {
             if (tableContainsTableItem(item)) {
-                item.setText(NEW_FILENAME_COLUMN, episode.getReplacementText());
+                setProposedDestColumn(item, episode);
                 item.setImage(STATUS_COLUMN, FileMoveIcon.ADDED.icon);
             }
         });
     }
 
-    private void tableItemFailed(TableItem item) {
+    private void tableItemFailed(TableItem item, FileEpisode episode) {
         display.asyncExec(() -> {
             if (tableContainsTableItem(item)) {
-                item.setText(NEW_FILENAME_COLUMN, BROKEN_PLACEHOLDER_FILENAME);
+                setProposedDestColumn(item, episode);
                 item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
                 item.setChecked(false);
             }
@@ -588,7 +603,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
             final TableItem item = createTableItem(resultsTable, fileName, episode);
             synchronized (this) {
                 if (apiDeprecated) {
-                    tableItemFailed(item);
+                    tableItemFailed(item, episode);
                     continue;
                 }
             }
@@ -605,13 +620,13 @@ public final class UIStarter implements Observer, AddEpisodeListener {
                     @Override
                     public void downloadFailed(Show show) {
                         episode.setEpisodeShow(show);
-                        tableItemFailed(item);
+                        tableItemFailed(item, episode);
                     }
 
                     @Override
                     public void apiHasBeenDeprecated() {
                         noteApiFailure();
-                        tableItemFailed(item);
+                        tableItemFailed(item, episode);
                     }
                 });
         }
@@ -671,11 +686,8 @@ public final class UIStarter implements Observer, AddEpisodeListener {
 
         // Set if the item is checked or not according to a list of banned keywords
         item.setChecked(!isNameIgnored(fileName));
-
-        String newFilename = episode.getReplacementText();
-
         item.setText(CURRENT_FILE_COLUMN, fileName);
-        item.setText(NEW_FILENAME_COLUMN, newFilename);
+        setProposedDestColumn(item, episode);
         item.setImage(STATUS_COLUMN, FileMoveIcon.DOWNLOADING.icon);
         return item;
     }
@@ -778,7 +790,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
             String newFileName = episode.getFilepath();
             episodeMap.put(newFileName, episode);
             item.setText(CURRENT_FILE_COLUMN, newFileName);
-            item.setText(NEW_FILENAME_COLUMN, episode.getReplacementText());
+            setProposedDestColumn(item, episode);
         }
     }
 
