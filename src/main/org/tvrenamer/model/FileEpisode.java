@@ -18,6 +18,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -134,7 +136,8 @@ public class FileEpisode {
     // believe it refers to, based on the filename.  The "Episode" class represents
     // information about an actual episode of a show, based on listings from the provider.
     // Once we have the listings, we should be able to map this instance to an Episode.
-    private Episode actualEpisode = null;
+    private List<Episode> actualEpisodes = null;
+    private int chosenEpisode = 0;
 
     // This class actually figures out the proposed new name for the file, so we need
     // a link to the user preferences to know how the user wants the file renamed.
@@ -295,7 +298,13 @@ public class FileEpisode {
     }
 
     public boolean isReady() {
-        return (actualEpisode != null);
+        return (actualEpisodes != null);
+    }
+
+    public boolean hasOptions() {
+        return ((seriesStatus == SeriesStatus.GOT_LISTINGS)
+                && (actualEpisodes != null)
+                && (actualEpisodes.size() > 1));
     }
 
     public void setParsed() {
@@ -383,8 +392,11 @@ public class FileEpisode {
             return false;
         }
 
-        actualEpisode = actualShow.getEpisode(placement);
-        if (actualEpisode == null) {
+        actualEpisodes = actualShow.getEpisodes(placement);
+        if ((actualEpisodes != null) && (actualEpisodes.size() == 0)) {
+            actualEpisodes = null;
+        }
+        if (actualEpisodes == null) {
             logger.info("Season #" + placement.season + ", Episode #"
                         + placement.episode + " not found for show '"
                         + filenameShow + "'");
@@ -520,7 +532,7 @@ public class FileEpisode {
         return StringUtils.sanitiseTitle(newFilename);
     }
 
-    String getRenamedBasename() {
+    String getRenamedBasename(final int n) {
         String showName;
         if (actualShow == null) {
             logger.warning("should not be renaming without an actual Show.");
@@ -531,42 +543,63 @@ public class FileEpisode {
 
         String titleString = "";
         LocalDate airDate = null;
-        if (actualEpisode != null) {
-            titleString = actualEpisode.getTitle();
-            int len = titleString.length();
-            if (len > MAX_TITLE_LENGTH) {
-                logger.fine("truncating episode title " + titleString);
-                titleString = titleString.substring(0, MAX_TITLE_LENGTH);
-            }
-            airDate = actualEpisode.getAirDate();
-            if (airDate == null) {
-                logger.log(Level.WARNING, "Episode air date not found for '" + this + "'");
+        if (actualEpisodes != null) {
+            if (n >= actualEpisodes.size()) {
+                logger.warning("cannot get option " + n + " of " + showName);
+            } else {
+                Episode actualEpisode = actualEpisodes.get(n);
+                titleString = actualEpisode.getTitle();
+                int len = titleString.length();
+                if (len > MAX_TITLE_LENGTH) {
+                    logger.fine("truncating episode title " + titleString);
+                    titleString = titleString.substring(0, MAX_TITLE_LENGTH);
+                }
+                airDate = actualEpisode.getAirDate();
+                if (airDate == null) {
+                    logger.log(Level.WARNING, "Episode air date not found for '" + this + "'");
+                }
             }
         }
 
-        // Note, this is an instance variable, not a local variable.
-        baseForRename = plugInInformation(userPrefs.getRenameReplacementString(), showName,
-                                          titleString, filenameResolution, placement, airDate);
-        return baseForRename;
+        return plugInInformation(userPrefs.getRenameReplacementString(), showName,
+                                 titleString, filenameResolution, placement, airDate);
+    }
+
+    /**
+     *
+     * @param n
+     *    the option chosen
+     */
+    public void setChosenEpisode(final int n) {
+        if (n >= actualEpisodes.size()) {
+            logger.warning("no option " + n + " for " + this);
+        } else {
+            int previous = chosenEpisode;
+            chosenEpisode = n;
+            if (chosenEpisode != previous) {
+                logger.info("changing episode from " + actualEpisodes.get(previous).getTitle()
+                            + " to " + actualEpisodes.get(chosenEpisode).getTitle());
+            }
+        }
     }
 
     public String getDestinationBasename() {
         if (userPrefs.isRenameEnabled()) {
-            return getRenamedBasename();
+            return getRenamedBasename(chosenEpisode);
         } else {
             return StringUtils.removeLast(fileNameString, filenameSuffix);
         }
     }
 
     /**
-     * @return the new full file path (for table display) using {@link #getRenamedBasename()} and
-     *          the destination directory
+     * @return the new full file path (for table display) using {@link #getRenamedBasename(int)} and
+     *          the destination directory, or a failure message
      */
     public String getReplacementText() {
         switch (seriesStatus) {
             case GOT_LISTINGS: {
                 if (userPrefs.isRenameEnabled()) {
-                    String newFilename = getRenamedBasename() + filenameSuffix;
+                    String newFilename = getRenamedBasename(0) + filenameSuffix;
 
                     if (userPrefs.isMoveEnabled()) {
                         return getMoveToDirectory() + FILE_SEPARATOR_STRING + newFilename;
@@ -611,6 +644,37 @@ public class FileEpisode {
                 }
             }
         }
+    }
+
+    /**
+     *
+     * @return the new full file path options (for table display) using getRenamedBasename()
+     *          and the destination directory
+     */
+    public List<String> getReplacementOptions() {
+        List<String> rval = new LinkedList<>();
+        if (seriesStatus == SeriesStatus.GOT_LISTINGS) {
+            if (userPrefs.isRenameEnabled()) {
+                for (int i=0; i < actualEpisodes.size(); i++) {
+                    String newFilename = getRenamedBasename(i) + filenameSuffix;
+
+                    if (userPrefs.isMoveEnabled()) {
+                        rval.add(getMoveToDirectory() + FILE_SEPARATOR_STRING + newFilename);
+                    } else {
+                        rval.add(newFilename);
+                    }
+                }
+            } else if (userPrefs.isMoveEnabled()) {
+                rval.add(getMoveToDirectory() + FILE_SEPARATOR_STRING + fileNameString);
+            } else {
+                // This setting doesn't make any sense, but we haven't bothered to
+                // disallow it yet.
+                rval.add(fileNameString);
+            }
+        } else {
+            rval.add(getReplacementText());
+        }
+        return rval;
     }
 
     @Override
