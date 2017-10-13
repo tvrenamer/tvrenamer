@@ -524,11 +524,17 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
     }
 
     private void listingsDownloaded(TableItem item, FileEpisode episode) {
-        episode.listingsComplete();
+        boolean epFound = episode.listingsComplete();
         display.asyncExec(() -> {
             if (tableContainsTableItem(item)) {
                 item.setText(NEW_FILENAME_COLUMN, episode.getReplacementText());
-                item.setImage(STATUS_COLUMN, FileMoveIcon.ADDED.icon);
+                if (epFound) {
+                    item.setImage(STATUS_COLUMN, FileMoveIcon.ADDED.icon);
+                    item.setChecked(true);
+                } else {
+                    item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
+                    item.setChecked(false);
+                }
             }
         });
     }
