@@ -735,6 +735,17 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
         oldItem.dispose();
     }
 
+    private String getResultsTableTextValue(TableItem[] items, int row, int column) {
+        switch (column) {
+            case SELECTED_COLUMN:
+                return (items[row].getChecked()) ? "1" : "0";
+            case STATUS_COLUMN:
+                return items[row].getImage(column).toString();
+            default:
+                return items[row].getText(column);
+        }
+    }
+
     private void sortTable(int position) {
         // Get the items
         TableItem[] items = resultsTable.getItems();
@@ -742,9 +753,9 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
 
         // Go through the item list and
         for (int i = 1; i < items.length; i++) {
-            String value1 = items[i].getText(position);
+            String value1 = getResultsTableTextValue(items, i, position);
             for (int j = 0; j < i; j++) {
-                String value2 = items[j].getText(position);
+                String value2 = getResultsTableTextValue(items, j, position);
                 // Compare the two values and order accordingly
                 if (resultsTable.getSortDirection() == SWT.DOWN) {
                     if (collator.compare(value1, value2) < 0) {
