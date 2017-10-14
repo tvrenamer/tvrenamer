@@ -32,24 +32,24 @@ public class FileUtilities {
      * (Implementation detail: this method actually should work fine to remove an empty
      *  directory; the preference for rmdir() is purely a convention.)
      *
-     * @param source
+     * @param file
      *    the file to be deleted
      * @return
      *    true if the file existed and was deleted; false if not
      */
     @SuppressWarnings("UnusedReturnValue")
-    public static boolean deleteFile(Path source) {
-        if (Files.notExists(source)) {
-            logger.warning("cannot delete file, does not exist: " + source);
+    public static boolean deleteFile(Path file) {
+        if (Files.notExists(file)) {
+            logger.warning("cannot delete file, does not exist: " + file);
             return false;
         }
         try {
-            Files.delete(source);
+            Files.delete(file);
         } catch (IOException ioe) {
-            logger.log(Level.WARNING, "Error deleting file " + source, ioe);
+            logger.log(Level.WARNING, "Error deleting file " + file, ioe);
             return false;
         }
-        return Files.notExists(source);
+        return Files.notExists(file);
     }
 
     /**
