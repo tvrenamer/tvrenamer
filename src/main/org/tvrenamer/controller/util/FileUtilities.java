@@ -37,7 +37,6 @@ public class FileUtilities {
      * @return
      *    true if the file existed and was deleted; false if not
      */
-    @SuppressWarnings("UnusedReturnValue")
     public static boolean deleteFile(Path file) {
         if (Files.notExists(file)) {
             logger.warning("cannot delete file, does not exist: " + file);
@@ -96,7 +95,6 @@ public class FileUtilities {
      * @return
      *    true if the paths refer to the same file, false if they don't
      */
-    @SuppressWarnings("unused")
     public static boolean isSameFile(final Path path1, final Path path2) {
         try {
             return Files.isSameFile(path1, path2);
@@ -176,7 +174,6 @@ public class FileUtilities {
      * @return
      *    true if the path existed and was an empty directory; false otherwise
      */
-    @SuppressWarnings("WeakerAccess")
     public static boolean isDirEmpty(final Path dir) {
         try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(dir)) {
             return !dirStream.iterator().hasNext();
@@ -194,8 +191,10 @@ public class FileUtilities {
      * @return
      *    true if the path existed and was deleted; false if not
      */
-    @SuppressWarnings("WeakerAccess")
     public static boolean rmdir(final Path dir) {
+        if (!Files.isDirectory(dir)) {
+            return false;
+        }
         try {
             Files.delete(dir);
         } catch (IOException ioe) {
