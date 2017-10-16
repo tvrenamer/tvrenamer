@@ -126,7 +126,6 @@ public class ShowOption {
      * @return ID
      *            the ID of the show from the provider, as a String
      */
-    @SuppressWarnings("unused")
     public String getIdString() {
         return idString;
     }
