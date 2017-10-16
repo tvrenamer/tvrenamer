@@ -353,7 +353,6 @@ public class StringUtils {
      *            string to decode
      * @return human-friendly representation of input
      */
-    @SuppressWarnings("unused")
     public static String decodeSpecialCharacters(String input) {
         if (input == null || input.length() == 0) {
             return "";
