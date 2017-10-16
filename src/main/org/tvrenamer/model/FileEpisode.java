@@ -529,6 +529,25 @@ public class FileEpisode {
         return "<" + actualShow.getName() + ">";
     }
 
+    private String getNoMatchPlaceholder() {
+        return EPISODE_NOT_FOUND + " <" + actualShow.getName() + " / "
+            + actualShow.getIdString() + ">: " + " season " + placement.season
+            + ", episode " + placement.episode + " not found";
+    }
+
+    private String getNoListingsPlaceholder() {
+        return " <" + actualShow.getName() + " / "
+            + actualShow.getIdString() + ">: " + DOWNLOADING_FAILED;
+    }
+
+    private String getNoShowPlaceholder() {
+        ShowName showName = ShowName.lookupShowName(filenameShow);
+        String queryString = showName.getQueryString();
+        return BROKEN_PLACEHOLDER_FILENAME + " for \""
+            + StringUtils.decodeSpecialCharacters(queryString)
+            + "\"";
+    }
+
     /**
      * @return the new full file path (for table display) using {@link #getRenamedBasename()} and
      *          the destination directory
@@ -553,16 +572,16 @@ public class FileEpisode {
                 }
             }
             case NO_MATCH: {
-                return EPISODE_NOT_FOUND;
+                return getNoMatchPlaceholder();
             }
             case NO_LISTINGS: {
-                return DOWNLOADING_FAILED;
+                return getNoListingsPlaceholder();
             }
             case GOT_SHOW: {
                 return getShowNamePlaceholder();
             }
             case UNFOUND: {
-                return BROKEN_PLACEHOLDER_FILENAME;
+                return getNoShowPlaceholder();
             }
             default: {
                 if (seriesStatus != SeriesStatus.NOT_STARTED) {
