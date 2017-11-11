@@ -1,7 +1,6 @@
 Below is a list of projects/people that TVRenamer relies on (with thanks):
  - Eclipse SWT
  - Codehaus XStream
- - jEdit
  - TransparenTech CocoaUIEnhancer
  - Apache Commons Codec
  - Xml Pull Parser 3rd Edition (XPP3)
