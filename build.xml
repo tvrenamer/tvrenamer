@@ -225,7 +225,6 @@
 
 
   <target name="init-checkstyle">
-    <ivy:retrieve/>
     <path id="checkstyle.lib.path">
       <fileset dir="${lib.dl}">
         <include name="checkstyle-7.1.1.jar" />
