@@ -6,8 +6,7 @@ package org.tvrenamer.model;
  * It is assigned an ID meant to not conflict with any of the "real" shows
  * we get from the provider.
  */
-@SuppressWarnings("WeakerAccess")
-public class LocalShow extends Show {
+class LocalShow extends Show {
 
     private static int fakeSeriesId = 0;
 
