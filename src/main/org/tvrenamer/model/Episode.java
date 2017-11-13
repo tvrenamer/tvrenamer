@@ -15,7 +15,12 @@ public class Episode {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern(EPISODE_DATE_FORMAT);
 
     private final String title;
+    private final String episodeId;
+
     private final String airDateString;
+    // Not final; we don't calculate it in the constructor.  When we look up a series, we process every
+    // episode of that series, whether the user has that episode or not.  But we only need to know the
+    // air date for episodes the user actually has.  We parse the string only on demand.
     private LocalDate firstAired = null;
 
     // This object does not have an opinion of its place within the series ordering.
@@ -26,16 +31,16 @@ public class Episode {
     private final String dvdSeason;
     private final String dvdEpisodeNumber;
 
-    private final String episodeId;
-
     public Episode(EpisodeInfo info) {
         this.title = info.episodeName;
+        this.episodeId = info.episodeId;
+
         this.airDateString = info.firstAired;
+
         this.seasonNumber = info.seasonNumber;
         this.episodeNumber = info.episodeNumber;
         this.dvdSeason = info.dvdSeason;
         this.dvdEpisodeNumber = info.dvdEpisodeNumber;
-        this.episodeId = info.episodeId;
     }
 
     public String getTitle() {
@@ -44,22 +49,6 @@ public class Episode {
 
     public String getEpisodeId() {
         return episodeId;
-    }
-
-    public String getSeasonNumber() {
-        return seasonNumber;
-    }
-
-    public String getEpisodeNumber() {
-        return episodeNumber;
-    }
-
-    public String getDvdSeasonNumber() {
-        return dvdSeason;
-    }
-
-    public String getDvdEpisodeNumber() {
-        return dvdEpisodeNumber;
     }
 
     public LocalDate getAirDate() {
@@ -79,6 +68,22 @@ public class Episode {
             }
         }
         return firstAired;
+    }
+
+    public String getSeasonNumber() {
+        return seasonNumber;
+    }
+
+    public String getEpisodeNumber() {
+        return episodeNumber;
+    }
+
+    public String getDvdSeasonNumber() {
+        return dvdSeason;
+    }
+
+    public String getDvdEpisodeNumber() {
+        return dvdEpisodeNumber;
     }
 
     // "Package-private".  Used by Show; should not be used by other classes.
