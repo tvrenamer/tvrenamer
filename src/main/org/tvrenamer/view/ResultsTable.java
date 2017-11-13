@@ -312,7 +312,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                 logger.fine("no show name found for " + episode);
                 continue;
             }
-            ShowStore.getShow(showName, new ShowInformationListener() {
+            ShowStore.mapStringToShow(showName, new ShowInformationListener() {
                     @Override
                     public void downloadSucceeded(Show show) {
                         episode.setEpisodeShow(show);

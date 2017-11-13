@@ -58,7 +58,7 @@ import java.util.logging.Logger;
  * Show objects obviously contain the actual show name.  So we have:<ul>
  *
  *  <li>(1) -&gt;(2)  makeQueryString</li>
- *  <li>(2) -&gt;(3a) ShowStore.getShow</li>
+ *  <li>(2) -&gt;(3a) ShowStore.mapStringToShow</li>
  *  <li>(3a) -&gt;(3) Show.getName</li>
  *  <li>(3) -&gt;(4)  sanitiseTitle</li>
  *  <li>(4) -&gt;(5)  makeDotTitle</li></ul><p>
@@ -94,7 +94,7 @@ import java.util.logging.Logger;
  * does not necessarily help us much in doing the (2) -&gt;(3a) mapping.<p>
  *
  * What we might want to do in the future is make it potentially a many-to-many relation,
- * and say that calling getShow() does not necessarily pin down the exact series the file
+ * and say that calling mapStringToShow() does not necessarily pin down the exact series the file
  * refers to.  We might be able to figure it out later, based on additional information.
  * For example, if we're looking at "The Office, Season 8", we know it has to be the US
  * version, because the UK version didn't do that many seasons.  Or, if the actual episode
@@ -171,7 +171,7 @@ public class ShowStore {
      *            the listener to notify or register
      */
     @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
-    public static void getShow(String filenameShow, ShowInformationListener listener) {
+    public static void mapStringToShow(String filenameShow, ShowInformationListener listener) {
         if (listener == null) {
             logger.warning("cannot look up show without a listener");
             return;
@@ -259,7 +259,7 @@ public class ShowStore {
      * by the show name.<p>
      *
      * Added this distinct method to enable unit testing.  Unlike the "real" method
-     * (<code>getShow</code>), this does not spawn a thread, connect to the internet,
+     * (<code>mapStringToShow</code>), this does not spawn a thread, connect to the internet,
      * or use listeners in any way.  This is just accessing the data store.
      *
      * @param  filenameShow

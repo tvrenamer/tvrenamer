@@ -1133,7 +1133,7 @@ public class TheTVDBProviderTest {
     private Show testQueryShow(final String queryString, final String properShowName) {
         try {
             final CompletableFuture<ShowOption> futureShow = new CompletableFuture<>();
-            ShowStore.getShow(queryString, new ShowDownloader(futureShow));
+            ShowStore.mapStringToShow(queryString, new ShowDownloader(futureShow));
             ShowOption gotShow = futureShow.get(4, TimeUnit.SECONDS);
             if (API_DISCONTINUED_NAME.equals(gotShow.getName())) {
                 fail("API apparently discontinued parsing " + queryString);
