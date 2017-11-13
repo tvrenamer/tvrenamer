@@ -198,7 +198,7 @@ public class ShowStore {
             // directly.  If, in the future, we expand ShowInformationListener so
             // that there is more information to be sent later, we'd want to edit
             // this to add the listener.
-            if (show instanceof LocalShow) {
+            if (show.isLocalShow()) {
                 listener.downloadFailed(show);
             } else {
                 listener.downloaded(show);
@@ -237,7 +237,7 @@ public class ShowStore {
             }
 
             logger.fine("Show options for '" + thisShow.getName() + "' downloaded");
-            if (thisShow instanceof FailedShow) {
+            if (thisShow.isFailedShow()) {
                 showName.nameNotFound(thisShow);
             } else {
                 showName.nameResolved(thisShow);
