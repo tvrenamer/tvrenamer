@@ -244,7 +244,7 @@ public class ShowName {
      * viable option, and provide a stand-in object.
      *
      * @param show
-     *    the LocalShow object (presumably a FailedShow) representing the string
+     *    the Show object (presumably a failed Show) representing the string
      *    we searched for.
      */
     public void nameNotFound(Show show) {

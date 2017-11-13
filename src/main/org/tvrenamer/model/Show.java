@@ -60,7 +60,7 @@ public class Show {
      * It doesn't cause anything to break, it just results in a lot of
      * unnecessary work.
      *
-     * Note we even put LocalShows in here, too, even though it does not
+     * Note we even put local Shows in here, too, even though it does not
      * serve the purpose of avoiding unnecessary work.  That's because
      * another usage of this map is that its values represent all the
      * Shows we have created, which can be useful information to have.
@@ -386,6 +386,29 @@ public class Show {
                 }
             }
         }
+    }
+
+    /**
+     * Return whether or not this is a "local" show.
+     *
+     * A "local" show is one that is not found in the provider.  It's generally a
+     * sort of a substitute, and can also be thought of as "fake" in some way.
+     * It is assigned an ID meant to not conflict with any of the "real" shows
+     * we get from the provider.
+     *
+     * @return true the show is "local", false if it was found in the provider's db
+     */
+    public boolean isLocalShow() {
+        return (this instanceof LocalShow);
+    }
+
+    /**
+     * Return whether or not this is a "failed" show.
+     *
+     * @return true the show is "failed", false otherwise
+     */
+    public boolean isFailedShow() {
+        return (this instanceof FailedShow);
     }
 
     /**
