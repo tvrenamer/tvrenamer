@@ -26,21 +26,23 @@ public class Episode {
     // This object does not have an opinion of its place within the series ordering.
     // It does serve as a useful place to hang information about such questions, as
     // we do, below.  But it's up to the Show to decide what the "real" answer is.
-    private final String seasonNumber;
-    private final String episodeNumber;
-    private final String dvdSeason;
-    private final String dvdEpisodeNumber;
+    private final Integer airSeasonNumber;
+    private final Integer airEpisodeNumber;
+    private final Integer dvdSeasonNumber;
+    private final Integer dvdEpisodeNumber;
 
     public Episode(EpisodeInfo info) {
-        this.title = info.episodeName;
-        this.episodeId = info.episodeId;
+        title = info.episodeName;
+        episodeId = info.episodeId;
 
-        this.airDateString = info.firstAired;
+        airDateString = info.firstAired;
 
-        this.seasonNumber = info.seasonNumber;
-        this.episodeNumber = info.episodeNumber;
-        this.dvdSeason = info.dvdSeason;
-        this.dvdEpisodeNumber = info.dvdEpisodeNumber;
+        // stringToInt handles null or empty values ok
+        airSeasonNumber = StringUtils.stringToInt(info.seasonNumber);
+        dvdSeasonNumber = StringUtils.stringToInt(info.dvdSeason);
+
+        airEpisodeNumber = StringUtils.stringToInt(info.episodeNumber);
+        dvdEpisodeNumber = StringUtils.stringToInt(info.dvdEpisodeNumber);
     }
 
     public String getTitle() {
@@ -70,19 +72,19 @@ public class Episode {
         return firstAired;
     }
 
-    public String getSeasonNumber() {
-        return seasonNumber;
+    public Integer getSeasonNumber() {
+        return airSeasonNumber;
     }
 
-    public String getEpisodeNumber() {
-        return episodeNumber;
+    public Integer getEpisodeNumber() {
+        return airEpisodeNumber;
     }
 
-    public String getDvdSeasonNumber() {
-        return dvdSeason;
+    public Integer getDvdSeasonNumber() {
+        return dvdSeasonNumber;
     }
 
-    public String getDvdEpisodeNumber() {
+    public Integer getDvdEpisodeNumber() {
         return dvdEpisodeNumber;
     }
 
