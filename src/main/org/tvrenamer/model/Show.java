@@ -315,19 +315,13 @@ public class Show {
                 return;
             }
 
-            String seasonNumString = episode.getDvdSeasonNumber();
-            String episodeNumString = episode.getDvdEpisodeNumber();
-
-            // stringToInt handles null or empty values ok
-            Integer seasonNum = StringUtils.stringToInt(seasonNumString);
-            Integer episodeNum = StringUtils.stringToInt(episodeNumString);
+            Integer seasonNum = episode.getDvdSeasonNumber();
+            Integer episodeNum = episode.getDvdEpisodeNumber();
 
             // If we don't have good DVD information, fall back on over-the-air info.
             if ((seasonNum == null) || (episodeNum == null)) {
-                seasonNumString = episode.getSeasonNumber();
-                episodeNumString = episode.getEpisodeNumber();
-                seasonNum = StringUtils.stringToInt(seasonNumString);
-                episodeNum = StringUtils.stringToInt(episodeNumString);
+                seasonNum = episode.getSeasonNumber();
+                episodeNum = episode.getEpisodeNumber();
             }
 
             // If we still don't have info, we can't index this episode
@@ -335,7 +329,7 @@ public class Show {
                 // Note, in this case, the Episode will be created and will be added to the
                 // list of episodes, but will not be added to the season/episode organization.
                 logger.fine("episode \"" + episode.getTitle() + "\" of show " + name
-                            + " has non-numeric season: " + seasonNumString);
+                            + " lacks season and episode information");
                 continue;
             }
 
