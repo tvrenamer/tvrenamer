@@ -29,7 +29,6 @@ import org.junit.Test;
 
 import org.tvrenamer.model.Episode;
 import org.tvrenamer.model.EpisodeTestData;
-import org.tvrenamer.model.LocalShow;
 import org.tvrenamer.model.Show;
 import org.tvrenamer.model.ShowName;
 import org.tvrenamer.model.ShowStore;
@@ -164,7 +163,8 @@ public class TheTVDBProviderTest {
         assertTrue(showName.hasShowOptions());
         final Show best = showName.selectShowOption();
         assertNotNull(best);
-        assertFalse(best instanceof LocalShow);
+        assertFalse(best.isLocalShow());
+        assertFalse(best.isFailedShow());
         assertEquals(epdata.showId, String.valueOf(best.getId()));
         assertEquals(actualName, best.getName());
 
@@ -1039,7 +1039,7 @@ public class TheTVDBProviderTest {
                 fail("could not parse show name input " + queryString);
                 return null;
             }
-            assertFalse(gotShow instanceof LocalShow);
+            assertFalse(gotShow.isLocalShow());
             assertEquals(testInput.properShowName, gotShow.getName());
             return gotShow;
         } catch (TimeoutException e) {
