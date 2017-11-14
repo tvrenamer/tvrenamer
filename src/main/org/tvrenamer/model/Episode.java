@@ -93,12 +93,11 @@ public class Episode {
         return firstAired;
     }
 
-    public EpisodePlacement getAirEpisodePlacement() {
+    public EpisodePlacement getEpisodePlacement(boolean useDvd) {
+        if (useDvd) {
+            return dvdPlacement;
+        }
         return airPlacement;
-    }
-
-    public EpisodePlacement getDvdEpisodePlacement() {
-        return dvdPlacement;
     }
 
     // "Package-private".  Used by Show; should not be used by other classes.
