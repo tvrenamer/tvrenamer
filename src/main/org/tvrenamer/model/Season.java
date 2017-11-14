@@ -12,7 +12,7 @@ class Season {
 
     private final Show show;
     private final int seasonNum;
-    private final Map<Integer, Episode> episodes = new ConcurrentHashMap<>();
+    private final Map<Integer, EpisodeOptions> episodes = new ConcurrentHashMap<>();
 
     /**
      * Create a Season object.
@@ -42,10 +42,17 @@ class Season {
      *
      * @param episodeNum
      *           the episode number, within this Season, of the episode to return
+     * @param preferDvd
+     *           whether the caller prefers the DVD ordering or the over-the-air ordering
      * @return the episode found at the requested place
      */
-    public Episode get(int episodeNum) {
-        Episode found = episodes.get(episodeNum);
+    public Episode get(int episodeNum, boolean preferDvd) {
+        EpisodeOptions options = episodes.get(episodeNum);
+        Episode found = null;
+
+        if (options != null) {
+            found = options.get(preferDvd);
+        }
         logger.fine("for season " + seasonNum + ", episode " + episodeNum
                     + ", found " + found);
         return found;
@@ -61,47 +68,27 @@ class Season {
      *
      * @param episode
      *           the episode to add at the given index
-     * @param episodeNum
-     *           the episode, of this season, of the episode to add
+     * @param useDvd
+     *           whether episodeNum refers to the DVD ordering or
+     *           the over-the-air ordering
      */
-    public void addEpisode(Episode episode, int episodeNum) {
+    public void addEpisode(Episode episode, boolean useDvd) {
         if (episode == null) {
             logger.warning("can not add null episode");
             return;
         }
 
-        Episode found = episodes.remove(episodeNum);
+        EpisodePlacement placement = episode.getEpisodePlacement(useDvd);
+        int episodeNum = placement.episode;
+        EpisodeOptions found = episodes.get(episodeNum);
 
         if (found == null) {
-            // This is the expected case; we should only be adding the episode to
-            // the index a single time.
-            episodes.put(episodeNum, episode);
-        } else if (found == episode) {
-            // Well, this is unfortunate; if it happens, investigate why.  But it's
-            // fine.  We still have a unique object.  No action required.
-            episodes.put(episodeNum, episode);
-        } else if (found.getTitle().equals(episode.getTitle())) {
-            // This is less fine.  We've apparently created two objects to represent
-            // the same data.  This should be fixed.
-            logger.warning("replacing episode " + found.getEpisodeId()
-                           + " for show " + show.getName() + ", season "
-                           + seasonNum + ", episode " + episodeNum + " (\""
-                           + found.getTitle() + "\") with " + episode.getEpisodeId());
-            episodes.put(episodeNum, episode);
-        } else {
-            // In this very unexpected case, we will not keep EITHER episode
-            // in the table.  Remember that both will be in the unordered List
-            // of episodes.  A future feature may be that when an episode is not
-            // found in the seasons map, for whatever reason, to search through
-            // the episode list.  This could be for "special" episodes, DVD extras,
-            // etc.  But it could also be used for this case.
-            logger.warning("two episodes found for show " + show.getName() + ", season "
-                           + seasonNum + ", episode " + episodeNum + ": \""
-                           + found.getTitle() + "\" (" + found.getEpisodeId() + ") and \""
-                           + episode.getTitle() + "\" (" + episode.getEpisodeId() + ")");
+            found = new EpisodeOptions();
+            episodes.put(episodeNum, found);
         }
-    }
 
+        found.addEpisode(useDvd, episode);
+    }
 
     /**
      * Standard object method to represent this Season as a string.
