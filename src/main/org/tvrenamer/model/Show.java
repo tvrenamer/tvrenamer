@@ -46,6 +46,8 @@ public class Show extends ShowOption {
     private final Map<Integer, Season> seasons;
     final Queue<ShowListingsListener> registrations;
 
+    private boolean preferDvd = true;
+
     /**
      * Create a Show object for a show that the provider knows about.  Initially
      * we just get the show's name and ID, but soon the
@@ -104,6 +106,20 @@ public class Show extends ShowOption {
     }
 
     /**
+     * Set whether this show should prefer the DVD ordering or the over the air ordering.
+     *
+     * Note, this method is not yet exposed to the user.  The functionality is here to
+     * change the preference, but it can't be accessed from the UI.  (It is accessed via
+     * the testing harness, though.)
+     *
+     * @param val
+     *     whether this show should prefer the DVD ordering or the over the air ordering.
+     */
+    public synchronized void setPreferDvd(boolean val) {
+        preferDvd = val;
+    }
+
+    /**
      * Add an episode to a season's index of episodes, at the placement given.
      *
      * This method is agnostic of which ordering is being used.  It just asks the
@@ -134,9 +150,10 @@ public class Show extends ShowOption {
      * The truth is that some shows still have ambiguity beyond these options, but those
      * are the two basic options available.
      *
-     * When adding an episode to a show's index of episodes, we prefer the DVD ordering but
-     * fall back on the over-the-air ordering for episodes which don't have info in the
-     * DVD ordering.
+     * When adding an episode to a show's index of episodes, we prefer one ordering but
+     * fall back on the other ordering for episodes which don't have info in the preferred
+     * ordering.  (Currently, the preference is for DVD episodes, and there is no way for
+     * the user to change it; see {@link #setPreferDvd})
      *
      * Does not change the episode list at all; just organizes them into seasons
      * and episode numbers.
@@ -153,11 +170,11 @@ public class Show extends ShowOption {
                 return;
             }
 
-            EpisodePlacement placement = episode.getDvdEpisodePlacement();
+            EpisodePlacement placement = episode.getEpisodePlacement(preferDvd);
 
-            // If we don't have good DVD information, fall back on over-the-air info.
+            // If we don't have the preferred placement, fall back on the other one.
             if (placement == null) {
-                placement = episode.getAirEpisodePlacement();
+                placement = episode.getEpisodePlacement(!preferDvd);
             }
 
             // If we still don't have info, we can't index this episode

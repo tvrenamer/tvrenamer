@@ -32,6 +32,7 @@ public class EpisodeTestData {
     public final String queryString;
     public final Integer seasonNum;
     public final Integer episodeNum;
+    public final Boolean preferDvd;
 
     // These are attributes we get back from the provider
     public final String properShowName;
@@ -59,6 +60,7 @@ public class EpisodeTestData {
         String queryString;
         Integer seasonNum;
         Integer episodeNum;
+        Boolean preferDvd;
 
         String properShowName;
         String episodeTitle;
@@ -244,6 +246,15 @@ public class EpisodeTestData {
             }
         }
 
+        public Builder preferDvd(boolean val) {
+            if ((preferDvd == null) || (preferDvd == val)) {
+                preferDvd = val;
+            } else {
+                throw new IllegalStateException("cannot re-set preferDvd");
+            }
+            return this;
+        }
+
         public Builder properShowName(String val) {
             if (properShowName == null) {
                 properShowName = val;
@@ -350,6 +361,7 @@ public class EpisodeTestData {
         queryString = builder.queryString;
         seasonNum = builder.getSeasonNum();
         episodeNum = builder.getEpisodeNum();
+        preferDvd = builder.preferDvd;
 
         properShowName = builder.properShowName;
         episodeTitle = builder.episodeTitle;
