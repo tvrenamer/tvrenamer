@@ -125,30 +125,44 @@ public class Show extends ShowOption {
      * This method is agnostic of which ordering is being used.  It just asks the
      * Season to add the episode at the placement given.
      *
-     * @param episode
-     *           the episode to place at the index
-     * @param placement
-     *           the placement (season number and episode number) of the episode to add
-     */
-    private void addEpisodeToSeason(Episode episode, EpisodePlacement placement) {
-        // Check to see if there's already an existing episode.  Only applies if we
-        // have a valid placement.
-        Season season = seasons.get(placement.season);
-        if (season == null) {
-            season = new Season(this, placement.season);
-            seasons.put(placement.season, season);
-        }
-        season.addEpisode(episode, placement.episode);
-    }
-
-    /**
-     * Build an index of this show's episodes, at the placement given.
-     *
      * Placements are not definitive.  Production companies sometimes re-order them.  In
      * particular, they take liberties when releasing DVDs.  The TVDB tries to keep track
      * of the original, production order, as well as the DVD ordering (when applicable).
      * The truth is that some shows still have ambiguity beyond these options, but those
      * are the two basic options available.
+     *
+     * This method takes an ordering, and adds the episode at the placement corresponding
+     * to the that ordering, if such a placement is known.  This method does not "fall
+     * back" to the alternative ordering.
+     *
+     * @param episode
+     *           the episode to place at the index
+     * @param useDvd
+     *           whether seasonNum and episodeNum refer to the DVD ordering or
+     *           the over-the-air ordering
+     */
+    private void addEpisodeToSeason(Episode episode, boolean useDvd) {
+        EpisodePlacement placement = episode.getEpisodePlacement(useDvd);
+        if (placement == null) {
+            // Note, in this case, the Episode will continue to exist in the list of
+            // episodes, but will not be added to the index for this ordering.
+            logger.fine("episode \"" + episode.getTitle() + "\" of show " + name
+                        + " lacks placement information for "
+                        + (useDvd ? "DVD ordering" : "air ordering"));
+        } else {
+            // Check to see if there's already an existing episode.  Only applies if we
+            // have a valid placement.
+            Season season = seasons.get(placement.season);
+            if (season == null) {
+                season = new Season(this, placement.season);
+                seasons.put(placement.season, season);
+            }
+            season.addEpisode(episode, useDvd);
+        }
+    }
+
+    /**
+     * Build an index of this show's episodes, at the placement given.
      *
      * When adding an episode to a show's index of episodes, we prefer one ordering but
      * fall back on the other ordering for episodes which don't have info in the preferred
@@ -158,35 +172,18 @@ public class Show extends ShowOption {
      * Does not change the episode list at all; just organizes them into seasons
      * and episode numbers.
      *
-     * Clears the season index before beginning, and iterates over all known episodes.
-     * Indexes each episode by its preferred ordering if info exists, or by the non-
-     * preferred ordering otherwise.
+     * Clears the season index before beginning, and iterates over all known episodes
+     * twice: first in the preferred ordering, and then in the alternate ordering.
      */
     public synchronized void indexEpisodesBySeason() {
         seasons.clear();
         for (Episode episode : episodes.values()) {
             if (episode == null) {
                 logger.severe("internal error creating episodes for " + name);
-                return;
-            }
-
-            EpisodePlacement placement = episode.getEpisodePlacement(preferDvd);
-
-            // If we don't have the preferred placement, fall back on the other one.
-            if (placement == null) {
-                placement = episode.getEpisodePlacement(!preferDvd);
-            }
-
-            // If we still don't have info, we can't index this episode
-            if (placement == null) {
-                // Note, in this case, the Episode will be created and will be added to the
-                // list of episodes, but will not be added to the season/episode organization.
-                logger.fine("episode \"" + episode.getTitle() + "\" of show " + name
-                            + " lacks placement information");
                 continue;
             }
-
-            addEpisodeToSeason(episode, placement);
+            addEpisodeToSeason(episode, preferDvd);
+            addEpisodeToSeason(episode, !preferDvd);
         }
     }
 
@@ -294,7 +291,7 @@ public class Show extends ShowOption {
         }
         Episode episode;
         synchronized (this) {
-            episode = season.get(placement.episode);
+            episode = season.get(placement.episode, preferDvd);
         }
         if (episode == null) {
             logger.warning("could not get episode of " + name + " for season "
