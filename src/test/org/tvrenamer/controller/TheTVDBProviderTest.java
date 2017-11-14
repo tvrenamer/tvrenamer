@@ -199,6 +199,9 @@ public class TheTVDBProviderTest {
         assertEquals("got wrong series ID for <[" + actualName + "]>;",
                      epdata.showId, String.valueOf(series.getId()));
 
+        if (epdata.preferDvd != null) {
+            series.setPreferDvd(epdata.preferDvd);
+        }
         if (!series.hasEpisodes()) {
             TheTVDBProvider.getSeriesListing(series);
         }
@@ -258,19 +261,44 @@ public class TheTVDBProviderTest {
      * This also tests the query string, by not querying for an exact character for
      * character match with the actual show name.
      *
-     * For Robot Chicken, S08E13 in the over-the-air ordering is "Joel Hurwitz Returns".
-     * This program always prefers the DVD ordering, which for Robot Chicken S08E13 is
-     * "Triple Hot Dog Sandwich on Wheat".
+     * This tests Robot Chicken, assuming the following episode placements:
+     *
+     * Episode Title         DVD Placement  Aired Placement
+     * =============         =============  ===============
+     * Western Hay Batch     S08E12           S08E11
+     * Triple Hot Dog        S08E13           S08E12
+     * Joel Hurwitz Returns  S08E14           S08E13
+     * Hopefully Salt        (none)           S08E14
+     * Yogurt in a Bag       (none)           S08E15
+     *
      */
     @Test
     public void testDvdEpisodePreference() throws Exception {
+        // In this first case, we specify we want the DVD ordering, so S08E13
+        // should resolve to the first one, "Triple Hot Dog Sandwich on Wheat".
         testSeriesNameAndEpisodeTitle(new EpisodeTestData.Builder()
                                       .queryString("robot.chicken.")
                                       .properShowName("Robot Chicken")
                                       .showId("75734")
                                       .seasonNum(8)
                                       .episodeNum(13)
+                                      .preferDvd(true)
                                       .episodeTitle("Triple Hot Dog Sandwich on Wheat")
+                                      .build());
+        // This is meant to test the "fallback".  We go back to explicitly preferring DVD.
+        // But for this placement, there is no DVD entry (as of the time of this writing).
+        // Given that there is no DVD episode at the placement, it should "fall back" to
+        // the over-the-air placement.  Of course, it is possible that in the future, the
+        // producers of "Robot Chicken" will put out a "Season 8, part 2" DVD, or some such
+        // thing, and then all of a sudden a different episode might appear as S08E15 in
+        // the DVD ordering, and this test would start to fail.
+        testSeriesNameAndEpisodeTitle(new EpisodeTestData.Builder()
+                                      .properShowName("Robot Chicken")
+                                      .showId("75734")
+                                      .seasonNum(8)
+                                      .episodeNum(15)
+                                      .preferDvd(true)
+                                      .episodeTitle("Yogurt in a Bag")
                                       .build());
     }
 
@@ -1133,6 +1161,9 @@ public class TheTVDBProviderTest {
                     assertTrue("expected valid Series (<[" + testInput.properShowName
                                + "]>) for \"" + queryString + "\" but got <[" + show + "]>",
                                show.isValidSeries());
+                    if (testInput.preferDvd != null) {
+                        show.setPreferDvd(testInput.preferDvd);
+                    }
 
                     final CompletableFuture<String> future = new CompletableFuture<>();
                     Series series = show.asSeries();
