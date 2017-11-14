@@ -285,6 +285,16 @@ public class TheTVDBProviderTest {
                                       .preferDvd(true)
                                       .episodeTitle("Triple Hot Dog Sandwich on Wheat")
                                       .build());
+        // Now we specify a preference of the non-DVD ordering, S08E13 should
+        // resolve to the other alternative, "Joel Hurwitz Returns"
+        testSeriesNameAndEpisodeTitle(new EpisodeTestData.Builder()
+                                      .properShowName("Robot Chicken")
+                                      .showId("75734")
+                                      .seasonNum(8)
+                                      .episodeNum(13)
+                                      .preferDvd(false)
+                                      .episodeTitle("Joel Hurwitz Returns")
+                                      .build());
         // This is meant to test the "fallback".  We go back to explicitly preferring DVD.
         // But for this placement, there is no DVD entry (as of the time of this writing).
         // Given that there is no DVD episode at the placement, it should "fall back" to
@@ -299,6 +309,28 @@ public class TheTVDBProviderTest {
                                       .episodeNum(15)
                                       .preferDvd(true)
                                       .episodeTitle("Yogurt in a Bag")
+                                      .build());
+        // Now we test S08E14, which was considered a true conflict in earlier versions.
+        // That's because there are two episodes for which their BEST placement was the
+        // same place.  In earlier versions, we "panicked" and put neither episode in
+        // place in the index.  Now that we have the EpisodeOption class, we can store
+        // both and retrieve either on demand.  First, try the over-the-air ordering:
+        testSeriesNameAndEpisodeTitle(new EpisodeTestData.Builder()
+                                      .properShowName("Robot Chicken")
+                                      .showId("75734")
+                                      .seasonNum(8)
+                                      .episodeNum(14)
+                                      .preferDvd(false)
+                                      .episodeTitle("Hopefully Salt")
+                                      .build());
+        // Now, the DVD ordering for S08E14:
+        testSeriesNameAndEpisodeTitle(new EpisodeTestData.Builder()
+                                      .properShowName("Robot Chicken")
+                                      .showId("75734")
+                                      .seasonNum(8)
+                                      .episodeNum(14)
+                                      .preferDvd(true)
+                                      .episodeTitle("Joel Hurwitz Returns")
                                       .build());
     }
 
