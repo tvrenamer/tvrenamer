@@ -86,7 +86,6 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
     private Button clearFilesButton;
     private Link updatesAvailableLink;
     private Button renameSelectedButton;
-    private TableColumn destinationColumn;
     private Table resultsTable;
     private ProgressBar totalProgressBar;
     private TaskItem taskItem = null;
@@ -352,8 +351,8 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
         sourceColumn.setText("Current File");
         sourceColumn.setWidth(550);
 
-        destinationColumn = new TableColumn(resultsTable, SWT.LEFT);
-        setColumnDestText();
+        final TableColumn destinationColumn = new TableColumn(resultsTable, SWT.LEFT);
+        setColumnDestText(destinationColumn);
         destinationColumn.setWidth(550);
 
         final TableColumn statusColumn = new TableColumn(resultsTable, SWT.LEFT);
@@ -811,7 +810,7 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
         shell.layout(false, true);
     }
 
-    private void setColumnDestText() {
+    private void setColumnDestText(final TableColumn destinationColumn) {
         if (prefs.isMoveEnabled()) {
             destinationColumn.setText(MOVE_HEADER);
         } else {
@@ -825,7 +824,7 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
         if ((upref == UserPreference.MOVE_ENABLED)
             || (upref == UserPreference.RENAME_ENABLED))
         {
-            setColumnDestText();
+            setColumnDestText(resultsTable.getColumn(NEW_FILENAME_COLUMN));
             setRenameButtonText(renameSelectedButton);
         }
         if ((upref == UserPreference.REPLACEMENT_MASK)
