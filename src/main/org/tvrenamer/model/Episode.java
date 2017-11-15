@@ -26,10 +26,8 @@ public class Episode {
     // This object does not have an opinion of its place within the series ordering.
     // It does serve as a useful place to hang information about such questions, as
     // we do, below.  But it's up to the Show to decide what the "real" answer is.
-    private final Integer airSeasonNumber;
-    private final Integer airEpisodeNumber;
-    private final Integer dvdSeasonNumber;
-    private final Integer dvdEpisodeNumber;
+    private final EpisodePlacement airPlacement;
+    private final EpisodePlacement dvdPlacement;
 
     public Episode(EpisodeInfo info) {
         title = info.episodeName;
@@ -38,11 +36,34 @@ public class Episode {
         airDateString = info.firstAired;
 
         // stringToInt handles null or empty values ok
-        airSeasonNumber = StringUtils.stringToInt(info.seasonNumber);
-        dvdSeasonNumber = StringUtils.stringToInt(info.dvdSeason);
+        final Integer airSeasonNumber = StringUtils.stringToInt(info.seasonNumber);
+        final Integer airEpisodeNumber = StringUtils.stringToInt(info.episodeNumber);
+        final Integer dvdSeasonNumber = StringUtils.stringToInt(info.dvdSeason);
+        final Integer dvdEpisodeNumber = StringUtils.stringToInt(info.dvdEpisodeNumber);
 
-        airEpisodeNumber = StringUtils.stringToInt(info.episodeNumber);
-        dvdEpisodeNumber = StringUtils.stringToInt(info.dvdEpisodeNumber);
+        if (airSeasonNumber == null) {
+            logger.warning("episode \"" + title + "\" does not have an integer season ("
+                           + info.seasonNumber + ")");
+            airPlacement = null;
+        } else if (airEpisodeNumber == null) {
+            logger.info("episode \"" + title + "\" does not have an integer episode number ("
+                        + info.episodeNumber + ")");
+            airPlacement = null;
+        } else {
+            airPlacement = new EpisodePlacement(airSeasonNumber, airEpisodeNumber);
+        }
+
+        if (dvdSeasonNumber == null) {
+            logger.finer("episode \"" + title + "\" does not have an integer DVD season ("
+                         + info.dvdSeason + ")");
+            dvdPlacement = null;
+        } else if (dvdEpisodeNumber == null) {
+            logger.fine("episode \"" + title + "\" does not have an integer DVD episode number ("
+                        + info.dvdEpisodeNumber + ")");
+            dvdPlacement = null;
+        } else {
+            dvdPlacement = new EpisodePlacement(dvdSeasonNumber, dvdEpisodeNumber);
+        }
     }
 
     public String getTitle() {
@@ -72,20 +93,12 @@ public class Episode {
         return firstAired;
     }
 
-    public Integer getSeasonNumber() {
-        return airSeasonNumber;
+    public EpisodePlacement getAirEpisodePlacement() {
+        return airPlacement;
     }
 
-    public Integer getEpisodeNumber() {
-        return airEpisodeNumber;
-    }
-
-    public Integer getDvdSeasonNumber() {
-        return dvdSeasonNumber;
-    }
-
-    public Integer getDvdEpisodeNumber() {
-        return dvdEpisodeNumber;
+    public EpisodePlacement getDvdEpisodePlacement() {
+        return dvdPlacement;
     }
 
     // "Package-private".  Used by Show; should not be used by other classes.

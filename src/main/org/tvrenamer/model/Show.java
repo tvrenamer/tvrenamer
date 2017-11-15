@@ -104,44 +104,41 @@ public class Show extends ShowOption {
     }
 
     /**
-     * Add an episode to a season's index of episodes.
+     * Add an episode to a season's index of episodes, at the placement given.
      *
-     * This method is independent of which number scheme is being used.  That is,
-     * it's up to the caller to pass in the correct arguments for the current
-     * numbering scheme.
+     * This method is agnostic of which ordering is being used.  It just asks the
+     * Season to add the episode at the placement given.
      *
-     * @param seasonNum
-     *           the season of the episode to return
-     * @param episodeNum
-     *           the episode, within the given season, of the episode to return
      * @param episode
-     *           the episode to add at the given indices
+     *           the episode to place at the index
+     * @param placement
+     *           the placement (season number and episode number) of the episode to add
      */
-    private void addEpisodeToSeason(int seasonNum, int episodeNum, Episode episode) {
+    private void addEpisodeToSeason(Episode episode, EpisodePlacement placement) {
         // Check to see if there's already an existing episode.  Only applies if we
         // have a valid season number and episode number.
-        Map<Integer, Episode> season = seasons.get(seasonNum);
+        Map<Integer, Episode> season = seasons.get(placement.season);
         if (season == null) {
             season = new ConcurrentHashMap<>();
-            seasons.put(seasonNum, season);
+            seasons.put(placement.season, season);
         }
-        Episode found = season.remove(episodeNum);
+        Episode found = season.remove(placement.episode);
         if (found == null) {
             // This is the expected case; we should only be adding the episode to
             // the index a single time.
-            season.put(episodeNum, episode);
+            season.put(placement.episode, episode);
         } else if (found == episode) {
             // Well, this is unfortunate; if it happens, investigate why.  But it's
             // fine.  We still have a unique object.
-            season.put(episodeNum, episode);
+            season.put(placement.episode, episode);
         } else if (found.getTitle().equals(episode.getTitle())) {
             // This is less fine.  We've apparently created two objects to represent
             // the same data.  This should be fixed.
             logger.warning("replacing episode " + found.getEpisodeId()
                            + " for show " + name + ", season "
-                           + seasonNum + ", episode " + episodeNum + " (\""
+                           + placement.season + ", episode " + placement.episode + " (\""
                            + found.getTitle() + "\") with " + episode.getEpisodeId());
-            season.put(episodeNum, episode);
+            season.put(placement.episode, episode);
         } else {
             // In this very unexpected case, we will not keep EITHER episode
             // in the table.  Remember that both will be in the unordered List
@@ -150,27 +147,31 @@ public class Show extends ShowOption {
             // the episode list.  This could be for "special" episodes, DVD extras,
             // etc.  But it could also be used for this case.
             logger.warning("two episodes found for show " + name + ", season "
-                           + seasonNum + ", episode " + episodeNum + ": \""
+                           + placement.season + ", episode " + placement.episode + ": \""
                            + found.getTitle() + "\" (" + found.getEpisodeId() + ") and \""
                            + episode.getTitle() + "\" (" + episode.getEpisodeId() + ")");
         }
     }
 
     /**
-     * Build an index of this show's episodes, by season and episode number.
+     * Build an index of this show's episodes, at the placement given.
      *
-     * Episode numbers are not definitive.  Production companies sometimes
-     * re-order them.  In particular, they take liberties when releasing
-     * DVDs.  The TVDB tries to keep track of the original, production order,
-     * as well as the DVD ordering (when applicable).  The truth is that some
-     * shows still have ambiguity beyond these options, but those are the two
-     * basic options available.
+     * Placements are not definitive.  Production companies sometimes re-order them.  In
+     * particular, they take liberties when releasing DVDs.  The TVDB tries to keep track
+     * of the original, production order, as well as the DVD ordering (when applicable).
+     * The truth is that some shows still have ambiguity beyond these options, but those
+     * are the two basic options available.
+     *
+     * When adding an episode to a show's index of episodes, we prefer the DVD ordering but
+     * fall back on the over-the-air ordering for episodes which don't have info in the
+     * DVD ordering.
      *
      * Does not change the episode list at all; just organizes them into seasons
      * and episode numbers.
      *
      * Clears the season index before beginning, and iterates over all known episodes.
-     *
+     * Indexes each episode by its preferred ordering if info exists, or by the non-
+     * preferred ordering otherwise.
      */
     public synchronized void indexEpisodesBySeason() {
         seasons.clear();
@@ -180,25 +181,23 @@ public class Show extends ShowOption {
                 return;
             }
 
-            Integer seasonNum = episode.getDvdSeasonNumber();
-            Integer episodeNum = episode.getDvdEpisodeNumber();
+            EpisodePlacement placement = episode.getDvdEpisodePlacement();
 
             // If we don't have good DVD information, fall back on over-the-air info.
-            if ((seasonNum == null) || (episodeNum == null)) {
-                seasonNum = episode.getSeasonNumber();
-                episodeNum = episode.getEpisodeNumber();
+            if (placement == null) {
+                placement = episode.getAirEpisodePlacement();
             }
 
             // If we still don't have info, we can't index this episode
-            if ((seasonNum == null) || (episodeNum == null)) {
+            if (placement == null) {
                 // Note, in this case, the Episode will be created and will be added to the
                 // list of episodes, but will not be added to the season/episode organization.
                 logger.fine("episode \"" + episode.getTitle() + "\" of show " + name
-                            + " lacks season and episode information");
+                            + " lacks placement information");
                 continue;
             }
 
-            addEpisodeToSeason(seasonNum, episodeNum, episode);
+            addEpisodeToSeason(episode, placement);
         }
     }
 
