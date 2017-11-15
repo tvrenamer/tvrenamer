@@ -119,6 +119,13 @@ final class AboutDialog extends Dialog {
      *
      * SWT allows very generic links, that could do any arbitrary action when clicked,
      * but we just one basic ones that have a URL and open it when clicked.
+     *
+     * @param intro
+     *          text to place before the link; can be empty, but not null
+     * @param url
+     *          the URL to link to
+     * @param label
+     *          the text to use for the link
      */
     private void createUrlLink(String intro, String url, String label) {
         final Link link = new Link(aboutShell, SWT.NONE);
