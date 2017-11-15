@@ -38,9 +38,7 @@ public class FileCopyMonitor implements ProgressObserver {
     @Override
     public void initialize(final long max) {
         display = ui.getDisplay();
-        display.syncExec(() -> {
-            label = ui.getProgressLabel(item);
-        });
+        display.syncExec(() -> label = ui.getProgressLabel(item));
         maximum = max;
         setValue(0);
     }
