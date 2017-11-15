@@ -381,13 +381,13 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
 
                     // backspace
                     case '\u0008':
-                        deleteSelectedTableItems();
-                        break;
-
                     // delete
                     case '\u007F':
                         deleteSelectedTableItems();
                         break;
+
+                    // Code analysis says have a default clause...
+                    default:
                 }
 
             }
