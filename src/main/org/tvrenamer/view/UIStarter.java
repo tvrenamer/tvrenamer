@@ -584,7 +584,7 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
         });
     }
 
-    private synchronized void noteShowFailure(final String fileName, final Show show) {
+    private synchronized void noteShowFailure(final Show show) {
         if (!apiDeprecated) {
             if (show.isApiDeprecated()) {
                 apiDeprecated = true;
@@ -625,7 +625,7 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
                     public void downloadFailed(Show show) {
                         episode.setEpisodeShow(show);
                         tableItemFailed(item);
-                        noteShowFailure(fileName, show);
+                        noteShowFailure(show);
                     }
                 });
         }
