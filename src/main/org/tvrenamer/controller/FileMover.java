@@ -189,7 +189,9 @@ public class FileMover implements Callable<Boolean> {
                 actualDest = null;
             }
         }
-        episode.setPath(actualDest);
+        if (actualDest != null) {
+            episode.setPath(actualDest);
+        }
         boolean same = destPath.equals(actualDest);
         if (!same) {
             logger.warning("actual destination did not match intended:\n  "
