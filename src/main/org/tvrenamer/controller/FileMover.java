@@ -40,7 +40,8 @@ public class FileMover implements Callable<Boolean> {
     /**
      * Sets the progress observer for this FileMover
      *
-     * @param the observer to add
+     * @param observer
+     *   the observer to add
      */
     public void addObserver(ProgressObserver observer) {
         this.observer = observer;
@@ -216,6 +217,13 @@ public class FileMover implements Callable<Boolean> {
      * Execute the move using real paths.  Also does side-effects, like
      * updating the FileEpisode.
      *
+     * @param realSrc
+     *    the "real" Path of the source file to be moved
+     * @param destPath
+     *    the "real" destination where the file should be moved; can contain
+     *    non-existent directories, which will be created
+     * @param destDir
+     *    an existent ancestor of destPath
      * @return true on success, false otherwise.
      */
     private boolean tryToMoveRealPaths(Path realSrc, Path destPath, Path destDir) {

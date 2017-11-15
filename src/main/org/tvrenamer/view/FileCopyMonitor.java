@@ -33,7 +33,7 @@ public class FileCopyMonitor implements ProgressObserver {
     /**
      * Update the maximum value.
      *
-     * @param value the new maximum value
+     * @param max the new maximum value
      */
     @Override
     public void initialize(final long max) {

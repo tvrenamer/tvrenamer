@@ -120,6 +120,11 @@ public class StringUtils {
      *
      * This is already pretty involved for such a simple thing, and it's still
      * not perfect.  But it's a pretty good heuristic.
+     *
+     * @param s
+     *    the String to analyze
+     * @return true if it's composed purely of entirely-lower-case words
+     *    separated by hyphens; false otherwise
      */
     private static boolean isLowerCaseWithHyphens(String s) {
         boolean status = false;
