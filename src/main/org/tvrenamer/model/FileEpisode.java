@@ -126,7 +126,12 @@ public class FileEpisode {
             throw new IllegalArgumentException(FILE_EPISODE_NEEDS_PATH);
         }
         pathObj = p;
-        fileNameString = p.getFileName().toString();
+        final Path justNamePath = pathObj.getFileName();
+        if (justNamePath == null) {
+            logger.severe(FILE_EPISODE_NEEDS_PATH);
+            throw new IllegalArgumentException(FILE_EPISODE_NEEDS_PATH);
+        }
+        fileNameString = justNamePath.toString();
         filenameSuffix = StringUtils.getExtension(fileNameString);
         checkFile(true);
         TVRenamer.parseFilename(this);
@@ -140,7 +145,12 @@ public class FileEpisode {
             throw new IllegalArgumentException(FILE_EPISODE_NEEDS_PATH);
         }
         pathObj = Paths.get(filename);
-        fileNameString = pathObj.getFileName().toString();
+        final Path justNamePath = pathObj.getFileName();
+        if (justNamePath == null) {
+            logger.severe(FILE_EPISODE_NEEDS_PATH);
+            throw new IllegalArgumentException(FILE_EPISODE_NEEDS_PATH);
+        }
+        fileNameString = justNamePath.toString();
         filenameSuffix = StringUtils.getExtension(fileNameString);
         checkFile(false);
     }
@@ -246,14 +256,21 @@ public class FileEpisode {
     }
 
     public void setPath(Path p) {
+        if (p == null) {
+            logger.severe(FILE_EPISODE_NEEDS_PATH);
+            throw new IllegalArgumentException(FILE_EPISODE_NEEDS_PATH);
+        }
         pathObj = p;
-        fileNameString = pathObj.getFileName().toString();
-
+        final Path justNamePath = pathObj.getFileName();
+        if (justNamePath == null) {
+            logger.severe(FILE_EPISODE_NEEDS_PATH);
+            throw new IllegalArgumentException(FILE_EPISODE_NEEDS_PATH);
+        }
+        fileNameString = justNamePath.toString();
         String newSuffix = StringUtils.getExtension(fileNameString);
         if (!filenameSuffix.equals(newSuffix)) {
             throw new IllegalStateException("suffix of a FileEpisode may not change!");
         }
-
         checkFile(true);
     }
 
