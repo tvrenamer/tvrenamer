@@ -310,7 +310,7 @@ class CocoaUIEnhancer {
     }
 
     private Object invoke(Object obj, String methodName) {
-        return invoke(obj, methodName, (Class<?>[]) null, (Object[]) null);
+        return invoke(obj, methodName, null, (Object[]) null);
     }
 
     private Object invoke(Object obj, String methodName, Class<?>[] paramTypes, Object... arguments) {
