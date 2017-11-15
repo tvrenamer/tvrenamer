@@ -21,6 +21,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.tvrenamer.controller.UpdateChecker;
 import org.tvrenamer.model.SWTMessageBoxType;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Logger;
 
@@ -87,10 +88,17 @@ final class AboutDialog extends Dialog {
         iconGridData.grabExcessHorizontalSpace = false;
         iconLabel.setLayoutData(iconGridData);
 
-        InputStream icon = getClass().getResourceAsStream(TVRENAMER_ICON_PATH);
-        if (icon != null) {
-            iconLabel.setImage(new Image(Display.getCurrent(), icon));
-        } else {
+        boolean imageSet = false;
+        try (InputStream icon = getClass().getResourceAsStream(TVRENAMER_ICON_PATH)) {
+            if (icon != null) {
+                iconLabel.setImage(new Image(Display.getCurrent(), icon));
+                imageSet = true;
+            }
+        } catch (IOException ioe) {
+            logger.warning("exception trying to read TVRenamer icon from stream "
+                           + TVRENAMER_ICON_DIRECT_PATH);
+        }
+        if (!imageSet) {
             iconLabel.setImage(new Image(Display.getCurrent(), TVRENAMER_ICON_DIRECT_PATH));
         }
 
