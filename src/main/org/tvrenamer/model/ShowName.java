@@ -275,7 +275,7 @@ public class ShowName {
      * @return true if this ShowName has show options; false otherwise
      */
     public boolean hasShowOptions() {
-        return (showOptions != null) && (showOptions.size() > 0);
+        return (showOptions.size() > 0);
     }
 
     /**
