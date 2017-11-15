@@ -6,6 +6,8 @@ import org.tvrenamer.controller.TheTVDBProvider;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.logging.Logger;
 
 /**
@@ -117,6 +119,39 @@ public class ShowStore {
 
     private static final ExecutorService threadPool = Executors.newCachedThreadPool();
 
+
+    /**
+     * Submits the task to download the information about the ShowName.
+     *
+     * Makes sure that the task is successfully submitted, and provides the
+     * ShowName with an alternate path if anything goes wrong with the task.
+     *
+     * @param showName
+     *    an object containing the part of the filename that is presumed to name
+     *    the show, as well as the version of that string we can give the provider
+     * @param showFetcher
+     *    the task that will download the information
+     */
+    private static void submitDownloadTask(final ShowName showName,
+                                           final Callable<Boolean> showFetcher)
+    {
+        Future<Boolean> result = null;
+        Show failure = null;
+        try {
+            result = threadPool.submit(showFetcher);
+        } catch (RejectedExecutionException | NullPointerException e) {
+            logger.warning("unable to submit download task (" + showName + ") for execution");
+            failure = showName.getFailedShow(new TVRenamerIOException(e.getMessage()));
+        }
+        if ((result == null) && (failure == null)) {
+            logger.warning("not downloading " + showName);
+            failure = showName.getFailedShow(null);
+        }
+        if (failure != null) {
+            showName.nameNotFound(failure);
+        }
+    }
+
     /**
      * <p>
      * Download the show details if required, otherwise notify listener.
@@ -209,7 +244,7 @@ public class ShowStore {
             }
             return true;
         };
-        threadPool.submit(showFetcher);
+        submitDownloadTask(showName, showFetcher);
     }
 
     public static void cleanUp() {
