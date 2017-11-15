@@ -86,7 +86,7 @@ public class FileEpisode {
     // files.  There's really no reason why the file has to exist, at least, not until
     // we actually try to move it.  If we just want to parse information and look it up
     // in the show's catalog, the file does not need to actually be present.
-    private Path path;
+    private Path pathObj;
     private String fileNameString;
     @SuppressWarnings("unused")
     private boolean exists = false;
@@ -125,7 +125,7 @@ public class FileEpisode {
             logger.severe(FILE_EPISODE_NEEDS_PATH);
             throw new IllegalArgumentException(FILE_EPISODE_NEEDS_PATH);
         }
-        path = p;
+        pathObj = p;
         fileNameString = p.getFileName().toString();
         filenameSuffix = StringUtils.getExtension(fileNameString);
         checkFile(true);
@@ -139,8 +139,8 @@ public class FileEpisode {
             logger.severe(FILE_EPISODE_NEEDS_PATH);
             throw new IllegalArgumentException(FILE_EPISODE_NEEDS_PATH);
         }
-        path = Paths.get(filename);
-        fileNameString = path.getFileName().toString();
+        pathObj = Paths.get(filename);
+        fileNameString = pathObj.getFileName().toString();
         filenameSuffix = StringUtils.getExtension(fileNameString);
         checkFile(false);
     }
@@ -221,23 +221,23 @@ public class FileEpisode {
     }
 
     public Path getPath() {
-        return path;
+        return pathObj;
     }
 
     private void checkFile(boolean mustExist) {
-        if (Files.exists(path)) {
+        if (Files.exists(pathObj)) {
             exists = true;
             try {
                 fileStatus = FileStatus.ORIGINAL;
-                fileSize = Files.size(path);
+                fileSize = Files.size(pathObj);
             } catch (IOException ioe) {
-                logger.log(Level.WARNING, "couldn't get size of " + path, ioe);
+                logger.log(Level.WARNING, "couldn't get size of " + pathObj, ioe);
                 fileStatus = FileStatus.NO_FILE;
                 fileSize = NO_FILE_SIZE;
             }
         } else {
             if (mustExist) {
-                logger.warning("creating FileEpisode for nonexistent path, " + path);
+                logger.warning("creating FileEpisode for nonexistent path, " + pathObj);
             }
             exists = false;
             fileStatus = FileStatus.NO_FILE;
@@ -246,8 +246,8 @@ public class FileEpisode {
     }
 
     public void setPath(Path p) {
-        path = p;
-        fileNameString = path.getFileName().toString();
+        pathObj = p;
+        fileNameString = pathObj.getFileName().toString();
 
         String newSuffix = StringUtils.getExtension(fileNameString);
         if (!filenameSuffix.equals(newSuffix)) {
@@ -262,7 +262,7 @@ public class FileEpisode {
     }
 
     public String getFilepath() {
-        return path.toAbsolutePath().toString();
+        return pathObj.toAbsolutePath().toString();
     }
 
     public boolean wasParsed() {
@@ -398,7 +398,7 @@ public class FileEpisode {
         if (userPrefs.isMoveEnabled()) {
             return Paths.get(getMoveToDirectory());
         } else {
-            return path.toAbsolutePath().getParent();
+            return pathObj.toAbsolutePath().getParent();
         }
     }
 
