@@ -183,7 +183,6 @@ public class FileMover implements Callable<Boolean> {
             // desirable to change it, or not.  What about writability?  And the
             // newer, more system-specific attributes, like "this file was downloaded
             // from the internet"?
-            observer.cleanUp();
             if (success) {
                 actualDest = destPath;
             } else {
