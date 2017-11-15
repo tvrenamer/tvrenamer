@@ -263,7 +263,7 @@ public class FileMover implements Callable<Boolean> {
             episode.setDoesNotExist();
             return false;
         }
-        Path realSrc = srcPath;
+        Path realSrc;
         try {
             realSrc = srcPath.toRealPath();
         } catch (IOException ioe) {
