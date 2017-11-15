@@ -138,7 +138,7 @@ public class FileMover implements Callable<Boolean> {
             // the original.  In some cases, like ownership, that might actually be desirable
             // (have the copy be owned by the user running the program).  But there may be
             // other attributes we should try to adopt.  In any case, requires investigation.
-            FileUtilities.deleteFile(source);
+            ok = FileUtilities.deleteFile(source);
         } else {
             logger.warning("failed to move " + source);
         }
