@@ -36,7 +36,7 @@ public class TheTVDBProvider {
     private static final String API_KEY = "4A9560FF0B2670B2";
 
     // The proposed day on which the v1 API will cease to be supported.
-    private static final LocalDate SUNSET = LocalDate.of(2017, Month.OCTOBER, 1);
+    private static final LocalDate SUNSET = LocalDate.of(2017, Month.DECEMBER, 1);
 
     // Whether or not we should try making v1 API calls
     private static boolean apiIsDeprecated = false;
@@ -74,6 +74,9 @@ public class TheTVDBProvider {
     // private static final String XPATH_EPISODE_NUM_ABS = "absolute_number";
 
     public static boolean isApiDiscontinuedError(Throwable e) {
+        if (apiIsDeprecated) {
+            return true;
+        }
         if (0 > LocalDate.now().compareTo(SUNSET)) {
             return false;
         }
@@ -85,10 +88,6 @@ public class TheTVDBProvider {
             e = e.getCause();
         }
         return false;
-    }
-
-    public static boolean isApiDeprecated() {
-        return apiIsDeprecated;
     }
 
     private static String getShowSearchXml(final ShowName showName)
