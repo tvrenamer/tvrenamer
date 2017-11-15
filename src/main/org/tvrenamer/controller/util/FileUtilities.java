@@ -25,6 +25,18 @@ public class FileUtilities {
         logger.setLevel(Level.INFO);
     }
 
+    /**
+     * Delete the given file.  This method is intended to be used with "regular" files;
+     * to delete an empty directory, use rmdir().
+     *
+     * (Implementation detail: this method actually should work fine to remove an empty
+     *  directory; the preference for rmdir() is purely a convention.)
+     *
+     * @param source
+     *    the file to be deleted
+     * @return
+     *    true if the file existed and was deleted; false if not
+     */
     @SuppressWarnings("UnusedReturnValue")
     public static boolean deleteFile(Path source) {
         if (Files.notExists(source)) {
@@ -72,6 +84,18 @@ public class FileUtilities {
         }
     }
 
+    /**
+     * Return true if the given arguments refer to the same actual file on the
+     * file system.  On file systems that support symbolic links, two Paths could
+     * be the same file even if their locations appear completely different.
+     *
+     * @param path1
+     *    first Path to compare
+     * @param path2
+     *    second Path to compare
+     * @return
+     *    true if the paths refer to the same file, false if they don't
+     */
     @SuppressWarnings("unused")
     public static boolean isSameFile(final Path path1, final Path path2) {
         try {
@@ -83,6 +107,20 @@ public class FileUtilities {
         }
     }
 
+    /**
+     * Creates a directory by creating all nonexistent parent directories first.
+     * No exception is thrown if the directory could not be created because it
+     * already exists.
+     *
+     * If this method fails, then it may do so after creating some, but not all,
+     * of the parent directories.
+     *
+     * @param dir - the directory to create
+     * @return
+     *    true if the the directory exists at the conclusion of this method:
+     *    that is, true if the directory already existed, or if we created it;
+     *    false if it we could not create the directory
+     */
     public static boolean mkdirs(final Path dir) {
         try {
             Files.createDirectories(dir);
@@ -130,6 +168,14 @@ public class FileUtilities {
         return true;
     }
 
+    /**
+     * Return true if the given argument is an empty directory.
+     *
+     * @param dir
+     *    the directory to check for emptiness
+     * @return
+     *    true if the path existed and was an empty directory; false otherwise
+     */
     @SuppressWarnings("WeakerAccess")
     public static boolean isDirEmpty(final Path dir) {
         try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(dir)) {
@@ -140,6 +186,14 @@ public class FileUtilities {
         }
     }
 
+    /**
+     * If the given argument is an empty directory, remove it.
+     *
+     * @param dir
+     *    the directory to delete if empty
+     * @return
+     *    true if the path existed and was deleted; false if not
+     */
     @SuppressWarnings("WeakerAccess")
     public static boolean rmdir(final Path dir) {
         try {
@@ -151,6 +205,17 @@ public class FileUtilities {
         return Files.notExists(dir);
     }
 
+    /**
+     * If the given argument is an empty directory, remove it; and then, check
+     * if removing it caused its parent to be empty, and if so, remove the parent;
+     * and so on, until we hit a non-empty directory.
+     *
+     * @param dir
+     *    the leaf directory to check for emptiness
+     * @return true if the Path is an existent directory, and we succeeded in removing
+     *    any empty directories we tried; false if the Path was null, didn't exist,
+     *    or was not a directory, or if we can't remove a directory we tried to remove
+     */
     public static boolean removeWhileEmpty(final Path dir) {
         if (dir == null) {
             return false;
