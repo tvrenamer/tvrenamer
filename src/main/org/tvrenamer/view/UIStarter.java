@@ -463,7 +463,7 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
             if (icon != null) {
                 shell.setImage(new Image(display, icon));
             } else {
-                shell.setImage(new Image(display, ICON_PARENT_DIRECTORY + TVRENAMER_ICON_PATH));
+                shell.setImage(new Image(display, TVRENAMER_ICON_DIRECT_PATH));
             }
 
         } catch (Exception e) {
