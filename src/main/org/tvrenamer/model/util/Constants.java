@@ -135,15 +135,15 @@ public class Constants {
         + "the console output to see any errors:";
 
     public static final String UPDATE_TEXT = "Check for Updates...";
+    private static final String TO_DOWNLOAD = "Please visit " + TVRENAMER_PROJECT_URL
+        + " to download the new version.";
     public static final String NEW_VERSION_TITLE = "New Version Available!";
     public static final String NEW_VERSION_AVAILABLE = "There is a new version available!\n\n"
         + "You are currently running " + VERSION_NUMBER + ", but there is an update available\n\n"
-        + "Please visit " + TVRENAMER_PROJECT_URL + " to download the new version.";
+        + TO_DOWNLOAD;
     public static final String NO_NEW_VERSION_TITLE = "No New Version Available";
     public static final String NO_NEW_VERSION_AVAILABLE = "There is no new version available\n\n"
         + "Please check the website (" + TVRENAMER_PROJECT_URL + ") for any news or check back later.";
-    public static final String TO_DOWNLOAD = "Please visit " + TVRENAMER_PROJECT_URL
-        + " to download the new version.";
     public static final String GET_UPDATE_MESSAGE = "This version of TVRenamer is no longer "
         + "functional.  There is a new version available, which should work. "
         + TO_DOWNLOAD;
