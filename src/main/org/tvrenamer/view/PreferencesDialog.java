@@ -12,8 +12,6 @@ import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.DropTargetListener;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -243,23 +241,6 @@ class PreferencesDialog extends Dialog {
                                                                    GridData.CENTER,
                                                                    true, true, 3, 1));
         seasonPrefixLeadingZeroCheckbox.setToolTipText(SEASON_PREFIX_ZERO_TOOLTIP);
-
-        destDirText.addKeyListener(new KeyListener() {
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.keyCode == SWT.F1) {
-                    System.out.println("F1HelpRequested");
-                }
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-                // no-op
-            }
-        });
-
-        destDirText.addHelpListener(e -> System.out.println("helpRequested"));
 
         toggleEnableControls(moveEnabledCheckbox, destDirText, destDirButton, seasonPrefixText);
 
