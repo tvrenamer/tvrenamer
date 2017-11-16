@@ -9,7 +9,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
@@ -18,6 +17,7 @@ import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Shell;
 
 import org.tvrenamer.controller.UpdateChecker;
+import org.tvrenamer.controller.UrlLauncher;
 import org.tvrenamer.model.SWTMessageBoxType;
 
 import java.util.logging.Logger;
@@ -123,12 +123,7 @@ final class AboutDialog extends Dialog {
         final Link link = new Link(aboutShell, SWT.NONE);
         link.setText(intro + "<a href=\"" + url + "\">" + label + "</a>");
         link.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true));
-        link.addSelectionListener(new SelectionAdapter() {
-                @Override
-                public void widgetSelected(SelectionEvent arg0) {
-                    Program.launch(url);
-                }
-            });
+        link.addSelectionListener(new UrlLauncher(url));
     }
 
     /**
