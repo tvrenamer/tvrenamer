@@ -21,7 +21,6 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
-import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -48,6 +47,7 @@ import org.tvrenamer.controller.MoveRunner;
 import org.tvrenamer.controller.ShowInformationListener;
 import org.tvrenamer.controller.ShowListingsListener;
 import org.tvrenamer.controller.UpdateChecker;
+import org.tvrenamer.controller.UrlLauncher;
 import org.tvrenamer.controller.util.StringUtils;
 import org.tvrenamer.model.EpisodeDb;
 import org.tvrenamer.model.FileEpisode;
@@ -146,12 +146,7 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
         updatesAvailableLink.setVisible(false);
         updatesAvailableLink.setText("There is an update available. <a href=\"" + TVRENAMER_DOWNLOAD_URL
             + "\">Click here to download</a>");
-        updatesAvailableLink.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent arg0) {
-                Program.launch(TVRENAMER_DOWNLOAD_URL);
-            }
-        });
+        updatesAvailableLink.addSelectionListener(new UrlLauncher(TVRENAMER_DOWNLOAD_URL));
 
         // Show the label if updates are available (in a new thread)
         updateCheckThread = new Thread(() -> {
@@ -270,13 +265,7 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
 
         MenuItem helpVisitWebpageItem = new MenuItem(helpMenu, SWT.PUSH);
         helpVisitWebpageItem.setText("Visit Webpage");
-        helpVisitWebpageItem.addSelectionListener(new SelectionAdapter() {
-
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                Program.launch(TVRENAMER_PROJECT_URL);
-            }
-        });
+        helpVisitWebpageItem.addSelectionListener(new UrlLauncher(TVRENAMER_PROJECT_URL));
 
         return helpMenu;
     }
