@@ -7,7 +7,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.program.Program;
@@ -21,8 +20,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.tvrenamer.controller.UpdateChecker;
 import org.tvrenamer.model.SWTMessageBoxType;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.logging.Logger;
 
 /**
@@ -87,20 +84,7 @@ final class AboutDialog extends Dialog {
         iconGridData.grabExcessVerticalSpace = false;
         iconGridData.grabExcessHorizontalSpace = false;
         iconLabel.setLayoutData(iconGridData);
-
-        boolean imageSet = false;
-        try (InputStream icon = getClass().getResourceAsStream(TVRENAMER_ICON_PATH)) {
-            if (icon != null) {
-                iconLabel.setImage(new Image(Display.getCurrent(), icon));
-                imageSet = true;
-            }
-        } catch (IOException ioe) {
-            logger.warning("exception trying to read TVRenamer icon from stream "
-                           + TVRENAMER_ICON_DIRECT_PATH);
-        }
-        if (!imageSet) {
-            iconLabel.setImage(new Image(Display.getCurrent(), TVRENAMER_ICON_DIRECT_PATH));
-        }
+        iconLabel.setImage(UIUtils.readImageFromPath(TVRENAMER_ICON_PATH, TVRENAMER_ICON_DIRECT_PATH));
 
         Label applicationLabel = new Label(aboutShell, SWT.NONE);
         applicationLabel.setFont(new Font(aboutShell.getDisplay(), getDefaultSystemFont().getName(),
