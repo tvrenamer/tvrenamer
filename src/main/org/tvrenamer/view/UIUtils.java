@@ -3,6 +3,7 @@ package org.tvrenamer.view;
 import static org.tvrenamer.model.util.Constants.*;
 
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
@@ -11,6 +12,8 @@ import org.tvrenamer.model.SWTMessageBoxType;
 import org.tvrenamer.model.UserPreferences;
 
 import java.awt.HeadlessException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -90,6 +93,33 @@ class UIUtils {
                                       final String title, final String message)
     {
         showMessageBox(type, title, message, null);
+    }
+
+    /**
+     * Read an image.
+     *
+     * @param resourcePath
+     *     the relative path to try to locate the file as a resource
+     * @param filePath
+     *     the path to try to locate the file directly in the file system
+     * @return an Image read from the given path
+     */
+    public static Image readImageFromPath(final String resourcePath,
+                                          final String filePath)
+    {
+        Display display = Display.getCurrent();
+        Image rval = null;
+        try (InputStream in = UIUtils.class.getResourceAsStream(resourcePath)) {
+            if (in != null) {
+                rval = new Image(display, in);
+            }
+        } catch (IOException ioe) {
+            logger.warning("exception trying to read image from stream " + resourcePath);
+        }
+        if (rval == null) {
+            rval = new Image(display, filePath);
+        }
+        return rval;
     }
 
     @SuppressWarnings("unused")
