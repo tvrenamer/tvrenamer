@@ -116,13 +116,30 @@ public class TVRenamer {
     }
 
     private static String extractParentName(Path parent) {
+        if (parent == null) {
+            return Constants.EMPTY_STRING;
+        }
+
         Path parentPathname = parent.getFileName();
+        if (parentPathname == null) {
+            return Constants.EMPTY_STRING;
+        }
+
         String parentName = parentPathname.toString();
         return parentName.replaceFirst(EXCESS_SEASON, "");
     }
 
     private static String insertShowNameIfNeeded(final Path filePath) {
-        String pName = filePath.getFileName().toString();
+        if (filePath == null) {
+            throw new IllegalArgumentException("insertShowNameIfNeeded received null argument.");
+        }
+
+        final Path justNamePath = filePath.getFileName();
+        if (justNamePath == null) {
+            throw new IllegalArgumentException("insertShowNameIfNeeded received path with no name.");
+        }
+
+        final String pName = justNamePath.toString();
         logger.fine("pName = " + pName);
         if (pName.matches(FILENAME_BEGINS_WITH_SEASON)) {
             Path parent = filePath.getParent();
@@ -136,8 +153,7 @@ public class TVRenamer {
             }
             logger.fine("appending parent directory '" + parentName + "' to filename '" + pName + "'");
             return parentName + " " + pName;
-        } else {
-            return pName;
         }
+        return pName;
     }
 }
