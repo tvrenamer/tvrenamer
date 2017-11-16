@@ -42,6 +42,81 @@ class PreferencesDialog extends Dialog {
 
     private static final int DND_OPERATIONS = DND.DROP_MOVE;
 
+    private static class PreferencesDragSourceListener implements DragSourceListener {
+
+        private final List sourceList;
+
+        public PreferencesDragSourceListener(List sourceList) {
+            this.sourceList = sourceList;
+        }
+
+        @Override
+        public void dragStart(DragSourceEvent event) {
+            if (sourceList.getSelectionIndex() != 0) {
+                event.doit = true;
+            }
+        }
+
+        @Override
+        public void dragSetData(DragSourceEvent event) {
+            String listEntry = sourceList.getItem(sourceList.getSelectionIndex());
+            String token;
+
+            Pattern patt = Pattern.compile(REPLACEMENT_OPTIONS_LIST_ENTRY_REGEX);
+            Matcher tokenMatcher = patt.matcher(listEntry);
+            if (tokenMatcher.matches()) {
+                token = tokenMatcher.group(1);
+                event.data = token;
+            }
+        }
+
+        @Override
+        public void dragFinished(DragSourceEvent event) {
+            // no-op
+        }
+    }
+
+    private static class PreferencesDropTargetListener implements DropTargetListener {
+
+        private final Text targetText;
+
+        public PreferencesDropTargetListener(Text targetText) {
+            this.targetText = targetText;
+        }
+
+        @Override
+        public void drop(DropTargetEvent event) {
+            String data = (String) event.data;
+            // TODO: This currently adds the dropped text onto the end, not where we dropped it
+            targetText.append(data);
+        }
+
+        @Override
+        public void dragEnter(DropTargetEvent event) {
+            // no-op
+        }
+
+        @Override
+        public void dragLeave(DropTargetEvent event) {
+            // no-op
+        }
+
+        @Override
+        public void dragOperationChanged(DropTargetEvent event) {
+            // no-op
+        }
+
+        @Override
+        public void dragOver(DropTargetEvent event) {
+            // no-op
+        }
+
+        @Override
+        public void dropAccept(DropTargetEvent event) {
+            // no-op
+        }
+    }
+
     private final UserPreferences prefs;
 
     // The controls to save
@@ -271,74 +346,14 @@ class PreferencesDialog extends Dialog {
         Transfer[] types = new Transfer[] { TextTransfer.getInstance() };
         DragSource dragSource = new DragSource(sourceList, DND_OPERATIONS);
         dragSource.setTransfer(types);
-        dragSource.addDragListener(new DragSourceListener() {
-
-            @Override
-            public void dragStart(DragSourceEvent event) {
-                if (sourceList.getSelectionIndex() != 0) {
-                    event.doit = true;
-                }
-            }
-
-            @Override
-            public void dragSetData(DragSourceEvent event) {
-                String listEntry = sourceList.getItem(sourceList.getSelectionIndex());
-                String token;
-
-                Pattern patt = Pattern.compile(REPLACEMENT_OPTIONS_LIST_ENTRY_REGEX);
-                Matcher tokenMatcher = patt.matcher(listEntry);
-                if (tokenMatcher.matches()) {
-                    token = tokenMatcher.group(1);
-                    event.data = token;
-                }
-            }
-
-            @Override
-            public void dragFinished(DragSourceEvent event) {
-                // no-op
-            }
-        });
+        dragSource.addDragListener(new PreferencesDragSourceListener(sourceList));
     }
 
     private void createDropTarget(final Text targetText) {
         Transfer[] types = new Transfer[] { TextTransfer.getInstance() };
         DropTarget dropTarget = new DropTarget(targetText, DND_OPERATIONS);
         dropTarget.setTransfer(types);
-
-        dropTarget.addDropListener(new DropTargetListener() {
-
-            @Override
-            public void dragEnter(DropTargetEvent event) {
-                // no-op
-            }
-
-            @Override
-            public void dragLeave(DropTargetEvent event) {
-                // no-op
-            }
-
-            @Override
-            public void dragOperationChanged(DropTargetEvent event) {
-                // no-op
-            }
-
-            @Override
-            public void dragOver(DropTargetEvent event) {
-                // no-op
-            }
-
-            @Override
-            public void drop(DropTargetEvent event) {
-                String data = (String) event.data;
-                // TODO: This currently adds the dropped text onto the end, not where we dropped it
-                targetText.append(data);
-            }
-
-            @Override
-            public void dropAccept(DropTargetEvent event) {
-                // no-op
-            }
-        });
+        dropTarget.addDropListener(new PreferencesDropTargetListener(targetText));
     }
 
     private void createActionButtonGroup() {
