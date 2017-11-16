@@ -101,8 +101,8 @@ class HttpConnectionHandler {
             // we just don't log it at the same level.
             logger.fine(message);
             throw new TVRenamerIOException(message, e);
-        } catch (Exception e) {
-            String message = "Exception when attempting to download and parse URL " + url;
+        } catch (IOException e) {
+            String message = "I/O Exception when attempting to download and parse URL " + url;
             logger.log(Level.SEVERE, message, e);
             throw new TVRenamerIOException(message, e);
         } finally {
