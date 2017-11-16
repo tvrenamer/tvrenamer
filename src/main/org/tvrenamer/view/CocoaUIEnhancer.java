@@ -8,6 +8,7 @@ import org.eclipse.swt.internal.Callback;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Listener;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -283,7 +284,7 @@ class CocoaUIEnhancer {
             }
             Method method = clazz.getMethod(methodName, signature);
             return method.invoke(target, args);
-        } catch (Exception e) {
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException  e) {
             throw new IllegalStateException(e);
         }
     }
