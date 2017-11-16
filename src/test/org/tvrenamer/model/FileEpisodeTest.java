@@ -37,6 +37,27 @@ public class FileEpisodeTest {
      */
     private static final Path OUR_TEMP_DIR = TMP_DIR.resolve(APPLICATION_NAME);
 
+    /**
+     * Static inner class to delete everything, in conjunction with walkFileTree
+     */
+    private static class FileDeleter extends SimpleFileVisitor<Path> {
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+            throws IOException
+        {
+            FileUtilities.deleteFile(file);
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult postVisitDirectory(Path dir, IOException exc)
+            throws IOException
+        {
+            FileUtilities.rmdir(dir);
+            return FileVisitResult.CONTINUE;
+        }
+    }
+
     private UserPreferences prefs = UserPreferences.getInstance();
 
     // Helper method.  Basically mkdirs, but expects that the directory does
@@ -1082,23 +1103,7 @@ public class FileEpisodeTest {
         if (Files.exists(OUR_TEMP_DIR)) {
             logger.warning("trying to clean up " + OUR_TEMP_DIR);
             try {
-                Files.walkFileTree(OUR_TEMP_DIR, new SimpleFileVisitor<Path>() {
-                        @Override
-                        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-                            throws IOException
-                        {
-                            FileUtilities.deleteFile(file);
-                            return FileVisitResult.CONTINUE;
-                        }
-
-                        @Override
-                        public FileVisitResult postVisitDirectory(Path dir, IOException exc)
-                            throws IOException
-                        {
-                            FileUtilities.rmdir(dir);
-                            return FileVisitResult.CONTINUE;
-                        }
-                    });
+                Files.walkFileTree(OUR_TEMP_DIR, new FileDeleter());
             } catch (IOException e) {
                 verboseFail("unable to clean up leftover directory " + OUR_TEMP_DIR, e);
             }
