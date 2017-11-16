@@ -44,7 +44,7 @@ public class ListingsLookup {
             logger.warning("should not call downloadListings; Show is already download[ing/ed].");
             return;
         }
-        Callable<Boolean> showFetcher = () -> {
+        Callable<Boolean> listingsFetcher = () -> {
             try {
                 TheTVDBProvider.getShowListing(show);
                 return true;
@@ -62,7 +62,7 @@ public class ListingsLookup {
                 return false;
             }
         };
-        Future<Boolean> future = THREAD_POOL.submit(showFetcher);
+        Future<Boolean> future = THREAD_POOL.submit(listingsFetcher);
         show.addFuture(future);
     }
 
