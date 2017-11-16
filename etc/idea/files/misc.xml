@@ -2,17 +2,23 @@
 <project version="4">
   <component name="EntryPointsManager">
     <entry_points version="2.0">
+      <entry_point TYPE="method" FQNAME="org.tvrenamer.controller.util.StringUtils java.lang.String decodeUrlCharacters(java.lang.String input)" />
+      <entry_point TYPE="method" FQNAME="org.tvrenamer.controller.util.StringUtils java.lang.String encodeUrlCharacters(java.lang.String input)" />
+      <entry_point TYPE="method" FQNAME="org.tvrenamer.controller.util.StringUtils java.lang.String toUpper(java.lang.String orig)" />
+      <entry_point TYPE="method" FQNAME="org.tvrenamer.controller.util.FileUtilities void loggingOff()" />
+      <entry_point TYPE="method" FQNAME="org.tvrenamer.controller.util.FileUtilities void loggingOn()" />
+      <entry_point TYPE="method" FQNAME="org.tvrenamer.controller.util.FileUtilities boolean isDirEmpty(java.nio.file.Path dir)" />
+      <entry_point TYPE="method" FQNAME="org.tvrenamer.controller.util.FileUtilities boolean rmdir(java.nio.file.Path dir)" />
+      <entry_point TYPE="method" FQNAME="org.tvrenamer.model.Show void indexEpisodesBySeason()" />
       <entry_point TYPE="method" FQNAME="org.tvrenamer.model.ShowStore org.tvrenamer.model.Show getOrAddShow(java.lang.String filenameShow, java.lang.String actualName)" />
-      <entry_point TYPE="method" FQNAME="org.tvrenamer.model.Show void preferDvdOrdering()" />
       <entry_point TYPE="method" FQNAME="org.tvrenamer.model.ShowName boolean hasShowOptions()" />
-      <entry_point TYPE="method" FQNAME="org.tvrenamer.model.FileEpisode java.lang.String getFilenameResolution()" />
-      <entry_point TYPE="method" FQNAME="org.tvrenamer.model.FileEpisode java.lang.String getFilenameEpisode()" />
+      <entry_point TYPE="method" FQNAME="org.tvrenamer.model.FileEpisode int getSeasonNum()" />
       <entry_point TYPE="method" FQNAME="org.tvrenamer.model.FileEpisode int getEpisodeNum()" />
       <entry_point TYPE="method" FQNAME="org.tvrenamer.model.FileEpisode java.lang.String getFilenameSeason()" />
-      <entry_point TYPE="method" FQNAME="org.tvrenamer.model.FileEpisode int getSeasonNum()" />
-      <entry_point TYPE="method" FQNAME="org.tvrenamer.controller.util.StringUtils java.lang.String toUpper(java.lang.String orig)" />
-      <entry_point TYPE="field" FQNAME="org.tvrenamer.model.util.Constants TMP_DIR" />
+      <entry_point TYPE="method" FQNAME="org.tvrenamer.model.FileEpisode java.lang.String getFilenameEpisode()" />
+      <entry_point TYPE="method" FQNAME="org.tvrenamer.model.FileEpisode java.lang.String getFilenameResolution()" />
       <entry_point TYPE="field" FQNAME="org.tvrenamer.model.util.Constants WORKING_DIRECTORY" />
+      <entry_point TYPE="field" FQNAME="org.tvrenamer.model.util.Constants TMP_DIR" />
     </entry_points>
   </component>
   <component name="MavenImportPreferences">
