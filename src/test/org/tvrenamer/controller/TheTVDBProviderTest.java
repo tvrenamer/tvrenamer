@@ -43,6 +43,85 @@ import java.util.concurrent.TimeoutException;
 public class TheTVDBProviderTest {
 
     /**
+     * Static inner class to use as a Listener for downloading show listings.
+     * Takes a completable future in its constructor, and episode information.
+     * Makes sure to always complete its future no matter what, and in the
+     * success case, provides the downloaded episode title to the future.
+     */
+    private static class ListingsDownloader implements ShowListingsListener {
+
+        // Once we have a CompletableFuture, we need to complete it.  There are a few ways, but
+        // obviously the simplest is to call complete().  If we simply call the JUnit method
+        // fail(), the future thread does not die and the test never exits.  The same appears
+        // to happen with an uncaught exception.  So, be very careful to make sure, one way or
+        // other, we call complete.
+
+        // Of course, none of this matters when everything works.  But if we want failure cases
+        // to actually stop and report failure, we need to complete the future, one way or another.
+
+        // We use a brief failure message as the show title in cases where we detect failure.
+        // Just make sure to not add a test case where the actual episode's title is one of
+        // the failure messages.  :)
+        private static final String NO_EPISODE = "null episode";
+        private static final String DOWNLOAD_FAILED = "download failed";
+
+        final Show show;
+        final int seasonNum;
+        final int episodeNum;
+        final CompletableFuture<String> future;
+
+        public ListingsDownloader(final Show show,
+                                  final int seasonNum,
+                                  final int episodeNum,
+                                  final CompletableFuture<String> future)
+        {
+            this.show = show;
+            this.seasonNum = seasonNum;
+            this.episodeNum = episodeNum;
+            this.future = future;
+        }
+
+        @Override
+        public void listingsDownloadComplete() {
+            Episode ep = show.getEpisode(seasonNum, episodeNum);
+            if (ep == null) {
+                future.complete(NO_EPISODE);
+            } else {
+                String title = ep.getTitle();
+                future.complete(title);
+            }
+        }
+
+        @Override
+        public void listingsDownloadFailed(Exception err) {
+            future.complete(DOWNLOAD_FAILED);
+        }
+    }
+
+    /**
+     * Static inner class to use as a Listener for downloading show information.
+     * Takes a completable future in its constructor, and completes it in the callbacks.
+     */
+    private static class ShowDownloader implements ShowInformationListener {
+
+        final CompletableFuture<Show> futureShow;
+
+        public ShowDownloader(final CompletableFuture<Show> futureShow) {
+            this.futureShow = futureShow;
+        }
+
+        @Override
+        public void downloaded(Show show) {
+            futureShow.complete(show);
+        }
+
+        @Override
+        public void downloadFailed(Show show) {
+            futureShow.complete(show);
+        }
+    }
+
+    /**
      * Fails if the given title does not match the expected title within the EpisodeTestData.
      *
      * @param epdata contains all the relevant information about the episode to look up, and
@@ -951,32 +1030,10 @@ public class TheTVDBProviderTest {
     }
 
 
-    // Once we have a CompletableFuture, we need to complete it.  There are a few ways, but
-    // obviously the simplest is to call complete().  If we simply call the JUnit method
-    // fail(), the future thread does not die and the test never exits.  The same appears
-    // to happen with an uncaught exception.  So, be very careful to make sure, one way or
-    // other, we call complete.
-
-    // Of course, none of this matters when everything works.  But if we want failure cases
-    // to actually stop and report failure, we need to complete the future, one way or another.
-
-    // We use a brief failure message as the show title in cases where we detect failure.
-    // Just make sure to not add a test case where the actual episode's title is one of
-    // the failure messages.  :)
     private Show testQueryShow(final EpisodeTestData testInput, final String queryString) {
         try {
             final CompletableFuture<Show> futureShow = new CompletableFuture<>();
-            ShowStore.getShow(queryString, new ShowInformationListener() {
-                    @Override
-                    public void downloaded(Show show) {
-                        futureShow.complete(show);
-                    }
-
-                    @Override
-                    public void downloadFailed(Show show) {
-                        futureShow.complete(show);
-                    }
-                });
+            ShowStore.getShow(queryString, new ShowDownloader(futureShow));
             Show gotShow = futureShow.get(4, TimeUnit.SECONDS);
             if (gotShow == null) {
                 fail("could not parse show name input " + queryString);
@@ -1012,24 +1069,7 @@ public class TheTVDBProviderTest {
                 try {
                     final Show show = testQueryShow(testInput, queryString);
                     final CompletableFuture<String> future = new CompletableFuture<>();
-                    show.addListingsListener(new ShowListingsListener() {
-                        @Override
-                        public void listingsDownloadComplete() {
-                            Episode ep = show.getEpisode(seasonNum, episodeNum);
-                            if (ep == null) {
-                                future.complete("null episode");
-                            } else {
-                                String title = ep.getTitle();
-                                future.complete(title);
-                            }
-                        }
-
-                        @Override
-                        public void listingsDownloadFailed(Exception err) {
-                            future.complete("downloadFailed");
-                        }
-                    });
-
+                    show.addListingsListener(new ListingsDownloader(show, seasonNum, episodeNum, future));
                     String got = future.get(30, TimeUnit.SECONDS);
                     assertEpisodeTitle(testInput, got);
                 } catch (TimeoutException e) {
