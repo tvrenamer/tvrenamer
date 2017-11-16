@@ -46,9 +46,9 @@ public class Constants {
     public static final String TVRENAMER_ISSUES_URL = TVRENAMER_PROJECT_URL + "/issues";
     public static final String TVRENAMER_VERSION_URL = TVRENAMER_PROJECT_URL + "/version";
     public static final String TVRENAMER_REPOSITORY_URL = TVRENAMER_PROJECT_URL + "/source";
-    public static final String TVRENAMER_SUPPORT_EMAIL = "support@tvrenamer.org";
     public static final String TVRENAMER_LICENSE_URL = "http://www.gnu.org/licenses/gpl-2.0.html";
 
+    private static final String TVRENAMER_SUPPORT_EMAIL = "support@tvrenamer.org";
     public static final String EMAIL_LINK = "mailto:" + TVRENAMER_SUPPORT_EMAIL;
 
     public static final String LICENSE_TEXT_1 = "Licensed under the ";
