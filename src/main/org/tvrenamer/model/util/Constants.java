@@ -185,6 +185,5 @@ public class Constants {
     public static final Path PREFERENCES_FILE_LEGACY = USER_HOME_DIR.resolve("tvrenamer.preferences");
     public static final Path OVERRIDES_FILE_LEGACY = USER_HOME_DIR.resolve(".tvrenameroverrides");
 
-    @SuppressWarnings("unused")
     public static final String EMPTY_STRING = "";
 }
