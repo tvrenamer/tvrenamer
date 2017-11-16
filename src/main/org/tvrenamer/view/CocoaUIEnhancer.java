@@ -153,9 +153,7 @@ class CocoaUIEnhancer {
         });
     }
 
-    private void initialize(Object callbackObject)
-        throws IllegalAccessException, NoSuchMethodException, InvocationTargetException
-    {
+    private static Class<?> initializeClass(Object callbackObject) {
         Class<?> osCls = classForName("org.eclipse.swt.internal.cocoa.OS");
 
         // Register names in objective-c.
@@ -165,6 +163,15 @@ class CocoaUIEnhancer {
         // Create an SWT Callback object that will invoke the actionProc method
         // of our internal callbackObject.
         proc3Args = new Callback(callbackObject, "actionProc", 3); //$NON-NLS-1$
+
+        return osCls;
+    }
+
+    private void initialize(Object callbackObject)
+        throws IllegalAccessException, NoSuchMethodException, InvocationTargetException
+    {
+        Class<?> osCls = initializeClass(callbackObject);
+
         Method getAddress = Callback.class.getMethod("getAddress");
         Object object = getAddress.invoke(proc3Args, (Object[]) null);
         long proc3 = convertToLong(object);
