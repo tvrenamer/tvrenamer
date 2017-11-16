@@ -745,6 +745,118 @@ public class TVRenamerTest {
                    .build());
     }
 
+    @BeforeClass
+    public static void setupValues68() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Quintuplets.S01E02.Quintagious.avi")
+                   .filenameShow("Quintuplets.")
+                   .seasonNumString("01")
+                   .episodeNumString("02")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues69() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Quintuplets/S01E02.Quintagious.avi")
+                   .filenameShow("Quintuplets ")
+                   .seasonNumString("01")
+                   .episodeNumString("02")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues70() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Quintuplets/versions/S01E02.Quintagious.avi")
+                   .filenameShow("Quintuplets ")
+                   .seasonNumString("01")
+                   .episodeNumString("02")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues71() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Quintuplets/versions/S01E02.Quintagious~2.avi")
+                   .filenameShow("Quintuplets ")
+                   .seasonNumString("01")
+                   .episodeNumString("02")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues72() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Quintuplets/Season1/versions/S01E02.Quintagious~9.avi")
+                   .filenameShow("Quintuplets ")
+                   .seasonNumString("01")
+                   .episodeNumString("02")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues73() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Quintuplets/Season01/versions/S01E02.Quintagious~4.avi")
+                   .filenameShow("Quintuplets ")
+                   .seasonNumString("01")
+                   .episodeNumString("02")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues74() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Quintuplets.Season01/S01E02.Quintagious.avi")
+                   .filenameShow("Quintuplets ")
+                   .seasonNumString("01")
+                   .episodeNumString("02")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues75() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Quintuplets/s01/1x02.Quintagious.avi")
+                   .filenameShow("Quintuplets ")
+                   .seasonNumString("1")
+                   .episodeNumString("02")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues76() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Quintuplets/01x02.Quintagious.avi")
+                   .filenameShow("Quintuplets ")
+                   .seasonNumString("01")
+                   .episodeNumString("02")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues77() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Videos/TVShows/Fullscreen/LiveAction/Quintuplets/"
+                                  + "Season01/S01E02.Quintagious.avi")
+                   .filenameShow("Quintuplets ")
+                   .seasonNumString("01")
+                   .episodeNumString("02")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues78() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Quintuplets/Quintuplets.Season01/s01/"
+                                  + "versions/season1/S01E02.Quintagious~7.avi")
+                   .filenameShow("Quintuplets ")
+                   .seasonNumString("01")
+                   .episodeNumString("02")
+                   .build());
+    }
+
     @Test
     public void testParseFileName() {
         for (EpisodeTestData testInput : values) {
