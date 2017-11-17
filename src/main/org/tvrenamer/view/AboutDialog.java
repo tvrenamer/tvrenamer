@@ -31,6 +31,31 @@ final class AboutDialog extends Dialog {
     private Shell aboutShell;
 
     /**
+     * Static inner class to check if there's an update available
+     */
+    private static class UpdateNotifier extends SelectionAdapter {
+        /**
+         * The link has been clicked.
+         *
+         * @param arg0
+         *    the event object itself; not used
+         */
+        @Override
+        public void widgetSelected(SelectionEvent arg0) {
+            boolean updateAvailable = UpdateChecker.isUpdateAvailable();
+
+            if (updateAvailable) {
+                logger.fine(NEW_VERSION_AVAILABLE);
+                UIUtils.showMessageBox(SWTMessageBoxType.OK, NEW_VERSION_TITLE,
+                                       NEW_VERSION_AVAILABLE);
+            } else {
+                UIUtils.showMessageBox(SWTMessageBoxType.WARNING, NO_NEW_VERSION_TITLE,
+                                       NO_NEW_VERSION_AVAILABLE);
+            }
+        }
+    }
+
+    /**
      * AboutDialog constructor
      *
      * @param parent
@@ -149,22 +174,7 @@ final class AboutDialog extends Dialog {
         gridDataUpdateCheck.widthHint = 160;
         gridDataUpdateCheck.horizontalAlignment = GridData.END;
         updateCheckButton.setLayoutData(gridDataUpdateCheck);
-
-        updateCheckButton.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                boolean updateAvailable = UpdateChecker.isUpdateAvailable();
-
-                if (updateAvailable) {
-                    logger.fine(NEW_VERSION_AVAILABLE);
-                    UIUtils.showMessageBox(SWTMessageBoxType.OK, NEW_VERSION_TITLE,
-                                           NEW_VERSION_AVAILABLE);
-                } else {
-                    UIUtils.showMessageBox(SWTMessageBoxType.WARNING, NO_NEW_VERSION_TITLE,
-                                           NO_NEW_VERSION_AVAILABLE);
-                }
-            }
-        });
+        updateCheckButton.addSelectionListener(new UpdateNotifier());
 
         Button okButton = new Button(aboutShell, SWT.PUSH);
         okButton.setText(OK_LABEL);
