@@ -154,7 +154,7 @@ class CocoaUIEnhancer {
     }
 
     private void initialize(Object callbackObject)
-            throws Exception
+        throws IllegalAccessException, NoSuchMethodException, InvocationTargetException
     {
         Class<?> osCls = classForName("org.eclipse.swt.internal.cocoa.OS");
 
