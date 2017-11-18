@@ -38,7 +38,7 @@ public class GlobalOverridesPersistence {
             writer.write(xml);
 
         } catch (IOException e) {
-            logger.log(Level.SEVERE, "Exception occured when writing overrides file", e);
+            logger.log(Level.SEVERE, "Exception occurred when writing overrides file", e);
         }
     }
 
