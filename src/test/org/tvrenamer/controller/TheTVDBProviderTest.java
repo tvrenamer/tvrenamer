@@ -600,6 +600,7 @@ public class TheTVDBProviderTest {
     }
 
     // @BeforeClass
+    @SuppressWarnings("unused")
     public static void setupValues29() {
         // Comment this out because Offspring has three untitled episodes with
         // the same season and episode, but different IDs
@@ -624,6 +625,7 @@ public class TheTVDBProviderTest {
     }
 
     // @BeforeClass
+    @SuppressWarnings("unused")
     public static void setupValues31() {
         // Comment this out because Robot Chicken has a conflict between DVD
         // and regular numbering.
@@ -670,6 +672,7 @@ public class TheTVDBProviderTest {
     }
 
     // @BeforeClass
+    @SuppressWarnings("unused")
     public static void setupValues35() {
         // Comment this out because the episode listing for The Good Wife
         // currently (2017/06/02) comes through unparseable.
@@ -683,6 +686,7 @@ public class TheTVDBProviderTest {
     }
 
     // @BeforeClass
+    @SuppressWarnings("unused")
     public static void setupValues36() {
         // Trying options for "the walking dead" gives a "Series Not Permitted".
         // We issue a warning, but it's not really a problem.
@@ -894,6 +898,7 @@ public class TheTVDBProviderTest {
     }
 
     // @BeforeClass
+    @SuppressWarnings("unused")
     public static void setupValues55() {
         // Comment this out because "strike back" apparently no longer
         // resolves to the correct show.
@@ -973,6 +978,7 @@ public class TheTVDBProviderTest {
     }
 
     // @BeforeClass
+    @SuppressWarnings("unused")
     public static void setupValues62() {
         // Comment this out because "Lucifer" has conflicting special episodes
         // (season "0", episode "2")

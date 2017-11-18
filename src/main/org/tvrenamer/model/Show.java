@@ -449,7 +449,6 @@ public class Show {
      *         <ul><li>if the episode couldn't be parsed</li>
      *             <li>if an  episode with the given ID was already present</li></ul>
      */
-    @SuppressWarnings("WeakerAccess")
     public boolean addOneEpisode(final EpisodeInfo info) {
         if (info != null) {
             String episodeId = info.episodeId;
@@ -543,6 +542,7 @@ public class Show {
      *
      * @param logger the logger object to send the failure message to
      */
+    @SuppressWarnings("SameParameterValue")
     public void logShowFailure(Logger logger) {
         // This method does not make sense for this direct class.
         // It has a more interesting implementation in its subclass.
@@ -557,7 +557,6 @@ public class Show {
      *
      * @return a count of how many seasons we have for this Show
      */
-    @SuppressWarnings("unused")
     public boolean hasSeasons() {
         return (seasons.size() > 0);
     }
@@ -569,7 +568,6 @@ public class Show {
      *
      * @return a count of how many episodes we have for this Show
      */
-    @SuppressWarnings("unused")
     public boolean hasEpisodes() {
         return (episodes.size() > 0);
     }
@@ -579,7 +577,6 @@ public class Show {
      *
      * @return a count of how many episodes we have for this Show
      */
-    @SuppressWarnings("unused")
     public int getEpisodeCount() {
         return episodes.size();
     }

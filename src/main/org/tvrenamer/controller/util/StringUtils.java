@@ -68,10 +68,10 @@ public class StringUtils {
         return rval;
     }
 
+    @SuppressWarnings("UnnecessaryLocalVariable")
     public static String makeDotTitle(String titleString) {
         String pass1 = titleString.replaceAll("(\\w)\\s+(\\w)", "$1.$2");
         String pass2 = pass1.replaceAll("(\\w)\\s+(\\w)", "$1.$2");
-        @SuppressWarnings("UnnecessaryLocalVariable")
         String pass3 = pass2.replaceAll("\\s", "");
         return pass3;
     }
@@ -146,7 +146,6 @@ public class StringUtils {
         return status;
     }
 
-    @SuppressWarnings("WeakerAccess")
     public static String replacePunctuation(String s) {
         String rval = s;
 
