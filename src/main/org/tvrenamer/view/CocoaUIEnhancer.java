@@ -50,7 +50,6 @@ class CocoaUIEnhancer {
     /**
      * Class invoked via the Callback object to run the about and preferences actions.
      */
-    @SuppressWarnings({"UnusedParameters", "SameReturnValue", "unused"})
     private static class MenuHookObject {
         final Listener about;
         final Listener pref;
@@ -86,6 +85,7 @@ class CocoaUIEnhancer {
          *    not used
          * @return an irrelevant value; ignore it
          */
+        @SuppressWarnings({"UnusedParameters", "SameReturnValue"})
         public long actionProc(long id, long sel, long arg0) {
             if (sel == sel_aboutMenuItemSelected_) {
                 about.handleEvent(null);
@@ -314,6 +314,7 @@ class CocoaUIEnhancer {
         return invoke(obj, methodName, null, (Object[]) null);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private Object invoke(Object obj, String methodName, Class<?>[] paramTypes, Object... arguments) {
         try {
             Method m = obj.getClass().getDeclaredMethod(methodName, paramTypes);
