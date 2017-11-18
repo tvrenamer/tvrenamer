@@ -3,8 +3,11 @@ package org.tvrenamer.model;
 public class EpisodeTestData {
     private static final String EMPTY_STRING = "";
     private static final String DEFAULT_SEPARATOR = ".";
+    @SuppressWarnings("unused")
     private static final String DEFAULT_SHOW_ID = "1";
+    @SuppressWarnings("unused")
     private static final String DEFAULT_FILENAME_SUFFIX = ".avi";
+    @SuppressWarnings("unused")
     private static final String DEFAULT_REPLACEMENT_MASK = "%S [%sx%e] %t";
 
     private static class Counter {
@@ -70,6 +73,7 @@ public class EpisodeTestData {
         public Builder() {
         }
 
+        @SuppressWarnings("unused")
         public Builder separator(String val) {
             if (separator == null) {
                 separator = val;

@@ -150,7 +150,6 @@ public class FileEpisode {
     }
 
     // Create FileEpisode with String; only for testing
-    @SuppressWarnings("WeakerAccess")
     public FileEpisode(String filename) {
         if (filename == null) {
             logger.severe(FILE_EPISODE_NEEDS_PATH);
@@ -168,7 +167,6 @@ public class FileEpisode {
     }
 
     // Create FileEpisode with no path; only for testing
-    @SuppressWarnings("WeakerAccess")
     public FileEpisode() {
         // We do not provide any way to create a FileEpisode with a null path
         // via the UI -- why would we?  Ultimately the program is to rename and
@@ -439,7 +437,6 @@ public class FileEpisode {
         return dateFormat.format(date);
     }
 
-    @SuppressWarnings("WeakerAccess")
     String getRenamedBasename() {
         String showName;
         if (actualShow == null) {
