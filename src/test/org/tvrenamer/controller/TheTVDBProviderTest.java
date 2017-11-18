@@ -192,8 +192,6 @@ public class TheTVDBProviderTest {
      *
      * @param epdata contains all the relevant information about the episode to look up, and
      *               what we expect to get back about it
-     * @return the title of the given episode of the show returned by the provider, or null
-     *         if we didn't get an episode title
      */
     private void testSeriesNameAndEpisodeTitle(final EpisodeTestData epdata) throws Exception {
         testSeriesNameAndEpisode(epdata, true);
