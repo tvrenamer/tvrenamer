@@ -1068,6 +1068,7 @@ public class TheTVDBProviderTest {
                 final int episodeNum = testInput.episodeNum;
                 try {
                     final Show show = testQueryShow(testInput, queryString);
+                    assertNotNull(show);
                     final CompletableFuture<String> future = new CompletableFuture<>();
                     show.addListingsListener(new ListingsDownloader(show, seasonNum, episodeNum, future));
                     String got = future.get(30, TimeUnit.SECONDS);

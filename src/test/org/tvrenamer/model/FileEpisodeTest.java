@@ -69,7 +69,7 @@ public class FileEpisodeTest {
             fail("directory " + newdir + " already exists.  It should not!");
         }
         boolean madeDir = FileUtilities.mkdirs(newdir);
-        if (false == madeDir) {
+        if (!madeDir) {
             fail("unable to create directory " + newdir);
         }
         if (!Files.exists(newdir)) {

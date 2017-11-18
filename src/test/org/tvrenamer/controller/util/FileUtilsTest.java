@@ -103,7 +103,7 @@ public class FileUtilsTest {
                    Files.exists(dirpath));
 
         try {
-            Set<PosixFilePermission> perms = new HashSet<PosixFilePermission>();
+            Set<PosixFilePermission> perms = new HashSet<>();
             perms.add(PosixFilePermission.OWNER_READ);
             perms.add(PosixFilePermission.OWNER_EXECUTE);
             Files.setPosixFilePermissions(dirpath, perms);
