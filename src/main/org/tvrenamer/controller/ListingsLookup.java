@@ -66,7 +66,6 @@ public class ListingsLookup {
         try {
             Future<Boolean> future = THREAD_POOL.submit(listingsFetcher);
             logger.fine("successfully submitted task " + future);
-            show.addFuture(future);
         } catch (RejectedExecutionException | NullPointerException e) {
             logger.log(Level.WARNING, "unable to submit listings download task ("
                        + show.getName() + ") for execution", e);
