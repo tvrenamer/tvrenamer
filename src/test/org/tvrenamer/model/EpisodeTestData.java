@@ -23,7 +23,6 @@ public class EpisodeTestData {
     public final String seasonNumString;
     public final String episodeNumString;
     public final String episodeResolution;
-    public final String separator;
     public final String filenameSuffix;
 
     // These attributes are about looking up the show and episode from the provider
@@ -45,12 +44,13 @@ public class EpisodeTestData {
     public final String documentation;
 
     public static class Builder {
+        String separator;
+
         String inputFilename;
         String filenameShow;
         String seasonNumString;
         String episodeNumString;
         String episodeResolution;
-        String separator;
         String filenameSuffix;
 
         String queryString;
@@ -68,6 +68,23 @@ public class EpisodeTestData {
         String documentation;
 
         public Builder() {
+        }
+
+        public Builder separator(String val) {
+            if (separator == null) {
+                separator = val;
+            } else {
+                throw new IllegalStateException("cannot re-set separator");
+            }
+            return this;
+        }
+
+        public String getSeparator() {
+            if (separator == null) {
+                return DEFAULT_SEPARATOR;
+            } else {
+                return separator;
+            }
         }
 
         public Builder inputFilename(String val) {
@@ -144,23 +161,6 @@ public class EpisodeTestData {
                 return "";
             } else {
                 return episodeResolution;
-            }
-        }
-
-        public Builder separator(String val) {
-            if (separator == null) {
-                separator = val;
-            } else {
-                throw new IllegalStateException("cannot re-set separator");
-            }
-            return this;
-        }
-
-        public String getSeparator() {
-            if (separator == null) {
-                return DEFAULT_SEPARATOR;
-            } else {
-                return separator;
             }
         }
 
@@ -334,12 +334,13 @@ public class EpisodeTestData {
         }
     }
 
-    public EpisodeTestData(Builder builder) {
+    private EpisodeTestData(Builder builder) {
+        final String separator = builder.getSeparator();
+
         filenameShow = builder.filenameShow;
         seasonNumString = builder.getSeasonNumString();
         episodeNumString = builder.getEpisodeNumString();
         episodeResolution = builder.getEpisodeResolution();
-        separator = builder.getSeparator();
         filenameSuffix = builder.getFilenameSuffix();
 
         queryString = builder.queryString;
