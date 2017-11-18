@@ -127,7 +127,7 @@ public class TheTVDBProviderTest {
      *               what we expect to get back about it
      * @param foundTitle the value that was found for the episode title
      */
-    public void assertEpisodeTitle(final EpisodeTestData epdata, final String foundTitle) {
+    private void assertEpisodeTitle(final EpisodeTestData epdata, final String foundTitle) {
         final String expectedTitle = epdata.episodeTitle;
         if (!expectedTitle.equals(foundTitle)) {
             fail("expected title of season " + epdata.seasonNum + ", episode " + epdata.episodeNum
@@ -149,7 +149,7 @@ public class TheTVDBProviderTest {
      * @return the title of the given episode of the show returned by the provider, or null
      *         if we didn't get an episode title
      */
-    public String testSeriesNameAndEpisode(final EpisodeTestData epdata, boolean doCheck)
+    private String testSeriesNameAndEpisode(final EpisodeTestData epdata, boolean doCheck)
         throws Exception
     {
         final String actualName = epdata.properShowName;
@@ -195,7 +195,7 @@ public class TheTVDBProviderTest {
      * @return the title of the given episode of the show returned by the provider, or null
      *         if we didn't get an episode title
      */
-    public String testSeriesNameAndEpisodeTitle(final EpisodeTestData epdata) throws Exception {
+    private String testSeriesNameAndEpisodeTitle(final EpisodeTestData epdata) throws Exception {
         return testSeriesNameAndEpisode(epdata, true);
     }
 
