@@ -365,7 +365,8 @@ public class EpisodeTestData {
             inputFilename = filenameShow
                 + separator + seasonNumString
                 + separator + episodeNumString
-                + resolutionString;
+                + resolutionString
+                + separator + filenameSuffix;
         } else {
             inputFilename = builder.inputFilename;
         }
