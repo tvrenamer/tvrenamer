@@ -64,6 +64,7 @@ public class FileEpisodeTest {
     // NOT exist, and considers it an error if it does.  Also does one final
     // check that, after we believe we've created it, the directory actually
     // does exist.
+    @SuppressWarnings("SameParameterValue")
     private void createNewDirectory(Path newdir) {
         if (Files.exists(newdir)) {
             fail("directory " + newdir + " already exists.  It should not!");

@@ -95,6 +95,7 @@ public class FileUtilities {
      * @return
      *    true if the paths refer to the same file, false if they don't
      */
+    @SuppressWarnings("SameParameterValue")
     public static boolean isSameFile(final Path path1, final Path path2) {
         try {
             return Files.isSameFile(path1, path2);
