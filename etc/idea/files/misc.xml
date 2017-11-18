@@ -19,14 +19,16 @@
       <entry_point TYPE="method" FQNAME="org.tvrenamer.model.FileEpisode java.lang.String getFilenameResolution()" />
       <entry_point TYPE="field" FQNAME="org.tvrenamer.model.util.Constants WORKING_DIRECTORY" />
       <entry_point TYPE="field" FQNAME="org.tvrenamer.model.util.Constants TMP_DIR" />
+      <entry_point TYPE="method" FQNAME="org.tvrenamer.model.UserPreferences void setRemoveEmptiedDirectories(boolean removeEmptiedDirectories)" />
+      <entry_point TYPE="method" FQNAME="org.tvrenamer.view.CocoaUIEnhancer.MenuHookObject int actionProc(int id, int sel, int arg0)" />
+      <entry_point TYPE="method" FQNAME="org.tvrenamer.controller.TheTVDBProviderTest void testGetEpisodeTitle()" />
+      <entry_point TYPE="method" FQNAME="org.tvrenamer.model.Show int getEpisodeCount()" />
+      <entry_point TYPE="method" FQNAME="org.tvrenamer.model.Show boolean hasEpisodes()" />
+      <entry_point TYPE="method" FQNAME="org.tvrenamer.model.Show boolean hasSeasons()" />
+      <entry_point TYPE="method" FQNAME="org.tvrenamer.model.FileEpisode java.lang.String getBasename()" />
+      <entry_point TYPE="class" FQNAME="org.tvrenamer.model.util.StdOutConsoleHandler" />
+      <entry_point TYPE="class" FQNAME="org.tvrenamer.model.util.StdOutConsoleFormatter" />
     </entry_points>
-  </component>
-  <component name="MavenImportPreferences">
-    <option name="generalSettings">
-      <MavenGeneralSettings>
-        <option name="mavenHome" value="Bundled (Maven 3)" />
-      </MavenGeneralSettings>
-    </option>
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />
