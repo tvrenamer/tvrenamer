@@ -59,40 +59,6 @@ public class EpisodeDb {
         return episodes.remove(key);
     }
 
-    @SuppressWarnings("unused")
-    public boolean remove(String key, FileEpisode value) {
-        return episodes.remove(key, value);
-    }
-
-    @SuppressWarnings("unused")
-    public boolean replaceKey(String oldKey, FileEpisode ep, String newKey) {
-        if (ep == null) {
-            throw new IllegalStateException("cannot have null value in EpisodeDb!!!");
-        }
-
-        if ((oldKey == null) || (oldKey.length() == 0)) {
-            throw new IllegalStateException("cannot have null key in EpisodeDb!!!");
-        }
-
-        boolean removed = episodes.remove(oldKey, ep);
-        if (!removed) {
-            throw new IllegalStateException("unrecoverable episode DB corruption");
-        }
-
-        FileEpisode oldValue = episodes.put(newKey, ep);
-        // The value returned is the *old* value for the key.  We expect it to be
-        // null.  If it isn't, that means the new key was already mapped to an
-        // episode.  In theory, this could legitimately happen if we rename A to B
-        // and B to A, or any longer such cycle.  But that seems extremely unlikely
-        // with this particular program, so we'll just warn and do nothing about it.
-        if (oldValue != null) {
-            logger.warning("removing episode from db due to new episode at that location: "
-                           + oldValue);
-            return false;
-        }
-        return true;
-    }
-
     public FileEpisode get(String key) {
         return episodes.get(key);
     }
