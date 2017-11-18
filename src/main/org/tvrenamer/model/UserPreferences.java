@@ -153,8 +153,8 @@ public class UserPreferences extends Observable {
         UserPreferences prefs = UserPreferencesPersistence.retrieve(PREFERENCES_FILE);
 
         if (prefs != null) {
-            logger.fine("Sucessfully read preferences from: " + PREFERENCES_FILE.toAbsolutePath());
-            logger.fine("Sucessfully read preferences: " + prefs.toString());
+            logger.fine("Successfully read preferences from: " + PREFERENCES_FILE.toAbsolutePath());
+            logger.fine("Successfully read preferences: " + prefs.toString());
         } else {
             prefs = new UserPreferences();
         }
@@ -169,7 +169,7 @@ public class UserPreferences extends Observable {
      */
     public static void store(UserPreferences prefs) {
         UserPreferencesPersistence.persist(prefs, PREFERENCES_FILE);
-        logger.fine("Sucessfully saved/updated preferences");
+        logger.fine("Successfully saved/updated preferences");
     }
 
     /**
@@ -468,10 +468,10 @@ public class UserPreferences extends Observable {
     }
 
     /**
-     * Get whether or not we want the season subfolder to be numberd with a
+     * Get whether or not we want the season subfolder to be numbered with a
      * leading zero.
      *
-     * @return true if we want want the season subfolder to be numberd with
+     * @return true if we want want the season subfolder to be numbered with
      *            a leading zero
      */
     public boolean isSeasonPrefixLeadingZero() {
@@ -479,11 +479,11 @@ public class UserPreferences extends Observable {
     }
 
     /**
-     * Sets whether or not we want the season subfolder to be numberd with a
+     * Sets whether or not we want the season subfolder to be numbered with a
      * leading zero.
      *
      * @param seasonPrefixLeadingZero whether or not we want the season subfolder
-     *               to be numberd with a leading zero
+     *               to be numbered with a leading zero
      */
     public void setSeasonPrefixLeadingZero(boolean seasonPrefixLeadingZero) {
         if (valuesAreDifferent(this.seasonPrefixLeadingZero, seasonPrefixLeadingZero)) {

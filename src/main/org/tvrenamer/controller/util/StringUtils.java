@@ -238,7 +238,7 @@ public class StringUtils {
      *            the String that we want to normalize; we assume it is:
      *            the substring of the file path that we think represents the show name
      * @return a version of the show name that is more suitable for a query; this may
-     *         include case normalization, removal of superfluous whitepsace and
+     *         include case normalization, removal of superfluous whitespace and
      *         punctuation, etc.
      */
     public static String makeQueryString(String text) {
