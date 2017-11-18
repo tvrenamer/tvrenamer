@@ -127,7 +127,6 @@ public class FileEpisode {
 
     // This is the basic part of what we would rename the file to.  That is, we would
     // rename it to destinationFolder + baseForRename + filenameSuffix.
-    @SuppressWarnings("FieldCanBeLocal")
     private String baseForRename = null;
 
     // Initially we create the FileEpisode with nothing more than the path.
@@ -234,6 +233,11 @@ public class FileEpisode {
         } else {
             this.filenameResolution = filenameResolution;
         }
+    }
+
+    @SuppressWarnings("unused")
+    public String getBasename() {
+        return baseForRename;
     }
 
     public String getFilenameSuffix() {
