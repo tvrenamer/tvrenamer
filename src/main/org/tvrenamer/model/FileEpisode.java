@@ -100,8 +100,6 @@ public class FileEpisode {
     // in the show's catalog, the file does not need to actually be present.
     private Path pathObj;
     private String fileNameString;
-    @SuppressWarnings("unused")
-    private boolean exists = false;
     private long fileSize = NO_FILE_SIZE;
 
     // After we've looked up the filenameShow from the provider, we should get back an
@@ -163,22 +161,6 @@ public class FileEpisode {
         fileNameString = justNamePath.toString();
         filenameSuffix = StringUtils.getExtension(fileNameString);
         checkFile(false);
-    }
-
-    // Create FileEpisode with no path; only for testing
-    public FileEpisode() {
-        // We do not provide any way to create a FileEpisode with a null path
-        // via the UI -- why would we?  Ultimately the program is to rename and
-        // move files, and if there's no file, there's no point.  However, that's
-        // not as true for testing.  There's a lot we do with a FileEpisode before
-        // we ever get around to renaming it, and we shouldn't need to create
-        // actual files on the file system just to test the functionality.
-        fileNameString = "";
-        filenameSuffix = "";
-        // now do what setPath() would do
-        exists = false;
-        fileStatus = FileStatus.NO_FILE;
-        fileSize = NO_FILE_SIZE;
     }
 
     public String getFilenameShow() {
@@ -250,7 +232,6 @@ public class FileEpisode {
 
     private void checkFile(boolean mustExist) {
         if (Files.exists(pathObj)) {
-            exists = true;
             try {
                 fileStatus = FileStatus.ORIGINAL;
                 fileSize = Files.size(pathObj);
@@ -263,7 +244,6 @@ public class FileEpisode {
             if (mustExist) {
                 logger.warning("creating FileEpisode for nonexistent path, " + pathObj);
             }
-            exists = false;
             fileStatus = FileStatus.NO_FILE;
             fileSize = NO_FILE_SIZE;
         }
