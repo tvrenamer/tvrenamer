@@ -68,23 +68,19 @@ public class ShowName {
          * about it.
          *
          * @param show the Show to map this QueryString to
-         * @return false if this QueryString had already been mapped to a show;
-         *         true otherwise.
          */
-        @SuppressWarnings("UnusedReturnValue")
-        synchronized boolean setShow(Show show) {
+        synchronized void setShow(Show show) {
             if (matchedShow == null) {
                 matchedShow = show;
-                return true;
+                return;
             }
             if (matchedShow == show) {
                 // same object; not just equals() but ==
                 logger.info("re-setting show in QueryString " + queryString);
-                return true;
+                return;
             }
             logger.warning("changing show in QueryString " + queryString);
             matchedShow = show;
-            return false;
         }
 
         // see ShowName.addListener for documentation
