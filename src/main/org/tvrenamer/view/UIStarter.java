@@ -262,9 +262,9 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         MenuItem helpHelpItem = new MenuItem(helpMenu, SWT.PUSH);
         helpHelpItem.setText("Help");
 
-        MenuItem helpVisitWebpageItem = new MenuItem(helpMenu, SWT.PUSH);
-        helpVisitWebpageItem.setText("Visit Webpage");
-        helpVisitWebpageItem.addSelectionListener(new UrlLauncher(TVRENAMER_PROJECT_URL));
+        MenuItem helpVisitWebPageItem = new MenuItem(helpMenu, SWT.PUSH);
+        helpVisitWebPageItem.setText("Visit Web Page");
+        helpVisitWebPageItem.addSelectionListener(new UrlLauncher(TVRENAMER_PROJECT_URL));
 
         return helpMenu;
     }
@@ -818,30 +818,30 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         }
     }
 
-    private void updateUserPreferences(UserPreferences observed, UserPreference upref) {
-        logger.info("Preference change event: " + upref);
+    private void updateUserPreferences(UserPreferences observed, UserPreference userPref) {
+        logger.info("Preference change event: " + userPref);
 
-        if ((upref == UserPreference.MOVE_ENABLED)
-            || (upref == UserPreference.RENAME_ENABLED))
+        if ((userPref == UserPreference.MOVE_ENABLED)
+            || (userPref == UserPreference.RENAME_ENABLED))
         {
             setColumnDestText(resultsTable.getColumn(NEW_FILENAME_COLUMN));
             setRenameButtonText(renameSelectedButton);
         }
-        if ((upref == UserPreference.REPLACEMENT_MASK)
-            || (upref == UserPreference.MOVE_ENABLED)
-            || (upref == UserPreference.RENAME_ENABLED)
-            || (upref == UserPreference.DEST_DIR)
-            || (upref == UserPreference.SEASON_PREFIX)
-            || (upref == UserPreference.LEADING_ZERO))
+        if ((userPref == UserPreference.REPLACEMENT_MASK)
+            || (userPref == UserPreference.MOVE_ENABLED)
+            || (userPref == UserPreference.RENAME_ENABLED)
+            || (userPref == UserPreference.DEST_DIR)
+            || (userPref == UserPreference.SEASON_PREFIX)
+            || (userPref == UserPreference.LEADING_ZERO))
         {
             refreshTable();
         }
 
-        if (upref == UserPreference.IGNORE_REGEX) {
+        if (userPref == UserPreference.IGNORE_REGEX) {
             ignoreKeywords = observed.getIgnoreKeywords();
         }
 
-        if (upref == UserPreference.DEST_DIR) {
+        if (userPref == UserPreference.DEST_DIR) {
             UIUtils.checkDestinationDirectory(observed);
         }
     }
