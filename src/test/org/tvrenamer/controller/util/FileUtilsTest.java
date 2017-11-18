@@ -20,7 +20,7 @@ import java.util.Set;
 public class FileUtilsTest {
 
     @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder();
+    public final TemporaryFolder tempFolder = new TemporaryFolder();
 
     @BeforeClass
     public static void setLogging() {
