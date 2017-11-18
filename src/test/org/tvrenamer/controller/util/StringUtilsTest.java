@@ -68,7 +68,7 @@ public class StringUtilsTest {
 
     @Test
     public void testRemoveLast() {
-        // Straighforward removal; note does not remove punctuation/separators
+        // Straightforward removal; note does not remove punctuation/separators
         assertEquals("foo..baz", StringUtils.removeLast("foo.bar.baz", "bar"));
 
         // Implementation detail, but the match is required to be all lower-case,

@@ -50,7 +50,7 @@ public class TVRenamer {
     };
 
     // REGEX is a series of regular expressions for different patterns comprising
-    // show name, season number, and epsiode number.  We also want to be able to
+    // show name, season number, and episode number.  We also want to be able to
     // recognize episode resolution ("720p", etc.)  To make the resolution optional,
     // we compile the patterns with the resolution first, and then compile the
     // basic patterns.  So we need an array twice the size of REGEX to hold the

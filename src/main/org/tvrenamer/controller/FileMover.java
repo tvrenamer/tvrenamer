@@ -157,7 +157,7 @@ public class FileMover implements Callable<Boolean> {
      * @param destPath
      *    the Path to which the file should be moved
      * @param tryRename
-     *    if false, do not try to simpy rename the file; always do a "copy-and-delete"
+     *    if false, do not try to simply rename the file; always do a "copy-and-delete"
      * @return true on complete success, false otherwise.
      */
     private boolean doActualMove(final Path srcPath, final Path destPath, final boolean tryRename) {

@@ -287,7 +287,7 @@ public class TheTVDBProviderTest {
      * us already.
      *
      * It would be nice to make it configurable to run on demand.  I'm not sure how to
-     * do that.  So for now, I'll just leave it here, and if an inidividual wants to
+     * do that.  So for now, I'll just leave it here, and if an individual wants to
      * run these tests, they can just uncomment the @Test annotation, below.
      *
      */
@@ -675,7 +675,7 @@ public class TheTVDBProviderTest {
     @SuppressWarnings("unused")
     public static void setupValues35() {
         // Comment this out because the episode listing for The Good Wife
-        // currently (2017/06/02) comes through unparseable.
+        // currently (2017/06/02) comes through unparsable.
         values.add(new EpisodeTestData.Builder()
                    .queryString("the good wife")
                    .properShowName("The Good Wife")
