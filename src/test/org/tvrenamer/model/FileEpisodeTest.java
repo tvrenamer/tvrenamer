@@ -58,7 +58,7 @@ public class FileEpisodeTest {
         }
     }
 
-    private UserPreferences prefs = UserPreferences.getInstance();
+    private final UserPreferences prefs = UserPreferences.getInstance();
 
     // Helper method.  Basically mkdirs, but expects that the directory does
     // NOT exist, and considers it an error if it does.  Also does one final
