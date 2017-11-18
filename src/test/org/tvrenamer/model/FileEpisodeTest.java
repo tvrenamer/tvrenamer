@@ -123,8 +123,8 @@ public class FileEpisodeTest {
             }
         }
         if (FileUtilities.isDirEmpty(OUR_TEMP_DIR)) {
-            boolean rmed = FileUtilities.rmdir(OUR_TEMP_DIR);
-            if (!rmed) {
+            boolean removed = FileUtilities.rmdir(OUR_TEMP_DIR);
+            if (!removed) {
                 fail("unable to delete empty temp directory " + OUR_TEMP_DIR);
             }
         } else {

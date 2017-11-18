@@ -51,7 +51,7 @@ public class TheTVDBProvider {
 
     // These are the tags that we use to extract the relevant information from the show document.
     private static final String XPATH_SHOW = "/Data/Series";
-    private static final String XPATH_SHOWID = "seriesid";
+    private static final String XPATH_SHOW_ID = "seriesid";
     private static final String XPATH_NAME = "SeriesName";
     private static final String XPATH_IMDB = "IMDB_ID";
     private static final String SERIES_NOT_PERMITTED = "** 403: Series Not Permitted **";
@@ -134,7 +134,7 @@ public class TheTVDBProvider {
         for (int i = 0; i < shows.getLength(); i++) {
             Node eNode = shows.item(i);
             String seriesName = nodeTextValue(XPATH_NAME, eNode);
-            String tvdbId = nodeTextValue(XPATH_SHOWID, eNode);
+            String tvdbId = nodeTextValue(XPATH_SHOW_ID, eNode);
             String imdbId = nodeTextValue(XPATH_IMDB, eNode);
 
             if (SERIES_NOT_PERMITTED.equals(seriesName)) {
