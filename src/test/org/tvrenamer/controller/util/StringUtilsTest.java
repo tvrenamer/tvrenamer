@@ -12,7 +12,7 @@ public class StringUtilsTest {
     }
 
     @Test
-    public void testSanitiseTitleForwardslash() {
+    public void testSanitiseTitleForwardSlash() {
         assertEquals(StringUtils.sanitiseTitle("Test/"), "Test-");
     }
 
