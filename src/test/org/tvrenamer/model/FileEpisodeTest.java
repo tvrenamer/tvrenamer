@@ -1040,9 +1040,7 @@ public class FileEpisodeTest {
      * Then, we're done.  We return the replacement text to the driver method, and let it
      * do the checking.
      */
-    private String getReplacementBasename(EpisodeTestData data, Path path)
-        throws IOException
-    {
+    private FileEpisode getEpisode(EpisodeTestData data, Path path) {
         prefs.setRenameReplacementString(data.replacementMask);
 
         String pathstring = path.toAbsolutePath().toString();
@@ -1066,7 +1064,7 @@ public class FileEpisodeTest {
         show.indexEpisodesBySeason();
         episode.listingsComplete();
 
-        return episode.getRenamedBasename();
+        return episode;
     }
 
     /**
@@ -1086,8 +1084,11 @@ public class FileEpisodeTest {
                 Files.createFile(path);
                 testFiles.add(path);
 
-                String replacement = getReplacementBasename(data, path);
-                assertEquals(data.expectedReplacement, replacement);
+                FileEpisode episode = getEpisode(data, path);
+                assertEquals("suffix fail on " + data.inputFilename,
+                             data.filenameSuffix, episode.getFilenameSuffix());
+                assertEquals("test which " + data.documentation,
+                             data.expectedReplacement, episode.getRenamedBasename());
             } catch (Exception e) {
                 verboseFail("testing " + data, e);
             }
