@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 
 /**
  * A utility class to help with looking up show listings from the provider.
- * This class does not manage the listeners, or deal with the epsisodes.
+ * This class does not manage the listeners, or deal with the episodes.
  * It is just for managing threads and communication with the provider.
  */
 public class ListingsLookup {

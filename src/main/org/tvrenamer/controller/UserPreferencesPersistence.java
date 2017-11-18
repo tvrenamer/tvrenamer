@@ -40,7 +40,7 @@ public class UserPreferencesPersistence {
         try (BufferedWriter writer = Files.newBufferedWriter(path)) {
             writer.write(xml);
         } catch (IOException | UnsupportedOperationException | SecurityException e) {
-            logger.log(Level.SEVERE, "Exception occured when writing preferences file", e);
+            logger.log(Level.SEVERE, "Exception occurred when writing preferences file", e);
         }
     }
 
