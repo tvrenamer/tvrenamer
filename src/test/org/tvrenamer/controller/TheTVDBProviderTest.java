@@ -195,8 +195,8 @@ public class TheTVDBProviderTest {
      * @return the title of the given episode of the show returned by the provider, or null
      *         if we didn't get an episode title
      */
-    private String testSeriesNameAndEpisodeTitle(final EpisodeTestData epdata) throws Exception {
-        return testSeriesNameAndEpisode(epdata, true);
+    private void testSeriesNameAndEpisodeTitle(final EpisodeTestData epdata) throws Exception {
+        testSeriesNameAndEpisode(epdata, true);
     }
 
     /**
