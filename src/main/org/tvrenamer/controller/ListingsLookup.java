@@ -7,6 +7,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -62,8 +63,14 @@ public class ListingsLookup {
                 return false;
             }
         };
-        Future<Boolean> future = THREAD_POOL.submit(listingsFetcher);
-        show.addFuture(future);
+        try {
+            Future<Boolean> future = THREAD_POOL.submit(listingsFetcher);
+            logger.fine("successfully submitted task " + future);
+            show.addFuture(future);
+        } catch (RejectedExecutionException | NullPointerException e) {
+            logger.log(Level.WARNING, "unable to submit listings download task ("
+                       + show.getName() + ") for execution", e);
+        }
     }
 
     /**
