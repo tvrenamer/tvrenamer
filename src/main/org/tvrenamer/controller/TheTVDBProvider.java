@@ -4,6 +4,7 @@ import static org.tvrenamer.controller.util.XPathUtilities.nodeListValue;
 import static org.tvrenamer.controller.util.XPathUtilities.nodeTextValue;
 import static org.tvrenamer.model.util.Constants.*;
 
+import org.tvrenamer.model.DiscontinuedApiException;
 import org.tvrenamer.model.EpisodeInfo;
 import org.tvrenamer.model.Show;
 import org.tvrenamer.model.ShowName;
@@ -16,8 +17,11 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringReader;
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,6 +35,12 @@ public class TheTVDBProvider {
 
     // The unique API key for our application
     private static final String API_KEY = "4A9560FF0B2670B2";
+
+    // The proposed day on which the v1 API will cease to be supported.
+    private static final LocalDate SUNSET = LocalDate.of(2017, Month.DECEMBER, 1);
+
+    // Whether or not we should try making v1 API calls
+    private static boolean apiIsDeprecated = false;
 
     // The base information for the provider
     private static final String DEFAULT_SITE_URL = "http://thetvdb.com/";
@@ -64,8 +74,12 @@ public class TheTVDBProvider {
     // private static final String XPATH_EPISODE_NUM_ABS = "absolute_number";
 
     private static String getShowSearchXml(final ShowName showName)
-        throws TVRenamerIOException
+        throws TVRenamerIOException, DiscontinuedApiException
     {
+        if (apiIsDeprecated) {
+            throw new DiscontinuedApiException();
+        }
+
         String searchURL = BASE_SEARCH_URL + showName.getQueryString();
 
         logger.fine("About to download search results from " + searchURL);
@@ -76,8 +90,12 @@ public class TheTVDBProvider {
     }
 
     private static String getShowListingXml(final Show show)
-        throws TVRenamerIOException
+        throws TVRenamerIOException, DiscontinuedApiException
     {
+        if (apiIsDeprecated) {
+            throw new DiscontinuedApiException();
+        }
+
         Integer showId = show.getId();
         if (showId == null) {
             throw new TVRenamerIOException("cannot download listings for show "
@@ -125,8 +143,25 @@ public class TheTVDBProvider {
         }
     }
 
+    private static synchronized boolean isApiDiscontinuedError(Throwable e) {
+        if (apiIsDeprecated) {
+            return true;
+        }
+        if (0 > LocalDate.now().compareTo(SUNSET)) {
+            return false;
+        }
+        while (e != null) {
+            if (e instanceof FileNotFoundException) {
+                apiIsDeprecated = true;
+                return true;
+            }
+            e = e.getCause();
+        }
+        return false;
+    }
+
     public static void getShowOptions(final ShowName showName)
-        throws TVRenamerIOException
+        throws TVRenamerIOException, DiscontinuedApiException
     {
         DocumentBuilder bld;
         try {
@@ -144,7 +179,11 @@ public class TheTVDBProvider {
         } catch (TVRenamerIOException tve) {
             String msg  = "error parsing XML from " + searchXml + " for series "
                 + showName.getFoundName();
-            logger.log(Level.WARNING, msg, tve);
+            if (isApiDiscontinuedError(tve)) {
+                throw new DiscontinuedApiException();
+            } else {
+                logger.log(Level.WARNING, msg, tve);
+            }
             throw new TVRenamerIOException(msg, tve);
         }
     }
