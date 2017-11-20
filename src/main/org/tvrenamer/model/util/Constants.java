@@ -141,6 +141,8 @@ public class Constants {
     public static final String NEW_VERSION_AVAILABLE = "There is a new version available!\n\n"
         + "You are currently running " + VERSION_NUMBER + ", but there is an update available\n\n"
         + TO_DOWNLOAD;
+    public static final String UPDATE_AVAILABLE = "There is an update available. <a href=\""
+        + TVRENAMER_DOWNLOAD_URL + "\">Click here to download</a>";
     public static final String NO_NEW_VERSION_TITLE = "No New Version Available";
     public static final String NO_NEW_VERSION_AVAILABLE = "There is no new version available\n\n"
         + "Please check the website (" + TVRENAMER_PROJECT_URL + ") for any news or check back later.";

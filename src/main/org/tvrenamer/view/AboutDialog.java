@@ -42,16 +42,16 @@ final class AboutDialog extends Dialog {
          */
         @Override
         public void widgetSelected(SelectionEvent arg0) {
-            boolean updateAvailable = UpdateChecker.isUpdateAvailable();
-
-            if (updateAvailable) {
-                logger.fine(NEW_VERSION_AVAILABLE);
-                UIUtils.showMessageBox(SWTMessageBoxType.OK, NEW_VERSION_TITLE,
-                                       NEW_VERSION_AVAILABLE);
-            } else {
-                UIUtils.showMessageBox(SWTMessageBoxType.WARNING, NO_NEW_VERSION_TITLE,
-                                       NO_NEW_VERSION_AVAILABLE);
-            }
+            UpdateChecker.notifyOfUpdate(updateIsAvailable -> {
+                if (updateIsAvailable) {
+                    logger.fine(NEW_VERSION_AVAILABLE);
+                    UIUtils.showMessageBox(SWTMessageBoxType.OK, NEW_VERSION_TITLE,
+                                           NEW_VERSION_AVAILABLE);
+                } else {
+                    UIUtils.showMessageBox(SWTMessageBoxType.WARNING, NO_NEW_VERSION_TITLE,
+                                           NO_NEW_VERSION_AVAILABLE);
+                }
+            });
         }
     }
 
