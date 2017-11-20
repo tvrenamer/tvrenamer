@@ -84,7 +84,6 @@ public final class UIStarter implements Observer, AddEpisodeListener {
     private Button addFilesButton;
     private Button addFolderButton;
     private Button clearFilesButton;
-    private Link updatesAvailableLink;
     private Button renameSelectedButton;
     private Table resultsTable;
     private ProgressBar totalProgressBar;
@@ -123,6 +122,21 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         shell.pack(true);
     }
 
+    private void setupUpdateStuff(final Composite parentComposite) {
+        Link updatesAvailableLink = new Link(parentComposite, SWT.VERTICAL);
+        // updatesAvailableLink.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, true));
+        updatesAvailableLink.setVisible(false);
+        updatesAvailableLink.setText(UPDATE_AVAILABLE);
+        updatesAvailableLink.addSelectionListener(new UrlLauncher(TVRENAMER_DOWNLOAD_URL));
+
+        // Show the label if updates are available (in a new thread)
+        UpdateChecker.notifyOfUpdate(updateIsAvailable -> {
+            if (updateIsAvailable) {
+                display.asyncExec(() -> updatesAvailableLink.setVisible(true));
+            }
+        });
+    }
+
     private void setupMainWindow() {
         final Composite topButtonsComposite = new Composite(shell, SWT.FILL);
         topButtonsComposite.setLayout(new RowLayout());
@@ -136,25 +150,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         clearFilesButton = new Button(topButtonsComposite, SWT.PUSH);
         clearFilesButton.setText("Clear List");
 
-        updatesAvailableLink = new Link(topButtonsComposite, SWT.VERTICAL);
-        //updatesAvailableLink.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, true));
-        updatesAvailableLink.setVisible(false);
-        updatesAvailableLink.setText("There is an update available. <a href=\"" + TVRENAMER_DOWNLOAD_URL
-            + "\">Click here to download</a>");
-        updatesAvailableLink.addSelectionListener(new UrlLauncher(TVRENAMER_DOWNLOAD_URL));
-
-        // Show the label if updates are available (in a new thread)
-        Thread updateCheckThread = new Thread(() -> {
-            if (prefs.checkForUpdates()) {
-                final boolean updatesAvailable = UpdateChecker.isUpdateAvailable();
-
-                if (updatesAvailable) {
-                    display.asyncExec(() -> updatesAvailableLink.setVisible(true));
-                }
-            }
-        });
-        updateCheckThread.start();
-
+        setupUpdateStuff(topButtonsComposite);
         setupResultsTable();
         setupTableDragDrop();
 
