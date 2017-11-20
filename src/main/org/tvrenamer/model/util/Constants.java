@@ -146,6 +146,12 @@ public class Constants {
     public static final String NO_NEW_VERSION_TITLE = "No New Version Available";
     public static final String NO_NEW_VERSION_AVAILABLE = "There is no new version available\n\n"
         + "Please check the website (" + TVRENAMER_PROJECT_URL + ") for any news or check back later.";
+    public static final String GET_UPDATE_MESSAGE = "This version of TVRenamer is no longer "
+        + "functional.  There is a new version available, which should work. "
+        + TO_DOWNLOAD;
+    public static final String NEED_UPDATE = "This version of TVRenamer is no longer "
+        + "functional.  There is a not currently a new version available, but please "
+        + "check\n" + TVRENAMER_PROJECT_URL + "\nto see when one becomes available.";
 
     public static final String ERROR_PARSING_XML = "Error parsing XML";
     public static final String ERROR_PARSING_NUMBERS = ERROR_PARSING_XML

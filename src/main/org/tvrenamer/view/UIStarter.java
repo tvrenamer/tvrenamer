@@ -90,6 +90,8 @@ public final class UIStarter implements Observer, AddEpisodeListener {
     private TaskItem taskItem = null;
 
     private UserPreferences prefs;
+    private boolean apiDeprecated = false;
+
     private final EpisodeDb episodeMap = new EpisodeDb();
 
     private void init() {
@@ -566,6 +568,16 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         });
     }
 
+    private synchronized void noteApiFailure() {
+        boolean showDialogBox = !apiDeprecated;
+        apiDeprecated = true;
+        if (showDialogBox) {
+            boolean updateIsAvailable = UpdateChecker.isUpdateAvailable();
+            showMessageBox(SWTMessageBoxType.ERROR, ERROR_LABEL,
+                           updateIsAvailable ? GET_UPDATE_MESSAGE : NEED_UPDATE);
+        }
+    }
+
     @Override
     public void addEpisodes(Queue<FileEpisode> episodes) {
         // Update the list of ignored keywords
@@ -574,11 +586,17 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         for (final FileEpisode episode : episodes) {
             final String fileName = episode.getFilepath();
             final TableItem item = createTableItem(resultsTable, fileName, episode);
+            synchronized (this) {
+                if (apiDeprecated) {
+                    tableItemFailed(item);
+                    continue;
+                }
+            }
 
             final String showName = episode.getFilenameShow();
             ShowStore.getShow(showName, new ShowInformationListener() {
                     @Override
-                    public void downloaded(Show show) {
+                    public void downloadSucceeded(Show show) {
                         episode.setEpisodeShow(show);
                         tableItemDownloaded(item, episode);
                         getShowListings(show, item, episode);
@@ -587,6 +605,12 @@ public final class UIStarter implements Observer, AddEpisodeListener {
                     @Override
                     public void downloadFailed(Show show) {
                         episode.setEpisodeShow(show);
+                        tableItemFailed(item);
+                    }
+
+                    @Override
+                    public void apiHasBeenDeprecated() {
+                        noteApiFailure();
                         tableItemFailed(item);
                     }
                 });

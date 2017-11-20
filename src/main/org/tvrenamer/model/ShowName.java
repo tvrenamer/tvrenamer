@@ -101,7 +101,7 @@ public class ShowName {
         private void nameResolved(Show show) {
             synchronized (listeners) {
                 for (ShowInformationListener informationListener : listeners) {
-                    informationListener.downloaded(show);
+                    informationListener.downloadSucceeded(show);
                 }
             }
         }
@@ -112,6 +112,13 @@ public class ShowName {
                 for (ShowInformationListener informationListener : listeners) {
                     informationListener.downloadFailed(show);
                 }
+            }
+        }
+
+        // see ShowName.apiDiscontinued for documentation
+        private void apiDiscontinued() {
+            synchronized (listeners) {
+                listeners.forEach(ShowInformationListener::apiHasBeenDeprecated);
             }
         }
 
@@ -243,6 +250,17 @@ public class ShowName {
     public void nameNotFound(Show show) {
         synchronized (queryString) {
             queryString.nameNotFound(show);
+        }
+    }
+
+    /**
+     * Notify registered interested parties that the provider is unusable
+     * due to a discontinued API.
+     *
+     */
+    public void apiDiscontinued() {
+        synchronized (queryString) {
+            queryString.apiDiscontinued();
         }
     }
 

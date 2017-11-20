@@ -201,7 +201,7 @@ public class ShowStore {
             if (show.isLocalShow()) {
                 listener.downloadFailed(show);
             } else {
-                listener.downloaded(show);
+                listener.downloadSucceeded(show);
             }
         }
     }
@@ -232,6 +232,9 @@ public class ShowStore {
             try {
                 TheTVDBProvider.getShowOptions(showName);
                 thisShow = showName.selectShowOption();
+            } catch (DiscontinuedApiException e) {
+                showName.apiDiscontinued();
+                return false;
             } catch (TVRenamerIOException e) {
                 thisShow = showName.getFailedShow(e);
             }
