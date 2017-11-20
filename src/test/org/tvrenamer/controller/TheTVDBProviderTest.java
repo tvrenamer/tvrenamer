@@ -27,6 +27,7 @@ import static org.junit.Assert.fail;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import org.tvrenamer.model.DiscontinuedApiException;
 import org.tvrenamer.model.Episode;
 import org.tvrenamer.model.EpisodeTestData;
 import org.tvrenamer.model.Show;
@@ -40,6 +41,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 public class TheTVDBProviderTest {
+
+    private static final String API_DISCONTINUED_NAME = "api_dead";
 
     /**
      * Static inner class to use as a Listener for downloading show listings.
@@ -110,13 +113,19 @@ public class TheTVDBProviderTest {
         }
 
         @Override
-        public void downloaded(Show show) {
+        public void downloadSucceeded(Show show) {
             futureShow.complete(show);
         }
 
         @Override
         public void downloadFailed(Show show) {
             futureShow.complete(show);
+        }
+
+        @Override
+        public void apiHasBeenDeprecated() {
+            Show standIn = Show.getShowInstance(API_DISCONTINUED_NAME, API_DISCONTINUED_NAME);
+            futureShow.complete(standIn);
         }
     }
 
@@ -157,6 +166,8 @@ public class TheTVDBProviderTest {
 
         try {
             TheTVDBProvider.getShowOptions(showName);
+        } catch (DiscontinuedApiException api) {
+            fail("API deprecation discovered getting show options for " + actualName);
         } catch (Exception e) {
             fail("exception getting show options for " + actualName);
         }
@@ -1039,8 +1050,8 @@ public class TheTVDBProviderTest {
             final CompletableFuture<Show> futureShow = new CompletableFuture<>();
             ShowStore.getShow(queryString, new ShowDownloader(futureShow));
             Show gotShow = futureShow.get(4, TimeUnit.SECONDS);
-            if (gotShow == null) {
-                fail("could not parse show name input " + queryString);
+            if (API_DISCONTINUED_NAME.equals(gotShow.getName())) {
+                fail("API apparently discontinued parsing " + queryString);
                 return null;
             }
             assertFalse(gotShow.isLocalShow());

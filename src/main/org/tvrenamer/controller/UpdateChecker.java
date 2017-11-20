@@ -40,7 +40,7 @@ public class UpdateChecker {
      * @return true if a new version is available, false if there is no new version or
      *          if an error has occurred
      */
-    private static synchronized boolean isUpdateAvailable() {
+    public static synchronized boolean isUpdateAvailable() {
         if (newVersionAvailable == null) {
             newVersionAvailable = checkIfUpdateAvailable();
         }
