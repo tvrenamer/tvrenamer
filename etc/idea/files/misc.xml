@@ -12,8 +12,6 @@
       <entry_point TYPE="method" FQNAME="org.tvrenamer.model.Show void indexEpisodesBySeason()" />
       <entry_point TYPE="method" FQNAME="org.tvrenamer.model.ShowStore org.tvrenamer.model.Show getOrAddShow(java.lang.String filenameShow, java.lang.String actualName)" />
       <entry_point TYPE="method" FQNAME="org.tvrenamer.model.ShowName boolean hasShowOptions()" />
-      <entry_point TYPE="method" FQNAME="org.tvrenamer.model.FileEpisode int getSeasonNum()" />
-      <entry_point TYPE="method" FQNAME="org.tvrenamer.model.FileEpisode int getEpisodeNum()" />
       <entry_point TYPE="method" FQNAME="org.tvrenamer.model.FileEpisode java.lang.String getFilenameSeason()" />
       <entry_point TYPE="method" FQNAME="org.tvrenamer.model.FileEpisode java.lang.String getFilenameEpisode()" />
       <entry_point TYPE="method" FQNAME="org.tvrenamer.model.FileEpisode java.lang.String getFilenameResolution()" />
