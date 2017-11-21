@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import org.tvrenamer.model.EpisodePlacement;
 import org.tvrenamer.model.EpisodeTestData;
 import org.tvrenamer.model.FileEpisode;
 
@@ -21,18 +22,20 @@ import java.util.List;
  * identifies the show name, we normalize it somewhat.  We replace punctuation
  * and lower-case the name.
  *
+ * We refer to the season/episode combination as the episode "placement".
+ *
  * The method "testParseFileName" in this file tests that functionality.  Each
- * line of the test input has a filename, and the expected values for show
- * name, season number, episode number, and resolution.  The method parses
- * the filename and verifies the values are as expected.
+ * line of the test input has a filename, and the expected values for show name,
+ * placement, and resolution.  The method parses the filename and verifies the
+ * values are as expected.
  *
  * The next step is to take the normalized string and send it to the
  * provider to try to figure out which show this is actually referring to.
  * The provider might return any number of results, including zero.  If
  * it returns more than one, we try to select the right one.
  *
- * Once we have identified the actual show, then we use the season and
- * episode information to look up the actual episode.
+ * Once we have identified the actual show, then we use the placement
+ * information to look up the actual episode.
  *
  * The method testDownloadAndRename tests the second and third steps.  The
  * static data provided includes the expected episode title, and the test
@@ -894,6 +897,7 @@ public class FilenameParserTest {
             String input = testInput.inputFilename;
             FileEpisode retval = new FileEpisode(input);
             FilenameParser.parseFilename(retval);
+            EpisodePlacement retPlacement = retval.getEpisodePlacement();
 
             assertTrue("unable to parse:<[" + input + "]>",
                        retval.wasParsed());
@@ -901,9 +905,9 @@ public class FilenameParserTest {
                          testInput.filenameShow, retval.getFilenameShow());
 
             assertEquals("On input:<[" + input + "]>, for season,",
-                         Integer.parseInt(testInput.seasonNumString), retval.getSeasonNum());
+                         Integer.parseInt(testInput.seasonNumString), retPlacement.season);
             assertEquals("On input:<[" + input + "]>, for episode,",
-                         Integer.parseInt(testInput.episodeNumString), retval.getEpisodeNum());
+                         Integer.parseInt(testInput.episodeNumString), retPlacement.episode);
             assertEquals("On input:<[" + input + "]>, for resolution,",
                          testInput.episodeResolution, retval.getFilenameResolution());
         }

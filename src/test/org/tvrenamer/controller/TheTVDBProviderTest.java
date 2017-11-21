@@ -28,6 +28,7 @@ import org.junit.Test;
 
 import org.tvrenamer.model.DiscontinuedApiException;
 import org.tvrenamer.model.Episode;
+import org.tvrenamer.model.EpisodePlacement;
 import org.tvrenamer.model.EpisodeTestData;
 import org.tvrenamer.model.FailedShow;
 import org.tvrenamer.model.Series;
@@ -71,24 +72,21 @@ public class TheTVDBProviderTest {
         private static final String DOWNLOAD_FAILED = "download failed";
 
         final Show show;
-        final int seasonNum;
-        final int episodeNum;
+        final EpisodePlacement placement;
         final CompletableFuture<String> future;
 
         public ListingsDownloader(final Show show,
-                                  final int seasonNum,
-                                  final int episodeNum,
+                                  final EpisodePlacement placement,
                                   final CompletableFuture<String> future)
         {
             this.show = show;
-            this.seasonNum = seasonNum;
-            this.episodeNum = episodeNum;
+            this.placement = placement;
             this.future = future;
         }
 
         @Override
         public void listingsDownloadComplete() {
-            Episode ep = show.getEpisode(seasonNum, episodeNum);
+            Episode ep = show.getEpisode(placement);
             if (ep == null) {
                 future.complete(NO_EPISODE);
             } else {
@@ -205,7 +203,7 @@ public class TheTVDBProviderTest {
             TheTVDBProvider.getSeriesListing(series);
         }
 
-        final Episode ep = series.getEpisode(epdata.seasonNum, epdata.episodeNum);
+        final Episode ep = series.getEpisode(new EpisodePlacement(epdata.seasonNum, epdata.episodeNum));
         if (ep == null) {
             fail("result of calling getEpisode(" + epdata.seasonNum + ", " + epdata.episodeNum
                  + ") on " + actualName + " came back null");
@@ -644,7 +642,7 @@ public class TheTVDBProviderTest {
     @SuppressWarnings("unused")
     public static void setupValues29() {
         // Comment this out because Offspring has three untitled episodes with
-        // the same season and episode, but different IDs
+        // the same placement, but different IDs
         values.add(new EpisodeTestData.Builder()
                    .queryString("offspring")
                    .properShowName("Offspring")
@@ -1126,6 +1124,7 @@ public class TheTVDBProviderTest {
                 final String queryString = testInput.queryString;
                 final int seasonNum = testInput.seasonNum;
                 final int episodeNum = testInput.episodeNum;
+                final EpisodePlacement placement = new EpisodePlacement(seasonNum, episodeNum);
                 try {
                     final Show show = testQueryShow(queryString, testInput.properShowName);
                     assertNotNull("got null value from testQueryShow on <["
@@ -1137,8 +1136,7 @@ public class TheTVDBProviderTest {
 
                     final CompletableFuture<String> future = new CompletableFuture<>();
                     Series series = show.asSeries();
-                    series.addListingsListener(new ListingsDownloader(series, seasonNum,
-                                                                      episodeNum, future));
+                    series.addListingsListener(new ListingsDownloader(series, placement, future));
                     String got = future.get(30, TimeUnit.SECONDS);
                     assertEpisodeTitle(testInput, got);
                 } catch (TimeoutException e) {
