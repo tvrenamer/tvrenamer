@@ -108,11 +108,10 @@ public class FileEpisode {
     // are alternate and ambiguous numbering schemes.  There's not necessarily one true
     // answer.  But these variables are meant to hold the answer the user wants.
     //
-    // Initially these values are set to the result of the parse (i.e., whatever is found
+    // Initially the placement is set to the result of the parse (i.e., whatever is found
     // in the filename), and actually as of this writing, there is nothing in the program
     // that would change them, but there could/should be, in future versions.
-    private int seasonNum = Show.NO_SEASON;
-    private int episodeNum = Show.NO_EPISODE;
+    private EpisodePlacement placement = null;
 
     // Information about the file on disk.  The only way the UI allows you to enter names
     // to be processed is by selecting a file on disk, so they obviously should exist.
@@ -194,38 +193,34 @@ public class FileEpisode {
         this.filenameShow = filenameShow;
     }
 
-    public int getSeasonNum() {
-        return seasonNum;
-    }
-
     public String getFilenameSeason() {
         return filenameSeason;
-    }
-
-    public void setFilenameSeason(String filenameSeason) {
-        this.filenameSeason = filenameSeason;
-        try {
-            seasonNum = Integer.parseInt(filenameSeason);
-        } catch (Exception e) {
-            seasonNum = Show.NO_SEASON;
-        }
-    }
-
-    public int getEpisodeNum() {
-        return episodeNum;
     }
 
     public String getFilenameEpisode() {
         return filenameEpisode;
     }
 
-    public void setFilenameEpisode(String filenameEpisode) {
+    public EpisodePlacement getEpisodePlacement() {
+        return placement;
+    }
+
+    public void setEpisodePlacement(String filenameSeason, String filenameEpisode) {
+        this.filenameSeason = filenameSeason;
         this.filenameEpisode = filenameEpisode;
+        int seasonNum = Show.NO_SEASON;
+        int episodeNum = Show.NO_EPISODE;
+        try {
+            seasonNum = Integer.parseInt(filenameSeason);
+        } catch (Exception e) {
+            logger.fine("unable to parse season number: " + filenameSeason);
+        }
         try {
             episodeNum = Integer.parseInt(filenameEpisode);
         } catch (Exception e) {
-            episodeNum = Show.NO_EPISODE;
+            logger.fine("unable to parse episode number: " + filenameEpisode);
         }
+        placement = new EpisodePlacement(seasonNum, episodeNum);
     }
 
     public String getFilenameResolution() {
@@ -365,10 +360,10 @@ public class FileEpisode {
             return false;
         }
 
-        actualEpisode = actualShow.getEpisode(seasonNum, episodeNum);
+        actualEpisode = actualShow.getEpisode(placement);
         if (actualEpisode == null) {
-            logger.info("Season #" + seasonNum + ", Episode #"
-                        + episodeNum + " not found for show '"
+            logger.info("Season #" + placement.season + ", Episode #"
+                        + placement.episode + " not found for show '"
                         + filenameShow + "'");
             seriesStatus = SeriesStatus.NO_MATCH;
             return false;
@@ -412,14 +407,14 @@ public class FileEpisode {
 
             // Now we might append the "season" directory, if the user requested it in
             // the preferences.  But, only if we actually *have* season information.
-            if (seasonNum > Show.NO_SEASON) {
+            if (placement.season > Show.NO_SEASON) {
                 String seasonPrefix = userPrefs.getSeasonPrefix();
                 // Defect #50: Only add the 'season #' folder if set,
                 // otherwise put files in showname root
                 if (StringUtils.isNotBlank(seasonPrefix)) {
                     String seasonString = userPrefs.isSeasonPrefixLeadingZero()
-                        ? StringUtils.zeroPadTwoDigits(seasonNum)
-                        : String.valueOf(seasonNum);
+                        ? StringUtils.zeroPadTwoDigits(placement.season)
+                        : String.valueOf(placement.season);
                     destPath = destPath + FILE_SEPARATOR_STRING + seasonPrefix + seasonString;
                 }
             } else {
@@ -480,16 +475,16 @@ public class FileEpisode {
         showName = GlobalOverrides.getInstance().getShowName(showName);
 
         // Make whatever modifications are required
-        String episodeNumberString = StringUtils.formatDigits(episodeNum);
-        String episodeNumberWithLeadingZeros = StringUtils.zeroPadThreeDigits(episodeNum);
+        String episodeNumberString = StringUtils.formatDigits(placement.episode);
+        String episodeNumberWithLeadingZeros = StringUtils.zeroPadThreeDigits(placement.episode);
         String episodeTitleNoSpaces = Matcher.quoteReplacement(StringUtils.makeDotTitle(titleString));
-        String seasonNumberWithLeadingZero = StringUtils.zeroPadTwoDigits(seasonNum);
+        String seasonNumberWithLeadingZero = StringUtils.zeroPadTwoDigits(placement.season);
 
         titleString = Matcher.quoteReplacement(titleString);
 
         newFilename = newFilename.replaceAll(ReplacementToken.SHOW_NAME.getToken(), showName);
         newFilename = newFilename.replaceAll(ReplacementToken.SEASON_NUM.getToken(),
-                                             String.valueOf(seasonNum));
+                                             String.valueOf(placement.season));
         newFilename = newFilename.replaceAll(ReplacementToken.SEASON_NUM_LEADING_ZERO.getToken(),
                                              seasonNumberWithLeadingZero);
         newFilename = newFilename.replaceAll(ReplacementToken.EPISODE_NUM.getToken(),
@@ -591,7 +586,7 @@ public class FileEpisode {
 
     @Override
     public String toString() {
-        return "FileEpisode { title:" + filenameShow + ", season:" + seasonNum + ", episode:" + episodeNum
-            + ", file:" + fileNameString + " }";
+        return "FileEpisode { title:" + filenameShow + ", season:" + placement.season
+            + ", episode:" + placement.episode + ", file:" + fileNameString + " }";
     }
 }

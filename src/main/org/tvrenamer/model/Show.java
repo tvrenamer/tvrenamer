@@ -116,7 +116,7 @@ public class Show extends ShowOption {
      */
     private void addEpisodeToSeason(Episode episode, EpisodePlacement placement) {
         // Check to see if there's already an existing episode.  Only applies if we
-        // have a valid season number and episode number.
+        // have a valid placement.
         Map<Integer, Episode> season = seasons.get(placement.season);
         if (season == null) {
             season = new ConcurrentHashMap<>();
@@ -204,7 +204,7 @@ public class Show extends ShowOption {
     /**
      * Log a message about each episode of this Show for which we found a problem.
      * Generally a "problem" means that we have found two (or more) episodes with
-     * the same season and episode information.  Another problem could be that we
+     * the same placement information.  Another problem could be that we
      * got a null episodeInfo, though there's very little information we can give,
      * in that case.
      *
@@ -258,12 +258,12 @@ public class Show extends ShowOption {
      * Creates Episodes, and adds them to this Show, for each of the given EpisodeInfos.
      * Relies on addOneEpisode() to create and verify the episode.  Collects failures
      * from addOneEpisode(), and logs messages about them.  Generally a "problem" means
-     * that we have found two (or more) episodes with the same season and episode
+     * that we have found two (or more) episodes with the same placement
      * information.  Another problem could be that we got a null episodeInfo, though
      * there's very little information we can give, in that case.
      *
-     * After all the episodes are added, creates an index of the episodes by season and
-     * episode number, according to the current numbering scheme.
+     * After all the episodes are added, creates an index of the episodes by their
+     * placement in the current ordering.
      *
      * @param infos
      *    an array containing information about the episodes, downloaded from the provider
@@ -281,32 +281,30 @@ public class Show extends ShowOption {
     }
 
     /**
-     * Look up an episode for the given season and episode of this show.
+     * Look up an episode for the given placement of this show.
      * Returns null if no such episode was found.
      *
-     * Note that the value this returns is dependent on the numbering scheme
+     * Note that the value this returns is dependent on the ordering
      * in use.  There is not always a definitive answer for which episode goes
      * in which spot.
      *
      * In the future, we may be able to expand it so that we use other
      * meta-information to try to determine which episode a given filename
-     * refers to.  For now, we just go with season number and episode number.
+     * refers to.  For now, we just go with the episode placement.
      *
-     * @param seasonNum
-     *           the season of the episode to return
-     * @param episodeNum
-     *           the episode, within the given season, of the episode to return
-     * @return the episode indexed at the given season and episode of this show.
+     * @param placement
+     *           the placement of the episode to return
+     * @return the episode indexed at the given placement of this show.
      *    Null if no such episode was found.
      */
-    public Episode getEpisode(int seasonNum, int episodeNum) {
-        Map<Integer, Episode> season = seasons.get(seasonNum);
+    public Episode getEpisode(EpisodePlacement placement) {
+        Map<Integer, Episode> season = seasons.get(placement.season);
         if (season == null) {
-            logger.fine("no season " + seasonNum + " found for show " + name);
+            logger.fine("no season " + placement.season + " found for show " + name);
             return null;
         }
-        Episode episode = season.get(episodeNum);
-        logger.fine("for season " + seasonNum + ", episode " + episodeNum
+        Episode episode = season.get(placement.episode);
+        logger.fine("for season " + placement.season + ", episode " + placement.episode
                     + ", found " + episode);
 
         return episode;
@@ -330,6 +328,7 @@ public class Show extends ShowOption {
      *
      * @return a count of how many episodes we have for this Show
      */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean hasEpisodes() {
         return (episodes.size() > 0);
     }
