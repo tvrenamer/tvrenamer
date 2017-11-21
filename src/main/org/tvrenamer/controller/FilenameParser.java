@@ -96,8 +96,7 @@ public class FilenameParser {
                 String foundName = matcher.group(1);
                 ShowName.lookupShowName(foundName);
                 episode.setFilenameShow(foundName);
-                episode.setFilenameSeason(matcher.group(2));
-                episode.setFilenameEpisode(matcher.group(3));
+                episode.setEpisodePlacement(matcher.group(2), matcher.group(3));
                 episode.setFilenameResolution(resolution);
                 episode.setParsed();
 

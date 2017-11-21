@@ -1048,8 +1048,7 @@ public class FileEpisodeTest {
 
         FileEpisode episode = new FileEpisode(pathstring);
         episode.setFilenameShow(data.filenameShow);
-        episode.setFilenameSeason(data.seasonNumString);
-        episode.setFilenameEpisode(data.episodeNumString);
+        episode.setEpisodePlacement(data.seasonNumString, data.episodeNumString);
         episode.setFilenameResolution(data.episodeResolution);
 
         Show show = ShowStore.getOrAddShow(data.filenameShow, data.properShowName);
