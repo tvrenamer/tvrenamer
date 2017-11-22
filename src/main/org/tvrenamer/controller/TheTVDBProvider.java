@@ -248,9 +248,9 @@ public class TheTVDBProvider {
             for (int i = 0; i < episodeCount; i++) {
                 episodeInfos[i] = createEpisodeInfo(episodes.item(i));
             }
+            show.clearEpisodeInfos();
             show.addEpisodeInfos(episodeInfos);
             show.listingsSucceeded();
-
         } catch (DOMException dom) {
             logger.log(Level.WARNING, dom.getMessage(), dom);
             throw new TVRenamerIOException(ERROR_PARSING_XML, dom);

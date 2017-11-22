@@ -227,6 +227,13 @@ public class Show {
     }
 
     /**
+     * Clear this show's episodes.
+     */
+    public void clearEpisodeInfos() {
+        episodes.clear();
+    }
+
+    /**
      * Add an episode to a season's index of episodes.
      *
      * This method is independent of which number scheme is being used.  That is,
