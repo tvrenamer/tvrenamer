@@ -124,7 +124,7 @@ public class TheTVDBProviderTest {
 
         @Override
         public void apiHasBeenDeprecated() {
-            Show standIn = Show.getShowInstance(API_DISCONTINUED_NAME, API_DISCONTINUED_NAME);
+            Show standIn = Show.createShowInstance(API_DISCONTINUED_NAME, API_DISCONTINUED_NAME);
             futureShow.complete(standIn);
         }
     }
