@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 /**
  * Represents a TV Show, with a name, url and list of seasons.
  */
-public class Show {
+public class Show extends ShowOption {
     private static final Logger logger = Logger.getLogger(Show.class.getName());
 
     /**
@@ -65,12 +65,22 @@ public class Show {
      */
     private static final Map<String, Show> KNOWN_SHOWS = new ConcurrentHashMap<>();
 
+    /**
+     * Looks up the ID in a hash table, and returns the object if it's already
+     * been created.  Otherwise, returns null.
+     *
+     * @param idString
+     *     The ID of this show, from the provider, as a String
+     * @return a Show with the given ID
+     */
+    public static synchronized Show getExistingShow(String idString) {
+        return KNOWN_SHOWS.get(idString);
+    }
+
     /*
      * More instance variables
      */
-    private final String idString;
     private final Integer idNum;
-    private final String name;
     private final String dirName;
 
     private final Map<String, Episode> episodes;
@@ -93,8 +103,7 @@ public class Show {
      *     such as a year.
      */
     Show(String idString, String name) {
-        this.idString = idString;
-        this.name = name;
+        super(idString, name);
         dirName = StringUtils.sanitiseTitle(name);
 
         Integer parsedId = null;
@@ -125,15 +134,8 @@ public class Show {
      *     such as a year.
      * @return a Show with the given ID
      */
-    public static Show getShowInstance(String id, String name) {
-        Show matchedShow;
-        synchronized (KNOWN_SHOWS) {
-            matchedShow = KNOWN_SHOWS.get(id);
-            if (matchedShow == null) {
-                matchedShow = new Show(id, name);
-            }
-        }
-        return matchedShow;
+    public static Show createShowInstance(String id, String name) {
+        return new Show(id, name);
     }
 
     /**
@@ -189,18 +191,6 @@ public class Show {
      */
     public Integer getId() {
         return idNum;
-    }
-
-    /**
-     * Get this Show's actual, well-formatted name.  This may include a distinguisher,
-     * such as a year, if the Show's name is not unique.  This may contain punctuation
-     * characters which are not suitable for filenames, as well as non-ASCII characters.
-     *
-     * @return show name
-     *            the name of the show from the provider
-     */
-    public String getName() {
-        return name;
     }
 
     /**

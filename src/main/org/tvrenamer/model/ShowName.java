@@ -173,21 +173,6 @@ public class ShowName {
         return showName;
     }
 
-    /**
-     * Inner class -- basically a record -- to encapsulate information we received from
-     * the provider about potential Shows.  We shouldn't create actual Show objects for
-     * the options we reject.
-     */
-    private static class ShowOption {
-        final String id;
-        final String actualName;
-
-        ShowOption(final String id, final String actualName) {
-            this.id = id;
-            this.actualName = actualName;
-        }
-    }
-
     /*
      * Instance variables
      */
@@ -297,7 +282,7 @@ public class ShowName {
      *    the "official" show name
      */
     public void addShowOption(final String tvdbId, final String seriesName) {
-        ShowOption option = new ShowOption(tvdbId, seriesName);
+        ShowOption option = ShowOption.getShowOption(tvdbId, seriesName);
         showOptions.add(option);
     }
 
@@ -341,7 +326,7 @@ public class ShowName {
         // logger.info("got " + nOptions + " options for " + foundName);
         ShowOption selected = null;
         for (ShowOption s : showOptions) {
-            String actualName = s.actualName;
+            String actualName = s.getName();
             // Possibly instead of ignore case, we should make the foundName be
             // properly capitalized, and then we can do an exact comparison.
             if (foundName.equalsIgnoreCase(actualName)) {
@@ -360,7 +345,7 @@ public class ShowName {
             selected = showOptions.get(0);
         }
 
-        Show selectedShow = Show.getShowInstance(selected.id, selected.actualName);
+        Show selectedShow = selected.getShow();
         queryString.setShow(selectedShow);
         return selectedShow;
     }
