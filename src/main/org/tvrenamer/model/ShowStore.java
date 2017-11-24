@@ -136,7 +136,7 @@ public class ShowStore {
                                            final Callable<Boolean> showFetcher)
     {
         Future<Boolean> result = null;
-        Show failure = null;
+        FailedShow failure = null;
         try {
             result = threadPool.submit(showFetcher);
         } catch (RejectedExecutionException | NullPointerException e) {
@@ -176,9 +176,9 @@ public class ShowStore {
             return;
         }
         ShowName showName = ShowName.lookupShowName(filenameShow);
-        Show show = showName.getMatchedShow();
+        ShowOption showOption = showName.getMatchedShow();
 
-        if (show == null) {
+        if (showOption == null) {
             // Since "show" is null, we know we haven't downloaded the options for
             // this filenameShow yet; that is, we know we haven't FINISHED doing so.
             // But we might have started.  If the showName already has one or more
@@ -192,17 +192,15 @@ public class ShowStore {
                     downloadShow(showName);
                 }
             }
-        } else {
-            // Since we've already downloaded the show, we don't need to involve the
+            // If we've already downloaded the show, we don't need to involve the
             // ShowName at all.  We invoke the listener's callback immediately and
             // directly.  If, in the future, we expand ShowInformationListener so
             // that there is more information to be sent later, we'd want to edit
-            // this to add the listener.
-            if (show.isLocalShow()) {
-                listener.downloadFailed(show);
-            } else {
-                listener.downloadSucceeded(show);
-            }
+            // the following clauses to add the listener.
+        } else if (showOption.isFailedShow()) {
+            listener.downloadFailed(showOption.asFailedShow());
+        } else {
+            listener.downloadSucceeded(showOption.getShowInstance());
         }
     }
 
@@ -228,22 +226,22 @@ public class ShowStore {
      */
     private static void downloadShow(final ShowName showName) {
         Callable<Boolean> showFetcher = () -> {
-            Show thisShow;
+            ShowOption showOption;
             try {
                 TheTVDBProvider.getShowOptions(showName);
-                thisShow = showName.selectShowOption();
+                showOption = showName.selectShowOption();
             } catch (DiscontinuedApiException e) {
                 showName.apiDiscontinued();
                 return false;
             } catch (TVRenamerIOException e) {
-                thisShow = showName.getFailedShow(e);
+                showOption = showName.getFailedShow(e);
             }
 
-            logger.fine("Show options for '" + thisShow.getName() + "' downloaded");
-            if (thisShow.isFailedShow()) {
-                showName.nameNotFound(thisShow);
+            logger.fine("Show options for '" + showOption.getName() + "' downloaded");
+            if (showOption.isFailedShow()) {
+                showName.nameNotFound(showOption.asFailedShow());
             } else {
-                showName.nameResolved(thisShow);
+                showName.nameResolved(showOption.getShowInstance());
             }
             return true;
         };
@@ -271,10 +269,10 @@ public class ShowStore {
      */
     static Show getOrAddShow(String filenameShow, String actualName) {
         ShowName showName = ShowName.lookupShowName(filenameShow);
-        Show show = showName.getMatchedShow();
-        if (show == null) {
-            show = showName.getLocalShow(actualName);
+        ShowOption showOption = showName.getMatchedShow();
+        if (showOption == null) {
+            return new Show(filenameShow, actualName);
         }
-        return show;
+        return showOption.getShowInstance();
     }
 }
