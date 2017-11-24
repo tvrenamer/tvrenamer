@@ -6,7 +6,7 @@ import static org.tvrenamer.model.util.Constants.*;
 
 import org.tvrenamer.model.DiscontinuedApiException;
 import org.tvrenamer.model.EpisodeInfo;
-import org.tvrenamer.model.Show;
+import org.tvrenamer.model.Series;
 import org.tvrenamer.model.ShowName;
 import org.tvrenamer.model.TVRenamerIOException;
 
@@ -51,8 +51,8 @@ public class TheTVDBProvider {
     private static final String BASE_SEARCH_URL = API_URL + "GetSeries.php?seriesname=";
 
     // These are the tags that we use to extract the relevant information from the show document.
-    private static final String XPATH_SHOW = "/Data/Series";
-    private static final String XPATH_SHOW_ID = "seriesid";
+    private static final String XPATH_SERIES = "/Data/Series";
+    private static final String XPATH_SERIES_ID = "seriesid";
     private static final String XPATH_NAME = "SeriesName";
     private static final String SERIES_NOT_PERMITTED = "** 403: Series Not Permitted **";
 
@@ -89,25 +89,20 @@ public class TheTVDBProvider {
         return searchXmlText;
     }
 
-    private static String getShowListingXml(final Show show)
+    private static String getSeriesListingXml(final Series series)
         throws TVRenamerIOException, DiscontinuedApiException
     {
         if (apiIsDeprecated) {
             throw new DiscontinuedApiException();
         }
 
-        Integer showId = show.getId();
-        if (showId == null) {
-            throw new TVRenamerIOException("cannot download listings for show "
-                                           + show.getName()
-                                           + " because it has no integer ID");
-        }
-        String showURL = BASE_LIST_URL + showId + BASE_LIST_FILENAME;
+        int seriesId = series.getId();
+        String seriesURL = BASE_LIST_URL + seriesId + BASE_LIST_FILENAME;
 
-        logger.fine("Downloading episode listing from " + showURL);
+        logger.fine("Downloading episode listing from " + seriesURL);
 
         //noinspection UnnecessaryLocalVariable
-        String listingXmlText = new HttpConnectionHandler().downloadUrl(showURL);
+        String listingXmlText = new HttpConnectionHandler().downloadUrl(seriesURL);
         return listingXmlText;
     }
 
@@ -117,7 +112,7 @@ public class TheTVDBProvider {
         for (int i = 0; i < shows.getLength(); i++) {
             Node eNode = shows.item(i);
             String seriesName = nodeTextValue(XPATH_NAME, eNode);
-            String tvdbId = nodeTextValue(XPATH_SHOW_ID, eNode);
+            String tvdbId = nodeTextValue(XPATH_SERIES_ID, eNode);
 
             if (SERIES_NOT_PERMITTED.equals(seriesName)) {
                 logger.warning("ignoring unpermitted option for "
@@ -135,7 +130,7 @@ public class TheTVDBProvider {
     {
         try {
             Document doc = bld.parse(searchXmlSource);
-            NodeList shows = nodeListValue(XPATH_SHOW, doc);
+            NodeList shows = nodeListValue(XPATH_SERIES, doc);
             collectShowOptions(shows, showName);
         } catch (SAXException | XPathExpressionException | DOMException | IOException e) {
             logger.log(Level.WARNING, ERROR_PARSING_XML, e);
@@ -205,7 +200,7 @@ public class TheTVDBProvider {
         return null;
     }
 
-    private static NodeList getEpisodeList(final Show show)
+    private static NodeList getEpisodeList(final Series series)
         throws TVRenamerIOException
     {
         NodeList episodeList;
@@ -219,12 +214,12 @@ public class TheTVDBProvider {
         }
 
         try {
-            String listingsXml = getShowListingXml(show);
+            String listingsXml = getSeriesListingXml(series);
             InputSource listingsXmlSource = new InputSource(new StringReader(listingsXml));
             Document doc = dbf.parse(listingsXmlSource);
             episodeList = nodeListValue(XPATH_EPISODE_LIST, doc);
         } catch (XPathExpressionException | SAXException | DOMException e) {
-            logger.log(Level.WARNING, "exception parsing episodes for " + show + ": "
+            logger.log(Level.WARNING, "exception parsing episodes for " + series + ": "
                        + e.getMessage(), e);
             throw new TVRenamerIOException(ERROR_PARSING_XML, e);
         } catch (NumberFormatException nfe) {
@@ -237,20 +232,20 @@ public class TheTVDBProvider {
         return episodeList;
     }
 
-    public static void getShowListing(final Show show)
+    public static void getSeriesListing(final Series series)
         throws TVRenamerIOException
     {
         try {
-            NodeList episodes = getEpisodeList(show);
+            NodeList episodes = getEpisodeList(series);
             int episodeCount = episodes.getLength();
 
             EpisodeInfo[] episodeInfos = new EpisodeInfo[episodeCount];
             for (int i = 0; i < episodeCount; i++) {
                 episodeInfos[i] = createEpisodeInfo(episodes.item(i));
             }
-            show.clearEpisodeInfos();
-            show.addEpisodeInfos(episodeInfos);
-            show.listingsSucceeded();
+            series.clearEpisodeInfos();
+            series.addEpisodeInfos(episodeInfos);
+            series.listingsSucceeded();
         } catch (DOMException dom) {
             logger.log(Level.WARNING, dom.getMessage(), dom);
             throw new TVRenamerIOException(ERROR_PARSING_XML, dom);

@@ -1,6 +1,5 @@
 package org.tvrenamer.model;
 
-import org.tvrenamer.controller.ListingsLookup;
 import org.tvrenamer.controller.ShowListingsListener;
 import org.tvrenamer.controller.util.StringUtils;
 
@@ -13,7 +12,16 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Logger;
 
 /**
- * Represents a TV Show, with a name, url and list of seasons.
+ * A Show represents a TV program, which has seasons, episodes, etc.  But this class
+ * should rarely, if ever, be instantiated directly.  It is the superclass of "Series",
+ * which is a Show that is recognized by the provider.  When a Show is instantiated
+ * directly, it represents a Show that we want to support even though we cannot locate
+ * it with the provider.  It is assigned an ID meant to not conflict with any of the
+ * "real" Series we get from the provider.
+ *
+ * This class is used in testing, since it makes sense to not need to reach out to the
+ * internet when not necessary.  It is really not used (directly) by the actual program,
+ * but we may be able to make more use of it in the future.
  */
 public class Show extends ShowOption {
     private static final Logger logger = Logger.getLogger(Show.class.getName());
@@ -28,97 +36,52 @@ public class Show extends ShowOption {
     public static final int NO_SEASON = -1;
     public static final int NO_EPISODE = 0;
 
-    private enum DownloadStatus {
-        NOT_STARTED,
-        IN_PROGRESS,
-        SUCCESS,
-        FAILURE
-    }
-
-    /* When going from a filename to a Show object, there's a class in the way
-     * which helps avoid duplication.  If we have two files like:
-     *    "Lost.S06E05.mp4"
-     *    "Lost.S06E06.mp4"
-     * ... they will share a common ShowName object, and therefore be mapped to
-     * the same Show object.  Which is good.
-     *
-     * But in a case like this one:
-     *    "Real.Oneals.S01E01.avi"
-     *    "The Real O'Neals.S01E02.avi"
-     * ... they probably won't, because of the "The".  There will be two
-     * separate ShowName objects created, one with "the" and one without.
-     * But, that doesn't mean we have to create two Show objects.  Once
-     * we query the provider and determine the ID of the show we're going
-     * to map to, we can look in "KNOWN_SHOWS" to see if a show has already
-     * been created for that ID.  If it has, return that object, and don't
-     * create a new one.
-     *
-     * Without using this hashmap, we might very well create two or more
-     * instances of the same Show.  In fact, it happened all the time.
-     * It doesn't cause anything to break, it just results in a lot of
-     * unnecessary work.
-     *
-     * Note we even put local Shows in here, too, even though it does not
-     * serve the purpose of avoiding unnecessary work.  That's because
-     * another usage of this map is that its values represent all the
-     * Shows we have created, which can be useful information to have.
-     */
-    private static final Map<String, Show> KNOWN_SHOWS = new ConcurrentHashMap<>();
-
-    /**
-     * Looks up the ID in a hash table, and returns the object if it's already
-     * been created.  Otherwise, returns null.
-     *
-     * @param idString
-     *     The ID of this show, from the provider, as a String
-     * @return a Show with the given ID
-     */
-    public static synchronized Show getExistingShow(String idString) {
-        return KNOWN_SHOWS.get(idString);
-    }
-
     /*
      * More instance variables
      */
-    private final Integer idNum;
+    final int idNum;
     private final String dirName;
 
-    private final Map<String, Episode> episodes;
+    final Map<String, Episode> episodes;
     private final Map<Integer, Map<Integer, Episode>> seasons;
-    private final Queue<ShowListingsListener> registrations;
-
-    private DownloadStatus listingsStatus = DownloadStatus.NOT_STARTED;
+    final Queue<ShowListingsListener> registrations;
 
     /**
      * Create a Show object for a show that the provider knows about.  Initially
      * we just get the show's name and ID, but soon the
      * Show will be augmented with all of its episodes.
      *
-     * This class should not be used (directly) for any kind of "stand in".
-     *
+     * @param idNum
+     *     The ID of this show as an int
      * @param idString
      *     The ID of this show, from the provider, as a String
      * @param name
      *     The proper name of this show, from the provider.  May contain a distinguisher,
      *     such as a year.
      */
-    Show(String idString, String name) {
+    Show(int idNum, String idString, String name) {
         super(idString, name);
         dirName = StringUtils.sanitiseTitle(name);
 
-        Integer parsedId = null;
-        try {
-            parsedId = Integer.parseInt(idString);
-        } catch (Exception e) {
-            logger.fine("Show's ID " + idString + " could not be parsed as integer");
-        }
-        idNum = parsedId;
+        this.idNum = idNum;
 
         episodes = new ConcurrentHashMap<>();
         seasons = new ConcurrentHashMap<>();
         registrations = new ConcurrentLinkedQueue<>();
+    }
 
-        KNOWN_SHOWS.put(idString, this);
+    private Show(String idString, String name) {
+        this(fakeId(), idString, name);
+    }
+
+    public Show(String name) {
+        this(fakeId(), "local", name);
+    }
+
+    private static int fakeShowId = 0;
+
+    private static synchronized int fakeId() {
+        return --fakeShowId;
     }
 
     /**
@@ -135,74 +98,14 @@ public class Show extends ShowOption {
      * @return a Show with the given ID
      */
     public static Show createShowInstance(String id, String name) {
-        return new Show(id, name);
-    }
-
-    /**
-     * If there is a show mapped to the given ID in KNOWN_SHOWS, remove it.
-     *
-     * @param id
-     *     The ID of the show option, from the provider, as a String
-     */
-    public static void removeShowInstance(String id) {
-        synchronized (KNOWN_SHOWS) {
-            KNOWN_SHOWS.remove(id);
+        Integer parsedId;
+        try {
+            parsedId = Integer.parseInt(id);
+            return new Series(parsedId, name);
+        } catch (Exception e) {
+            logger.fine("Show's ID " + id + " could not be parsed as integer");
+            return new Show(id, name);
         }
-    }
-
-    /**
-     * Called to indicate the caller is about to initiate downloading the
-     * listings for this show.  If we find that the listings are already
-     * in progress (or, already finished), we return false, and the caller
-     * should abort.  Otherwise, we will return true, and we assume that
-     * means the caller will immediately initiate a download right after that,
-     * so we update the download status to "in progress".
-     *
-     * @return true if the listings need to be downloaded, false otherwise
-     */
-    public synchronized boolean beginDownload() {
-        if (listingsStatus == DownloadStatus.NOT_STARTED) {
-            listingsStatus = DownloadStatus.IN_PROGRESS;
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Registers a listener interested in this Show's listings.  If we
-     * already have the listings, and we can notify the new listener
-     * immediately, and not have to iterate over the list of existing
-     * listeners.
-     *
-     * @param listener
-     *   the listener to add to the registrations
-     */
-    public synchronized void addListingsListener(ShowListingsListener listener) {
-        if (listener == null) {
-            logger.warning("cannot get listings without a listener");
-            return;
-        }
-        registrations.add(listener);
-        if (listingsStatus == DownloadStatus.NOT_STARTED) {
-            ListingsLookup.downloadListings(this);
-        } else if (listingsStatus == DownloadStatus.SUCCESS) {
-            listener.listingsDownloadComplete();
-        } else if (listingsStatus == DownloadStatus.FAILURE) {
-            listener.listingsDownloadFailed(null);
-        }
-        // Else, listings are currently in progress, and listener will be
-        // notified when they're complete.
-    }
-
-    /**
-     * Get this Show's ID, as an Integer.
-     *
-     * @return ID
-     *            the ID of the show from the provider, as an Integer,
-     *            or null if the given ID was not an int
-     */
-    public Integer getId() {
-        return idNum;
     }
 
     /**
@@ -350,54 +253,6 @@ public class Show extends ShowOption {
     }
 
     /**
-     * Return whether or not this is a "local" show.
-     *
-     * A "local" show is one that is not found in the provider.  It's generally a
-     * sort of a substitute, and can also be thought of as "fake" in some way.
-     * It is assigned an ID meant to not conflict with any of the "real" shows
-     * we get from the provider.
-     *
-     * @return true the show is "local", false if it was found in the provider's db
-     */
-    public boolean isLocalShow() {
-        return (this instanceof LocalShow);
-    }
-
-    /**
-     * Return whether or not this is a "failed" show.
-     *
-     * @return true the show is "failed", false otherwise
-     */
-    public boolean isFailedShow() {
-        return (this instanceof FailedShow);
-    }
-
-    /**
-     * Called by ListingsLookup to let us know that it has finished trying to look up
-     * the listings for this Show, but it did not succeed.
-     *
-     * @param err
-     *     an exception that was thrown while trying to look up the listings.
-     *     May be null.
-     */
-    public synchronized void listingsFailed(Exception err) {
-        listingsStatus = DownloadStatus.FAILURE;
-        for (ShowListingsListener listener : registrations) {
-            listener.listingsDownloadFailed(err);
-        }
-    }
-
-    /**
-     * Called after we've added all the episodes to the hashmap.  At that point,
-     * we have the listings, and we can notify the listeners.
-     *
-     */
-    public synchronized void listingsSucceeded() {
-        listingsStatus = DownloadStatus.SUCCESS;
-        registrations.forEach(ShowListingsListener::listingsDownloadComplete);
-    }
-
-    /**
      * Add a single episode to this Show's list.  Does not add the episode to the
      * (season number/episode number) index, nor does it generate any log messages
      * if anything goes wrong.  It is expected that the caller will handle any of
@@ -513,13 +368,20 @@ public class Show extends ShowOption {
     }
 
     /**
-     * Standard object method to represent this Show as a string.
+     * Get this Series as its specific type.  Call {@link #isValidSeries}
+     * before calling this.
      *
-     * @return string version of this
+     * @return this as a Series, or else throws an exception
      */
+    public Series asSeries() {
+        if (this instanceof Series) {
+            return (Series) this;
+        }
+        throw new IllegalStateException("cannot make Series out of " + this);
+    }
+
     @Override
     public String toString() {
-        return "Show [" + name + ", id=" + idString + ", "
-            + episodes.size() + " episodes]";
+        return name + " (" + idNum + ") [Show]";
     }
 }

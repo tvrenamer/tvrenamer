@@ -1,16 +1,21 @@
 package org.tvrenamer.model;
 
-class FailedShow extends LocalShow {
+public class FailedShow extends ShowOption {
 
-    @SuppressWarnings("FieldCanBeLocal")
     private final TVRenamerIOException err;
 
+    @SuppressWarnings("unused")
     public TVRenamerIOException getError() {
         return err;
     }
 
     public FailedShow(String name, TVRenamerIOException err) {
-        super(name);
+        super(null, name);
         this.err = err;
+    }
+
+    @Override
+    public String toString() {
+        return name + " (" + err + ") [FailedShow]";
     }
 }

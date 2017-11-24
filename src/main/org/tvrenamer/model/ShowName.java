@@ -53,7 +53,7 @@ public class ShowName {
      */
     private static class QueryString {
         final String queryString;
-        private Show matchedShow = null;
+        private ShowOption matchedShow = null;
         private final List<ShowInformationListener> listeners = new LinkedList<>();
 
         private static final Map<String, QueryString> QUERY_STRINGS = new ConcurrentHashMap<>();
@@ -67,20 +67,20 @@ public class ShowName {
          * been mapped to a show, but if it has, we still accept the new mapping; we just warn
          * about it.
          *
-         * @param show the Show to map this QueryString to
+         * @param showOption the ShowOption to map this QueryString to
          */
-        synchronized void setShow(Show show) {
+        synchronized void setShowOption(ShowOption showOption) {
             if (matchedShow == null) {
-                matchedShow = show;
+                matchedShow = showOption;
                 return;
             }
-            if (matchedShow == show) {
+            if (matchedShow == showOption) {
                 // same object; not just equals() but ==
                 logger.info("re-setting show in QueryString " + queryString);
                 return;
             }
             logger.warning("changing show in QueryString " + queryString);
-            matchedShow = show;
+            matchedShow = showOption;
         }
 
         // see ShowName.addListener for documentation
@@ -107,10 +107,10 @@ public class ShowName {
         }
 
         // see ShowName.nameNotFound for documentation
-        private void nameNotFound(Show show) {
+        private void nameNotFound(FailedShow failedShow) {
             synchronized (listeners) {
                 for (ShowInformationListener informationListener : listeners) {
-                    informationListener.downloadFailed(show);
+                    informationListener.downloadFailed(failedShow);
                 }
             }
         }
@@ -123,11 +123,11 @@ public class ShowName {
         }
 
         /**
-         * Get the mapping between this QueryString and a Show, if any has been established.
+         * Get the mapping between this QueryString and a ShowOption, if any has been established.
          *
-         * @return show the Show to map this QueryString to
+         * @return show the ShowOption to map this QueryString to
          */
-        synchronized Show getMatchedShow() {
+        synchronized ShowOption getMatchedShow() {
             return matchedShow;
         }
 
@@ -262,10 +262,9 @@ public class ShowName {
      * viable option, and provide a stand-in object.
      *
      * @param show
-     *    the Show object (presumably a failed Show) representing the string
-     *    we searched for.
+     *    the FailedShow object representing the string we searched for.
      */
-    public void nameNotFound(Show show) {
+    public void nameNotFound(FailedShow show) {
         synchronized (queryString) {
             queryString.nameNotFound(show);
         }
@@ -313,7 +312,7 @@ public class ShowName {
     private void clearShowOptions() {
         QueryString.clearQueryString(foundName);
         for (ShowOption s : showOptions) {
-            Show.removeShowInstance(s.getIdString());
+            Series.removeSeriesInstance(s.getIdString());
         }
         showOptions.clear();
     }
@@ -338,9 +337,9 @@ public class ShowName {
      *            May be null.
      * @return a Show representing this ShowName
      */
-    public Show getFailedShow(TVRenamerIOException err) {
-        Show standIn = new FailedShow(foundName, err);
-        queryString.setShow(standIn);
+    public FailedShow getFailedShow(TVRenamerIOException err) {
+        FailedShow standIn = new FailedShow(foundName, err);
+        queryString.setShowOption(standIn);
         return standIn;
     }
 
@@ -351,8 +350,8 @@ public class ShowName {
      * @return a Show representing this ShowName
      */
     public Show getLocalShow(String actualName) {
-        Show standIn = new LocalShow(actualName);
-        queryString.setShow(standIn);
+        Show standIn = new Show(actualName);
+        queryString.setShowOption(standIn);
         return standIn;
     }
 
@@ -362,7 +361,7 @@ public class ShowName {
      *
      * @return the series from the list which best matches the series information
      */
-    public Show selectShowOption() {
+    public ShowOption selectShowOption() {
         int nOptions = showOptions.size();
         if (nOptions == 0) {
             logger.info("did not find any options for " + foundName);
@@ -390,9 +389,8 @@ public class ShowName {
             selected = showOptions.get(0);
         }
 
-        Show selectedShow = selected.getShow();
-        queryString.setShow(selectedShow);
-        return selectedShow;
+        queryString.setShowOption(selected);
+        return selected;
     }
 
     /**
@@ -421,7 +419,7 @@ public class ShowName {
      *
      * @return a Show, if this ShowName is matched to one.  Null if not.
      */
-    synchronized Show getMatchedShow() {
+    synchronized ShowOption getMatchedShow() {
         return queryString.getMatchedShow();
     }
 

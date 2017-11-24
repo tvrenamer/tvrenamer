@@ -19,7 +19,6 @@
 package org.tvrenamer.controller;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -30,8 +29,11 @@ import org.junit.Test;
 import org.tvrenamer.model.DiscontinuedApiException;
 import org.tvrenamer.model.Episode;
 import org.tvrenamer.model.EpisodeTestData;
+import org.tvrenamer.model.FailedShow;
+import org.tvrenamer.model.Series;
 import org.tvrenamer.model.Show;
 import org.tvrenamer.model.ShowName;
+import org.tvrenamer.model.ShowOption;
 import org.tvrenamer.model.ShowStore;
 
 import java.util.LinkedList;
@@ -106,9 +108,9 @@ public class TheTVDBProviderTest {
      */
     private static class ShowDownloader implements ShowInformationListener {
 
-        final CompletableFuture<Show> futureShow;
+        final CompletableFuture<ShowOption> futureShow;
 
-        public ShowDownloader(final CompletableFuture<Show> futureShow) {
+        public ShowDownloader(final CompletableFuture<ShowOption> futureShow) {
             this.futureShow = futureShow;
         }
 
@@ -118,8 +120,8 @@ public class TheTVDBProviderTest {
         }
 
         @Override
-        public void downloadFailed(Show show) {
-            futureShow.complete(show);
+        public void downloadFailed(FailedShow failedShow) {
+            futureShow.complete(failedShow);
         }
 
         @Override
@@ -172,16 +174,19 @@ public class TheTVDBProviderTest {
             fail("exception getting show options for " + actualName);
         }
         assertTrue(showName.hasShowOptions());
-        final Show best = showName.selectShowOption();
+        final ShowOption best = showName.selectShowOption();
         assertNotNull(best);
-        assertFalse(best.isLocalShow());
-        assertFalse(best.isFailedShow());
-        assertEquals(epdata.showId, String.valueOf(best.getId()));
         assertEquals(actualName, best.getName());
 
-        TheTVDBProvider.getShowListing(best);
+        Show show = best.getShowInstance();
+        assertTrue("expected valid show for " + epdata.properShowName + " (" + showName + ") but got " + show,
+                   show.isValidSeries());
+        Series series = show.asSeries();
+        assertEquals(epdata.showId, String.valueOf(series.getId()));
 
-        final Episode ep = best.getEpisode(epdata.seasonNum, epdata.episodeNum);
+        TheTVDBProvider.getSeriesListing(series);
+
+        final Episode ep = series.getEpisode(epdata.seasonNum, epdata.episodeNum);
         if (ep == null) {
             fail("result of calling getEpisode(" + epdata.seasonNum + ", " + epdata.episodeNum
                  + ") on " + actualName + " came back null");
@@ -1047,16 +1052,17 @@ public class TheTVDBProviderTest {
 
     private Show testQueryShow(final EpisodeTestData testInput, final String queryString) {
         try {
-            final CompletableFuture<Show> futureShow = new CompletableFuture<>();
+            final CompletableFuture<ShowOption> futureShow = new CompletableFuture<>();
             ShowStore.getShow(queryString, new ShowDownloader(futureShow));
-            Show gotShow = futureShow.get(4, TimeUnit.SECONDS);
+            ShowOption gotShow = futureShow.get(4, TimeUnit.SECONDS);
             if (API_DISCONTINUED_NAME.equals(gotShow.getName())) {
                 fail("API apparently discontinued parsing " + queryString);
                 return null;
             }
-            assertFalse(gotShow.isLocalShow());
-            assertEquals(testInput.properShowName, gotShow.getName());
-            return gotShow;
+            Show show = gotShow.getShowInstance();
+            assertTrue(show.isValidSeries());
+            assertEquals(testInput.properShowName, show.getName());
+            return show;
         } catch (TimeoutException e) {
             String failMsg = "timeout trying to query for " + queryString;
             String exceptionMessage = e.getMessage();
@@ -1084,8 +1090,12 @@ public class TheTVDBProviderTest {
                 try {
                     final Show show = testQueryShow(testInput, queryString);
                     assertNotNull(show);
+                    assertTrue(show.isValidSeries());
+
                     final CompletableFuture<String> future = new CompletableFuture<>();
-                    show.addListingsListener(new ListingsDownloader(show, seasonNum, episodeNum, future));
+                    Series series = show.asSeries();
+                    series.addListingsListener(new ListingsDownloader(series, seasonNum,
+                                                                      episodeNum, future));
                     String got = future.get(30, TimeUnit.SECONDS);
                     assertEpisodeTitle(testInput, got);
                 } catch (TimeoutException e) {
