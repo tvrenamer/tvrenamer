@@ -50,8 +50,10 @@ import org.tvrenamer.controller.UpdateChecker;
 import org.tvrenamer.controller.UrlLauncher;
 import org.tvrenamer.controller.util.StringUtils;
 import org.tvrenamer.model.EpisodeDb;
+import org.tvrenamer.model.FailedShow;
 import org.tvrenamer.model.FileEpisode;
 import org.tvrenamer.model.SWTMessageBoxType;
+import org.tvrenamer.model.Series;
 import org.tvrenamer.model.Show;
 import org.tvrenamer.model.ShowStore;
 import org.tvrenamer.model.UserPreference;
@@ -549,8 +551,8 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         });
     }
 
-    private void getShowListings(Show show, TableItem item, FileEpisode episode) {
-        show.addListingsListener(new ShowListingsListener() {
+    private void getSeriesListings(Series series, TableItem item, FileEpisode episode) {
+        series.addListingsListener(new ShowListingsListener() {
                 @Override
                 public void listingsDownloadComplete() {
                     listingsDownloaded(item, episode);
@@ -614,12 +616,15 @@ public final class UIStarter implements Observer, AddEpisodeListener {
                     public void downloadSucceeded(Show show) {
                         episode.setEpisodeShow(show);
                         tableItemDownloaded(item, episode);
-                        getShowListings(show, item, episode);
+                        if (show.isValidSeries()) {
+                            getSeriesListings(show.asSeries(), item, episode);
+                        }
                     }
 
                     @Override
-                    public void downloadFailed(Show show) {
-                        episode.setEpisodeShow(show);
+                    public void downloadFailed(FailedShow failedShow) {
+                        // We don't send a FailedShow to the FileEpisode
+                        episode.setEpisodeShow(null);
                         tableItemFailed(item, episode);
                     }
 

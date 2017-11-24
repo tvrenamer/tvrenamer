@@ -1,6 +1,6 @@
 package org.tvrenamer.controller;
 
-import org.tvrenamer.model.Show;
+import org.tvrenamer.model.Series;
 import org.tvrenamer.model.TVRenamerIOException;
 
 import java.util.concurrent.Callable;
@@ -12,7 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * A utility class to help with looking up show listings from the provider.
+ * A utility class to help with looking up series listings from the provider.
  * This class does not manage the listeners, or deal with the episodes.
  * It is just for managing threads and communication with the provider.
  */
@@ -31,26 +31,26 @@ public class ListingsLookup {
         });
 
     /**
-     * Spawn a thread to ask the provider to look up the listings for the given Show.
+     * Spawn a thread to ask the provider to look up the listings for the given Series.
      *
-     * This is public so it can be called from the Show class.  No one else should
-     * call it.  Other classes which are interested in show listings should call
-     * addListener() on the Show itself.
+     * This is public so it can be called from the Series class.  No one else should
+     * call it.  Other classes which are interested in series listings should call
+     * addListener() on the Series itself.
      *
-     * @param show
-     *           the show to download listings for
+     * @param series
+     *           the series to download listings for
      */
-    public static void downloadListings(final Show show) {
-        if (!show.beginDownload()) {
-            logger.warning("should not call downloadListings; Show is already download[ing/ed].");
+    public static void downloadListings(final Series series) {
+        if (!series.beginDownload()) {
+            logger.warning("should not call downloadListings; Series is already download[ing/ed].");
             return;
         }
         Callable<Boolean> listingsFetcher = () -> {
             try {
-                TheTVDBProvider.getShowListing(show);
+                TheTVDBProvider.getSeriesListing(series);
                 return true;
             } catch (TVRenamerIOException e) {
-                show.listingsFailed(e);
+                series.listingsFailed(e);
                 return false;
             } catch (Exception e) {
                 // Because this is running in a separate thread, an uncaught
@@ -58,8 +58,8 @@ public class ListingsLookup {
                 // prevents this thread from dying.  Try to make sure that the
                 // thread dies, one way or another.
                 logger.log(Level.WARNING, "generic exception doing getListings for "
-                           + show, e);
-                show.listingsFailed(e);
+                           + series, e);
+                series.listingsFailed(e);
                 return false;
             }
         };
@@ -68,7 +68,7 @@ public class ListingsLookup {
             logger.fine("successfully submitted task " + future);
         } catch (RejectedExecutionException | NullPointerException e) {
             logger.log(Level.WARNING, "unable to submit listings download task ("
-                       + show.getName() + ") for execution", e);
+                       + series.getName() + ") for execution", e);
         }
     }
 

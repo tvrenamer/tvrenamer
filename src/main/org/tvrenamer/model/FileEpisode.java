@@ -125,9 +125,9 @@ public class FileEpisode {
     private String fileNameString;
     private long fileSize = NO_FILE_SIZE;
 
-    // After we've looked up the filenameShow from the provider, we should get back an
-    // actual Show object.  This is true even if the show was not found; in that case,
-    // we should get a failed Show.
+    // After we've looked up the filenameShow from the provider, we try to get a Show from
+    // the provider.  If we do not find any options, or if there is any kind of error
+    // trying to download show information, we don't get a Show and this value remains null.
     private Show actualShow = null;
 
     // This class represents a file on disk, with fields that indicate which episode we
@@ -331,12 +331,22 @@ public class FileEpisode {
         fileStatus = FileStatus.NO_FILE;
     }
 
+    /**
+     * Set the actualShow of this object to be an instance of a Show.  From there, we
+     * can get the actual episode.
+     *
+     * Also serves as a way to communicate that we were unable to get the Show.  That's
+     * why it makes sense to call this method with null, even though actualShow is
+     * already null.  It differentiates between "null, we don't know yet" and "null,
+     * we couldn't get the show".
+     *
+     * @param show
+     *    the Show that should be associated with this FileEpisode, or null if no Show
+     *    could be created/found
+     */
     public void setEpisodeShow(Show show) {
         actualShow = show;
         if (actualShow == null) {
-            logger.warning("setEpisodeShow should never be called with null");
-            seriesStatus = SeriesStatus.UNFOUND;
-        } else if (actualShow.isFailedShow()) {
             seriesStatus = SeriesStatus.UNFOUND;
         } else {
             seriesStatus = SeriesStatus.GOT_SHOW;
@@ -352,12 +362,6 @@ public class FileEpisode {
 
         if (!actualShow.hasEpisodes()) {
             seriesStatus = SeriesStatus.NO_LISTINGS;
-            return false;
-        }
-
-        if (actualShow.isFailedShow()) {
-            logger.warning("error: should not get listings, have a failed show!");
-            seriesStatus = SeriesStatus.UNFOUND;
             return false;
         }
 
@@ -382,8 +386,6 @@ public class FileEpisode {
         }
         if (actualShow == null) {
             logger.warning("error: should not have tried to get listings, do not have show!");
-        } else if (actualShow.isFailedShow()) {
-            logger.warning("error: should not have tried to get listings, have a failed show!");
         }
     }
 
@@ -404,8 +406,6 @@ public class FileEpisode {
         String destPath = userPrefs.getDestinationDirectoryName();
         if (actualShow == null) {
             logger.warning("error: should not get move-to directory, do not have show!");
-        } else if (actualShow.isFailedShow()) {
-            logger.warning("error: should not get move-to directory, have a failed show!");
         } else {
             String dirname = actualShow.getDirName();
             destPath = destPath + FILE_SEPARATOR_STRING + dirname;
@@ -455,10 +455,6 @@ public class FileEpisode {
             logger.warning("should not be renaming without an actual Show.");
             showName = filenameShow;
         } else {
-            if (actualShow.isFailedShow()) {
-                logger.warning("should not be renaming with a failed Show.");
-            }
-            // We can use getName() even if it was a failed Show
             showName = actualShow.getName();
         }
 

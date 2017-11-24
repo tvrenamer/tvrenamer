@@ -1,11 +1,17 @@
 package org.tvrenamer.model;
 
-/**
- * Simple class -- basically a record -- to encapsulate information we received from
- * the provider about potential Shows.  We shouldn't create actual Show objects for
- * the options we reject.
- */
-class ShowOption {
+import java.util.logging.Logger;
+
+public class ShowOption {
+    private static final Logger logger = Logger.getLogger(ShowOption.class.getName());
+
+    final String idString;
+    final String name;
+
+    ShowOption(final String idString, final String name) {
+        this.idString = idString;
+        this.name = name;
+    }
 
     /**
      * "Factory"-type static method to get an instance of a ShowOption.  Looks up the ID
@@ -20,31 +26,87 @@ class ShowOption {
      * @return a ShowOption with the given ID
      */
     public static ShowOption getShowOption(String id, String name) {
-        ShowOption matchedShowOption = Show.getExistingShow(id);
+        ShowOption matchedShowOption = Series.getExistingSeries(id);
         if (matchedShowOption != null) {
             return matchedShowOption;
         }
         return new ShowOption(id, name);
     }
 
-    final String idString;
-    final String name;
+    /**
+     * Return a Show that represents this Show option.  May return itself if this
+     * is already a Show.
+     *
+     * @return a version of this ShowOption that is an instance of a Show
+     */
+    public Show getShowInstance() {
+        if (this instanceof Show) {
+            return (Show) this;
+        }
+        // Note that at this point, "this" could be either a FailedShow or a ShowOption,
+        // but we won't make the distinction.
+        Show reified = Series.getExistingSeries(idString);
+        if (reified != null) {
+            return reified;
+        }
 
-    ShowOption(final String idString, final String name) {
-        this.idString = idString;
-        this.name = name;
+        Integer parsedId;
+        try {
+            parsedId = Integer.parseInt(idString);
+            return Series.createSeries(parsedId, name);
+        } catch (Exception e) {
+            String msg = "ShowOption's ID " + idString + " could not be parsed as integer";
+            logger.info(msg);
+            return new Show(idString, name);
+        }
     }
 
     /**
-     * Get this Show's ID, as a String.
+     * Return whether or not this is a "failed" show.
      *
-     * @return ID
-     *            the ID of the show from the provider, as a String
+     * @return true the show is "failed", false otherwise
      */
-    @SuppressWarnings("unused")
-    public String getIdString() {
-        return idString;
+    public boolean isFailedShow() {
+        return (this instanceof FailedShow);
     }
+
+    /**
+     * Get this FailedShow as its specific type.  Call {@link #isFailedShow}
+     * before calling this.
+     *
+     * @return this as a FailedShow, or else throws an exception
+     */
+    public FailedShow asFailedShow() {
+        if (this instanceof FailedShow) {
+            return (FailedShow) this;
+        }
+        throw new IllegalStateException("cannot make FailedShow out of " + this);
+    }
+
+    /**
+     * Return whether or not this show was successfully found in the
+     * provider's data
+     *
+     * @return true the series is "valid", false otherwise
+     */
+    public boolean isValidSeries() {
+        return (this instanceof Series);
+    }
+
+    /**
+     * Get this Series as its specific type.  Call {@link #isValidSeries}
+     * before calling this.
+     *
+     * @return this as a Series, or else throws an exception
+     */
+    public Series asSeries() {
+        if (this instanceof Series) {
+            return (Series) this;
+        }
+        throw new IllegalStateException("cannot make Series out of " + this);
+    }
+
+    /* Instance data */
 
     /**
      * Get this Show's actual, well-formatted name.  This may include a distinguisher,
@@ -58,11 +120,15 @@ class ShowOption {
         return name;
     }
 
-    public Show getShow() {
-        if (this instanceof Show) {
-            return (Show) this;
-        }
-        return Show.createShowInstance(idString, name);
+    /**
+     * Get this ShowOption's ID, as a String
+     *
+     * @return ID
+     *            the ID of the show from the provider, as a String
+     */
+    @SuppressWarnings("unused")
+    public String getIdString() {
+        return idString;
     }
 
     @Override
