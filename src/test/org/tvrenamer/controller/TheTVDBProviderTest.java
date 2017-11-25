@@ -162,7 +162,7 @@ public class TheTVDBProviderTest {
         throws Exception
     {
         final String actualName = epdata.properShowName;
-        final ShowName showName = ShowName.lookupShowName(actualName);
+        final ShowName showName = ShowName.freshShowName(actualName);
 
         try {
             TheTVDBProvider.getShowOptions(showName);

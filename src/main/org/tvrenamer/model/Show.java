@@ -137,6 +137,18 @@ public class Show {
     }
 
     /**
+     * If there is a show mapped to the given ID in KNOWN_SHOWS, remove it.
+     *
+     * @param id
+     *     The ID of the show option, from the provider, as a String
+     */
+    public static void removeShowInstance(String id) {
+        synchronized (KNOWN_SHOWS) {
+            KNOWN_SHOWS.remove(id);
+        }
+    }
+
+    /**
      * Called to indicate the caller is about to initiate downloading the
      * listings for this show.  If we find that the listings are already
      * in progress (or, already finished), we return false, and the caller

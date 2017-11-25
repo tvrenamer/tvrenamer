@@ -148,6 +148,17 @@ public class ShowName {
             }
             return queryObj;
         }
+
+        /**
+         * Remove the mapping for the given "found name" from the query strings.
+         *
+         * @param foundName
+         *    the portion of the filename that is believed to represent the show's name
+         */
+        static void clearQueryString(String foundName) {
+            String queryString = StringUtils.makeQueryString(foundName);
+            QUERY_STRINGS.remove(queryString);
+        }
     }
 
     /**
@@ -171,6 +182,28 @@ public class ShowName {
             SHOW_NAMES.put(filenameShow, showName);
         }
         return showName;
+    }
+
+    /**
+     * Get the ShowName object for the given String.  If one was already created,
+     * it is returned, and if not, one will be created, stored, and returned.
+     *
+     * This method exists for calling from the test suite.  Generally we want to
+     * do the exact opposite of this.  We want to re-use ShowNames; that's why
+     * we have the cache in the first place.  But for running a test, we want to
+     * be able to get a "clean" copy.
+     *
+     * @param filenameShow
+     *            the name of the show as it appears in the filename
+     * @return the ShowName object for that filenameShow
+     */
+    public static ShowName freshShowName(String filenameShow) {
+        ShowName showName = SHOW_NAMES.get(filenameShow);
+        if (showName != null) {
+            showName.clearShowOptions();
+            SHOW_NAMES.remove(filenameShow);
+        }
+        return lookupShowName(filenameShow);
     }
 
     /**
@@ -286,6 +319,18 @@ public class ShowName {
      */
     public boolean hasShowOptions() {
         return (showOptions.size() > 0);
+    }
+
+    /**
+     * Clear any previous show options
+     *
+     */
+    private void clearShowOptions() {
+        QueryString.clearQueryString(foundName);
+        for (ShowOption s : showOptions) {
+            Show.removeShowInstance(s.id);
+        }
+        showOptions.clear();
     }
 
     /**
