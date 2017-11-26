@@ -1071,8 +1071,17 @@ public class TheTVDBProviderTest {
                    .build());
     }
 
-
-    private Show testQueryShow(final EpisodeTestData testInput, final String queryString) {
+    /**
+     * Look up the query string with the provider and return the Show based on the
+     * information returned.
+     *
+     * @param queryString
+     *    the text to send to the provider to get the Show
+     * @param properShowName
+     *    the exact title of the series we expect to get back; used for error-checking
+     * @return a Show based on the queryString, or null
+     */
+    private Show testQueryShow(final String queryString, final String properShowName) {
         try {
             final CompletableFuture<ShowOption> futureShow = new CompletableFuture<>();
             ShowStore.getShow(queryString, new ShowDownloader(futureShow));
@@ -1082,11 +1091,11 @@ public class TheTVDBProviderTest {
                 return null;
             }
             Show show = gotShow.getShowInstance();
-            assertTrue("expected valid Series (<[" + testInput.properShowName + "]>) for \""
+            assertTrue("expected valid Series (<[" + properShowName + "]>) for \""
                        + queryString + "\" but got <[" + show + "]>",
                        show.isValidSeries());
-            assertEquals("resolved show name <[" + testInput.properShowName + "]> to wrong series;",
-                         testInput.properShowName, show.getName());
+            assertEquals("resolved show name <[" + properShowName + "]> to wrong series;",
+                         properShowName, show.getName());
             return show;
         } catch (TimeoutException e) {
             String failMsg = "timeout trying to query for " + queryString;
@@ -1113,7 +1122,7 @@ public class TheTVDBProviderTest {
                 final int seasonNum = testInput.seasonNum;
                 final int episodeNum = testInput.episodeNum;
                 try {
-                    final Show show = testQueryShow(testInput, queryString);
+                    final Show show = testQueryShow(queryString, testInput.properShowName);
                     assertNotNull("got null value from testQueryShow on <["
                                   + queryString + "]>",
                                   show);
