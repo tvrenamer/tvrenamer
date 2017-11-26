@@ -162,14 +162,18 @@ public class TheTVDBProviderTest {
         throws Exception
     {
         final String actualName = epdata.properShowName;
-        final ShowName showName = ShowName.lookupShowName(actualName);
+        String queryString = epdata.queryString;
+        if (queryString == null) {
+            queryString = actualName;
+        }
+        final ShowName showName = ShowName.lookupShowName(queryString);
 
         try {
             TheTVDBProvider.getShowOptions(showName);
         } catch (DiscontinuedApiException api) {
-            fail("API deprecation discovered getting show options for " + actualName);
+            fail("API deprecation discovered getting show options for " + queryString);
         } catch (Exception e) {
-            fail("exception getting show options for " + actualName);
+            fail("exception getting show options for " + queryString);
         }
         assertTrue(showName.hasShowOptions());
         final Show best = showName.selectShowOption();
@@ -232,15 +236,23 @@ public class TheTVDBProviderTest {
     /**
      * Second download test.  This one is specifically chosen to ensure we
      * get the right preferences between "DVD number" and "regular number".
+     *
+     * This also tests the query string, by not querying for an exact character for
+     * character match with the actual show name.
+     *
+     * For Robot Chicken, S08E13 in the over-the-air ordering is "Joel Hurwitz Returns".
+     * This program always prefers the DVD ordering, which for Robot Chicken S08E13 is
+     * "Triple Hot Dog Sandwich on Wheat".
      */
     @Test
-    public void testRegularEpisodePreference() throws Exception {
+    public void testDvdEpisodePreference() throws Exception {
         testSeriesNameAndEpisodeTitle(new EpisodeTestData.Builder()
-                                      .properShowName("Firefly")
-                                      .showId("78874")
-                                      .seasonNum(1)
-                                      .episodeNum(2)
-                                      .episodeTitle("The Train Job")
+                                      .queryString("robot.chicken.")
+                                      .properShowName("Robot Chicken")
+                                      .showId("75734")
+                                      .seasonNum(8)
+                                      .episodeNum(13)
+                                      .episodeTitle("Triple Hot Dog Sandwich on Wheat")
                                       .build());
     }
 
