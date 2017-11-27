@@ -292,9 +292,18 @@ public class Show extends ShowOption {
             logger.fine("no season " + placement.season + " found for show " + name);
             return null;
         }
-        Episode episode = season.get(placement.episode);
-        logger.fine("for season " + placement.season + ", episode " + placement.episode
-                    + ", found " + episode);
+        Episode episode;
+        synchronized (this) {
+            episode = season.get(placement.episode);
+        }
+        if (episode == null) {
+            logger.warning("could not get episode of " + name + " for season "
+                           + placement.season + ", episode " + placement.episode);
+        } else {
+            logger.fine("for season " + placement.season + ", episode " + placement.episode
+                        + " with ID " + episode.getEpisodeId()
+                        + ", found " + episode);
+        }
 
         return episode;
     }
