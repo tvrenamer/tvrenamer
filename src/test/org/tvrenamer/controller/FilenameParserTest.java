@@ -894,11 +894,18 @@ public class FilenameParserTest {
             String input = testInput.inputFilename;
             FileEpisode retval = new FileEpisode(input);
             FilenameParser.parseFilename(retval);
-            assertTrue(input, retval.wasParsed());
-            assertEquals(input, testInput.filenameShow, retval.getFilenameShow());
-            assertEquals(input, Integer.parseInt(testInput.seasonNumString), retval.getSeasonNum());
-            assertEquals(input, Integer.parseInt(testInput.episodeNumString), retval.getEpisodeNum());
-            assertEquals(input, testInput.episodeResolution, retval.getFilenameResolution());
+
+            assertTrue("unable to parse:<[" + input + "]>",
+                       retval.wasParsed());
+            assertEquals("On input:<[" + input + "]>, for filenameShow,",
+                         testInput.filenameShow, retval.getFilenameShow());
+
+            assertEquals("On input:<[" + input + "]>, for season,",
+                         Integer.parseInt(testInput.seasonNumString), retval.getSeasonNum());
+            assertEquals("On input:<[" + input + "]>, for episode,",
+                         Integer.parseInt(testInput.episodeNumString), retval.getEpisodeNum());
+            assertEquals("On input:<[" + input + "]>, for resolution,",
+                         testInput.episodeResolution, retval.getFilenameResolution());
         }
     }
 }
