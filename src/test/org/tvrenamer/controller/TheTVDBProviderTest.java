@@ -175,13 +175,18 @@ public class TheTVDBProviderTest {
         } catch (Exception e) {
             fail("exception getting show options for " + queryString);
         }
-        assertTrue(showName.hasShowOptions());
+        assertTrue("got no options on showName <[" + showName.getFoundName()
+                   + "]> (from input <[" + queryString + "]>)",
+                   showName.hasShowOptions());
+
         final Show best = showName.selectShowOption();
         assertNotNull(best);
         assertFalse(best.isLocalShow());
         assertFalse(best.isFailedShow());
-        assertEquals(epdata.showId, String.valueOf(best.getId()));
-        assertEquals(actualName, best.getName());
+        assertEquals("got wrong series ID for <[" + actualName + "]>;",
+                     epdata.showId, String.valueOf(best.getId()));
+        assertEquals("resolved show name <[" + showName.getFoundName() + "]> to wrong series;",
+                     actualName, best.getName());
 
         TheTVDBProvider.getShowListing(best);
 
@@ -1066,8 +1071,11 @@ public class TheTVDBProviderTest {
                 fail("API apparently discontinued parsing " + queryString);
                 return null;
             }
-            assertFalse(gotShow.isLocalShow());
-            assertEquals(testInput.properShowName, gotShow.getName());
+            assertFalse("expected non-local Show (<[" + testInput.properShowName + "]>) for \""
+                        + queryString + "\" but got <[" + gotShow + "]>",
+                        gotShow.isLocalShow());
+            assertEquals("resolved show name <[" + testInput.properShowName + "]> to wrong series;",
+                         testInput.properShowName, gotShow.getName());
             return gotShow;
         } catch (TimeoutException e) {
             String failMsg = "timeout trying to query for " + queryString;
@@ -1095,7 +1103,9 @@ public class TheTVDBProviderTest {
                 final int episodeNum = testInput.episodeNum;
                 try {
                     final Show show = testQueryShow(testInput, queryString);
-                    assertNotNull(show);
+                    assertNotNull("got null value from testQueryShow on <["
+                                  + queryString + "]>",
+                                  show);
                     final CompletableFuture<String> future = new CompletableFuture<>();
                     show.addListingsListener(new ListingsDownloader(show, seasonNum, episodeNum, future));
                     String got = future.get(30, TimeUnit.SECONDS);
