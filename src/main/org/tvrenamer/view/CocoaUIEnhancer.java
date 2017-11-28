@@ -125,7 +125,7 @@ class CocoaUIEnhancer {
      *            The action to run when the Preferences menu is invoked.
      */
     public void hookApplicationMenu(Display display, Listener quitListener, Listener aboutAction,
-                                     Listener preferencesAction)
+                                    Listener preferencesAction)
     {
         // This is our callbackObject whose 'actionProc' method will be called
         // when the About or Preferences menuItem is invoked.
@@ -229,19 +229,19 @@ class CocoaUIEnhancer {
         // SWTApplicationDelegate and we have registered the new selectors on
         // it. So just set the new action to invoke the selector.
         invoke(nsmenuitemCls, prefMenuItem, "setAction",
-                new Object[] { wrapPointer(sel_preferencesMenuItemSelected_) });
+               new Object[] { wrapPointer(sel_preferencesMenuItemSelected_) });
         invoke(nsmenuitemCls, aboutMenuItem, "setAction",
-                new Object[] { wrapPointer(sel_aboutMenuItemSelected_) });
+               new Object[] { wrapPointer(sel_aboutMenuItemSelected_) });
     }
 
-    private long registerName(Class<?> osCls, String name)
-            throws IllegalArgumentException, SecurityException
+    private static long registerName(Class<?> osCls, String name)
+        throws IllegalArgumentException, SecurityException
     {
         Object object = invoke(osCls, "sel_registerName", new Object[] { name });
         return convertToLong(object);
     }
 
-    private long convertToLong(Object object) {
+    private static long convertToLong(Object object) {
         if (object instanceof Integer) {
             Integer i = (Integer) object;
             return i.longValue();
@@ -289,7 +289,7 @@ class CocoaUIEnhancer {
         }
     }
 
-    private Class<?> classForName(String classname) {
+    private static Class<?> classForName(String classname) {
         try {
             return Class.forName(classname);
         } catch (ClassNotFoundException e) {
