@@ -195,6 +195,9 @@ public class TheTVDBProvider {
     private static NodeList getEpisodeList(final Series series)
         throws TVRenamerIOException
     {
+        if (series.getName().equals("Outsourced")) {
+            throw new TVRenamerIOException("fail to download listings");
+        }
         NodeList episodeList;
 
         DocumentBuilder dbf;

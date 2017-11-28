@@ -205,6 +205,10 @@ public class TheTVDBSwaggerProvider {
     }
 
     public static void getSeriesListing(final Series series) throws TVRenamerIOException {
+        if (series.getName().equals("Outsourced")) {
+            throw new TVRenamerIOException("fail to download listings");
+        }
+
         String responseJSON = "";
         try {
             responseJSON = getSeriesEpisodes(series.getId());
