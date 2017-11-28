@@ -174,19 +174,22 @@ public class TheTVDBProviderTest {
             queryString = actualName;
         }
         final ShowName showName = ShowName.lookupShowName(queryString);
+        ShowOption best = showName.getMatchedShow();
 
-        try {
-            TheTVDBProvider.getShowOptions(showName);
-        } catch (DiscontinuedApiException api) {
-            fail("API deprecation discovered getting show options for " + queryString);
-        } catch (Exception e) {
-            fail("exception getting show options for " + queryString);
+        if (best == null) {
+            try {
+                TheTVDBProvider.getShowOptions(showName);
+            } catch (DiscontinuedApiException api) {
+                fail("API deprecation discovered getting show options for " + queryString);
+            } catch (Exception e) {
+                fail("exception getting show options for " + queryString);
+            }
+            assertTrue("got no options on showName <[" + showName.getFoundName()
+                       + "]> (from input <[" + queryString + "]>)",
+                       showName.hasShowOptions());
+
+            best = showName.selectShowOption();
         }
-        assertTrue("got no options on showName <[" + showName.getFoundName()
-                   + "]> (from input <[" + queryString + "]>)",
-                   showName.hasShowOptions());
-
-        final ShowOption best = showName.selectShowOption();
         assertEquals("resolved show name <[" + showName.getFoundName() + "]> to wrong series;",
                      actualName, best.getName());
 
@@ -198,7 +201,9 @@ public class TheTVDBProviderTest {
         assertEquals("got wrong series ID for <[" + actualName + "]>;",
                      epdata.showId, String.valueOf(series.getId()));
 
-        TheTVDBProvider.getSeriesListing(series);
+        if (!series.hasEpisodes()) {
+            TheTVDBProvider.getSeriesListing(series);
+        }
 
         final Episode ep = series.getEpisode(epdata.seasonNum, epdata.episodeNum);
         if (ep == null) {
