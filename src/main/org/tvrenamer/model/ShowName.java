@@ -362,7 +362,7 @@ public class ShowName {
      *
      * @return a Show, if this ShowName is matched to one.  Null if not.
      */
-    synchronized ShowOption getMatchedShow() {
+    public synchronized ShowOption getMatchedShow() {
         return queryString.getMatchedShow();
     }
 
