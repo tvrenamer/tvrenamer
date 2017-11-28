@@ -590,7 +590,10 @@ public class FileEpisode {
 
     @Override
     public String toString() {
-        return "FileEpisode { title:" + filenameShow + ", season:" + placement.season
-            + ", episode:" + placement.episode + ", file:" + fileNameString + " }";
+        String val = "FileEpisode {file: " + fileNameString + ", show: ";
+        String name = (actualShow == null) ? filenameShow : actualShow.getName();
+        String plc = (placement == null) ? ", no placement"
+            : ", season: " + placement.season + ", episode: " + placement.episode;
+        return val + name + plc + " }";
     }
 }
