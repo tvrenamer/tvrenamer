@@ -252,12 +252,11 @@ class CocoaUIEnhancer {
         return 0;
     }
 
-    @SuppressWarnings("UnnecessaryBoxing")
     private static Object wrapPointer(long value) {
         if (C.PTR_SIZEOF == 8) {
-            return Long.valueOf(value);
+            return value;
         } else {
-            return Integer.valueOf((int) value);
+            return (int) value;
         }
     }
 
