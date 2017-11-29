@@ -698,11 +698,8 @@ public class TheTVDBProviderTest {
                    .build());
     }
 
-    // @BeforeClass
-    @SuppressWarnings("unused")
+    @BeforeClass
     public static void setupValues29() {
-        // Comment this out because Offspring has three untitled episodes with
-        // the same placement, but different IDs
         values.add(new EpisodeTestData.Builder()
                    .queryString("offspring")
                    .properShowName("Offspring")
@@ -723,11 +720,8 @@ public class TheTVDBProviderTest {
                    .build());
     }
 
-    // @BeforeClass
-    @SuppressWarnings("unused")
+    @BeforeClass
     public static void setupValues31() {
-        // Comment this out because Robot Chicken has a conflict between DVD
-        // and regular numbering.
         values.add(new EpisodeTestData.Builder()
                    .queryString("robot chicken")
                    .properShowName("Robot Chicken")
@@ -770,11 +764,8 @@ public class TheTVDBProviderTest {
                    .build());
     }
 
-    // @BeforeClass
-    @SuppressWarnings("unused")
+    @BeforeClass
     public static void setupValues35() {
-        // Comment this out because the episode listing for The Good Wife
-        // currently (2017/06/02) comes through unparsable.
         values.add(new EpisodeTestData.Builder()
                    .queryString("the good wife")
                    .properShowName("The Good Wife")
@@ -784,8 +775,7 @@ public class TheTVDBProviderTest {
                    .build());
     }
 
-    // @BeforeClass
-    @SuppressWarnings("unused")
+    @BeforeClass
     public static void setupValues36() {
         // Trying options for "the walking dead" gives a "Series Not Permitted".
         // We issue a warning, but it's not really a problem.
@@ -996,11 +986,8 @@ public class TheTVDBProviderTest {
                    .build());
     }
 
-    // @BeforeClass
-    @SuppressWarnings("unused")
+    @BeforeClass
     public static void setupValues55() {
-        // Comment this out because "strike back" apparently no longer
-        // resolves to the correct show.
         values.add(new EpisodeTestData.Builder()
                    .queryString("strike back")
                    .properShowName("Strike Back")
@@ -1076,11 +1063,8 @@ public class TheTVDBProviderTest {
                    .build());
     }
 
-    // @BeforeClass
-    @SuppressWarnings("unused")
+    @BeforeClass
     public static void setupValues62() {
-        // Comment this out because "Lucifer" has conflicting special episodes
-        // (season "0", episode "2")
         values.add(new EpisodeTestData.Builder()
                    .queryString("lucifer")
                    .properShowName("Lucifer")
