@@ -547,9 +547,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
 
         int count = 0;
         final List<String> options = ep.getReplacementText();
-        if (options != null) {
-            count = options.size();
-        }
+        count = options.size();
         if (count == 0) {
             item.setText(NEW_FILENAME_COLUMN, ADDED_PLACEHOLDER_FILENAME);
             return;

@@ -320,7 +320,11 @@ public class Show extends ShowOption {
             logger.warning("no season " + placement.season + " found for show " + name);
             return null;
         }
-        return season.getAll(preferDvd, placement.episode);
+        List<Episode> rval;
+        synchronized (this) {
+            rval = season.getAll(preferDvd, placement.episode);
+        }
+        return rval;
     }
 
     /**
