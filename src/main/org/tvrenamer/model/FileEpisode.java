@@ -149,6 +149,9 @@ public class FileEpisode {
     @SuppressWarnings("unused")
     private FileStatus fileStatus = FileStatus.UNCHECKED;
 
+    private List<String> replacementOptions = null;
+    private String replacementText = EMPTY_STRING;
+
     // This is the basic part of what we would rename the file to.  That is, we would
     // rename it to destinationFolder + baseForRename + filenameSuffix.
     private String baseForRename = null;
@@ -312,10 +315,12 @@ public class FileEpisode {
 
     public void setParsed() {
         parseStatus = ParseStatus.PARSED;
+        replacementText = ADDED_PLACEHOLDER_FILENAME;
     }
 
     public void setFailToParse() {
         parseStatus = ParseStatus.BAD_PARSE;
+        replacementText = BAD_PARSE_MESSAGE;
     }
 
     public void setMoving() {
@@ -382,8 +387,10 @@ public class FileEpisode {
         actualShow = show;
         if (actualShow == null) {
             seriesStatus = SeriesStatus.UNFOUND;
+            replacementText = getNoShowPlaceholder();
         } else {
             seriesStatus = SeriesStatus.GOT_SHOW;
+            replacementText = getShowNamePlaceholder();
         }
     }
 
@@ -395,11 +402,13 @@ public class FileEpisode {
         if (actualShow == null) {
             logger.warning("error: should not get listings, do not have show!");
             seriesStatus = SeriesStatus.NOT_STARTED;
+            replacementText = BAD_PARSE_MESSAGE;
             return false;
         }
 
         if (!actualShow.hasEpisodes()) {
             seriesStatus = SeriesStatus.NO_LISTINGS;
+            replacementText = getNoListingsPlaceholder();
             return false;
         }
 
@@ -412,11 +421,13 @@ public class FileEpisode {
                         + placement.episode + " not found for show '"
                         + filenameShow + "'");
             seriesStatus = SeriesStatus.NO_MATCH;
+            replacementText = getNoMatchPlaceholder();
             return false;
         }
 
         // Success!!!
-        seriesStatus = SeriesStatus.GOT_LISTINGS;
+        buildReplacementTextOptions();
+
         return true;
     }
 
@@ -428,6 +439,7 @@ public class FileEpisode {
      */
     public void listingsFailed(Exception err) {
         seriesStatus = SeriesStatus.NO_LISTINGS;
+        replacementText = getNoListingsPlaceholder();
         if (err != null) {
             logger.log(Level.WARNING, "failed to get listings for " + this, err);
         }
@@ -587,89 +599,52 @@ public class FileEpisode {
     }
 
     /**
-     * @return the new full file path (for table display) using baseForRename and
-     *          the destination directory, or a failure message
+     * Build the new full file path options (for table display) using {@link #getRenamedBasename(int)}
+     * and the destination directory
+     *
      */
-    public String getReplacementText() {
-        switch (seriesStatus) {
-            case GOT_LISTINGS: {
-                if (userPrefs.isRenameEnabled()) {
-                    String newFilename = baseForRename + filenameSuffix;
+    private synchronized void buildReplacementTextOptions() {
+        seriesStatus = SeriesStatus.GOT_LISTINGS;
+        replacementOptions = new LinkedList<>();
+        chosenEpisode = 0;
+        if (userPrefs.isRenameEnabled()) {
+            for (int i=0; i < actualEpisodes.size(); i++) {
+                String newBasename = getRenamedBasename(i);
+                if (i == chosenEpisode) {
+                    baseForRename = newBasename;
+                }
 
-                    if (userPrefs.isMoveEnabled()) {
-                        return getMoveToDirectory() + FILE_SEPARATOR_STRING + newFilename;
-                    } else {
-                        return newFilename;
-                    }
-                } else if (userPrefs.isMoveEnabled()) {
-                    return getMoveToDirectory() + FILE_SEPARATOR_STRING + fileNameString;
+                if (userPrefs.isMoveEnabled()) {
+                    replacementOptions.add(getMoveToDirectory() + FILE_SEPARATOR_STRING
+                                           + newBasename + filenameSuffix);
                 } else {
-                    // This setting doesn't make any sense, but we haven't bothered to
-                    // disallow it yet.
-                    return fileNameString;
+                    replacementOptions.add(newBasename + filenameSuffix);
                 }
             }
-            case NO_MATCH: {
-                return getNoMatchPlaceholder();
-            }
-            case NO_LISTINGS: {
-                return getNoListingsPlaceholder();
-            }
-            case GOT_SHOW: {
-                return getShowNamePlaceholder();
-            }
-            case UNFOUND: {
-                return getNoShowPlaceholder();
-            }
-            default: {
-                if (seriesStatus != SeriesStatus.NOT_STARTED) {
-                    logger.warning("internal error, seriesStatus check apparently not exhaustive: "
-                                   + seriesStatus);
-                }
-                switch (parseStatus) {
-                    case UNPARSED: {
-                        return EMPTY_STRING;
-                    }
-                    case BAD_PARSE: {
-                        return BAD_PARSE_MESSAGE;
-                    }
-                    default: {
-                        return ADDED_PLACEHOLDER_FILENAME;
-                    }
-                }
-            }
+        } else if (userPrefs.isMoveEnabled()) {
+            replacementOptions.add(getMoveToDirectory() + FILE_SEPARATOR_STRING + fileNameString);
+        } else {
+            // This setting doesn't make any sense, but we haven't bothered to
+            // disallow it yet.
+            replacementOptions.add(fileNameString);
         }
+        replacementText = replacementOptions.get(0);
     }
 
     /**
      *
-     * @return the new full file path options (for table display) using {@link #getRenamedBasename(int)}
-     *          and the destination directory
+     * @return the replacement text for table display
      */
-    public List<String> getReplacementOptions() {
-        List<String> rval = new LinkedList<>();
-        if (seriesStatus == SeriesStatus.GOT_LISTINGS) {
-            if (userPrefs.isRenameEnabled()) {
-                for (int i=0; i < actualEpisodes.size(); i++) {
-                    String newFilename = getRenamedBasename(i) + filenameSuffix;
+    public String getReplacementText() {
+        return replacementText;
+    }
 
-                    if (userPrefs.isMoveEnabled()) {
-                        rval.add(getMoveToDirectory() + FILE_SEPARATOR_STRING + newFilename);
-                    } else {
-                        rval.add(newFilename);
-                    }
-                }
-            } else if (userPrefs.isMoveEnabled()) {
-                rval.add(getMoveToDirectory() + FILE_SEPARATOR_STRING + fileNameString);
-            } else {
-                // This setting doesn't make any sense, but we haven't bothered to
-                // disallow it yet.
-                rval.add(fileNameString);
-            }
-        } else {
-            rval.add(getReplacementText());
-        }
-        return rval;
+    /**
+     *
+     * @return the new full file path options
+     */
+    public synchronized List<String> getReplacementOptions() {
+        return replacementOptions;
     }
 
     @Override
