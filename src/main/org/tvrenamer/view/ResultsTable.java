@@ -437,9 +437,12 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                                          final FileEpisode ep,
                                          final List<String> options)
     {
+        String defaultOption = options.get(0);
+        item.setText(NEW_FILENAME_COLUMN, defaultOption);
+
         final Combo combo = new Combo(swtTable, SWT.DROP_DOWN | SWT.READ_ONLY);
         options.forEach(combo::add);
-        combo.setText(options.get(0));
+        combo.setText(defaultOption);
         combo.addModifyListener(e -> ep.setChosenEpisode(combo.getSelectionIndex()));
         item.setData(combo);
 
@@ -460,8 +463,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
      *    the FileEpisode to use to obtain the text
      */
     private void setProposedDestColumn(final TableItem item, final FileEpisode ep) {
-        item.setText(NEW_FILENAME_COLUMN, ep.getReplacementText());
-
         final Object itemData = item.getData();
         if (itemData != null) {
             final Control oldCombo = (Control) itemData;
@@ -477,6 +478,8 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
             } else {
                 logger.warning("should not be using options when there are less than two");
             }
+        } else {
+            item.setText(NEW_FILENAME_COLUMN, ep.getReplacementText());
         }
     }
 
