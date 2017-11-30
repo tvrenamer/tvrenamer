@@ -469,6 +469,11 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         }
     }
 
+    private void failTableItem(TableItem item) {
+        item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
+        item.setChecked(false);
+    }
+
     private void listingsDownloaded(TableItem item, FileEpisode episode) {
         boolean epFound = episode.listingsComplete();
         display.asyncExec(() -> {
@@ -478,8 +483,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                     item.setImage(STATUS_COLUMN, FileMoveIcon.ADDED.icon);
                     item.setChecked(true);
                 } else {
-                    item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
-                    item.setChecked(false);
+                    failTableItem(item);
                 }
             }
         });
@@ -490,8 +494,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         display.asyncExec(() -> {
             if (tableContainsTableItem(item)) {
                 setProposedDestColumn(item, episode);
-                item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
-                item.setChecked(false);
+                failTableItem(item);
             }
         });
     }
@@ -524,8 +527,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         display.asyncExec(() -> {
             if (tableContainsTableItem(item)) {
                 setProposedDestColumn(item, episode);
-                item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
-                item.setChecked(false);
+                failTableItem(item);
             }
         });
     }
