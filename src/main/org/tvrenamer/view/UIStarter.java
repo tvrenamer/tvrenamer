@@ -732,11 +732,21 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         resultsTable.removeAll();
     }
 
-    private void setSortedItem(TableItem oldItem, int j) {
+    /**
+     * Insert a copy of the row at the given position, and then delete the original row.
+     * Note that insertion does not overwrite the row that is already there.  It pushes
+     * the row, and every row below it, down one slot.
+     *
+     * @param oldItem
+     *   the TableItem to copy
+     * @param positionToInsert
+     *   the position where we should insert the row
+     */
+    private void setSortedItem(final TableItem oldItem, final int positionToInsert) {
         boolean wasChecked = oldItem.getChecked();
         int oldStyle = oldItem.getStyle();
 
-        TableItem item = new TableItem(resultsTable, oldStyle, j);
+        TableItem item = new TableItem(resultsTable, oldStyle, positionToInsert);
         item.setChecked(wasChecked);
         item.setText(CURRENT_FILE_COLUMN, oldItem.getText(CURRENT_FILE_COLUMN));
         item.setText(NEW_FILENAME_COLUMN, oldItem.getText(NEW_FILENAME_COLUMN));
@@ -750,21 +760,25 @@ public final class UIStarter implements Observer, AddEpisodeListener {
             case SELECTED_COLUMN:
                 return (item.getChecked()) ? "1" : "0";
             case STATUS_COLUMN:
+                // Sorting alphabetically by the status icon's filename is pretty random.
+                // I don't think there is any real ordering for a status; sorting based
+                // on this column makes sense simply to group together items of the
+                // same status.  I don't think it matters what order they're in.
                 return item.getImage(column).toString();
             default:
                 return item.getText(column);
         }
     }
 
-    private void sortTable(int position) {
+    private void sortTable(int columnNum) {
         // Get the items
         TableItem[] items = resultsTable.getItems();
 
         // Go through the item list and bubble rows up to the top as appropriate
         for (int i = 1; i < items.length; i++) {
-            String value1 = getResultsTableTextValue(items[i], position);
+            String value1 = getResultsTableTextValue(items[i], columnNum);
             for (int j = 0; j < i; j++) {
-                String value2 = getResultsTableTextValue(items[j], position);
+                String value2 = getResultsTableTextValue(items[j], columnNum);
                 // Compare the two values and order accordingly
                 if (resultsTable.getSortDirection() == SWT.DOWN) {
                     if (COLLATOR.compare(value1, value2) < 0) {
