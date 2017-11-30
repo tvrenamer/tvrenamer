@@ -800,23 +800,26 @@ public final class UIStarter implements Observer, AddEpisodeListener {
      * Note that insertion does not overwrite the row that is already there.  It pushes
      * the row, and every row below it, down one slot.
      *
-     * @param i
+     * @param rowToCopy
      *   the index of the row to copy and insert
-     * @param j
+     * @param positionToInsert
      *   the position where we should insert the row
      */
-    private void setSortedItem(int i, int j) {
-        TableItem oldItem = resultsTable.getItem(i);
+    private void setSortedItem(int rowToCopy, int positionToInsert) {
+        TableItem oldItem = resultsTable.getItem(rowToCopy);
         boolean wasChecked = oldItem.getChecked();
         int oldStyle = oldItem.getStyle();
 
-        TableItem item = new TableItem(resultsTable, oldStyle, j);
+        TableItem item = new TableItem(resultsTable, oldStyle, positionToInsert);
         item.setChecked(wasChecked);
         item.setText(CURRENT_FILE_COLUMN, oldItem.getText(CURRENT_FILE_COLUMN));
         item.setText(NEW_FILENAME_COLUMN, oldItem.getText(NEW_FILENAME_COLUMN));
         item.setImage(STATUS_COLUMN, oldItem.getImage(STATUS_COLUMN));
 
         final Object itemData = oldItem.getData();
+
+        // Although the name suggests dispose() is primarily about reclaiming system
+        // resources, it also deletes the item from the Table.
         oldItem.dispose();
         if (itemData != null) {
             final TableEditor newEditor = new TableEditor(resultsTable);
