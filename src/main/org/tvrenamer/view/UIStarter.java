@@ -529,7 +529,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
      * Fill in the value for the "Proposed File" column of the given row, with the text
      * we get from the given episode.  This is the only method that should ever set
      * this text, to ensure that the text of each row is ALWAYS the value returned by
-     * getReplacementOptions() on the associated episode.
+     * getReplacementText() on the associated episode.
      *
      * @param item
      *    the row in the table to set the text of the "Proposed File" column
@@ -763,6 +763,16 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         resultsTable.removeAll();
     }
 
+    /**
+     * Insert a copy of the row at the given position, and then delete the original row.
+     * Note that insertion does not overwrite the row that is already there.  It pushes
+     * the row, and every row below it, down one slot.
+     *
+     * @param i
+     *   the index of the row to copy and insert
+     * @param j
+     *   the position where we should insert the row
+     */
     private void setSortedItem(int i, int j) {
         TableItem oldItem = resultsTable.getItem(i);
         boolean wasChecked = oldItem.getChecked();
