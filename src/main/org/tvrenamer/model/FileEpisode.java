@@ -91,7 +91,8 @@ public class FileEpisode {
     private static final int MAX_TITLE_LENGTH = 85;
 
     // This is the one final field in this class; it's the one thing that should never
-    // change in a FileEpisode.
+    // change in a FileEpisode.  It could be the empty string (though it would be unusual).
+    // If the file does actually have a suffix, this variable *includes* the leading dot.
     private final String filenameSuffix;
 
     // These four fields reflect the information derived from the filename.  In particular,
@@ -235,11 +236,6 @@ public class FileEpisode {
         }
     }
 
-    @SuppressWarnings("unused")
-    public String getBasename() {
-        return baseForRename;
-    }
-
     public String getFilenameSuffix() {
         return filenameSuffix;
     }
@@ -371,6 +367,10 @@ public class FileEpisode {
         }
     }
 
+    /**
+     *
+     * @return true if the episode associated with this item is found in the listings
+     */
     public boolean listingsComplete() {
         if (actualShow == null) {
             logger.warning("error: should not get listings, do not have show!");
@@ -397,6 +397,12 @@ public class FileEpisode {
         return true;
     }
 
+    /**
+     *
+     * @param err
+     *    an exception that may have occurred while trying to get the listings
+     *    (could be null)
+     */
     public void listingsFailed(Exception err) {
         seriesStatus = SeriesStatus.NO_LISTINGS;
         if (err != null) {
