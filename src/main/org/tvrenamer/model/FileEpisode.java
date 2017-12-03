@@ -357,6 +357,10 @@ public class FileEpisode {
         }
     }
 
+    /**
+     *
+     * @return true if the episode associated with this item is found in the listings
+     */
     public boolean listingsComplete() {
         if (actualShow == null) {
             logger.warning("error: should not get listings, do not have show!");
@@ -386,6 +390,12 @@ public class FileEpisode {
         return true;
     }
 
+    /**
+     *
+     * @param err
+     *    an exception that may have occurred while trying to get the listings
+     *    (could be null)
+     */
     public void listingsFailed(Exception err) {
         seriesStatus = SeriesStatus.NO_LISTINGS;
         if (err != null) {
@@ -534,6 +544,11 @@ public class FileEpisode {
         return baseForRename;
     }
 
+    /**
+     *
+     * @param n
+     *    the option chosen
+     */
     public void setChosenEpisode(final int n) {
         if (n >= actualEpisodes.size()) {
             logger.warning("no option " + n + " for " + this);
@@ -635,7 +650,7 @@ public class FileEpisode {
 
     /**
      *
-     * @return the new full file path options (for table display) using getRenamedBasename()
+     * @return the new full file path options (for table display) using {@link #getRenamedBasename(int)}
      *          and the destination directory
      */
     public List<String> getReplacementOptions() {
