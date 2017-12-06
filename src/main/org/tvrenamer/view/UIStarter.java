@@ -552,9 +552,8 @@ public final class UIStarter implements Observer, AddEpisodeListener {
             return;
         }
 
-        if (count == 1) {
-            item.setText(NEW_FILENAME_COLUMN, options.get(0));
-        } else {
+        item.setText(NEW_FILENAME_COLUMN, options.get(0));
+        if (count > 1) {
             setComboBoxProposedDest(item, ep, options);
         }
     }
@@ -776,7 +775,14 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         item.setText(NEW_FILENAME_COLUMN, oldItem.getText(NEW_FILENAME_COLUMN));
         item.setImage(STATUS_COLUMN, oldItem.getImage(STATUS_COLUMN));
 
+        final Object itemData = oldItem.getData();
         oldItem.dispose();
+        if (itemData != null) {
+            final TableEditor newEditor = new TableEditor(resultsTable);
+            newEditor.grabHorizontal = true;
+            newEditor.setEditor((Combo) itemData, item, NEW_FILENAME_COLUMN);
+            item.setData(itemData);
+        }
     }
 
     private String getResultsTableTextValue(TableItem[] items, int row, int column) {
