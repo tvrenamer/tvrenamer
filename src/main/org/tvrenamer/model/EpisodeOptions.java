@@ -97,7 +97,7 @@ class EpisodeOptions {
      *           whether the caller prefers the DVD ordering, or over-the-air ordering
      * @return a list of Episodes that possibly match
      */
-    public List<Episode> getAll(boolean preferDvd) {
+    public List<Episode> getAll(final boolean preferDvd) {
         if (episodeList.size() == 0) {
             return null;
         }

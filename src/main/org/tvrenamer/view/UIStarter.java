@@ -511,8 +511,8 @@ public final class UIStarter implements Observer, AddEpisodeListener {
     }
 
     private void setComboBoxProposedDest(final TableItem item,
-                                        final FileEpisode ep,
-                                        final List<String> options)
+                                         final FileEpisode ep,
+                                         final List<String> options)
     {
         final Combo combo = new Combo(resultsTable, SWT.DROP_DOWN | SWT.READ_ONLY);
         options.forEach(combo::add);
@@ -529,7 +529,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
      * Fill in the value for the "Proposed File" column of the given row, with the text
      * we get from the given episode.  This is the only method that should ever set
      * this text, to ensure that the text of each row is ALWAYS the value returned by
-     * getReplacementText() on the associated episode.
+     * getReplacementOptions() on the associated episode.
      *
      * @param item
      *    the row in the table to set the text of the "Proposed File" column
@@ -537,6 +537,8 @@ public final class UIStarter implements Observer, AddEpisodeListener {
      *    the FileEpisode to use to obtain the text
      */
     private void setProposedDestColumn(final TableItem item, final FileEpisode ep) {
+        item.setText(NEW_FILENAME_COLUMN, ep.getReplacementText());
+
         final Object itemData = item.getData();
         if (itemData != null) {
             final Control oldCombo = (Control) itemData;
@@ -545,16 +547,13 @@ public final class UIStarter implements Observer, AddEpisodeListener {
             }
         }
 
-        final List<String> options = ep.getReplacementText();
-        int count = options.size();
-        if (count == 0) {
-            item.setText(NEW_FILENAME_COLUMN, ADDED_PLACEHOLDER_FILENAME);
-            return;
-        }
-
-        item.setText(NEW_FILENAME_COLUMN, options.get(0));
-        if (count > 1) {
-            setComboBoxProposedDest(item, ep, options);
+        if (ep.hasOptions()) {
+            final List<String> options = ep.getReplacementOptions();
+            if (options.size() > 1) {
+                setComboBoxProposedDest(item, ep, options);
+            } else {
+                logger.warning("should not be using options when there are less than 2");
+            }
         }
     }
 
@@ -785,12 +784,27 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         }
     }
 
+    private static String itemDestDisplayedText(final TableItem item) {
+        synchronized (item) {
+            final Object data = item.getData();
+            if (data == null) {
+                return item.getText(NEW_FILENAME_COLUMN);
+            }
+            final Combo combo = (Combo) data;
+            final int selected = combo.getSelectionIndex();
+            final String[] options = combo.getItems();
+            return options[selected];
+        }
+    }
+
     private String getResultsTableTextValue(TableItem[] items, int row, int column) {
         switch (column) {
             case SELECTED_COLUMN:
                 return (items[row].getChecked()) ? "1" : "0";
             case STATUS_COLUMN:
                 return items[row].getImage(column).toString();
+            case NEW_FILENAME_COLUMN:
+                return itemDestDisplayedText(items[row]);
             default:
                 return items[row].getText(column);
         }

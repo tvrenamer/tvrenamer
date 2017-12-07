@@ -314,7 +314,7 @@ public class Show extends ShowOption {
      * @return the episodes indexed at the given season and episode of this show.
      *    Null if no such episode was found.
      */
-    public List<Episode> getEpisodes(EpisodePlacement placement) {
+    public List<Episode> getEpisodes(final EpisodePlacement placement) {
         Season season = seasons.get(placement.season);
         if (season == null) {
             logger.warning("no season " + placement.season + " found for show " + name);

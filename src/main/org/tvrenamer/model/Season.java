@@ -68,7 +68,7 @@ class Season {
      *           the episode number, within this Season, of the episode to return
      * @return the Episodes that match the request criteria, or null if none does
      */
-    public List<Episode> getAll(boolean preferDvd, int episodeNum) {
+    public List<Episode> getAll(final boolean preferDvd, final int episodeNum) {
         EpisodeOptions options = episodes.get(episodeNum);
         if (options == null) {
             return null;

@@ -305,6 +305,12 @@ public class FileEpisode {
         return (actualEpisodes != null);
     }
 
+    public boolean hasOptions() {
+        return ((seriesStatus == SeriesStatus.GOT_LISTINGS)
+                && (actualEpisodes != null)
+                && (actualEpisodes.size() > 1));
+    }
+
     public void setParsed() {
         parseStatus = ParseStatus.PARSED;
     }
@@ -528,7 +534,7 @@ public class FileEpisode {
         return baseForRename;
     }
 
-    public void setChosenEpisode(int n) {
+    public void setChosenEpisode(final int n) {
         if (n >= actualEpisodes.size()) {
             logger.warning("no option " + n + " for " + this);
         } else {
@@ -573,12 +579,28 @@ public class FileEpisode {
     }
 
     /**
-     * Should not be called when seriesStatus is GOT_LISTINGS.
-     *
-     * @return placeholder text for the current series status
+     * @return the new full file path (for table display) using {@link #getRenamedBasename(int)} and
+     *          the destination directory, or a failure message
      */
-    private String getPlaceholderText() {
+    public String getReplacementText() {
         switch (seriesStatus) {
+            case GOT_LISTINGS: {
+                if (userPrefs.isRenameEnabled()) {
+                    String newFilename = getRenamedBasename(0) + filenameSuffix;
+
+                    if (userPrefs.isMoveEnabled()) {
+                        return getMoveToDirectory() + FILE_SEPARATOR_STRING + newFilename;
+                    } else {
+                        return newFilename;
+                    }
+                } else if (userPrefs.isMoveEnabled()) {
+                    return getMoveToDirectory() + FILE_SEPARATOR_STRING + fileNameString;
+                } else {
+                    // This setting doesn't make any sense, but we haven't bothered to
+                    // disallow it yet.
+                    return fileNameString;
+                }
+            }
             case NO_MATCH: {
                 return getNoMatchPlaceholder();
             }
@@ -616,7 +638,7 @@ public class FileEpisode {
      * @return the new full file path options (for table display) using getRenamedBasename()
      *          and the destination directory
      */
-    public List<String> getReplacementText() {
+    public List<String> getReplacementOptions() {
         List<String> rval = new LinkedList<>();
         if (seriesStatus == SeriesStatus.GOT_LISTINGS) {
             if (userPrefs.isRenameEnabled()) {
@@ -637,7 +659,7 @@ public class FileEpisode {
                 rval.add(fileNameString);
             }
         } else {
-            rval.add(getPlaceholderText());
+            rval.add(getReplacementText());
         }
         return rval;
     }
