@@ -168,6 +168,7 @@ public class FileEpisode {
         }
         fileNameString = justNamePath.toString();
         filenameSuffix = StringUtils.getExtension(fileNameString);
+        baseForRename = StringUtils.removeLast(fileNameString, filenameSuffix);
         checkFile(true);
         FilenameParser.parseFilename(this);
     }
@@ -186,6 +187,7 @@ public class FileEpisode {
         }
         fileNameString = justNamePath.toString();
         filenameSuffix = StringUtils.getExtension(fileNameString);
+        baseForRename = StringUtils.removeLast(fileNameString, filenameSuffix);
         checkFile(false);
     }
 
@@ -282,6 +284,7 @@ public class FileEpisode {
         if (!filenameSuffix.equals(newSuffix)) {
             throw new IllegalStateException("suffix of a FileEpisode may not change!");
         }
+        baseForRename = StringUtils.removeLast(fileNameString, filenameSuffix);
         checkFile(true);
     }
 
@@ -557,10 +560,7 @@ public class FileEpisode {
         newFilename = newFilename.replaceAll(ReplacementToken.DATE_YEAR_MIN.getToken(),
                                              formatDate(airDate, "yy"));
 
-        // Note, this is an instance variable, not a local variable.
-        baseForRename = StringUtils.sanitiseTitle(newFilename);
-
-        return baseForRename;
+        return StringUtils.sanitiseTitle(newFilename);
     }
 
     /**
@@ -577,27 +577,24 @@ public class FileEpisode {
             if (chosenEpisode != previous) {
                 logger.info("changing episode from " + actualEpisodes.get(previous).getTitle()
                             + " to " + actualEpisodes.get(chosenEpisode).getTitle());
+                baseForRename = getRenamedBasename(chosenEpisode);
             }
         }
     }
 
     public String getDestinationBasename() {
-        if (userPrefs.isRenameEnabled()) {
-            return getRenamedBasename(chosenEpisode);
-        } else {
-            return StringUtils.removeLast(fileNameString, filenameSuffix);
-        }
+        return baseForRename;
     }
 
     /**
-     * @return the new full file path (for table display) using {@link #getRenamedBasename(int)} and
+     * @return the new full file path (for table display) using baseForRename and
      *          the destination directory, or a failure message
      */
     public String getReplacementText() {
         switch (seriesStatus) {
             case GOT_LISTINGS: {
                 if (userPrefs.isRenameEnabled()) {
-                    String newFilename = getRenamedBasename(0) + filenameSuffix;
+                    String newFilename = baseForRename + filenameSuffix;
 
                     if (userPrefs.isMoveEnabled()) {
                         return getMoveToDirectory() + FILE_SEPARATOR_STRING + newFilename;
