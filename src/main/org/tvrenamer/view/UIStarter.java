@@ -74,6 +74,8 @@ import java.util.logging.Logger;
 
 public final class UIStarter implements Observer, AddEpisodeListener {
     private static final Logger logger = Logger.getLogger(UIStarter.class.getName());
+    private static final Collator COLLATOR = Collator.getInstance(Locale.getDefault());
+
     private static final int SELECTED_COLUMN = 0;
     private static final int CURRENT_FILE_COLUMN = 1;
     private static final int NEW_FILENAME_COLUMN = 2;
@@ -552,7 +554,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
             if (options.size() > 1) {
                 setComboBoxProposedDest(item, ep, options);
             } else {
-                logger.warning("should not be using options when there are less than 2");
+                logger.warning("should not be using options when there are less than two");
             }
         }
     }
@@ -812,6 +814,10 @@ public final class UIStarter implements Observer, AddEpisodeListener {
             case SELECTED_COLUMN:
                 return (items[row].getChecked()) ? "1" : "0";
             case STATUS_COLUMN:
+                // Sorting alphabetically by the filename is pretty random.  I don't
+                // think there is any real ordering for a status; sorting based on
+                // this column makes sense simply to group together items of the
+                // same status.  I don't think it matters what order they're in.
                 return items[row].getImage(column).toString();
             case NEW_FILENAME_COLUMN:
                 return itemDestDisplayedText(items[row]);
@@ -823,16 +829,15 @@ public final class UIStarter implements Observer, AddEpisodeListener {
     private void sortTable(int position) {
         // Get the items
         TableItem[] items = resultsTable.getItems();
-        Collator collator = Collator.getInstance(Locale.getDefault());
 
-        // Go through the item list and
+        // Go through the item list and bubble rows up to the top as appropriate
         for (int i = 1; i < items.length; i++) {
             String value1 = getResultsTableTextValue(items, i, position);
             for (int j = 0; j < i; j++) {
                 String value2 = getResultsTableTextValue(items, j, position);
                 // Compare the two values and order accordingly
                 if (resultsTable.getSortDirection() == SWT.DOWN) {
-                    if (collator.compare(value1, value2) < 0) {
+                    if (COLLATOR.compare(value1, value2) < 0) {
                         setSortedItem(i, j);
                         // the snippet replaces the items with the new items, we
                         // do the same
@@ -840,7 +845,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
                         break;
                     }
                 } else {
-                    if (collator.compare(value1, value2) > 0) {
+                    if (COLLATOR.compare(value1, value2) > 0) {
                         setSortedItem(i, j);
                         // the snippet replaces the items with the new items, we
                         // do the same

@@ -93,7 +93,8 @@ public class FileEpisode {
     private static final int MAX_TITLE_LENGTH = 85;
 
     // This is the one final field in this class; it's the one thing that should never
-    // change in a FileEpisode.
+    // change in a FileEpisode.  It could be the empty string (though it would be unusual).
+    // If the file does actually have a suffix, this variable *includes* the leading dot.
     private final String filenameSuffix;
 
     // These four fields reflect the information derived from the filename.  In particular,
@@ -236,11 +237,6 @@ public class FileEpisode {
         } else {
             this.filenameResolution = filenameResolution;
         }
-    }
-
-    @SuppressWarnings("unused")
-    public String getBasename() {
-        return baseForRename;
     }
 
     public String getFilenameSuffix() {
