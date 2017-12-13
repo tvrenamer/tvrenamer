@@ -146,6 +146,11 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         display.dispose();
     }
 
+    private void deleteTableItem(final TableItem item) {
+        episodeMap.remove(item.getText(CURRENT_FILE_COLUMN));
+        item.dispose();
+    }
+
     private void setupMainWindow() {
         final Composite topButtonsComposite = new Composite(shell, SWT.FILL);
         topButtonsComposite.setLayout(new RowLayout());
@@ -258,8 +263,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
     public void finishMove(final TableItem item, final boolean success) {
         if (success) {
             if (prefs.isDeleteRowAfterMove()) {
-                episodeMap.remove(item.getText(CURRENT_FILE_COLUMN));
-                item.dispose();
+                deleteTableItem(item);
             }
         } else {
             logger.info("failed to move item: " + item);
@@ -719,25 +723,19 @@ public final class UIStarter implements Observer, AddEpisodeListener {
     private void deleteSelectedTableItems() {
         for (final TableItem item : resultsTable.getSelection()) {
             int index = getTableItemIndex(item);
+            deleteTableItem(item);
+
             if (ITEM_NOT_IN_TABLE == index) {
                 logger.info("error: somehow selected item not found in table");
-                continue;
             }
-
-            String filename = item.getText(CURRENT_FILE_COLUMN);
-            episodeMap.remove(filename);
-
-            resultsTable.remove(index);
-            item.dispose();
         }
         resultsTable.deselectAll();
     }
 
     private void deleteAllTableItems() {
         for (final TableItem item : resultsTable.getItems()) {
-            episodeMap.remove(item.getText(CURRENT_FILE_COLUMN));
+            deleteTableItem(item);
         }
-        resultsTable.removeAll();
     }
 
     private void setSortedItem(int i, int j) {
