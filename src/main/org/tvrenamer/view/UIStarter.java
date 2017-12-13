@@ -144,6 +144,11 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         });
     }
 
+    private void uiCleanup() {
+        shell.dispose();
+        display.dispose();
+    }
+
     private void setupMainWindow() {
         final Composite topButtonsComposite = new Composite(shell, SWT.FILL);
         topButtonsComposite.setLayout(new RowLayout());
@@ -203,11 +208,6 @@ public final class UIStarter implements Observer, AddEpisodeListener {
                 uiCleanup();
             }
         });
-    }
-
-    private void uiCleanup() {
-        shell.dispose();
-        display.dispose();
     }
 
     private void makeMenuItem(Menu parent, String text, Listener listener, char shortcut) {
@@ -765,6 +765,36 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         resultsTable.removeAll();
     }
 
+    private static String itemDestDisplayedText(final TableItem item) {
+        synchronized (item) {
+            final Object data = item.getData();
+            if (data == null) {
+                return item.getText(NEW_FILENAME_COLUMN);
+            }
+            final Combo combo = (Combo) data;
+            final int selected = combo.getSelectionIndex();
+            final String[] options = combo.getItems();
+            return options[selected];
+        }
+    }
+
+    private String getResultsTableTextValue(TableItem[] items, int row, int column) {
+        switch (column) {
+            case SELECTED_COLUMN:
+                return (items[row].getChecked()) ? "1" : "0";
+            case STATUS_COLUMN:
+                // Sorting alphabetically by the filename is pretty random.  I don't
+                // think there is any real ordering for a status; sorting based on
+                // this column makes sense simply to group together items of the
+                // same status.  I don't think it matters what order they're in.
+                return items[row].getImage(column).toString();
+            case NEW_FILENAME_COLUMN:
+                return itemDestDisplayedText(items[row]);
+            default:
+                return items[row].getText(column);
+        }
+    }
+
     /**
      * Insert a copy of the row at the given position, and then delete the original row.
      * Note that insertion does not overwrite the row that is already there.  It pushes
@@ -793,36 +823,6 @@ public final class UIStarter implements Observer, AddEpisodeListener {
             newEditor.grabHorizontal = true;
             newEditor.setEditor((Combo) itemData, item, NEW_FILENAME_COLUMN);
             item.setData(itemData);
-        }
-    }
-
-    private static String itemDestDisplayedText(final TableItem item) {
-        synchronized (item) {
-            final Object data = item.getData();
-            if (data == null) {
-                return item.getText(NEW_FILENAME_COLUMN);
-            }
-            final Combo combo = (Combo) data;
-            final int selected = combo.getSelectionIndex();
-            final String[] options = combo.getItems();
-            return options[selected];
-        }
-    }
-
-    private String getResultsTableTextValue(TableItem[] items, int row, int column) {
-        switch (column) {
-            case SELECTED_COLUMN:
-                return (items[row].getChecked()) ? "1" : "0";
-            case STATUS_COLUMN:
-                // Sorting alphabetically by the filename is pretty random.  I don't
-                // think there is any real ordering for a status; sorting based on
-                // this column makes sense simply to group together items of the
-                // same status.  I don't think it matters what order they're in.
-                return items[row].getImage(column).toString();
-            case NEW_FILENAME_COLUMN:
-                return itemDestDisplayedText(items[row]);
-            default:
-                return items[row].getText(column);
         }
     }
 

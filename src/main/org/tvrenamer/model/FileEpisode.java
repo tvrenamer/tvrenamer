@@ -331,6 +331,37 @@ public class FileEpisode {
         fileStatus = FileStatus.NO_FILE;
     }
 
+    private String getShowNamePlaceholder() {
+        return "<" + actualShow.getName() + ">";
+    }
+
+    private String getNoMatchPlaceholder() {
+        return EPISODE_NOT_FOUND + " <" + actualShow.getName() + " / "
+            + actualShow.getIdString() + ">: " + " season " + placement.season
+            + ", episode " + placement.episode + " not found";
+    }
+
+    private String getNoListingsPlaceholder() {
+        return " <" + actualShow.getName() + " / "
+            + actualShow.getIdString() + ">: " + DOWNLOADING_FAILED;
+    }
+
+    private String getNoShowPlaceholder() {
+        ShowName showName = ShowName.lookupShowName(filenameShow);
+        String queryString = showName.getQueryString();
+        return BROKEN_PLACEHOLDER_FILENAME + " for \""
+            + StringUtils.decodeSpecialCharacters(queryString)
+            + "\"";
+    }
+
+    private String formatDate(LocalDate date, String format) {
+        if (date == null) {
+            return "";
+        }
+        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(format);
+        return dateFormat.format(date);
+    }
+
     /**
      * Set the actualShow of this object to be an instance of a Show.  From there, we
      * can get the actual episode.
@@ -454,14 +485,6 @@ public class FileEpisode {
         }
     }
 
-    private String formatDate(LocalDate date, String format) {
-        if (date == null) {
-            return "";
-        }
-        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(format);
-        return dateFormat.format(date);
-    }
-
     String getRenamedBasename(int n) {
         String showName;
         if (actualShow == null) {
@@ -564,29 +587,6 @@ public class FileEpisode {
         } else {
             return StringUtils.removeLast(fileNameString, filenameSuffix);
         }
-    }
-
-    private String getShowNamePlaceholder() {
-        return "<" + actualShow.getName() + ">";
-    }
-
-    private String getNoMatchPlaceholder() {
-        return EPISODE_NOT_FOUND + " <" + actualShow.getName() + " / "
-            + actualShow.getIdString() + ">: " + " season " + placement.season
-            + ", episode " + placement.episode + " not found";
-    }
-
-    private String getNoListingsPlaceholder() {
-        return " <" + actualShow.getName() + " / "
-            + actualShow.getIdString() + ">: " + DOWNLOADING_FAILED;
-    }
-
-    private String getNoShowPlaceholder() {
-        ShowName showName = ShowName.lookupShowName(filenameShow);
-        String queryString = showName.getQueryString();
-        return BROKEN_PLACEHOLDER_FILENAME + " for \""
-            + StringUtils.decodeSpecialCharacters(queryString)
-            + "\"";
     }
 
     /**
