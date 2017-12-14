@@ -22,6 +22,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
@@ -131,7 +132,18 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         return ITEM_NOT_IN_TABLE;
     }
 
+    private void deleteItemCombo(final TableItem item) {
+        final Object itemData = item.getData();
+        if (itemData != null) {
+            final Control oldCombo = (Control) itemData;
+            if (!oldCombo.isDisposed()) {
+                oldCombo.dispose();
+            }
+        }
+    }
+
     private void deleteTableItem(final TableItem item) {
+        deleteItemCombo(item);
         episodeMap.remove(item.getText(CURRENT_FILE_COLUMN));
         item.dispose();
     }
@@ -467,6 +479,23 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         return taskItem;
     }
 
+    private void setComboBoxProposedDest(final TableItem item, final FileEpisode ep) {
+        final List<String> options = ep.getReplacementOptions();
+        final int chosen = ep.getChosenEpisode();
+        final String defaultOption = options.get(chosen);
+        item.setText(NEW_FILENAME_COLUMN, defaultOption);
+
+        final Combo combo = new Combo(swtTable, SWT.DROP_DOWN | SWT.READ_ONLY);
+        options.forEach(combo::add);
+        combo.setText(defaultOption);
+        combo.addModifyListener(e -> ep.setChosenEpisode(combo.getSelectionIndex()));
+        item.setData(combo);
+
+        final TableEditor editor = new TableEditor(swtTable);
+        editor.grabHorizontal = true;
+        editor.setEditor(combo, item, NEW_FILENAME_COLUMN);
+    }
+
     /**
      * Fill in the value for the "Proposed File" column of the given row, with the text
      * we get from the given episode.  This is the only method that should ever set
@@ -479,10 +508,15 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
      *    the FileEpisode to use to obtain the text
      */
     private void setProposedDestColumn(final TableItem item, final FileEpisode ep) {
-        item.setText(NEW_FILENAME_COLUMN, ep.getReplacementText());
-        if (ep.isReady()) {
-            item.setChecked(true);
+        deleteItemCombo(item);
+
+        int nOptions = ep.optionCount();
+        if (nOptions > 1) {
+            setComboBoxProposedDest(item, ep);
+        } else if (nOptions == 1) {
+            item.setText(NEW_FILENAME_COLUMN, ep.getReplacementText());
         } else {
+            item.setText(NEW_FILENAME_COLUMN, ep.getReplacementText());
             item.setChecked(false);
         }
     }
@@ -497,7 +531,10 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         display.asyncExec(() -> {
             if (tableContainsTableItem(item)) {
                 setProposedDestColumn(item, episode);
-                if (epsFound >= 1) {
+                if (epsFound > 1) {
+                    item.setImage(STATUS_COLUMN, FileMoveIcon.getIcon(OPTIONS));
+                    item.setChecked(true);
+                } else if (epsFound == 1) {
                     item.setImage(STATUS_COLUMN, FileMoveIcon.getIcon(SUCCESS));
                     item.setChecked(true);
                 } else {
@@ -624,8 +661,8 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                 String fileName = item.getText(CURRENT_FILE_COLUMN);
                 final FileEpisode episode = episodeMap.get(fileName);
                 // Skip files not successfully downloaded and ready to be moved
-                if (!episode.isReady()) {
-                    logger.info("selected but not ready: " + episode.getFilepath());
+                if (episode.optionCount() == 0) {
+                    logger.info("checked but not ready: " + episode.getFilepath());
                     continue;
                 }
                 FileMover pendingMove = new FileMover(episode);
@@ -653,12 +690,27 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         return item;
     }
 
+    private static String itemDestDisplayedText(final TableItem item) {
+        synchronized (item) {
+            final Object data = item.getData();
+            if (data == null) {
+                return item.getText(NEW_FILENAME_COLUMN);
+            }
+            final Combo combo = (Combo) data;
+            final int selected = combo.getSelectionIndex();
+            final String[] options = combo.getItems();
+            return options[selected];
+        }
+    }
+
     private static String getItemTextValue(final TableItem item, final int column) {
         switch (column) {
             case CHECKBOX_COLUMN:
                 return (item.getChecked()) ? "0" : "1";
             case STATUS_COLUMN:
                 return FileMoveIcon.getImagePriority(item.getImage(column));
+            case NEW_FILENAME_COLUMN:
+                return itemDestDisplayedText(item);
             default:
                 return item.getText(column);
         }
@@ -684,9 +736,17 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         item.setText(NEW_FILENAME_COLUMN, oldItem.getText(NEW_FILENAME_COLUMN));
         item.setImage(STATUS_COLUMN, oldItem.getImage(STATUS_COLUMN));
 
+        final Object itemData = oldItem.getData();
+
         // Although the name suggests dispose() is primarily about reclaiming system
         // resources, it also deletes the item from the Table.
         oldItem.dispose();
+        if (itemData != null) {
+            final TableEditor newEditor = new TableEditor(swtTable);
+            newEditor.grabHorizontal = true;
+            newEditor.setEditor((Combo) itemData, item, NEW_FILENAME_COLUMN);
+            item.setData(itemData);
+        }
     }
 
     /**

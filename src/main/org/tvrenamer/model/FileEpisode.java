@@ -310,20 +310,20 @@ public class FileEpisode {
         return (parseStatus == ParseStatus.PARSED);
     }
 
-    public synchronized boolean isReady() {
+    public synchronized int optionCount() {
         if (seriesStatus != SeriesStatus.GOT_LISTINGS) {
-            return false;
+            return 0;
         }
         if (reasonIgnored != null) {
-            return false;
+            return 0;
         }
         if (replacementOptions == null) {
             // This should never happen; if we have GOT_LISTINGS,
             // replacementOptions should be initialized
             logger.warning("error: replacementOptions is null despite GOT_LISTINGS");
-            return false;
+            return 0;
         }
-        return true;
+        return replacementOptions.size();
     }
 
     public void setParsed() {
@@ -623,8 +623,15 @@ public class FileEpisode {
     }
 
     /**
+     * Get the currently chosen option
      *
+     * @return
+     *    the option currently chosen
      */
+    public int getChosenEpisode() {
+        return chosenEpisode;
+    }
+
     public String getDestinationBasename() {
         if (userPrefs.isRenameEnabled()) {
             if (baseForRename == null) {
@@ -690,6 +697,14 @@ public class FileEpisode {
             return "Ignoring file due to \"" + reasonIgnored + "\"";
         }
         return replacementText;
+    }
+
+    /**
+     *
+     * @return the new full file path options
+     */
+    public synchronized List<String> getReplacementOptions() {
+        return replacementOptions;
     }
 
     /**
