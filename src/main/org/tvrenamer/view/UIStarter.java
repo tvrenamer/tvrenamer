@@ -25,6 +25,25 @@ public final class UIStarter {
 
     private ResultsTable resultsTable;
 
+    void uiCleanup() {
+        shell.dispose();
+        display.dispose();
+    }
+
+    private void setupIcons() {
+        try {
+            InputStream icon = getClass().getResourceAsStream(TVRENAMER_ICON_PATH);
+            if (icon != null) {
+                shell.setImage(new Image(display, icon));
+            } else {
+                shell.setImage(new Image(display, TVRENAMER_ICON_DIRECT_PATH));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private void init() {
         // Setup display and shell
         GridLayout shellGridLayout = new GridLayout(3, false);
@@ -45,25 +64,6 @@ public final class UIStarter {
         setupIcons();
 
         shell.pack(true);
-    }
-
-    void uiCleanup() {
-        shell.dispose();
-        display.dispose();
-    }
-
-    private void setupIcons() {
-        try {
-            InputStream icon = getClass().getResourceAsStream(TVRENAMER_ICON_PATH);
-            if (icon != null) {
-                shell.setImage(new Image(display, icon));
-            } else {
-                shell.setImage(new Image(display, TVRENAMER_ICON_DIRECT_PATH));
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     private int launch() {
