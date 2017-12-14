@@ -733,13 +733,12 @@ public final class UIStarter implements Observer, AddEpisodeListener {
      * Note that insertion does not overwrite the row that is already there.  It pushes
      * the row, and every row below it, down one slot.
      *
-     * @param i
-     *   the index of the TableItem to copy
+     * @param oldItem
+     *   the TableItem to copy
      * @param positionToInsert
      *   the position where we should insert the row
      */
-    private void setSortedItem(final int i, final int positionToInsert) {
-        TableItem oldItem = resultsTable.getItem(i);
+    private void setSortedItem(final TableItem oldItem, final int positionToInsert) {
         boolean wasChecked = oldItem.getChecked();
         int oldStyle = oldItem.getStyle();
 
@@ -752,14 +751,14 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         oldItem.dispose();
     }
 
-    private static String getResultsTableTextValue(TableItem[] items, int row, final int column) {
+    private static String getItemTextValue(final TableItem item, final int column) {
         switch (column) {
             case CHECKBOX_COLUMN:
-                return (items[row].getChecked()) ? "0" : "1";
+                return (item.getChecked()) ? "0" : "1";
             case STATUS_COLUMN:
-                return FileMoveIcon.getImagePriority(items[row].getImage(column));
+                return FileMoveIcon.getImagePriority(item.getImage(column));
             default:
-                return items[row].getText(column);
+                return item.getText(column);
         }
     }
 
@@ -771,9 +770,9 @@ public final class UIStarter implements Observer, AddEpisodeListener {
 
         // Go through the item list and bubble rows up to the top as appropriate
         for (int i = 1; i < items.length; i++) {
-            String value1 = getResultsTableTextValue(items, i, columnNum);
+            String value1 = getItemTextValue(items[i], columnNum);
             for (int j = 0; j < i; j++) {
-                String value2 = getResultsTableTextValue(items, j, columnNum);
+                String value2 = getItemTextValue(items[j], columnNum);
                 // Compare the two values and order accordingly
                 int comparison = collator.compare(value1, value2);
                 if (((comparison < 0) && (sortDirection == SWT.UP))
@@ -782,7 +781,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
                     // Insert a copy of row i at position j, and then delete
                     // row i.  Then fetch the list of items anew, since we
                     // just modified it.
-                    setSortedItem(i, j);
+                    setSortedItem(items[i], j);
                     items = resultsTable.getItems();
                     break;
                 }
