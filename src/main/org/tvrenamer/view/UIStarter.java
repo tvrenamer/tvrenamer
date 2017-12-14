@@ -732,8 +732,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         resultsTable.removeAll();
     }
 
-    private void setSortedItem(int i, int j) {
-        TableItem oldItem = resultsTable.getItem(i);
+    private void setSortedItem(TableItem oldItem, int j) {
         boolean wasChecked = oldItem.getChecked();
         int oldStyle = oldItem.getStyle();
 
@@ -746,14 +745,14 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         oldItem.dispose();
     }
 
-    private String getResultsTableTextValue(TableItem[] items, int row, int column) {
+    private String getResultsTableTextValue(TableItem item, int column) {
         switch (column) {
             case SELECTED_COLUMN:
-                return (items[row].getChecked()) ? "1" : "0";
+                return (item.getChecked()) ? "1" : "0";
             case STATUS_COLUMN:
-                return items[row].getImage(column).toString();
+                return item.getImage(column).toString();
             default:
-                return items[row].getText(column);
+                return item.getText(column);
         }
     }
 
@@ -763,13 +762,13 @@ public final class UIStarter implements Observer, AddEpisodeListener {
 
         // Go through the item list and bubble rows up to the top as appropriate
         for (int i = 1; i < items.length; i++) {
-            String value1 = getResultsTableTextValue(items, i, position);
+            String value1 = getResultsTableTextValue(items[i], position);
             for (int j = 0; j < i; j++) {
-                String value2 = getResultsTableTextValue(items, j, position);
+                String value2 = getResultsTableTextValue(items[j], position);
                 // Compare the two values and order accordingly
                 if (resultsTable.getSortDirection() == SWT.DOWN) {
                     if (COLLATOR.compare(value1, value2) < 0) {
-                        setSortedItem(i, j);
+                        setSortedItem(items[i], j);
                         // the snippet replaces the items with the new items, we
                         // do the same
                         items = resultsTable.getItems();
@@ -777,7 +776,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
                     }
                 } else {
                     if (COLLATOR.compare(value1, value2) > 0) {
-                        setSortedItem(i, j);
+                        setSortedItem(items[i], j);
                         // the snippet replaces the items with the new items, we
                         // do the same
                         items = resultsTable.getItems();
