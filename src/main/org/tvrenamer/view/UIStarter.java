@@ -778,20 +778,20 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         }
     }
 
-    private String getResultsTableTextValue(TableItem[] items, int row, int column) {
+    private String getResultsTableTextValue(TableItem item, int column) {
         switch (column) {
             case SELECTED_COLUMN:
-                return (items[row].getChecked()) ? "1" : "0";
+                return (item.getChecked()) ? "1" : "0";
             case STATUS_COLUMN:
                 // Sorting alphabetically by the filename is pretty random.  I don't
                 // think there is any real ordering for a status; sorting based on
                 // this column makes sense simply to group together items of the
                 // same status.  I don't think it matters what order they're in.
-                return items[row].getImage(column).toString();
+                return item.getImage(column).toString();
             case NEW_FILENAME_COLUMN:
-                return itemDestDisplayedText(items[row]);
+                return itemDestDisplayedText(item);
             default:
-                return items[row].getText(column);
+                return item.getText(column);
         }
     }
 
@@ -800,13 +800,12 @@ public final class UIStarter implements Observer, AddEpisodeListener {
      * Note that insertion does not overwrite the row that is already there.  It pushes
      * the row, and every row below it, down one slot.
      *
-     * @param rowToCopy
-     *   the index of the row to copy and insert
+     * @param oldItem
+     *   the TableItem to copy
      * @param positionToInsert
      *   the position where we should insert the row
      */
-    private void setSortedItem(int rowToCopy, int positionToInsert) {
-        TableItem oldItem = resultsTable.getItem(rowToCopy);
+    private void setSortedItem(TableItem oldItem, int positionToInsert) {
         boolean wasChecked = oldItem.getChecked();
         int oldStyle = oldItem.getStyle();
 
@@ -836,9 +835,9 @@ public final class UIStarter implements Observer, AddEpisodeListener {
 
         // Go through the item list and bubble rows up to the top as appropriate
         for (int i = 1; i < items.length; i++) {
-            String value1 = getResultsTableTextValue(items, i, position);
+            String value1 = getResultsTableTextValue(items[i], position);
             for (int j = 0; j < i; j++) {
-                String value2 = getResultsTableTextValue(items, j, position);
+                String value2 = getResultsTableTextValue(items[j], position);
                 // Compare the two values and order accordingly
                 int comparison = COLLATOR.compare(value1, value2);
                 if (((comparison < 0) && (sortDirection == SWT.DOWN))
@@ -847,7 +846,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
                     // Insert a copy of row i at position j, and then delete
                     // row i.  Then fetch the list of items anew, since we
                     // just modified it.
-                    setSortedItem(i, j);
+                    setSortedItem(items[i], j);
                     items = resultsTable.getItems();
                     break;
                 }
