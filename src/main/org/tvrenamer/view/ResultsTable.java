@@ -120,6 +120,43 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         ui.uiCleanup();
     }
 
+    private int getTableItemIndex(TableItem item) {
+        try {
+            return swtTable.indexOf(item);
+        } catch (IllegalArgumentException | SWTException ignored) {
+            // We'll just fall through and return the sentinel.
+        }
+        return ITEM_NOT_IN_TABLE;
+    }
+
+    private void deleteItemCombo(final TableItem item) {
+        final Object itemData = item.getData();
+        if (itemData != null) {
+            final Control oldCombo = (Control) itemData;
+            if (!oldCombo.isDisposed()) {
+                oldCombo.dispose();
+            }
+        }
+    }
+
+    private void deleteTableItem(final TableItem item) {
+        deleteItemCombo(item);
+        episodeMap.remove(item.getText(CURRENT_FILE_COLUMN));
+        item.dispose();
+    }
+
+    private void deleteSelectedTableItems() {
+        for (final TableItem item : swtTable.getSelection()) {
+            int index = getTableItemIndex(item);
+            deleteTableItem(item);
+
+            if (ITEM_NOT_IN_TABLE == index) {
+                logger.info("error: somehow selected item not found in table");
+            }
+        }
+        swtTable.deselectAll();
+    }
+
     private void setupTopButtons() {
         final Composite topButtonsComposite = new Composite(shell, SWT.FILL);
         topButtonsComposite.setLayout(new RowLayout());
@@ -433,16 +470,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         editor.setEditor(combo, item, NEW_FILENAME_COLUMN);
     }
 
-    private void deleteItemCombo(final TableItem item) {
-        final Object itemData = item.getData();
-        if (itemData != null) {
-            final Control oldCombo = (Control) itemData;
-            if (!oldCombo.isDisposed()) {
-                oldCombo.dispose();
-            }
-        }
-    }
-
     /**
      * Fill in the value for the "Proposed File" column of the given row, with the text
      * we get from the given episode.  This is the only method that should ever set
@@ -585,15 +612,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         }
     }
 
-    private int getTableItemIndex(TableItem item) {
-        try {
-            return swtTable.indexOf(item);
-        } catch (IllegalArgumentException | SWTException ignored) {
-            // We'll just fall through and return the sentinel.
-        }
-        return ITEM_NOT_IN_TABLE;
-    }
-
     private boolean tableContainsTableItem(TableItem item) {
         return (ITEM_NOT_IN_TABLE != getTableItemIndex(item));
     }
@@ -656,58 +674,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         return false;
     }
 
-    private void deleteTableItem(final TableItem item) {
-        deleteItemCombo(item);
-        episodeMap.remove(item.getText(CURRENT_FILE_COLUMN));
-        item.dispose();
-    }
-
-    private void deleteSelectedTableItems() {
-        for (final TableItem item : swtTable.getSelection()) {
-            int index = getTableItemIndex(item);
-            deleteTableItem(item);
-
-            if (ITEM_NOT_IN_TABLE == index) {
-                logger.info("error: somehow selected item not found in table");
-            }
-        }
-        swtTable.deselectAll();
-    }
-
-    /**
-     * Insert a copy of the row at the given position, and then delete the original row.
-     * Note that insertion does not overwrite the row that is already there.  It pushes
-     * the row, and every row below it, down one slot.
-     *
-     * @param oldItem
-     *   the TableItem to copy
-     * @param positionToInsert
-     *   the position where we should insert the row
-     */
-    private void setSortedItem(final TableItem oldItem, final int positionToInsert) {
-        boolean wasChecked = oldItem.getChecked();
-        int oldStyle = oldItem.getStyle();
-
-        TableItem item = new TableItem(swtTable, oldStyle, positionToInsert);
-        item.setChecked(wasChecked);
-        item.setText(CURRENT_FILE_COLUMN, oldItem.getText(CURRENT_FILE_COLUMN));
-        item.setText(NEW_FILENAME_COLUMN, oldItem.getText(NEW_FILENAME_COLUMN));
-        item.setImage(STATUS_COLUMN, oldItem.getImage(STATUS_COLUMN));
-
-        final Object itemData = oldItem.getData();
-
-        // Although the name suggests dispose() is primarily about reclaiming system
-        // resources, it also deletes the item from the Table.
-        oldItem.dispose();
-
-        if (itemData != null) {
-            final TableEditor newEditor = new TableEditor(swtTable);
-            newEditor.grabHorizontal = true;
-            newEditor.setEditor((Combo) itemData, item, NEW_FILENAME_COLUMN);
-            item.setData(itemData);
-        }
-    }
-
     private static String itemDestDisplayedText(final TableItem item) {
         synchronized (item) {
             final Object data = item.getData();
@@ -735,6 +701,39 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                 return itemDestDisplayedText(item);
             default:
                 return item.getText(column);
+        }
+    }
+
+    /**
+     * Insert a copy of the row at the given position, and then delete the original row.
+     * Note that insertion does not overwrite the row that is already there.  It pushes
+     * the row, and every row below it, down one slot.
+     *
+     * @param oldItem
+     *   the TableItem to copy
+     * @param positionToInsert
+     *   the position where we should insert the row
+     */
+    private void setSortedItem(final TableItem oldItem, final int positionToInsert) {
+        boolean wasChecked = oldItem.getChecked();
+        int oldStyle = oldItem.getStyle();
+
+        TableItem item = new TableItem(swtTable, oldStyle, positionToInsert);
+        item.setChecked(wasChecked);
+        item.setText(CURRENT_FILE_COLUMN, oldItem.getText(CURRENT_FILE_COLUMN));
+        item.setText(NEW_FILENAME_COLUMN, oldItem.getText(NEW_FILENAME_COLUMN));
+        item.setImage(STATUS_COLUMN, oldItem.getImage(STATUS_COLUMN));
+
+        final Object itemData = oldItem.getData();
+
+        // Although the name suggests dispose() is primarily about reclaiming system
+        // resources, it also deletes the item from the Table.
+        oldItem.dispose();
+        if (itemData != null) {
+            final TableEditor newEditor = new TableEditor(swtTable);
+            newEditor.grabHorizontal = true;
+            newEditor.setEditor((Combo) itemData, item, NEW_FILENAME_COLUMN);
+            item.setData(itemData);
         }
     }
 
