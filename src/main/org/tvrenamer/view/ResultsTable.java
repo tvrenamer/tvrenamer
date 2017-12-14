@@ -20,6 +20,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
@@ -116,6 +117,43 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
 
     private void quit() {
         ui.uiCleanup();
+    }
+
+    private int getTableItemIndex(TableItem item) {
+        try {
+            return swtTable.indexOf(item);
+        } catch (IllegalArgumentException | SWTException ignored) {
+            // We'll just fall through and return the sentinel.
+        }
+        return ITEM_NOT_IN_TABLE;
+    }
+
+    private void deleteItemCombo(final TableItem item) {
+        final Object itemData = item.getData();
+        if (itemData != null) {
+            final Control oldCombo = (Control) itemData;
+            if (!oldCombo.isDisposed()) {
+                oldCombo.dispose();
+            }
+        }
+    }
+
+    private void deleteTableItem(final TableItem item) {
+        deleteItemCombo(item);
+        episodeMap.remove(item.getText(CURRENT_FILE_COLUMN));
+        item.dispose();
+    }
+
+    private void deleteSelectedTableItems() {
+        for (final TableItem item : swtTable.getSelection()) {
+            int index = getTableItemIndex(item);
+            deleteTableItem(item);
+
+            if (ITEM_NOT_IN_TABLE == index) {
+                logger.info("error: somehow selected item not found in table");
+            }
+        }
+        swtTable.deselectAll();
     }
 
     private void setupTopButtons() {
@@ -413,6 +451,24 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         return taskItem;
     }
 
+    private void setComboBoxProposedDest(final TableItem item,
+                                         final FileEpisode ep,
+                                         final List<String> options)
+    {
+        String defaultOption = options.get(0);
+        item.setText(NEW_FILENAME_COLUMN, defaultOption);
+
+        final Combo combo = new Combo(swtTable, SWT.DROP_DOWN | SWT.READ_ONLY);
+        options.forEach(combo::add);
+        combo.setText(defaultOption);
+        combo.addModifyListener(e -> ep.setChosenEpisode(combo.getSelectionIndex()));
+        item.setData(combo);
+
+        final TableEditor editor = new TableEditor(swtTable);
+        editor.grabHorizontal = true;
+        editor.setEditor(combo, item, NEW_FILENAME_COLUMN);
+    }
+
     /**
      * Fill in the value for the "Proposed File" column of the given row, with the text
      * we get from the given episode.  This is the only method that should ever set
@@ -425,12 +481,25 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
      *    the FileEpisode to use to obtain the text
      */
     private void setProposedDestColumn(final TableItem item, final FileEpisode ep) {
-        item.setText(NEW_FILENAME_COLUMN, ep.getReplacementText());
-        if (ep.isReady()) {
+        deleteItemCombo(item);
+
+        int nOptions = ep.optionCount();
+        if (nOptions > 1) {
+            final List<String> options = ep.getReplacementOptions();
+            setComboBoxProposedDest(item, ep, options);
+            item.setChecked(true);
+        } else if (nOptions == 1) {
+            item.setText(NEW_FILENAME_COLUMN, ep.getReplacementText());
             item.setChecked(true);
         } else {
+            item.setText(NEW_FILENAME_COLUMN, ep.getReplacementText());
             item.setChecked(false);
         }
+    }
+
+    private void failTableItem(TableItem item) {
+        item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
+        item.setChecked(false);
     }
 
     private void listingsDownloaded(TableItem item, FileEpisode episode) {
@@ -441,8 +510,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                 if (epFound) {
                     item.setImage(STATUS_COLUMN, FileMoveIcon.ADDED.icon);
                 } else {
-                    item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
-                    item.setChecked(false);
+                    failTableItem(item);
                 }
             }
         });
@@ -453,8 +521,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         display.asyncExec(() -> {
             if (tableContainsTableItem(item)) {
                 setProposedDestColumn(item, episode);
-                item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
-                item.setChecked(false);
+                failTableItem(item);
             }
         });
     }
@@ -487,8 +554,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         display.asyncExec(() -> {
             if (tableContainsTableItem(item)) {
                 setProposedDestColumn(item, episode);
-                item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
-                item.setChecked(false);
+                failTableItem(item);
             }
         });
     }
@@ -509,8 +575,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
             final String fileName = episode.getFilepath();
             final TableItem item = createTableItem(swtTable, fileName, episode);
             if (!episode.wasParsed()) {
-                item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
-                item.setChecked(false);
+                failTableItem(item);
                 continue;
             }
             synchronized (this) {
@@ -551,15 +616,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         }
     }
 
-    private int getTableItemIndex(TableItem item) {
-        try {
-            return swtTable.indexOf(item);
-        } catch (IllegalArgumentException | SWTException ignored) {
-            // We'll just fall through and return the sentinel.
-        }
-        return ITEM_NOT_IN_TABLE;
-    }
-
     private boolean tableContainsTableItem(TableItem item) {
         return (ITEM_NOT_IN_TABLE != getTableItemIndex(item));
     }
@@ -585,7 +641,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                 String fileName = item.getText(CURRENT_FILE_COLUMN);
                 final FileEpisode episode = episodeMap.get(fileName);
                 // Skip files not successfully downloaded and ready to be moved
-                if (!episode.isReady()) {
+                if (episode.optionCount() == 0) {
                     logger.info("selected but not ready: " + episode.getFilepath());
                     continue;
                 }
@@ -613,21 +669,34 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         return item;
     }
 
-    private void deleteTableItem(final TableItem item) {
-        episodeMap.remove(item.getText(CURRENT_FILE_COLUMN));
-        item.dispose();
+    private static String itemDestDisplayedText(final TableItem item) {
+        synchronized (item) {
+            final Object data = item.getData();
+            if (data == null) {
+                return item.getText(NEW_FILENAME_COLUMN);
+            }
+            final Combo combo = (Combo) data;
+            final int selected = combo.getSelectionIndex();
+            final String[] options = combo.getItems();
+            return options[selected];
+        }
     }
 
-    private void deleteSelectedTableItems() {
-        for (final TableItem item : swtTable.getSelection()) {
-            int index = getTableItemIndex(item);
-            deleteTableItem(item);
-
-            if (ITEM_NOT_IN_TABLE == index) {
-                logger.info("error: somehow selected item not found in table");
-            }
+    private static String getItemTextValue(final TableItem item, final int column) {
+        switch (column) {
+            case SELECTED_COLUMN:
+                return (item.getChecked()) ? "1" : "0";
+            case STATUS_COLUMN:
+                // Sorting alphabetically by the status icon's filename is pretty random.
+                // I don't think there is any real ordering for a status; sorting based
+                // on this column makes sense simply to group together items of the
+                // same status.  I don't think it matters what order they're in.
+                return item.getImage(column).toString();
+            case NEW_FILENAME_COLUMN:
+                return itemDestDisplayedText(item);
+            default:
+                return item.getText(column);
         }
-        swtTable.deselectAll();
     }
 
     /**
@@ -650,21 +719,16 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         item.setText(NEW_FILENAME_COLUMN, oldItem.getText(NEW_FILENAME_COLUMN));
         item.setImage(STATUS_COLUMN, oldItem.getImage(STATUS_COLUMN));
 
-        oldItem.dispose();
-    }
+        final Object itemData = oldItem.getData();
 
-    private static String getItemTextValue(final TableItem item, final int column) {
-        switch (column) {
-            case SELECTED_COLUMN:
-                return (item.getChecked()) ? "1" : "0";
-            case STATUS_COLUMN:
-                // Sorting alphabetically by the status icon's filename is pretty random.
-                // I don't think there is any real ordering for a status; sorting based
-                // on this column makes sense simply to group together items of the
-                // same status.  I don't think it matters what order they're in.
-                return item.getImage(column).toString();
-            default:
-                return item.getText(column);
+        // Although the name suggests dispose() is primarily about reclaiming system
+        // resources, it also deletes the item from the Table.
+        oldItem.dispose();
+        if (itemData != null) {
+            final TableEditor newEditor = new TableEditor(swtTable);
+            newEditor.grabHorizontal = true;
+            newEditor.setEditor((Combo) itemData, item, NEW_FILENAME_COLUMN);
+            item.setData(itemData);
         }
     }
 
@@ -701,6 +765,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         for (TableItem item : swtTable.getItems()) {
             String fileName = item.getText(CURRENT_FILE_COLUMN);
             FileEpisode episode = episodeMap.remove(fileName);
+            episode.refreshReplacement();
             String newFileName = episode.getFilepath();
             episodeMap.put(newFileName, episode);
             item.setText(CURRENT_FILE_COLUMN, newFileName);

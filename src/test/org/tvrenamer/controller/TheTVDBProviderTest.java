@@ -206,7 +206,9 @@ public class TheTVDBProviderTest {
             TheTVDBProvider.getSeriesListing(series);
         }
 
-        final Episode ep = series.getEpisode(new EpisodePlacement(epdata.seasonNum, epdata.episodeNum));
+        final EpisodePlacement placement = new EpisodePlacement(epdata.seasonNum, epdata.episodeNum);
+        final List<Episode> allEps = series.getEpisodes(placement);
+        final Episode ep = allEps.get(0);
         if (ep == null) {
             fail("result of calling getEpisode(" + epdata.seasonNum + ", " + epdata.episodeNum
                  + ") on " + actualName + " came back null");
