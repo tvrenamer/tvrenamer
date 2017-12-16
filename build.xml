@@ -255,6 +255,7 @@
              classpathref="findbugs.classpath"/>
     <findbugs output="html"
               reportLevel="low"
+              excludeFilter="${etc}/exclude.xml"
               outputFile="${build}/fbugs.html" >
       <auxClasspath refid="classpath"/>
       <auxClasspath refid="classpath.test"/>
