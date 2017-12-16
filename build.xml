@@ -249,7 +249,6 @@
   </target>
 
   <target name="findbugs" depends="compile" description="Run findbugs on the code">
-    <ivy:retrieve/>
     <ivy:cachepath pathid="findbugs.classpath" conf="findbugs"/>
     <taskdef name="findbugs"
              classname="edu.umd.cs.findbugs.anttask.FindBugsTask"
@@ -257,6 +256,8 @@
     <findbugs output="html"
               reportLevel="low"
               outputFile="${build}/fbugs.html" >
+      <auxClasspath refid="classpath"/>
+      <auxClasspath refid="classpath.test"/>
       <classpath refid="findbugs.classpath"/>
       <class location="${build}"/>
     </findbugs>
