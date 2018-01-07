@@ -446,7 +446,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     private static String getItemTextValue(final TableItem item, final int column) {
         switch (column) {
             case SELECTED_COLUMN:
-                return (item.getChecked()) ? "1" : "0";
+                return (item.getChecked()) ? "0" : "1";
             case STATUS_COLUMN:
                 // Sorting alphabetically by the status icon's filename is pretty random.
                 // I don't think there is any real ordering for a status; sorting based
@@ -494,9 +494,14 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     }
 
     private void sortTable(TableColumn column, int columnNum) {
-        int sortDirection = swtTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
         // Get the items
         TableItem[] items = swtTable.getItems();
+
+        int sortDirection = SWT.UP;
+        TableColumn previousSort = swtTable.getSortColumn();
+        if (column.equals(previousSort)) {
+            sortDirection = swtTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
+        }
 
         // Go through the item list and bubble rows up to the top as appropriate
         for (int i = 1; i < items.length; i++) {
@@ -505,8 +510,8 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                 String value2 = getItemTextValue(items[j], columnNum);
                 // Compare the two values and order accordingly
                 int comparison = COLLATOR.compare(value1, value2);
-                if (((comparison < 0) && (sortDirection == SWT.DOWN))
-                    || (comparison > 0) && (sortDirection == SWT.UP))
+                if (((comparison < 0) && (sortDirection == SWT.UP))
+                    || (comparison > 0) && (sortDirection == SWT.DOWN))
                 {
                     // Insert a copy of row i at position j, and then delete
                     // row i.  Then fetch the list of items anew, since we
