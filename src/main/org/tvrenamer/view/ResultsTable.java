@@ -1,6 +1,7 @@
 package org.tvrenamer.view;
 
 import static org.tvrenamer.model.util.Constants.*;
+import static org.tvrenamer.view.Columns.*;
 import static org.tvrenamer.view.FileMoveIcon.Status.*;
 import static org.tvrenamer.view.UIUtils.showMessageBox;
 
@@ -75,10 +76,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     private static final UserPreferences prefs = UserPreferences.getInstance();
     private static final Collator COLLATOR = Collator.getInstance(Locale.getDefault());
 
-    private static final int CHECKBOX_COLUMN = 0;
-    private static final int CURRENT_FILE_COLUMN = 1;
-    private static final int NEW_FILENAME_COLUMN = 2;
-    private static final int STATUS_COLUMN = 3;
     private static final int ITEM_NOT_IN_TABLE = -1;
 
     private final UIStarter ui;
@@ -370,48 +367,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         });
     }
 
-    private void setupColumns() {
-        final TableColumn checkboxColumn = new TableColumn(swtTable, SWT.LEFT);
-        checkboxColumn.setText(CHECKBOX_HEADER);
-        checkboxColumn.setWidth(60);
-        checkboxColumn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                sortTable(checkboxColumn);
-            }
-        });
-
-        final TableColumn sourceColumn = new TableColumn(swtTable, SWT.LEFT);
-        sourceColumn.setText(SOURCE_HEADER);
-        sourceColumn.setWidth(550);
-        sourceColumn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                sortTable(sourceColumn);
-            }
-        });
-
-        final TableColumn destinationColumn = new TableColumn(swtTable, SWT.LEFT);
-        setColumnDestText(destinationColumn);
-        destinationColumn.setWidth(550);
-        destinationColumn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                sortTable(destinationColumn);
-            }
-        });
-
-        final TableColumn statusColumn = new TableColumn(swtTable, SWT.LEFT);
-        statusColumn.setText(STATUS_HEADER);
-        statusColumn.setWidth(60);
-        statusColumn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                sortTable(statusColumn);
-            }
-        });
-    }
-
     private void setupResultsTable() {
         swtTable.setHeaderVisible(true);
         swtTable.setLinesVisible(true);
@@ -421,7 +376,10 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         gridData.horizontalSpan = 3;
         swtTable.setLayoutData(gridData);
 
-        setupColumns();
+        Columns.createColumns(this, swtTable);
+        setColumnDestText(swtTable.getColumn(NEW_FILENAME_COLUMN));
+        swtTable.setSortColumn(swtTable.getColumn(CURRENT_FILE_COLUMN));
+        swtTable.setSortDirection(SWT.UP);
 
         // Allow deleting of elements
         swtTable.addKeyListener(new KeyAdapter() {
@@ -843,7 +801,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
      * @param column
      *    the TableColumn to sort by
      */
-    private void sortTable(final TableColumn column) {
+    void sortTable(final TableColumn column) {
         final int columnNum = swtTable.indexOf(column);
         if (ITEM_NOT_IN_TABLE == columnNum) {
             logger.severe("unable to locate column in table: " + column);
