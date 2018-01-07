@@ -82,11 +82,13 @@ public class FilenameParser {
         Path filePath = episode.getPath();
         String withShowName = insertShowNameIfNeeded(filePath);
         String strippedName = stripJunk(withShowName);
-        int idx = 0;
         Matcher matcher;
-        while (idx < COMPILED_REGEX.length) {
-            matcher = COMPILED_REGEX[idx++].matcher(strippedName);
+        for (Pattern patt : COMPILED_REGEX) {
+            matcher = patt.matcher(strippedName);
             if (matcher.matches()) {
+                String foundName = matcher.group(1);
+                ShowName.lookupShowName(foundName);
+
                 String resolution = "";
                 if (matcher.groupCount() == 4) {
                     resolution = matcher.group(4);
@@ -95,8 +97,6 @@ public class FilenameParser {
                     // an error if it does, but not important.
                     continue;
                 }
-                String foundName = matcher.group(1);
-                ShowName.lookupShowName(foundName);
                 episode.setFilenameShow(foundName);
                 episode.setEpisodePlacement(matcher.group(2), matcher.group(3));
                 episode.setFilenameResolution(resolution);
