@@ -49,6 +49,7 @@ import org.tvrenamer.controller.ShowInformationListener;
 import org.tvrenamer.controller.ShowListingsListener;
 import org.tvrenamer.controller.UpdateChecker;
 import org.tvrenamer.controller.UrlLauncher;
+import org.tvrenamer.controller.util.StringUtils;
 import org.tvrenamer.model.EpisodeDb;
 import org.tvrenamer.model.FailedShow;
 import org.tvrenamer.model.FileEpisode;
@@ -607,6 +608,10 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
             }
 
             final String showName = episode.getFilenameShow();
+            if (StringUtils.isBlank(showName)) {
+                logger.fine("no show name found for " + episode);
+                continue;
+            }
             ShowStore.getShow(showName, new ShowInformationListener() {
                     @Override
                     public void downloadSucceeded(Show show) {

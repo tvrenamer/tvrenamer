@@ -56,11 +56,9 @@ public class EpisodeDb implements Observer {
         final FileEpisode episode = new FileEpisode(path);
         episode.setIgnoreReason(ignorableReason(pathname));
         if (!episode.wasParsed()) {
-            // TODO: we can add these episodes to the table anyway,
-            // to provide information to the user, and in the future,
-            // to let them help us parse the filenames.
-            logger.severe("Couldn't parse file: " + pathname);
-            return null;
+            // We're putting the episode in the table anyway, but it's
+            // not much use.  TODO: make better use of it.
+            logger.warning("Couldn't parse file: " + pathname);
         }
         put(pathname, episode);
         return episode;
@@ -106,9 +104,7 @@ public class EpisodeDb implements Observer {
             logger.info("already in table: " + key);
         } else {
             FileEpisode ep = add(key);
-            if (ep != null) {
-                contents.add(ep);
-            }
+            contents.add(ep);
         }
     }
 
