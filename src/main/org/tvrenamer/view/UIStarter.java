@@ -384,40 +384,28 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         selectedColumn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                int newDirection = resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
-                resultsTable.setSortDirection(newDirection);
-                sortTable(SELECTED_COLUMN);
-                resultsTable.setSortColumn(selectedColumn);
+                sortTable(selectedColumn, SELECTED_COLUMN);
             }
         });
 
         sourceColumn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                int newDirection = resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
-                resultsTable.setSortDirection(newDirection);
-                sortTable(CURRENT_FILE_COLUMN);
-                resultsTable.setSortColumn(sourceColumn);
+                sortTable(sourceColumn, CURRENT_FILE_COLUMN);
             }
         });
 
         destinationColumn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                int newDirection = resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
-                resultsTable.setSortDirection(newDirection);
-                sortTable(NEW_FILENAME_COLUMN);
-                resultsTable.setSortColumn(destinationColumn);
+                sortTable(destinationColumn, NEW_FILENAME_COLUMN);
             }
         });
 
         statusColumn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                int newDirection = resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
-                resultsTable.setSortDirection(newDirection);
-                sortTable(STATUS_COLUMN);
-                resultsTable.setSortColumn(statusColumn);
+                sortTable(statusColumn, STATUS_COLUMN);
             }
         });
 
@@ -770,7 +758,8 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         }
     }
 
-    private void sortTable(int columnNum) {
+    private void sortTable(TableColumn column, int columnNum) {
+        int sortDirection = resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
         // Get the items
         TableItem[] items = resultsTable.getItems();
 
@@ -780,7 +769,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
             for (int j = 0; j < i; j++) {
                 String value2 = getItemTextValue(items[j], columnNum);
                 // Compare the two values and order accordingly
-                if (resultsTable.getSortDirection() == SWT.DOWN) {
+                if (sortDirection == SWT.DOWN) {
                     if (COLLATOR.compare(value1, value2) < 0) {
                         setSortedItem(items[i], j);
                         // the snippet replaces the items with the new items, we
@@ -799,6 +788,8 @@ public final class UIStarter implements Observer, AddEpisodeListener {
                 }
             }
         }
+        resultsTable.setSortDirection(sortDirection);
+        resultsTable.setSortColumn(column);
     }
 
     void refreshTable() {
