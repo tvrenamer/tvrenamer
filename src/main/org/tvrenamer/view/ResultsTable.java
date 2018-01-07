@@ -360,40 +360,28 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         selectedColumn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                int newDirection = swtTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
-                swtTable.setSortDirection(newDirection);
-                sortTable(SELECTED_COLUMN);
-                swtTable.setSortColumn(selectedColumn);
+                sortTable(selectedColumn, SELECTED_COLUMN);
             }
         });
 
         sourceColumn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                int newDirection = swtTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
-                swtTable.setSortDirection(newDirection);
-                sortTable(CURRENT_FILE_COLUMN);
-                swtTable.setSortColumn(sourceColumn);
+                sortTable(sourceColumn, CURRENT_FILE_COLUMN);
             }
         });
 
         destinationColumn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                int newDirection = swtTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
-                swtTable.setSortDirection(newDirection);
-                sortTable(NEW_FILENAME_COLUMN);
-                swtTable.setSortColumn(destinationColumn);
+                sortTable(destinationColumn, NEW_FILENAME_COLUMN);
             }
         });
 
         statusColumn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                int newDirection = swtTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
-                swtTable.setSortDirection(newDirection);
-                sortTable(STATUS_COLUMN);
-                swtTable.setSortColumn(statusColumn);
+                sortTable(statusColumn, STATUS_COLUMN);
             }
         });
 
@@ -754,8 +742,8 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         }
     }
 
-    private void sortTable(int columnNum) {
-        int sortDirection = swtTable.getSortDirection();
+    private void sortTable(TableColumn column, int columnNum) {
+        int sortDirection = swtTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
         // Get the items
         TableItem[] items = swtTable.getItems();
 
@@ -778,6 +766,8 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                 }
             }
         }
+        swtTable.setSortDirection(sortDirection);
+        swtTable.setSortColumn(column);
     }
 
     void refreshTable() {
