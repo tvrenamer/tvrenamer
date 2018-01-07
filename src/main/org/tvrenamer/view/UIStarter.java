@@ -755,7 +755,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         oldItem.dispose();
     }
 
-    private String getResultsTableTextValue(TableItem item, int column) {
+    private static String getItemTextValue(final TableItem item, final int column) {
         switch (column) {
             case SELECTED_COLUMN:
                 return (item.getChecked()) ? "1" : "0";
@@ -776,9 +776,9 @@ public final class UIStarter implements Observer, AddEpisodeListener {
 
         // Go through the item list and bubble rows up to the top as appropriate
         for (int i = 1; i < items.length; i++) {
-            String value1 = getResultsTableTextValue(items[i], columnNum);
+            String value1 = getItemTextValue(items[i], columnNum);
             for (int j = 0; j < i; j++) {
-                String value2 = getResultsTableTextValue(items[j], columnNum);
+                String value2 = getItemTextValue(items[j], columnNum);
                 // Compare the two values and order accordingly
                 if (resultsTable.getSortDirection() == SWT.DOWN) {
                     if (COLLATOR.compare(value1, value2) < 0) {
