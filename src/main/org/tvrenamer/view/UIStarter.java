@@ -355,10 +355,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         checkboxColumn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                int newDirection = resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
-                resultsTable.setSortDirection(newDirection);
-                sortTable(CHECKBOX_COLUMN);
-                resultsTable.setSortColumn(checkboxColumn);
+                sortTable(checkboxColumn, CHECKBOX_COLUMN);
             }
         });
 
@@ -368,10 +365,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         sourceColumn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                int newDirection = resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
-                resultsTable.setSortDirection(newDirection);
-                sortTable(CURRENT_FILE_COLUMN);
-                resultsTable.setSortColumn(sourceColumn);
+                sortTable(sourceColumn, CURRENT_FILE_COLUMN);
             }
         });
 
@@ -381,10 +375,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         destinationColumn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                int newDirection = resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
-                resultsTable.setSortDirection(newDirection);
-                sortTable(NEW_FILENAME_COLUMN);
-                resultsTable.setSortColumn(destinationColumn);
+                sortTable(destinationColumn, NEW_FILENAME_COLUMN);
             }
         });
 
@@ -394,10 +385,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         statusColumn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                int newDirection = resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
-                resultsTable.setSortDirection(newDirection);
-                sortTable(STATUS_COLUMN);
-                resultsTable.setSortColumn(statusColumn);
+                sortTable(statusColumn, STATUS_COLUMN);
             }
         });
     }
@@ -762,8 +750,19 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         }
     }
 
-    private void sortTable(final int columnNum) {
-        int sortDirection = resultsTable.getSortDirection();
+    /**
+     * Sort the table by the given column in the given direction.
+     *
+     * @param column
+     *    the TableColumn to sort by
+     * @param columnNum
+     *    the position of the TableColumn in the Table
+     * @param sortDirection
+     *    the direction to sort by; SWT.UP means sort A-Z, while SWT.DOWN is Z-A
+     */
+    private void sortTable(final TableColumn column, final int columnNum,
+                           final int sortDirection)
+    {
         // Get the items
         TableItem[] items = resultsTable.getItems();
         Collator collator = Collator.getInstance(Locale.getDefault());
@@ -787,6 +786,22 @@ public final class UIStarter implements Observer, AddEpisodeListener {
                 }
             }
         }
+        resultsTable.setSortDirection(sortDirection);
+        resultsTable.setSortColumn(column);
+    }
+
+    /**
+     * Sort the table by the given column.
+     *
+     * If the column to sort by is the same column that the table is already
+     * sorted by, then the effect is to reverse the ordering of the sort.
+     *
+     * @param column
+     *    the TableColumn to sort by
+     */
+    private void sortTable(final TableColumn column, final int columnNum) {
+        int sortDirection = resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
+        sortTable(column, columnNum, sortDirection);
     }
 
     public void refreshAll() {
