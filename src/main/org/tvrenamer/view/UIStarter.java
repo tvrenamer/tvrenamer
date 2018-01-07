@@ -805,7 +805,11 @@ public final class UIStarter implements Observer, AddEpisodeListener {
             logger.severe("unable to locate column in table: " + column);
             return;
         }
-        int sortDirection = resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
+        int sortDirection = SWT.UP;
+        TableColumn previousSort = resultsTable.getSortColumn();
+        if (column.equals(previousSort)) {
+            sortDirection = resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
+        }
         sortTable(column, columnNum, sortDirection);
     }
 
