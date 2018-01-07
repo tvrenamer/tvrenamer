@@ -83,7 +83,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     private final UIStarter ui;
     private final Shell shell;
     private final Display display;
-    private final Table resultsTable;
+    private final Table swtTable;
     private final Image appIcon;
     private final EpisodeDb episodeMap = new EpisodeDb();
 
@@ -95,7 +95,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
 
     void ready() {
         prefs.addObserver(this);
-        resultsTable.setFocus();
+        swtTable.setFocus();
 
         // Load the preload folder into the episode map, which will call
         // us back with the list of files once they've been loaded.
@@ -124,7 +124,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
 
     private int getTableItemIndex(TableItem item) {
         try {
-            return resultsTable.indexOf(item);
+            return swtTable.indexOf(item);
         } catch (IllegalArgumentException | SWTException ignored) {
             // We'll just fall through and return the sentinel.
         }
@@ -137,7 +137,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     }
 
     private void deleteSelectedTableItems() {
-        for (final TableItem item : resultsTable.getSelection()) {
+        for (final TableItem item : swtTable.getSelection()) {
             int index = getTableItemIndex(item);
             deleteTableItem(item);
 
@@ -145,7 +145,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                 logger.info("error: somehow selected item not found in table");
             }
         }
-        resultsTable.deselectAll();
+        swtTable.deselectAll();
     }
 
     private void setupTopButtons() {
@@ -184,7 +184,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         clearFilesButton.setText("Clear List");
         clearFilesButton.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
-                for (final TableItem item : resultsTable.getItems()) {
+                for (final TableItem item : swtTable.getItems()) {
                     deleteTableItem(item);
                 }
             }
@@ -329,7 +329,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     }
 
     private void setupSelectionListener() {
-        resultsTable.addListener(SWT.Selection, event -> {
+        swtTable.addListener(SWT.Selection, event -> {
             if (event.detail == SWT.CHECK) {
                 TableItem eventItem = (TableItem) event.item;
                 // This assumes that the current status of the TableItem
@@ -338,18 +338,18 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                 boolean checked = eventItem.getChecked();
                 boolean isSelected = false;
 
-                for (final TableItem item : resultsTable.getSelection()) {
+                for (final TableItem item : swtTable.getSelection()) {
                     if (item == eventItem) {
                         isSelected = true;
                         break;
                     }
                 }
                 if (isSelected) {
-                    for (final TableItem item : resultsTable.getSelection()) {
+                    for (final TableItem item : swtTable.getSelection()) {
                         item.setChecked(checked);
                     }
                 } else {
-                    resultsTable.deselectAll();
+                    swtTable.deselectAll();
                 }
             }
             // else, it's a SELECTED event, which we just don't care about
@@ -357,7 +357,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     }
 
     private void setupColumns() {
-        final TableColumn checkboxColumn = new TableColumn(resultsTable, SWT.LEFT);
+        final TableColumn checkboxColumn = new TableColumn(swtTable, SWT.LEFT);
         checkboxColumn.setText(CHECKBOX_HEADER);
         checkboxColumn.setWidth(60);
         checkboxColumn.addSelectionListener(new SelectionAdapter() {
@@ -367,7 +367,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
             }
         });
 
-        final TableColumn sourceColumn = new TableColumn(resultsTable, SWT.LEFT);
+        final TableColumn sourceColumn = new TableColumn(swtTable, SWT.LEFT);
         sourceColumn.setText(SOURCE_HEADER);
         sourceColumn.setWidth(550);
         sourceColumn.addSelectionListener(new SelectionAdapter() {
@@ -377,7 +377,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
             }
         });
 
-        final TableColumn destinationColumn = new TableColumn(resultsTable, SWT.LEFT);
+        final TableColumn destinationColumn = new TableColumn(swtTable, SWT.LEFT);
         setColumnDestText(destinationColumn);
         destinationColumn.setWidth(550);
         destinationColumn.addSelectionListener(new SelectionAdapter() {
@@ -387,7 +387,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
             }
         });
 
-        final TableColumn statusColumn = new TableColumn(resultsTable, SWT.LEFT);
+        final TableColumn statusColumn = new TableColumn(swtTable, SWT.LEFT);
         statusColumn.setText(STATUS_HEADER);
         statusColumn.setWidth(60);
         statusColumn.addSelectionListener(new SelectionAdapter() {
@@ -399,18 +399,18 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     }
 
     private void setupResultsTable() {
-        resultsTable.setHeaderVisible(true);
-        resultsTable.setLinesVisible(true);
+        swtTable.setHeaderVisible(true);
+        swtTable.setLinesVisible(true);
         GridData gridData = new GridData(GridData.FILL_BOTH);
         // gridData.widthHint = 780;
         gridData.heightHint = 350;
         gridData.horizontalSpan = 3;
-        resultsTable.setLayoutData(gridData);
+        swtTable.setLayoutData(gridData);
 
         setupColumns();
 
         // Allow deleting of elements
-        resultsTable.addKeyListener(new KeyAdapter() {
+        swtTable.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
                 super.keyReleased(e);
@@ -432,7 +432,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         });
 
         // editable table
-        final TableEditor editor = new TableEditor(resultsTable);
+        final TableEditor editor = new TableEditor(swtTable);
         editor.horizontalAlignment = SWT.CENTER;
         editor.grabHorizontal = true;
 
@@ -440,7 +440,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     }
 
     private void setupTableDragDrop() {
-        DropTarget dt = new DropTarget(resultsTable, DND.DROP_DEFAULT | DND.DROP_MOVE);
+        DropTarget dt = new DropTarget(swtTable, DND.DROP_DEFAULT | DND.DROP_MOVE);
         dt.setTransfer(new Transfer[] { FileTransfer.getInstance() });
         dt.addDropListener(new DropTargetAdapter() {
 
@@ -555,7 +555,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     public void addEpisodes(Queue<FileEpisode> episodes) {
         for (final FileEpisode episode : episodes) {
             final String fileName = episode.getFilepath();
-            final TableItem item = createTableItem(resultsTable, fileName, episode);
+            final TableItem item = createTableItem(swtTable, fileName, episode);
             if (!episode.wasParsed()) {
                 failTableItem(item);
                 continue;
@@ -604,8 +604,8 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     }
 
     public Label getProgressLabel(TableItem item) {
-        Label progressLabel = new Label(resultsTable, SWT.SHADOW_NONE | SWT.CENTER);
-        TableEditor editor = new TableEditor(resultsTable);
+        Label progressLabel = new Label(swtTable, SWT.SHADOW_NONE | SWT.CENTER);
+        TableEditor editor = new TableEditor(swtTable);
         editor.grabHorizontal = true;
         editor.setEditor(progressLabel, item, STATUS_COLUMN);
 
@@ -619,7 +619,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         }
 
         final List<FileMover> pendingMoves = new LinkedList<>();
-        for (final TableItem item : resultsTable.getItems()) {
+        for (final TableItem item : swtTable.getItems()) {
             if (item.getChecked()) {
                 String fileName = item.getText(CURRENT_FILE_COLUMN);
                 final FileEpisode episode = episodeMap.get(fileName);
@@ -637,7 +637,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         MoveRunner mover = new MoveRunner(pendingMoves);
         mover.setUpdater(new ProgressBarUpdater(this));
         mover.runThread();
-        resultsTable.setFocus();
+        swtTable.setFocus();
     }
 
     private TableItem createTableItem(Table tblResults, String fileName, FileEpisode episode) {
@@ -678,7 +678,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         boolean wasChecked = oldItem.getChecked();
         int oldStyle = oldItem.getStyle();
 
-        TableItem item = new TableItem(resultsTable, oldStyle, positionToInsert);
+        TableItem item = new TableItem(swtTable, oldStyle, positionToInsert);
         item.setChecked(wasChecked);
         item.setText(CURRENT_FILE_COLUMN, oldItem.getText(CURRENT_FILE_COLUMN));
         item.setText(NEW_FILENAME_COLUMN, oldItem.getText(NEW_FILENAME_COLUMN));
@@ -703,7 +703,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                            final int sortDirection)
     {
         // Get the items
-        TableItem[] items = resultsTable.getItems();
+        TableItem[] items = swtTable.getItems();
 
         // Go through the item list and bubble rows up to the top as appropriate
         for (int i = 1; i < items.length; i++) {
@@ -719,13 +719,13 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                     // row i.  Then fetch the list of items anew, since we
                     // just modified it.
                     setSortedItem(items[i], j);
-                    items = resultsTable.getItems();
+                    items = swtTable.getItems();
                     break;
                 }
             }
         }
-        resultsTable.setSortDirection(sortDirection);
-        resultsTable.setSortColumn(column);
+        swtTable.setSortDirection(sortDirection);
+        swtTable.setSortColumn(column);
     }
 
     /**
@@ -738,22 +738,22 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
      *    the TableColumn to sort by
      */
     private void sortTable(final TableColumn column) {
-        final int columnNum = resultsTable.indexOf(column);
+        final int columnNum = swtTable.indexOf(column);
         if (ITEM_NOT_IN_TABLE == columnNum) {
             logger.severe("unable to locate column in table: " + column);
             return;
         }
         int sortDirection = SWT.UP;
-        TableColumn previousSort = resultsTable.getSortColumn();
+        TableColumn previousSort = swtTable.getSortColumn();
         if (column.equals(previousSort)) {
-            sortDirection = resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
+            sortDirection = swtTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
         }
         sortTable(column, columnNum, sortDirection);
     }
 
     public void refreshAll() {
         logger.info("Refreshing table");
-        for (TableItem item : resultsTable.getItems()) {
+        for (TableItem item : swtTable.getItems()) {
             String fileName = item.getText(CURRENT_FILE_COLUMN);
             FileEpisode episode = episodeMap.remove(fileName);
             episode.refreshReplacement();
@@ -809,7 +809,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         if ((userPref == UserPreference.MOVE_ENABLED)
             || (userPref == UserPreference.RENAME_ENABLED))
         {
-            setColumnDestText(resultsTable.getColumn(NEW_FILENAME_COLUMN));
+            setColumnDestText(swtTable.getColumn(NEW_FILENAME_COLUMN));
             setActionButtonText(actionButton);
         }
         if ((userPref == UserPreference.REPLACEMENT_MASK)
@@ -860,7 +860,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         appIcon = getAppIcon();
 
         setupTopButtons();
-        resultsTable = new Table(shell, SWT.CHECK | SWT.FULL_SELECTION | SWT.MULTI);
+        swtTable = new Table(shell, SWT.CHECK | SWT.FULL_SELECTION | SWT.MULTI);
         setupMainWindow();
         setupMenuBar();
     }
