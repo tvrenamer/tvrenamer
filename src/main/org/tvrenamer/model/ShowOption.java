@@ -1,5 +1,6 @@
 package org.tvrenamer.model;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ShowOption {
@@ -56,7 +57,7 @@ public class ShowOption {
             return Series.createSeries(parsedId, name);
         } catch (Exception e) {
             String msg = "ShowOption could not be created with ID " + idString;
-            logger.info(msg);
+            logger.log(Level.WARNING, msg, e);
             return new Show(idString, name);
         }
     }
