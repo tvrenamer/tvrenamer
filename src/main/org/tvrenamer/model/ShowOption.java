@@ -55,7 +55,7 @@ public class ShowOption {
             parsedId = Integer.parseInt(idString);
             return Series.createSeries(parsedId, name);
         } catch (Exception e) {
-            String msg = "ShowOption's ID " + idString + " could not be parsed as integer";
+            String msg = "ShowOption could not be created with ID " + idString;
             logger.info(msg);
             return new Show(idString, name);
         }
