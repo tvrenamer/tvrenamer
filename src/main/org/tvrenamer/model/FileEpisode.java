@@ -497,6 +497,56 @@ public class FileEpisode {
         return dateFormat.format(date);
     }
 
+    private static String plugInInformation(final String replacementTemplate, final String showName,
+                                            final String episodeTitle, final String resolution,
+                                            final EpisodePlacement placement, final LocalDate airDate)
+    {
+        String newFilename = replacementTemplate
+            .replaceAll(ReplacementToken.SEASON_NUM.getToken(),
+                        String.valueOf(placement.season))
+            .replaceAll(ReplacementToken.SEASON_NUM_LEADING_ZERO.getToken(),
+                        StringUtils.zeroPadTwoDigits(placement.season))
+            .replaceAll(ReplacementToken.EPISODE_NUM.getToken(),
+                        StringUtils.formatDigits(placement.episode))
+            .replaceAll(ReplacementToken.EPISODE_NUM_LEADING_ZERO.getToken(),
+                        StringUtils.zeroPadThreeDigits(placement.episode))
+            .replaceAll(ReplacementToken.SHOW_NAME.getToken(),
+                        Matcher.quoteReplacement(showName))
+            .replaceAll(ReplacementToken.EPISODE_TITLE.getToken(),
+                        Matcher.quoteReplacement(episodeTitle))
+            .replaceAll(ReplacementToken.EPISODE_TITLE_NO_SPACES.getToken(),
+                        Matcher.quoteReplacement(StringUtils.makeDotTitle(episodeTitle)))
+            .replaceAll(ReplacementToken.EPISODE_RESOLUTION.getToken(),
+                        resolution);
+
+        // Date and times
+        if (airDate == null) {
+            newFilename = newFilename
+                .replaceAll(ReplacementToken.DATE_DAY_NUM.getToken(), "")
+                .replaceAll(ReplacementToken.DATE_DAY_NUMLZ.getToken(), "")
+                .replaceAll(ReplacementToken.DATE_MONTH_NUM.getToken(), "")
+                .replaceAll(ReplacementToken.DATE_MONTH_NUMLZ.getToken(), "")
+                .replaceAll(ReplacementToken.DATE_YEAR_FULL.getToken(), "")
+                .replaceAll(ReplacementToken.DATE_YEAR_MIN.getToken(), "");
+        } else {
+            newFilename = newFilename
+                .replaceAll(ReplacementToken.DATE_DAY_NUM.getToken(),
+                            formatDate(airDate, "d"))
+                .replaceAll(ReplacementToken.DATE_DAY_NUMLZ.getToken(),
+                            formatDate(airDate, "dd"))
+                .replaceAll(ReplacementToken.DATE_MONTH_NUM.getToken(),
+                            formatDate(airDate, "M"))
+                .replaceAll(ReplacementToken.DATE_MONTH_NUMLZ.getToken(),
+                            formatDate(airDate, "MM"))
+                .replaceAll(ReplacementToken.DATE_YEAR_FULL.getToken(),
+                            formatDate(airDate, "yyyy"))
+                .replaceAll(ReplacementToken.DATE_YEAR_MIN.getToken(),
+                            formatDate(airDate, "yy"));
+        }
+
+        return StringUtils.sanitiseTitle(newFilename);
+    }
+
     String getRenamedBasename(final int n) {
         String showName;
         if (actualShow == null) {
@@ -526,63 +576,8 @@ public class FileEpisode {
             }
         }
 
-        String newFilename = userPrefs.getRenameReplacementString();
-
-        // Ensure that all special characters in the replacement are quoted
-        showName = Matcher.quoteReplacement(showName);
-        showName = GlobalOverrides.getInstance().getShowName(showName);
-
-        // Make whatever modifications are required
-        String episodeNumberString = StringUtils.formatDigits(placement.episode);
-        String episodeNumberWithLeadingZeros = StringUtils.zeroPadThreeDigits(placement.episode);
-        String episodeTitleNoSpaces = Matcher.quoteReplacement(StringUtils.makeDotTitle(titleString));
-        String seasonNumberWithLeadingZero = StringUtils.zeroPadTwoDigits(placement.season);
-
-        titleString = Matcher.quoteReplacement(titleString);
-
-        newFilename = newFilename
-            .replaceAll(ReplacementToken.SHOW_NAME.getToken(), showName)
-            .replaceAll(ReplacementToken.SEASON_NUM.getToken(),
-                        String.valueOf(placement.season))
-            .replaceAll(ReplacementToken.SEASON_NUM_LEADING_ZERO.getToken(),
-                        seasonNumberWithLeadingZero)
-            .replaceAll(ReplacementToken.EPISODE_NUM.getToken(),
-                        episodeNumberString)
-            .replaceAll(ReplacementToken.EPISODE_NUM_LEADING_ZERO.getToken(),
-                        episodeNumberWithLeadingZeros)
-            .replaceAll(ReplacementToken.EPISODE_TITLE.getToken(),
-                        titleString)
-            .replaceAll(ReplacementToken.EPISODE_TITLE_NO_SPACES.getToken(),
-                        episodeTitleNoSpaces)
-            .replaceAll(ReplacementToken.EPISODE_RESOLUTION.getToken(),
-                        filenameResolution);
-
-        // Date and times
-        if (airDate == null) {
-            newFilename = newFilename
-                .replaceAll(ReplacementToken.DATE_DAY_NUM.getToken(), "")
-                .replaceAll(ReplacementToken.DATE_DAY_NUMLZ.getToken(), "")
-                .replaceAll(ReplacementToken.DATE_MONTH_NUM.getToken(), "")
-                .replaceAll(ReplacementToken.DATE_MONTH_NUMLZ.getToken(), "")
-                .replaceAll(ReplacementToken.DATE_YEAR_FULL.getToken(), "")
-                .replaceAll(ReplacementToken.DATE_YEAR_MIN.getToken(), "");
-        } else {
-            newFilename = newFilename
-                .replaceAll(ReplacementToken.DATE_DAY_NUM.getToken(),
-                            formatDate(airDate, "d"))
-                .replaceAll(ReplacementToken.DATE_DAY_NUMLZ.getToken(),
-                            formatDate(airDate, "dd"))
-                .replaceAll(ReplacementToken.DATE_MONTH_NUM.getToken(),
-                            formatDate(airDate, "M"))
-                .replaceAll(ReplacementToken.DATE_MONTH_NUMLZ.getToken(),
-                            formatDate(airDate, "MM"))
-                .replaceAll(ReplacementToken.DATE_YEAR_FULL.getToken(),
-                            formatDate(airDate, "yyyy"))
-                .replaceAll(ReplacementToken.DATE_YEAR_MIN.getToken(),
-                            formatDate(airDate, "yy"));
-        }
-
-        return StringUtils.sanitiseTitle(newFilename);
+        return plugInInformation(userPrefs.getRenameReplacementString(), showName,
+                                 titleString, filenameResolution, placement, airDate);
     }
 
     /**
