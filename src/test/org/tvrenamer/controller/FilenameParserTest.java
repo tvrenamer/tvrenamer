@@ -891,6 +891,166 @@ public class FilenameParserTest {
                    .build());
     }
 
+    @BeforeClass
+    public static void setupValues79() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("AFV.S01E03.September.22.1991.mp4")
+                   .filenameShow("AFV.")
+                   .seasonNumString("01")
+                   .episodeNumString("03")
+                   .build());
+    }
+
+    // @BeforeClass
+    public static void setupValues80() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("AFV.S01E03.September.22.1991.1991.09.22.mp4")
+                   .filenameShow("AFV.")
+                   .seasonNumString("01")
+                   .episodeNumString("03")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues81() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("The Big Bang Theory - S04E09 - The 2003 Approximation.mkv")
+                   .filenameShow("The Big Bang Theory - ")
+                   .seasonNumString("04")
+                   .episodeNumString("09")
+                   .build());
+    }
+
+    // @BeforeClass
+    public static void setupValues82() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("The Big Bang Theory - S04E09 - The 2003 Approximation - 2015-10-12.mkv")
+                   .filenameShow("The Big Bang Theory - ")
+                   .seasonNumString("04")
+                   .episodeNumString("09")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues83() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Archer.2009.S01E02.Training.Day.mp4")
+                   .filenameShow("Archer.2009.")
+                   .seasonNumString("01")
+                   .episodeNumString("02")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues84() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Archer (2009)/S01E02 Training Day.mp4")
+                   .filenameShow("Archer (2009) ")
+                   .seasonNumString("1")
+                   .episodeNumString("02")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues85() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Archer (2009)/Archer (2009) S01E02 Training Day 2010.01.14.mp4")
+                   .filenameShow("Archer (2009) ")
+                   .seasonNumString("01")
+                   .episodeNumString("02")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues86() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Archer (2009)/S01E02 Training Day 2010.01.14.mp4")
+                   .filenameShow("Archer (2009) ")
+                   .seasonNumString("01")
+                   .episodeNumString("02")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues87() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Archer.2009.S01E02.Training.Day.2010.01.14.mp4")
+                   .filenameShow("Archer.2009.")
+                   .seasonNumString("01")
+                   .episodeNumString("02")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues88() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Archer (2009) - S01E02 - Training Day - 2010.01.14.mp4")
+                   .filenameShow("Archer (2009) - ")
+                   .seasonNumString("01")
+                   .episodeNumString("02")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues89() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Archer (2009) S01E02 Training Day 2010.01.14.mp4")
+                   .filenameShow("Archer (2009) ")
+                   .seasonNumString("01")
+                   .episodeNumString("02")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues90() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Archer.2009.S01E02.mp4")
+                   .filenameShow("Archer.2009.")
+                   .seasonNumString("01")
+                   .episodeNumString("02")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValues91() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Cheers.S09E21.Its.A.Wonderful.Wife.avi")
+                   .filenameShow("Cheers.")
+                   .seasonNumString("09")
+                   .episodeNumString("21")
+                   .build());
+    }
+
+    // @BeforeClass
+    public static void setupValues92() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Cheers - S09E21 - It's a Wonderful Wife - 1991.02.28.avi")
+                   .filenameShow("Cheers - ")
+                   .seasonNumString("09")
+                   .episodeNumString("21")
+                   .build());
+    }
+
+    // @BeforeClass
+    public static void setupValues93() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Cheers S09E21 It's a Wonderful Wife 1991.02.28.avi")
+                   .filenameShow("Cheers ")
+                   .seasonNumString("09")
+                   .episodeNumString("21")
+                   .build());
+    }
+
+    // @BeforeClass
+    public static void setupValues94() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Cheers.S09E21.Its.A.Wonderful.Wife.1991.02.28.avi")
+                   .filenameShow("Cheers.")
+                   .seasonNumString("09")
+                   .episodeNumString("21")
+                   .build());
+    }
+
     @Test
     public void testParseFileName() {
         for (EpisodeTestData testInput : values) {
