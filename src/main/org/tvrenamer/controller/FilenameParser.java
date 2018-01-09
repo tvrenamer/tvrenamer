@@ -24,9 +24,6 @@ public class FilenameParser {
     private static final String RESOLUTION_REGEX = "\\D(\\d+[pk]).*";
 
     private static final String[] REGEX = {
-        // this one works for titles with years:
-        "(.+?\\d{4}[^a-zA-Z0-9]\\D*?)[sS]?(\\d\\d?)\\D*?(\\d\\d).*",
-
         // this one matches SXXEXX:
         "(.+?[^a-zA-Z0-9]\\D*?)[sS](\\d\\d?)[eE](\\d\\d*).*",
 
@@ -38,6 +35,11 @@ public class FilenameParser {
 
         // this one matches SSxEE, with an optional leading "S"
         "(.+[^a-zA-Z0-9]\\D*?)[Ss](\\d\\d?)x(\\d\\d\\d?).*",
+
+        // this one works for titles with years; note, this can be problematic when
+        // the filename contains a year as part of the air date, rather than as part
+        // of the show name or title
+        "(.+?\\d{4}[^a-zA-Z0-9]\\D*?)[sS]?(\\d\\d?)\\D*?(\\d\\d).*",
 
         // this one matches SXXYY; note, must be exactly four digits
         "(.+?[^a-zA-Z0-9]\\D*?)[sS](\\d\\d)(\\d\\d)\\D.*",
