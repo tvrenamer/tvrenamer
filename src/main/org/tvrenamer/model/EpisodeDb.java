@@ -134,14 +134,20 @@ public class EpisodeDb {
     }
 
     public void addFolderToQueue(final String pathname) {
+        if (!prefs.isRecursivelyAddFolders()) {
+            logger.warning("cannot add folder when preference \"add files recursively\" is off");
+            return;
+        }
+
+        if (pathname == null) {
+            logger.warning("cannot add files; pathname is null");
+            return;
+        }
+
         Queue<FileEpisode> contents = new ConcurrentLinkedQueue<>();
         final Path path = Paths.get(pathname);
-        if (prefs.isRecursivelyAddFolders()) {
-            addFilesRecursively(contents, path.getParent(), path.getFileName());
-            publish(contents);
-        } else {
-            logger.warning("cannot add folder when preference \"add files recursively\" is off");
-        }
+        addFilesRecursively(contents, path.getParent(), path.getFileName());
+        publish(contents);
     }
 
     public void addFilesToQueue(final String pathPrefix, String[] fileNames) {
@@ -172,11 +178,6 @@ public class EpisodeDb {
         publish(contents);
     }
 
-    @Override
-    public String toString() {
-        return "{EpisodeDb with " + episodes.size() + " files}";
-    }
-
     public void preload() {
         if (prefs.isRecursivelyAddFolders()) {
             String preload = prefs.getPreloadFolder();
@@ -185,6 +186,11 @@ public class EpisodeDb {
                 addFolderToQueue(preload);
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return "{EpisodeDb with " + episodes.size() + " files}";
     }
 
     private final Queue<AddEpisodeListener> listeners = new ConcurrentLinkedQueue<>();
