@@ -133,6 +133,14 @@ public class EpisodeDb {
         }
     }
 
+    /**
+     * Add the given folder to the queue.  This is intended to support the
+     * "Add Folder" functionality.  This method itself does only sanity
+     * checking, and if everything's in order, calls addFilesRecursively()
+     * to do the actual work.
+     *
+     * @param pathname the name of a folder
+     */
     public void addFolderToQueue(final String pathname) {
         if (!prefs.isRecursivelyAddFolders()) {
             logger.warning("cannot add folder when preference \"add files recursively\" is off");
@@ -150,6 +158,14 @@ public class EpisodeDb {
         publish(contents);
     }
 
+    /**
+     * Add the given array of filename Strings, each of which are expected to be
+     * found within the directory given by the pathPrefix, to the queue.
+     * This is intended to support the "Add Files" functionality.
+     *
+     * @param pathPrefix the directory where the fileNames are found
+     * @param fileNames an array of Strings presumed to represent filenames
+     */
     public void addFilesToQueue(final String pathPrefix, String[] fileNames) {
         Queue<FileEpisode> contents = new ConcurrentLinkedQueue<>();
         if (pathPrefix != null) {
@@ -164,6 +180,12 @@ public class EpisodeDb {
         }
     }
 
+    /**
+     * Add the given array of filename Strings to the queue.  This is intended
+     * to support Drag and Drop.
+     *
+     * @param fileNames an array of Strings presumed to represent filenames
+     */
     public void addArrayOfStringsToQueue(final String[] fileNames) {
         Queue<FileEpisode> contents = new ConcurrentLinkedQueue<>();
         boolean descend = prefs.isRecursivelyAddFolders();
@@ -178,6 +200,10 @@ public class EpisodeDb {
         publish(contents);
     }
 
+    /**
+     * Add the contents of the preload folder to the queue.
+     *
+     */
     public void preload() {
         if (prefs.isRecursivelyAddFolders()) {
             String preload = prefs.getPreloadFolder();
@@ -188,6 +214,11 @@ public class EpisodeDb {
         }
     }
 
+    /**
+     * Standard object method to represent this EpisodeDb as a string.
+     *
+     * @return string version of this; just says how many episodes are in the map.
+     */
     @Override
     public String toString() {
         return "{EpisodeDb with " + episodes.size() + " files}";
@@ -195,10 +226,25 @@ public class EpisodeDb {
 
     private final Queue<AddEpisodeListener> listeners = new ConcurrentLinkedQueue<>();
 
+    /**
+     * Register interest in files and folders that are added to the queue.
+     *
+     * @param listener
+     *    the AddEpisodeListener that should be called when we have finished processing
+     *    a folder or array of files
+     */
     public void subscribe(AddEpisodeListener listener) {
         listeners.add(listener);
     }
 
+    /**
+     * Notify registered interested parties that we've finished adding a folder or
+     * array of files to the queue, and pass the queue to each listener.
+     *
+     * @param episodes
+     *    the queue of FileEpisode objects we've created since the last time we
+     *    published
+     */
     private void publish(Queue<FileEpisode> episodes) {
         for (AddEpisodeListener listener : listeners) {
             listener.addEpisodes(episodes);
