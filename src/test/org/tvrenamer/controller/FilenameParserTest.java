@@ -912,7 +912,7 @@ public class FilenameParserTest {
                    .build());
     }
 
-    // @BeforeClass
+    @BeforeClass
     public static void setupValues80() {
         values.add(new EpisodeTestData.Builder()
                    .inputFilename("AFV.S01E03.September.22.1991.1991.09.22.mp4")
@@ -932,7 +932,7 @@ public class FilenameParserTest {
                    .build());
     }
 
-    // @BeforeClass
+    @BeforeClass
     public static void setupValues82() {
         values.add(new EpisodeTestData.Builder()
                    .inputFilename("The Big Bang Theory - S04E09 - The 2003 Approximation - 2015-10-12.mkv")
@@ -1032,7 +1032,7 @@ public class FilenameParserTest {
                    .build());
     }
 
-    // @BeforeClass
+    @BeforeClass
     public static void setupValues92() {
         values.add(new EpisodeTestData.Builder()
                    .inputFilename("Cheers - S09E21 - It's a Wonderful Wife - 1991.02.28.avi")
@@ -1042,7 +1042,7 @@ public class FilenameParserTest {
                    .build());
     }
 
-    // @BeforeClass
+    @BeforeClass
     public static void setupValues93() {
         values.add(new EpisodeTestData.Builder()
                    .inputFilename("Cheers S09E21 It's a Wonderful Wife 1991.02.28.avi")
@@ -1052,7 +1052,7 @@ public class FilenameParserTest {
                    .build());
     }
 
-    // @BeforeClass
+    @BeforeClass
     public static void setupValues94() {
         values.add(new EpisodeTestData.Builder()
                    .inputFilename("Cheers.S09E21.Its.A.Wonderful.Wife.1991.02.28.avi")
