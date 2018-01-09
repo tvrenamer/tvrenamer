@@ -96,9 +96,13 @@ public class Series extends Show {
             mapped = KNOWN_SERIES.get(idString);
         }
         if (mapped != null) {
-            logger.warning("already have a Series for ID " + id + ": "
-                           + mapped);
-            throw new IllegalArgumentException("Series ID num must be unique");
+            if (name.equals(mapped.name)) {
+                logger.warning("already created series " + name);
+            } else {
+                logger.warning("ID for " + name + " clashes with existing Series " + id + ": "
+                               + mapped);
+                throw new IllegalArgumentException("Series ID num must be unique");
+            }
         }
 
         mapped = new Series(id, name);
