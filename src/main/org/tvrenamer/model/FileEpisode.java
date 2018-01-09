@@ -441,60 +441,27 @@ public class FileEpisode {
         return dateFormat.format(date);
     }
 
-    String getRenamedBasename() {
-        String showName;
-        if (actualShow == null) {
-            logger.warning("should not be renaming without an actual Show.");
-            showName = filenameShow;
-        } else {
-            showName = actualShow.getName();
-        }
-
-        String titleString = "";
-        LocalDate airDate = null;
-        if (actualEpisode != null) {
-            titleString = actualEpisode.getTitle();
-            int len = titleString.length();
-            if (len > MAX_TITLE_LENGTH) {
-                logger.fine("truncating episode title " + titleString);
-                titleString = titleString.substring(0, MAX_TITLE_LENGTH);
-            }
-            airDate = actualEpisode.getAirDate();
-            if (airDate == null) {
-                logger.log(Level.WARNING, "Episode air date not found for '" + this + "'");
-            }
-        }
-
-        String newFilename = userPrefs.getRenameReplacementString();
-
-        // Ensure that all special characters in the replacement are quoted
-        showName = Matcher.quoteReplacement(showName);
-        showName = GlobalOverrides.getInstance().getShowName(showName);
-
-        // Make whatever modifications are required
-        String episodeNumberString = StringUtils.formatDigits(placement.episode);
-        String episodeNumberWithLeadingZeros = StringUtils.zeroPadThreeDigits(placement.episode);
-        String episodeTitleNoSpaces = Matcher.quoteReplacement(StringUtils.makeDotTitle(titleString));
-        String seasonNumberWithLeadingZero = StringUtils.zeroPadTwoDigits(placement.season);
-
-        titleString = Matcher.quoteReplacement(titleString);
-
-        newFilename = newFilename
-            .replaceAll(ReplacementToken.SHOW_NAME.getToken(), showName)
+    private static String plugInInformation(final String replacementTemplate, final String showName,
+                                            final String episodeTitle, final String resolution,
+                                            final EpisodePlacement placement, final LocalDate airDate)
+    {
+        String newFilename = replacementTemplate
             .replaceAll(ReplacementToken.SEASON_NUM.getToken(),
                         String.valueOf(placement.season))
             .replaceAll(ReplacementToken.SEASON_NUM_LEADING_ZERO.getToken(),
-                        seasonNumberWithLeadingZero)
+                        StringUtils.zeroPadTwoDigits(placement.season))
             .replaceAll(ReplacementToken.EPISODE_NUM.getToken(),
-                        episodeNumberString)
+                        StringUtils.formatDigits(placement.episode))
             .replaceAll(ReplacementToken.EPISODE_NUM_LEADING_ZERO.getToken(),
-                        episodeNumberWithLeadingZeros)
+                        StringUtils.zeroPadThreeDigits(placement.episode))
+            .replaceAll(ReplacementToken.SHOW_NAME.getToken(),
+                        Matcher.quoteReplacement(showName))
             .replaceAll(ReplacementToken.EPISODE_TITLE.getToken(),
-                        titleString)
+                        Matcher.quoteReplacement(episodeTitle))
             .replaceAll(ReplacementToken.EPISODE_TITLE_NO_SPACES.getToken(),
-                        episodeTitleNoSpaces)
+                        Matcher.quoteReplacement(StringUtils.makeDotTitle(episodeTitle)))
             .replaceAll(ReplacementToken.EPISODE_RESOLUTION.getToken(),
-                        filenameResolution);
+                        resolution);
 
         // Date and times
         if (airDate == null) {
@@ -521,9 +488,36 @@ public class FileEpisode {
                             formatDate(airDate, "yy"));
         }
 
-        // Note, this is an instance variable, not a local variable.
-        baseForRename = StringUtils.sanitiseTitle(newFilename);
+        return StringUtils.sanitiseTitle(newFilename);
+    }
 
+    String getRenamedBasename() {
+        String showName;
+        if (actualShow == null) {
+            logger.warning("should not be renaming without an actual Show.");
+            showName = filenameShow;
+        } else {
+            showName = actualShow.getName();
+        }
+
+        String titleString = "";
+        LocalDate airDate = null;
+        if (actualEpisode != null) {
+            titleString = actualEpisode.getTitle();
+            int len = titleString.length();
+            if (len > MAX_TITLE_LENGTH) {
+                logger.fine("truncating episode title " + titleString);
+                titleString = titleString.substring(0, MAX_TITLE_LENGTH);
+            }
+            airDate = actualEpisode.getAirDate();
+            if (airDate == null) {
+                logger.log(Level.WARNING, "Episode air date not found for '" + this + "'");
+            }
+        }
+
+        // Note, this is an instance variable, not a local variable.
+        baseForRename = plugInInformation(userPrefs.getRenameReplacementString(), showName,
+                                          titleString, filenameResolution, placement, airDate);
         return baseForRename;
     }
 
