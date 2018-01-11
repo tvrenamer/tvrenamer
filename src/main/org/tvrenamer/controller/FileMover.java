@@ -251,7 +251,7 @@ public class FileMover implements Callable<Boolean> {
      * @return destination filename with a version added
      */
     private String addVersionString() {
-        return destBasename + VERSION_SEPARATOR_STRING + destIndex + destSuffix;
+        return destBasename + " (" + destIndex + ")" + destSuffix;
     }
 
     /**

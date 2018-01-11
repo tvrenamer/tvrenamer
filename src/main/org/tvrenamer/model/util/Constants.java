@@ -173,7 +173,6 @@ public class Constants {
     public static final String DEFAULT_REPLACEMENT_MASK = "%S [%sx%0e] %t";
     public static final String DEFAULT_SEASON_PREFIX = "Season ";
     public static final String DEFAULT_IGNORED_KEYWORD = "sample";
-    public static final String VERSION_SEPARATOR_STRING = "~";
     public static final String DUPLICATES_DIRECTORY = "versions";
     public static final String DEFAULT_LANGUAGE = "en";
 
