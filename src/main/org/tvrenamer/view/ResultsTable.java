@@ -80,11 +80,11 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     private final UIStarter ui;
     private final Shell shell;
     private final Display display;
+    private final Table swtTable;
     private final EpisodeDb episodeMap = new EpisodeDb();
     private final UserPreferences prefs = UserPreferences.getInstance();
 
     private Button renameSelectedButton;
-    private Table swtTable;
     private ProgressBar totalProgressBar;
     private TaskItem taskItem = null;
 
@@ -343,7 +343,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     }
 
     private void setupResultsTable() {
-        swtTable = new Table(shell, SWT.CHECK | SWT.FULL_SELECTION | SWT.MULTI);
         swtTable.setHeaderVisible(true);
         swtTable.setLinesVisible(true);
         GridData gridData = new GridData(GridData.FILL_BOTH);
@@ -868,6 +867,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         this.display = ui.display;
 
         setupTopButtons();
+        swtTable = new Table(shell, SWT.CHECK | SWT.FULL_SELECTION | SWT.MULTI);
         setupMainWindow();
         setupMenuBar();
     }
