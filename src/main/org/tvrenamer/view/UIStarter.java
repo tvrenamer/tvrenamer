@@ -85,9 +85,6 @@ public final class UIStarter implements Observer, AddEpisodeListener {
     private Shell shell;
     private Display display;
 
-    private Button addFilesButton;
-    private Button addFolderButton;
-    private Button clearFilesButton;
     private Button actionButton;
     private Table resultsTable;
     private ProgressBar totalProgressBar;
@@ -116,9 +113,9 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         UIUtils.checkDestinationDirectory();
 
         // Add controls to main shell
+        setupTopButtons();
+        resultsTable = new Table(shell, SWT.CHECK | SWT.FULL_SELECTION | SWT.MULTI);
         setupMainWindow();
-        setupAddFilesDialog();
-        setupClearFilesButton();
         setupMenuBar();
 
         setupIcons();
@@ -151,25 +148,58 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         item.dispose();
     }
 
-    private void setupMainWindow() {
+    private void setupTopButtons() {
         final Composite topButtonsComposite = new Composite(shell, SWT.FILL);
         topButtonsComposite.setLayout(new RowLayout());
 
-        addFilesButton = new Button(topButtonsComposite, SWT.PUSH);
+        final FileDialog fd = new FileDialog(shell, SWT.MULTI);
+        final Button addFilesButton = new Button(topButtonsComposite, SWT.PUSH);
         addFilesButton.setText("Add files");
+        addFilesButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                String pathPrefix = fd.open();
+                if (pathPrefix != null) {
+                    episodeMap.addFilesToQueue(pathPrefix, fd.getFileNames());
+                }
+            }
+        });
 
-        addFolderButton = new Button(topButtonsComposite, SWT.PUSH);
+        final DirectoryDialog dd = new DirectoryDialog(shell, SWT.SINGLE);
+        final Button addFolderButton = new Button(topButtonsComposite, SWT.PUSH);
         addFolderButton.setText("Add Folder");
+        addFolderButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                String directory = dd.open();
+                if (directory != null) {
+                    // load all of the files in the dir
+                    episodeMap.addFolderToQueue(directory);
+                }
+            }
 
-        clearFilesButton = new Button(topButtonsComposite, SWT.PUSH);
+        });
+
+        final Button clearFilesButton = new Button(topButtonsComposite, SWT.PUSH);
         clearFilesButton.setText("Clear List");
+        clearFilesButton.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                for (final TableItem item : resultsTable.getItems()) {
+                    deleteTableItem(item);
+                }
+            }
+        });
 
         setupUpdateStuff(topButtonsComposite);
+    }
+
+    private void setupMainWindow() {
         setupResultsTable();
         setupTableDragDrop();
 
         Composite bottomButtonsComposite = new Composite(shell, SWT.FILL);
         bottomButtonsComposite.setLayout(new GridLayout(3, false));
+
         GridData bottomButtonsCompositeGridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1);
         bottomButtonsComposite.setLayoutData(bottomButtonsCompositeGridData);
 
@@ -287,44 +317,6 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         return helpMenu;
     }
 
-    private void setupAddFilesDialog() {
-        final FileDialog fd = new FileDialog(shell, SWT.MULTI);
-        addFilesButton.addSelectionListener(new SelectionAdapter() {
-
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                String pathPrefix = fd.open();
-                if (pathPrefix != null) {
-                    episodeMap.addFilesToQueue(pathPrefix, fd.getFileNames());
-                }
-            }
-        });
-
-        final DirectoryDialog dd = new DirectoryDialog(shell, SWT.SINGLE);
-        addFolderButton.addSelectionListener(new SelectionAdapter() {
-
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                String directory = dd.open();
-                if (directory != null) {
-                    // load all of the files in the dir
-                    episodeMap.addFolderToQueue(directory);
-                }
-            }
-
-        });
-    }
-
-    private void setupClearFilesButton() {
-        clearFilesButton.addSelectionListener(new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent e) {
-                for (final TableItem item : resultsTable.getItems()) {
-                    deleteTableItem(item);
-                }
-            }
-        });
-    }
-
     private void setupSelectionListener() {
         resultsTable.addListener(SWT.Selection, event -> {
             if (event.detail == SWT.CHECK) {
@@ -354,7 +346,6 @@ public final class UIStarter implements Observer, AddEpisodeListener {
     }
 
     private void setupResultsTable() {
-        resultsTable = new Table(shell, SWT.CHECK | SWT.FULL_SELECTION | SWT.MULTI);
         resultsTable.setHeaderVisible(true);
         resultsTable.setLinesVisible(true);
         GridData gridData = new GridData(GridData.FILL_BOTH);
