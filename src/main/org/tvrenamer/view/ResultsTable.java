@@ -86,9 +86,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     private Button renameSelectedButton;
     private ProgressBar totalProgressBar;
     private TaskItem taskItem = null;
-    private Button addFilesButton;
-    private Button addFolderButton;
-    private Button clearFilesButton;
 
     private List<String> ignoreKeywords;
     private boolean apiDeprecated = false;
@@ -122,20 +119,50 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         ui.uiCleanup();
     }
 
-    private void setupMainWindow() {
+    private void setupTopButtons() {
         final Composite topButtonsComposite = new Composite(shell, SWT.FILL);
         topButtonsComposite.setLayout(new RowLayout());
 
-        addFilesButton = new Button(topButtonsComposite, SWT.PUSH);
+        final FileDialog fd = new FileDialog(shell, SWT.MULTI);
+        final Button addFilesButton = new Button(topButtonsComposite, SWT.PUSH);
         addFilesButton.setText("Add files");
+        addFilesButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                String pathPrefix = fd.open();
+                if (pathPrefix != null) {
+                    episodeMap.addFilesToQueue(pathPrefix, fd.getFileNames());
+                }
+            }
+        });
 
-        addFolderButton = new Button(topButtonsComposite, SWT.PUSH);
+        final DirectoryDialog dd = new DirectoryDialog(shell, SWT.SINGLE);
+        final Button addFolderButton = new Button(topButtonsComposite, SWT.PUSH);
         addFolderButton.setText("Add Folder");
+        addFolderButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                String directory = dd.open();
+                if (directory != null) {
+                    // load all of the files in the dir
+                    episodeMap.addFolderToQueue(directory);
+                }
+            }
 
-        clearFilesButton = new Button(topButtonsComposite, SWT.PUSH);
+        });
+
+        final Button clearFilesButton = new Button(topButtonsComposite, SWT.PUSH);
         clearFilesButton.setText("Clear List");
+        clearFilesButton.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                deleteAllTableItems();
+            }
+        });
 
         setupUpdateStuff(topButtonsComposite);
+    }
+
+    private void setupMainWindow() {
         setupResultsTable();
         setupTableDragDrop();
 
@@ -241,42 +268,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         helpVisitWebPageItem.addSelectionListener(new UrlLauncher(TVRENAMER_PROJECT_URL));
 
         return helpMenu;
-    }
-
-    private void setupAddFilesDialog() {
-        final FileDialog fd = new FileDialog(shell, SWT.MULTI);
-        addFilesButton.addSelectionListener(new SelectionAdapter() {
-
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                String pathPrefix = fd.open();
-                if (pathPrefix != null) {
-                    episodeMap.addFilesToQueue(pathPrefix, fd.getFileNames());
-                }
-            }
-        });
-
-        final DirectoryDialog dd = new DirectoryDialog(shell, SWT.SINGLE);
-        addFolderButton.addSelectionListener(new SelectionAdapter() {
-
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                String directory = dd.open();
-                if (directory != null) {
-                    // load all of the files in the dir
-                    episodeMap.addFolderToQueue(directory);
-                }
-            }
-
-        });
-    }
-
-    private void setupClearFilesButton() {
-        clearFilesButton.addSelectionListener(new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent e) {
-                deleteAllTableItems();
-            }
-        });
     }
 
     private void setupSelectionListener() {
@@ -808,9 +799,8 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         this.shell = ui.shell;
         this.display = ui.display;
 
+        setupTopButtons();
         setupMainWindow();
-        setupAddFilesDialog();
-        setupClearFilesButton();
         setupMenuBar();
     }
 }
