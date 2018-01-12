@@ -78,9 +78,9 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     private static final int ITEM_NOT_IN_TABLE = -1;
 
     private final UIStarter ui;
-    private Shell shell;
-    private Display display;
-    private List<String> ignoreKeywords;
+    private final Shell shell;
+    private final Display display;
+    private final EpisodeDb episodeMap = new EpisodeDb();
 
     private Button renameSelectedButton;
     private Table swtTable;
@@ -88,9 +88,8 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     private TaskItem taskItem = null;
 
     private UserPreferences prefs;
+    private List<String> ignoreKeywords;
     private boolean apiDeprecated = false;
-
-    private final EpisodeDb episodeMap = new EpisodeDb();
 
     void ready() {
         prefs.addObserver(this);
