@@ -121,6 +121,7 @@ class PreferencesDialog extends Dialog {
     private Button moveEnabledCheckbox;
     private Button renameEnabledCheckbox;
     private Text destDirText;
+    private Button destDirButton;
     private Text seasonPrefixText;
     private Button seasonPrefixLeadingZeroCheckbox;
     private Text replacementStringText;
@@ -208,15 +209,7 @@ class PreferencesDialog extends Dialog {
         return button;
     }
 
-    private void createGeneralTab(TabFolder tabFolder) {
-        TabItem item = new TabItem(tabFolder, SWT.NULL);
-        item.setText(GENERAL_LABEL);
-
-        Composite generalGroup= new Composite(tabFolder, SWT.NONE);
-        generalGroup.setLayout(new GridLayout(3, false));
-        generalGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 3, 1));
-        generalGroup.setToolTipText(GENERAL_TOOLTIP);
-
+    private void populateGeneralTab(final Composite generalGroup) {
         moveEnabledCheckbox = new Button(generalGroup, SWT.CHECK);
         moveEnabledCheckbox.setText(MOVE_ENABLED_TEXT);
         moveEnabledCheckbox.setSelection(prefs.isMoveEnabled());
@@ -240,7 +233,7 @@ class PreferencesDialog extends Dialog {
         destDirText.setTextLimit(99);
         destDirText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true));
 
-        final Button destDirButton = createDestDirButton(generalGroup);
+        destDirButton = createDestDirButton(generalGroup);
 
         Label seasonPrefixLabel = new Label(generalGroup, SWT.NONE);
         seasonPrefixLabel.setText(SEASON_PREFIX_TEXT);
@@ -293,6 +286,18 @@ class PreferencesDialog extends Dialog {
                                                            true, true, 3, 1));
         checkForUpdatesCheckbox.setSelection(prefs.checkForUpdates());
         checkForUpdatesCheckbox.setToolTipText(CHECK_UPDATES_TOOLTIP);
+    }
+
+    private void createGeneralTab(final TabFolder tabFolder) {
+        final TabItem item = new TabItem(tabFolder, SWT.NULL);
+        item.setText(GENERAL_LABEL);
+
+        final Composite generalGroup = new Composite(tabFolder, SWT.NONE);
+        generalGroup.setLayout(new GridLayout(3, false));
+        generalGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 3, 1));
+        generalGroup.setToolTipText(GENERAL_TOOLTIP);
+
+        populateGeneralTab(generalGroup);
 
         item.setControl(generalGroup);
     }
