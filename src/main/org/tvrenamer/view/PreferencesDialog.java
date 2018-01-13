@@ -191,6 +191,42 @@ class PreferencesDialog extends Dialog {
         preferencesShell.redraw();
     }
 
+    private void createLabel(final String label, final String tooltip, final Composite group) {
+        final Label labelObj = new Label(group, SWT.NONE);
+        labelObj.setText(label);
+        labelObj.setToolTipText(tooltip);
+
+        // we don't need to return the object
+    }
+
+    private Text createText(final String text, final Composite group, boolean setSize) {
+        final Text textObj = new Text(group, SWT.BORDER);
+        textObj.setText(text);
+        textObj.setTextLimit(99);
+        GridData layout;
+        if (setSize) {
+            layout = new GridData(GridData.FILL, GridData.CENTER, true, true, 2, 1);
+        } else {
+            layout = new GridData(GridData.FILL, GridData.CENTER, true, true);
+        }
+        textObj.setLayoutData(layout);
+
+        return textObj;
+    }
+
+    private Button createCheckbox(final String text, final String tooltip,
+                                  final boolean isChecked, final Composite group,
+                                  final int alignment, final int span)
+    {
+        final Button box = new Button(group, SWT.CHECK);
+        box.setText(text);
+        box.setSelection(isChecked);
+        box.setLayoutData(new GridData(alignment, GridData.CENTER, true, true, span, 1));
+        box.setToolTipText(tooltip);
+
+        return box;
+    }
+
     private Button createDestDirButton(Composite group) {
         final Button button = new Button(group, SWT.PUSH);
         button.setText(DEST_DIR_BUTTON_TEXT);
@@ -210,72 +246,30 @@ class PreferencesDialog extends Dialog {
     }
 
     private void populateGeneralTab(final Composite generalGroup) {
-        moveEnabledCheckbox = new Button(generalGroup, SWT.CHECK);
-        moveEnabledCheckbox.setText(MOVE_ENABLED_TEXT);
-        moveEnabledCheckbox.setSelection(prefs.isMoveEnabled());
-        moveEnabledCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER,
-                                                       true, true, 2, 1));
-        moveEnabledCheckbox.setToolTipText(MOVE_ENABLED_TOOLTIP);
+        moveEnabledCheckbox = createCheckbox(MOVE_ENABLED_TEXT, MOVE_ENABLED_TOOLTIP,
+                                             prefs.isMoveEnabled(), generalGroup, GridData.BEGINNING, 2);
+        renameEnabledCheckbox = createCheckbox(RENAME_ENABLED_TEXT, RENAME_ENABLED_TOOLTIP,
+                                               prefs.isRenameEnabled(), generalGroup, GridData.END, 1);
 
-        renameEnabledCheckbox = new Button(generalGroup, SWT.CHECK);
-        renameEnabledCheckbox.setText(RENAME_ENABLED_TEXT);
-        renameEnabledCheckbox.setSelection(prefs.isRenameEnabled());
-        renameEnabledCheckbox.setLayoutData(new GridData(GridData.END, GridData.CENTER,
-                                                         true, true, 1, 1));
-        renameEnabledCheckbox.setToolTipText(RENAME_ENABLED_TOOLTIP);
-
-        Label destDirLabel = new Label(generalGroup, SWT.NONE);
-        destDirLabel.setText(DEST_DIR_TEXT);
-        destDirLabel.setToolTipText(DEST_DIR_TOOLTIP);
-
-        destDirText = new Text(generalGroup, SWT.BORDER);
-        destDirText.setText(prefs.getDestinationDirectoryName());
-        destDirText.setTextLimit(99);
-        destDirText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true));
-
+        createLabel(DEST_DIR_TEXT, DEST_DIR_TOOLTIP, generalGroup);
+        destDirText = createText(prefs.getDestinationDirectoryName(), generalGroup, false);
         destDirButton = createDestDirButton(generalGroup);
 
-        Label seasonPrefixLabel = new Label(generalGroup, SWT.NONE);
-        seasonPrefixLabel.setText(SEASON_PREFIX_TEXT);
-        seasonPrefixLabel.setToolTipText(PREFIX_TOOLTIP);
+        createLabel(SEASON_PREFIX_TEXT, PREFIX_TOOLTIP, generalGroup);
+        seasonPrefixText = createText(prefs.getSeasonPrefixForDisplay(), generalGroup, true);
+        seasonPrefixLeadingZeroCheckbox = createCheckbox(SEASON_PREFIX_ZERO_TEXT, SEASON_PREFIX_ZERO_TOOLTIP,
+                                                         prefs.isSeasonPrefixLeadingZero(),
+                                                         generalGroup, GridData.BEGINNING, 3);
 
-        seasonPrefixText = new Text(generalGroup, SWT.BORDER);
-        seasonPrefixText.setText(prefs.getSeasonPrefixForDisplay());
-        seasonPrefixText.setTextLimit(99);
-        seasonPrefixText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER,
-                                                    true, true, 2, 1));
+        createLabel(IGNORE_LABEL_TEXT, IGNORE_LABEL_TOOLTIP, generalGroup);
+        ignoreWordsText = createText(prefs.getIgnoredKeywordsString(), generalGroup, false);
 
-        seasonPrefixLeadingZeroCheckbox = new Button(generalGroup, SWT.CHECK);
-        seasonPrefixLeadingZeroCheckbox.setText(SEASON_PREFIX_ZERO_TEXT);
-        seasonPrefixLeadingZeroCheckbox.setSelection(prefs.isSeasonPrefixLeadingZero());
-        seasonPrefixLeadingZeroCheckbox.setLayoutData(new GridData(GridData.BEGINNING,
-                                                                   GridData.CENTER,
-                                                                   true, true, 3, 1));
-        seasonPrefixLeadingZeroCheckbox.setToolTipText(SEASON_PREFIX_ZERO_TOOLTIP);
-
-        Label ignoreLabel = new Label(generalGroup, SWT.NONE);
-        ignoreLabel.setText(IGNORE_LABEL_TEXT);
-        ignoreLabel.setToolTipText(IGNORE_LABEL_TOOLTIP);
-
-        ignoreWordsText = new Text(generalGroup, SWT.BORDER);
-        String ignoreWords = prefs.getIgnoredKeywordsString();
-        ignoreWordsText.setText(ignoreWords);
-        ignoreWordsText.setTextLimit(99);
-        ignoreWordsText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true));
-
-        recurseFoldersCheckbox = new Button(generalGroup, SWT.CHECK);
-        recurseFoldersCheckbox.setText(RECURSE_FOLDERS_TEXT);
-        recurseFoldersCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER,
-                                                          true, true, 3, 1));
-        recurseFoldersCheckbox.setSelection(prefs.isRecursivelyAddFolders());
-        recurseFoldersCheckbox.setToolTipText(RECURSE_FOLDERS_TOOLTIP);
-
-        checkForUpdatesCheckbox = new Button(generalGroup, SWT.CHECK);
-        checkForUpdatesCheckbox.setText(CHECK_UPDATES_TEXT);
-        checkForUpdatesCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER,
-                                                           true, true, 3, 1));
-        checkForUpdatesCheckbox.setSelection(prefs.checkForUpdates());
-        checkForUpdatesCheckbox.setToolTipText(CHECK_UPDATES_TOOLTIP);
+        recurseFoldersCheckbox = createCheckbox(RECURSE_FOLDERS_TEXT, RECURSE_FOLDERS_TOOLTIP,
+                                                prefs.isRecursivelyAddFolders(), generalGroup,
+                                                GridData.BEGINNING, 3);
+        checkForUpdatesCheckbox = createCheckbox(CHECK_UPDATES_TEXT, CHECK_UPDATES_TOOLTIP,
+                                                 prefs.checkForUpdates(), generalGroup,
+                                                 GridData.BEGINNING, 3);
     }
 
     private void createGeneralTab(final TabFolder tabFolder) {
@@ -335,11 +329,7 @@ class PreferencesDialog extends Dialog {
         episodeTitleLabel.setText(RENAME_FORMAT_TEXT);
         episodeTitleLabel.setToolTipText(RENAME_FORMAT_TOOLTIP);
 
-        replacementStringText = new Text(replacementGroup, SWT.BORDER);
-        replacementStringText.setText(prefs.getRenameReplacementString());
-        replacementStringText.setTextLimit(99);
-        replacementStringText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER,
-                                                         true, true, 2, 1));
+        replacementStringText = createText(prefs.getRenameReplacementString(), replacementGroup, true);
 
         createDragSource(renameTokensList);
         createDropTarget(replacementStringText);
