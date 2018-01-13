@@ -155,7 +155,9 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         clearFilesButton.setText("Clear List");
         clearFilesButton.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
-                deleteAllTableItems();
+                for (final TableItem item : swtTable.getItems()) {
+                    deleteTableItem(item);
+                }
             }
         });
 
@@ -621,12 +623,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
             }
         }
         swtTable.deselectAll();
-    }
-
-    private void deleteAllTableItems() {
-        for (final TableItem item : swtTable.getItems()) {
-            deleteTableItem(item);
-        }
     }
 
     /**
