@@ -218,7 +218,7 @@ class PreferencesDialog extends Dialog {
         moveEnabledCheckbox.setToolTipText(MOVE_ENABLED_TOOLTIP);
 
         renameEnabledCheckbox = new Button(generalGroup, SWT.CHECK);
-        renameEnabledCheckbox.setText("Rename Enabled [?]");
+        renameEnabledCheckbox.setText(RENAME_ENABLED_TEXT);
         renameEnabledCheckbox.setSelection(prefs.isRenameEnabled());
         renameEnabledCheckbox.setLayoutData(new GridData(GridData.END, GridData.CENTER,
                                                          true, true, 1, 1));
@@ -268,12 +268,14 @@ class PreferencesDialog extends Dialog {
         recurseFoldersCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER,
                                                           true, true, 3, 1));
         recurseFoldersCheckbox.setSelection(prefs.isRecursivelyAddFolders());
+        recurseFoldersCheckbox.setToolTipText(RECURSE_FOLDERS_TOOLTIP);
 
         checkForUpdatesCheckbox = new Button(generalGroup, SWT.CHECK);
         checkForUpdatesCheckbox.setText(CHECK_UPDATES_TEXT);
         checkForUpdatesCheckbox.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER,
                                                            true, true, 3, 1));
         checkForUpdatesCheckbox.setSelection(prefs.checkForUpdates());
+        checkForUpdatesCheckbox.setToolTipText(CHECK_UPDATES_TOOLTIP);
     }
 
     private void createGeneralTab(final TabFolder tabFolder) {
