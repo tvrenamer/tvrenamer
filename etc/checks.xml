@@ -29,7 +29,7 @@
             <property name="max" value="110"/>
         </module>
         <module name="MethodLength">
-            <property name="max" value="115"/>
+            <property name="max" value="78"/>
         </module>
         <module name="OneTopLevelClass"/>
         <module name="NoLineWrap"/>
