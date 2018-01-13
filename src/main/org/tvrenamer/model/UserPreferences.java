@@ -124,12 +124,8 @@ public class UserPreferences extends Observable {
                 }
             }
         }
-        if (Files.notExists(CONFIGURATION_DIRECTORY)) {
-            try {
-                Files.createDirectories(CONFIGURATION_DIRECTORY);
-            } catch (Exception e) {
-                throw new RuntimeException("Could not create configuration directory");
-            }
+        if (!FileUtilities.ensureWritableDirectory(CONFIGURATION_DIRECTORY)) {
+            throw new RuntimeException("Could not create configuration directory");
         }
         if (temp != null) {
             try {
