@@ -61,6 +61,45 @@ public class UserPreferences extends Observable {
     }
 
     /**
+     * Make sure overrides file is set up.
+     *
+     * If the file is found in the expected location, we leave it there.  We are done.
+     *
+     * If it's not there, first we look for a "legacy" file.  If we find a file in that
+     * location, we relocate it to the proper location.
+     *
+     * If neither file exists, then we will create one, by copying a default file into place.
+     *
+     */
+    private static void setUpOverrides() {
+        if (Files.notExists(OVERRIDES_FILE)) {
+            if (Files.exists(OVERRIDES_FILE_LEGACY)) {
+                try {
+                    Files.move(OVERRIDES_FILE_LEGACY, OVERRIDES_FILE);
+                } catch (Exception e) {
+                    logger.log(Level.WARNING, e.getMessage(), e);
+                    throw new RuntimeException("Could not rename old overrides file from "
+                                               + OVERRIDES_FILE_LEGACY + " to " + OVERRIDES_FILE);
+                }
+            } else {
+                // Previously the GlobalOverrides class was hard-coded to write some
+                // overrides to the file.  I don't think that's right, but to try to
+                // preserve the default behavior, if the user doesn't have any other
+                // overrides file, we'll try to copy one from the source code into
+                // place.  If it doesn't work, so be it.
+                Path defOver = Paths.get(DEVELOPER_DEFAULT_OVERRIDES_FILENAME);
+                if (Files.exists(defOver)) {
+                    try {
+                        Files.copy(defOver, OVERRIDES_FILE);
+                    } catch (IOException ioe) {
+                        logger.info("unable to copy default overrides file.");
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Deal with legacy files and set up
      */
     private static void initialize() {
@@ -112,31 +151,7 @@ public class UserPreferences extends Observable {
                 }
             }
         }
-        if (Files.notExists(OVERRIDES_FILE)) {
-            if (Files.exists(OVERRIDES_FILE_LEGACY)) {
-                try {
-                    Files.move(OVERRIDES_FILE_LEGACY, OVERRIDES_FILE);
-                } catch (Exception e) {
-                    logger.log(Level.WARNING, e.getMessage(), e);
-                    throw new RuntimeException("Could not rename old overrides file from "
-                                               + OVERRIDES_FILE_LEGACY + " to " + OVERRIDES_FILE);
-                }
-            } else {
-                // Previously the GlobalOverrides class was hard-coded to write some
-                // overrides to the file.  I don't think that's right, but to try to
-                // preserve the default behavior, if the user doesn't have any other
-                // overrides file, we'll try to copy one from the source code into
-                // place.  If it doesn't work, so be it.
-                Path defOver = Paths.get(DEVELOPER_DEFAULT_OVERRIDES_FILENAME);
-                if (Files.exists(defOver)) {
-                    try {
-                        Files.copy(defOver, OVERRIDES_FILE);
-                    } catch (IOException ioe) {
-                        logger.info("unable to copy default overrides file.");
-                    }
-                }
-            }
-        }
+        setUpOverrides();
     }
 
     /**
