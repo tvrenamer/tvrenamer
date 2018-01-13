@@ -124,6 +124,47 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         ui.uiCleanup();
     }
 
+    private int getTableItemIndex(TableItem item) {
+        try {
+            return swtTable.indexOf(item);
+        } catch (IllegalArgumentException | SWTException ignored) {
+            // We'll just fall through and return the sentinel.
+        }
+        return ITEM_NOT_IN_TABLE;
+    }
+
+    private void deleteSelectedTableItems() {
+        for (final TableItem item : swtTable.getSelection()) {
+            int index = getTableItemIndex(item);
+            if (ITEM_NOT_IN_TABLE == index) {
+                logger.info("error: somehow selected item not found in table");
+                continue;
+            }
+
+            String filename = item.getText(CURRENT_FILE_COLUMN);
+            episodeMap.remove(filename);
+
+            swtTable.remove(index);
+            item.dispose();
+        }
+        swtTable.deselectAll();
+    }
+
+    private void deleteAllTableItems() {
+        for (final TableItem item : swtTable.getItems()) {
+            episodeMap.remove(item.getText(CURRENT_FILE_COLUMN));
+        }
+        swtTable.removeAll();
+    }
+
+    private void setupClearFilesButton() {
+        clearFilesButton.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                deleteAllTableItems();
+            }
+        });
+    }
+
     private void setupMainWindow() {
         final Composite topButtonsComposite = new Composite(shell, SWT.FILL);
         topButtonsComposite.setLayout(new RowLayout());
@@ -270,14 +311,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                 }
             }
 
-        });
-    }
-
-    private void setupClearFilesButton() {
-        clearFilesButton.addSelectionListener(new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent e) {
-                deleteAllTableItems();
-            }
         });
     }
 
@@ -586,15 +619,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         }
     }
 
-    private int getTableItemIndex(TableItem item) {
-        try {
-            return swtTable.indexOf(item);
-        } catch (IllegalArgumentException | SWTException ignored) {
-            // We'll just fall through and return the sentinel.
-        }
-        return ITEM_NOT_IN_TABLE;
-    }
-
     private boolean tableContainsTableItem(TableItem item) {
         return (ITEM_NOT_IN_TABLE != getTableItemIndex(item));
     }
@@ -653,30 +677,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
             }
         }
         return false;
-    }
-
-    private void deleteSelectedTableItems() {
-        for (final TableItem item : swtTable.getSelection()) {
-            int index = getTableItemIndex(item);
-            if (ITEM_NOT_IN_TABLE == index) {
-                logger.info("error: somehow selected item not found in table");
-                continue;
-            }
-
-            String filename = item.getText(CURRENT_FILE_COLUMN);
-            episodeMap.remove(filename);
-
-            swtTable.remove(index);
-            item.dispose();
-        }
-        swtTable.deselectAll();
-    }
-
-    private void deleteAllTableItems() {
-        for (final TableItem item : swtTable.getItems()) {
-            episodeMap.remove(item.getText(CURRENT_FILE_COLUMN));
-        }
-        swtTable.removeAll();
     }
 
     private static String itemDestDisplayedText(final TableItem item) {
