@@ -84,14 +84,19 @@ public class Constants {
     public static final String GENERAL_LABEL = "General";
     public static final String RENAMING_LABEL = "Renaming";
     public static final String MOVE_ENABLED_TEXT = "Move Enabled [?]";
+    public static final String RENAME_ENABLED_TEXT = "Rename Enabled [?]";
     public static final String DEST_DIR_TEXT = "TV Directory [?]";
     public static final String DEST_DIR_BUTTON_TEXT = "Select directory";
     public static final String DIR_DIALOG_TEXT = "Please select a directory and click OK";
     public static final String SEASON_PREFIX_TEXT = "Season Prefix [?]";
     public static final String SEASON_PREFIX_ZERO_TEXT = "Season Prefix Leading Zero [?]";
     public static final String IGNORE_LABEL_TEXT = "Ignore files containing [?]";
-    public static final String RECURSE_FOLDERS_TEXT = "Recursively add shows in subdirectories";
-    public static final String CHECK_UPDATES_TEXT = "Check for Updates at startup";
+    public static final String RECURSE_FOLDERS_TEXT = "Recursively add shows in subdirectories [?]";
+    public static final String RECURSE_FOLDERS_TOOLTIP = "If unchecked, do not look into subfolders "
+        + "for shows to add";
+    public static final String CHECK_UPDATES_TEXT = "Check for Updates at startup [?]";
+    public static final String CHECK_UPDATES_TOOLTIP = "If checked, will automatically check "
+        + APPLICATION_NAME + " website for new versions at startup, and offer to update if found";
     public static final String RENAME_TOKEN_TEXT = "Rename Tokens [?]";
     public static final String RENAME_FORMAT_TEXT = "Rename Format [?]";
     public static final String RENAME_ENABLED_TOOLTIP = "Whether the 'rename' functionality is enabled.\n"
