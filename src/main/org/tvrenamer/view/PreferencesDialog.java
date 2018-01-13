@@ -177,6 +177,18 @@ class PreferencesDialog extends Dialog {
         createActionButtonGroup();
     }
 
+    /**
+     * Toggle whether the or not the listed {@link Control}s are enabled, based off the of
+     * the selection value of the checkbox
+     * @param decidingCheckbox the checkbox the enable flag is taken off
+     * @param controls the list of controls to update
+     */
+    private void toggleEnableControls(Button decidingCheckbox, Control... controls) {
+        for (Control control : controls) {
+            control.setEnabled(decidingCheckbox.getSelection());
+        }
+        preferencesShell.redraw();
+    }
 
     private void createGeneralTab(TabFolder tabFolder) {
         TabItem item = new TabItem(tabFolder, SWT.NULL);
@@ -403,18 +415,5 @@ class PreferencesDialog extends Dialog {
         UIUtils.checkDestinationDirectory(prefs);
 
         UserPreferences.store(prefs);
-    }
-
-    /**
-     * Toggle whether the or not the listed {@link Control}s are enabled, based off the of
-     * the selection value of the checkbox
-     * @param decidingCheckbox the checkbox the enable flag is taken off
-     * @param controls the list of controls to update
-     */
-    private void toggleEnableControls(Button decidingCheckbox, Control... controls) {
-        for (Control control : controls) {
-            control.setEnabled(decidingCheckbox.getSelection());
-        }
-        preferencesShell.redraw();
     }
 }
