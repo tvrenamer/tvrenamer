@@ -133,28 +133,38 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         return ITEM_NOT_IN_TABLE;
     }
 
+    private void deleteItemCombo(final TableItem item) {
+        final Object itemData = item.getData();
+        if (itemData != null) {
+            final Control oldCombo = (Control) itemData;
+            if (!oldCombo.isDisposed()) {
+                oldCombo.dispose();
+            }
+        }
+    }
+
+    private void deleteTableItem(final TableItem item) {
+        deleteItemCombo(item);
+        episodeMap.remove(item.getText(CURRENT_FILE_COLUMN));
+        item.dispose();
+    }
+
     private void deleteSelectedTableItems() {
         for (final TableItem item : swtTable.getSelection()) {
             int index = getTableItemIndex(item);
+            deleteTableItem(item);
+
             if (ITEM_NOT_IN_TABLE == index) {
                 logger.info("error: somehow selected item not found in table");
-                continue;
             }
-
-            String filename = item.getText(CURRENT_FILE_COLUMN);
-            episodeMap.remove(filename);
-
-            swtTable.remove(index);
-            item.dispose();
         }
         swtTable.deselectAll();
     }
 
     private void deleteAllTableItems() {
         for (final TableItem item : swtTable.getItems()) {
-            episodeMap.remove(item.getText(CURRENT_FILE_COLUMN));
+            deleteTableItem(item);
         }
-        swtTable.removeAll();
     }
 
     private void setupClearFilesButton() {
@@ -484,13 +494,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
      *    the FileEpisode to use to obtain the text
      */
     private void setProposedDestColumn(final TableItem item, final FileEpisode ep) {
-        final Object itemData = item.getData();
-        if (itemData != null) {
-            final Control oldCombo = (Control) itemData;
-            if (!oldCombo.isDisposed()) {
-                oldCombo.dispose();
-            }
-        }
+        deleteItemCombo(item);
 
         if (ep.hasOptions()) {
             final List<String> options = ep.getReplacementOptions();
