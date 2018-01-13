@@ -164,12 +164,10 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         setupUpdateStuff(topButtonsComposite);
     }
 
-    private void setupMainWindow() {
-        setupResultsTable();
-        setupTableDragDrop();
-
+    private void setupBottomComposite() {
         Composite bottomButtonsComposite = new Composite(shell, SWT.FILL);
         bottomButtonsComposite.setLayout(new GridLayout(3, false));
+
         GridData bottomButtonsCompositeGridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1);
         bottomButtonsComposite.setLayoutData(bottomButtonsCompositeGridData);
 
@@ -179,9 +177,33 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         quitButtonGridData.widthHint = 70;
         quitButton.setLayoutData(quitButtonGridData);
         quitButton.setText(QUIT_LABEL);
+        quitButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                quit();
+            }
+        });
 
         totalProgressBar = new ProgressBar(bottomButtonsComposite, SWT.SMOOTH);
         totalProgressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
+
+        renameSelectedButton = new Button(bottomButtonsComposite, SWT.PUSH);
+        GridData renameSelectedButtonGridData = new GridData(GridData.END, GridData.CENTER, false, false);
+        renameSelectedButton.setLayoutData(renameSelectedButtonGridData);
+        setRenameButtonText(renameSelectedButton);
+        renameSelectedButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                renameFiles();
+            }
+        });
+
+    }
+
+    private void setupMainWindow() {
+        setupResultsTable();
+        setupTableDragDrop();
+        setupBottomComposite();
 
         TaskBar taskBar = display.getSystemTaskBar();
         if (taskBar != null) {
@@ -190,26 +212,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                 taskItem = taskBar.getItem(null);
             }
         }
-
-        renameSelectedButton = new Button(bottomButtonsComposite, SWT.PUSH);
-        GridData renameSelectedButtonGridData = new GridData(GridData.END, GridData.CENTER, false, false);
-        renameSelectedButton.setLayoutData(renameSelectedButtonGridData);
-
-        setRenameButtonText(renameSelectedButton);
-
-        renameSelectedButton.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                renameFiles();
-            }
-        });
-
-        quitButton.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                quit();
-            }
-        });
     }
 
     private void makeMenuItem(Menu parent, String text, Listener listener, char shortcut) {
