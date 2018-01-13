@@ -81,13 +81,13 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     private final Shell shell;
     private final Display display;
     private final EpisodeDb episodeMap = new EpisodeDb();
+    private final UserPreferences prefs = UserPreferences.getInstance();
 
     private Button renameSelectedButton;
     private Table swtTable;
     private ProgressBar totalProgressBar;
     private TaskItem taskItem = null;
 
-    private UserPreferences prefs;
     private List<String> ignoreKeywords;
     private boolean apiDeprecated = false;
 
@@ -866,7 +866,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         this.ui = ui;
         this.shell = ui.shell;
         this.display = ui.display;
-        prefs = UserPreferences.getInstance();
 
         setupTopButtons();
         setupMainWindow();
