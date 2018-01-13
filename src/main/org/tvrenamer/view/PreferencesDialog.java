@@ -190,6 +190,24 @@ class PreferencesDialog extends Dialog {
         preferencesShell.redraw();
     }
 
+    private Button createDestDirButton(Composite group) {
+        final Button button = new Button(group, SWT.PUSH);
+        button.setText(DEST_DIR_BUTTON_TEXT);
+        button.addListener(SWT.Selection, event -> {
+            DirectoryDialog directoryDialog = new DirectoryDialog(preferencesShell);
+
+            directoryDialog.setFilterPath(prefs.getDestinationDirectoryName());
+            directoryDialog.setText(DIR_DIALOG_TEXT);
+
+            String dir = directoryDialog.open();
+            if (dir != null) {
+                destDirText.setText(dir);
+            }
+        });
+
+        return button;
+    }
+
     private void createGeneralTab(TabFolder tabFolder) {
         TabItem item = new TabItem(tabFolder, SWT.NULL);
         item.setText(GENERAL_LABEL);
@@ -222,19 +240,7 @@ class PreferencesDialog extends Dialog {
         destDirText.setTextLimit(99);
         destDirText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, true));
 
-        final Button destDirButton = new Button(generalGroup, SWT.PUSH);
-        destDirButton.setText(DEST_DIR_BUTTON_TEXT);
-        destDirButton.addListener(SWT.Selection, event -> {
-            DirectoryDialog directoryDialog = new DirectoryDialog(preferencesShell);
-
-            directoryDialog.setFilterPath(prefs.getDestinationDirectoryName());
-            directoryDialog.setText(DIR_DIALOG_TEXT);
-
-            String dir = directoryDialog.open();
-            if (dir != null) {
-                destDirText.setText(dir);
-            }
-        });
+        final Button destDirButton = createDestDirButton(generalGroup);
 
         Label seasonPrefixLabel = new Label(generalGroup, SWT.NONE);
         seasonPrefixLabel.setText(SEASON_PREFIX_TEXT);
