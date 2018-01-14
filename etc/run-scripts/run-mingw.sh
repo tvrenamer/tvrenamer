@@ -61,6 +61,7 @@ fi
 
 if [ -d ${userhome}/.tvrenamer ]
 then
+    /bin/mv ${userhome}/.tvrenamer/overrides.xml ${userhome}/.tvrenameroverrides
     /bin/mv ${userhome}/.tvrenamer/prefs.xml ${userhome}/prefs.xml
     /bin/rm -rf ${userhome}/.tvrenamer
     /bin/mv ${userhome}/prefs.xml ${userhome}/.tvrenamer
