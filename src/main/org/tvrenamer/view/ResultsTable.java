@@ -302,6 +302,49 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         });
     }
 
+    private void setupColumns() {
+        final TableColumn selectedColumn = new TableColumn(swtTable, SWT.LEFT);
+        selectedColumn.setText("Selected");
+        selectedColumn.setWidth(60);
+        selectedColumn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                sortTable(selectedColumn, SELECTED_COLUMN);
+            }
+        });
+
+        final TableColumn sourceColumn = new TableColumn(swtTable, SWT.LEFT);
+        sourceColumn.setText("Current File");
+        sourceColumn.setWidth(550);
+        sourceColumn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                sortTable(sourceColumn, CURRENT_FILE_COLUMN);
+            }
+        });
+
+        final TableColumn destinationColumn = new TableColumn(swtTable, SWT.LEFT);
+        setColumnDestText(destinationColumn);
+        destinationColumn.setWidth(550);
+        destinationColumn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                sortTable(destinationColumn, NEW_FILENAME_COLUMN);
+            }
+        });
+
+        final TableColumn statusColumn = new TableColumn(swtTable, SWT.LEFT);
+        statusColumn.setText("Status");
+        statusColumn.setWidth(60);
+        statusColumn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                sortTable(statusColumn, STATUS_COLUMN);
+            }
+        });
+
+    }
+
     private void setupResultsTable() {
         swtTable.setHeaderVisible(true);
         swtTable.setLinesVisible(true);
@@ -311,21 +354,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         gridData.horizontalSpan = 3;
         swtTable.setLayoutData(gridData);
 
-        final TableColumn selectedColumn = new TableColumn(swtTable, SWT.LEFT);
-        selectedColumn.setText("Selected");
-        selectedColumn.setWidth(60);
-
-        final TableColumn sourceColumn = new TableColumn(swtTable, SWT.LEFT);
-        sourceColumn.setText("Current File");
-        sourceColumn.setWidth(550);
-
-        final TableColumn destinationColumn = new TableColumn(swtTable, SWT.LEFT);
-        setColumnDestText(destinationColumn);
-        destinationColumn.setWidth(550);
-
-        final TableColumn statusColumn = new TableColumn(swtTable, SWT.LEFT);
-        statusColumn.setText("Status");
-        statusColumn.setWidth(60);
+        setupColumns();
 
         // Allow deleting of elements
         swtTable.addKeyListener(new KeyAdapter() {
@@ -346,34 +375,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                     default:
                 }
 
-            }
-        });
-
-        selectedColumn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                sortTable(selectedColumn, SELECTED_COLUMN);
-            }
-        });
-
-        sourceColumn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                sortTable(sourceColumn, CURRENT_FILE_COLUMN);
-            }
-        });
-
-        destinationColumn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                sortTable(destinationColumn, NEW_FILENAME_COLUMN);
-            }
-        });
-
-        statusColumn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                sortTable(statusColumn, STATUS_COLUMN);
             }
         });
 
