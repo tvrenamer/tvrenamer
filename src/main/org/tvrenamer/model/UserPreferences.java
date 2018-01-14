@@ -54,6 +54,33 @@ public class UserPreferences extends Observable {
     }
 
     /**
+     * UserPreferences constructor which ensures we have an ArrayList
+     *
+     * @param first the already-constructed UserPreferences object that was
+     *    created first, that the new one should be based off of
+     */
+    private UserPreferences(final UserPreferences first) {
+        super();
+
+        preloadFolder = first.preloadFolder;
+        destDir = first.destDir;
+        seasonPrefix = first.seasonPrefix;
+        seasonPrefixLeadingZero = first.seasonPrefixLeadingZero;
+        moveEnabled = first.moveEnabled;
+        renameEnabled = first.renameEnabled;
+        removeEmptiedDirectories = first.removeEmptiedDirectories;
+        renameReplacementMask = first.renameReplacementMask;
+        checkForUpdates = first.checkForUpdates;
+        recursivelyAddFolders = first.recursivelyAddFolders;
+        ignoreKeywords = new ArrayList<>();
+        if (first.ignoreKeywords != null) {
+            for (String keyword : first.ignoreKeywords) {
+                ignoreKeywords.add(keyword);
+            }
+        }
+    }
+
+    /**
      * @return the singleton UserPreferences instance for this application
      */
     public static UserPreferences getInstance() {
@@ -151,6 +178,16 @@ public class UserPreferences extends Observable {
     }
 
     /**
+     * Save preferences to xml file
+     *
+     * @param prefs the instance to export to XML
+     */
+    public static void store(UserPreferences prefs) {
+        UserPreferencesPersistence.persist(prefs, PREFERENCES_FILE);
+        logger.fine("Successfully saved/updated preferences");
+    }
+
+    /**
      * Load preferences from xml file
      *
      * @return an instance of UserPreferences, expected to be used as the singleton instance
@@ -161,25 +198,23 @@ public class UserPreferences extends Observable {
 
         // retrieve from file and update in-memory copy
         UserPreferences prefs = UserPreferencesPersistence.retrieve(PREFERENCES_FILE);
-
-        if (prefs != null) {
+        if (prefs == null) {
+            prefs = new UserPreferences();
+            store(prefs);
+        } else if (prefs.ignoreKeywords instanceof ArrayList) {
             logger.finer("Successfully read preferences from: " + PREFERENCES_FILE.toAbsolutePath());
             logger.fine("Successfully read preferences: " + prefs.toString());
         } else {
-            prefs = new UserPreferences();
+            // This is to fix a bug where we created UserPreferences with Arrays.asList, which
+            // created an object of a weird type that we couldn't use easily.  Recreate the
+            // UserPreferences object with an ArrayList, and write it out so that we don't
+            // have the same problem next time.
+            prefs = new UserPreferences(prefs);
+            logger.fine("Modified read preferences: " + prefs.toString());
+            store(prefs);
         }
 
         return prefs;
-    }
-
-    /**
-     * Save preferences to xml file
-     *
-     * @param prefs the instance to export to XML
-     */
-    public static void store(UserPreferences prefs) {
-        UserPreferencesPersistence.persist(prefs, PREFERENCES_FILE);
-        logger.fine("Successfully saved/updated preferences");
     }
 
     /**
