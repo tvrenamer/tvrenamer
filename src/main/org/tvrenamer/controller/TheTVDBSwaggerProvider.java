@@ -121,6 +121,9 @@ public class TheTVDBSwaggerProvider {
                     return "";
                 }
                 String json = responseBody.string();
+                // WARNING: A connection to https://api.thetvdb.com/ was leaked. Did you forget to close a
+                // response body? To see where this was allocated, set the OkHttpClient logger level to FINE:
+                // Logger.getLogger(OkHttpClient.class.getName()).setLevel(Level.FINE);
                 Files.write(path, json.getBytes(TVDB_CHARSET));
                 return json;
         }
