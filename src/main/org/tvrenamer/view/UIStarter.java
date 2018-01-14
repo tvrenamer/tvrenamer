@@ -348,15 +348,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         });
     }
 
-    private void setupResultsTable() {
-        resultsTable.setHeaderVisible(true);
-        resultsTable.setLinesVisible(true);
-        GridData gridData = new GridData(GridData.FILL_BOTH);
-        // gridData.widthHint = 780;
-        gridData.heightHint = 350;
-        gridData.horizontalSpan = 3;
-        resultsTable.setLayoutData(gridData);
-
+    private void setupColumns() {
         final TableColumn checkboxColumn = new TableColumn(resultsTable, SWT.LEFT);
         checkboxColumn.setText(CHECKBOX_HEADER);
         checkboxColumn.setWidth(60);
@@ -408,6 +400,18 @@ public final class UIStarter implements Observer, AddEpisodeListener {
                 resultsTable.setSortColumn(statusColumn);
             }
         });
+    }
+
+    private void setupResultsTable() {
+        resultsTable.setHeaderVisible(true);
+        resultsTable.setLinesVisible(true);
+        GridData gridData = new GridData(GridData.FILL_BOTH);
+        // gridData.widthHint = 780;
+        gridData.heightHint = 350;
+        gridData.horizontalSpan = 3;
+        resultsTable.setLayoutData(gridData);
+
+        setupColumns();
 
         // Allow deleting of elements
         resultsTable.addKeyListener(new KeyAdapter() {
