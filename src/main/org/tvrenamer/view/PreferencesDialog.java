@@ -32,7 +32,6 @@ import org.eclipse.swt.widgets.Text;
 import org.tvrenamer.model.ReplacementToken;
 import org.tvrenamer.model.UserPreferences;
 
-import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -405,11 +404,8 @@ class PreferencesDialog extends Dialog {
         prefs.setSeasonPrefix(seasonPrefixText.getText());
         prefs.setSeasonPrefixLeadingZero(seasonPrefixLeadingZeroCheckbox.getSelection());
         prefs.setRenameReplacementString(replacementStringText.getText());
-        String ignoreWordsString = ignoreWordsText.getText();
-        String[] ignoreWords = ignoreWordsString.split(IGNORE_WORDS_SPLIT_REGEX);
-        prefs.setIgnoreKeywords(Arrays.asList(ignoreWords));
+        prefs.setIgnoreKeywords(ignoreWordsText.getText());
         prefs.setRenameEnabled(renameEnabledCheckbox.getSelection());
-
         prefs.setCheckForUpdates(checkForUpdatesCheckbox.getSelection());
         prefs.setRecursivelyAddFolders(recurseFoldersCheckbox.getSelection());
         prefs.setDestinationDirectory(destDirText.getText());
