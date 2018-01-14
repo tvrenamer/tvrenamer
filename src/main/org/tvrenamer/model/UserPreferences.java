@@ -400,31 +400,6 @@ public class UserPreferences extends Observable {
     }
 
     /**
-     * Sets the ignore keywords
-     *
-     * @param ignoreKeywords a list of strings which indicate a file that
-     *           should be ignored.  To be acceptable as an "ignore keyword",
-     *           a string must be at least two characters long.
-     */
-    public void setIgnoreKeywords(List<String> ignoreKeywords) {
-        if (valuesAreDifferent(this.ignoreKeywords, ignoreKeywords)) {
-            this.ignoreKeywords.clear();
-            for (String ignorable : ignoreKeywords) {
-                // Be careful not to allow empty string as a "keyword."
-                if (ignorable.length() > 1) {
-                    // TODO: Convert commas into pipes for proper regex, remove periods
-                    this.ignoreKeywords.add(ignorable);
-                } else {
-                    logger.warning("keywords to ignore must be at least two characters.");
-                    logger.warning("not adding \"" + ignorable + "\"");
-                }
-            }
-
-            preferenceChanged(UserPreference.IGNORE_REGEX);
-        }
-    }
-
-    /**
      * @return a list of strings that indicate that the presence of that string in
      *         a filename means that we should ignore that file
      */
