@@ -789,6 +789,10 @@ public class FileEpisodeTest {
                    .replacementMask("%S S%0sE%0e %t")
                    .expectedReplacement("Firefly S01E04 Shindig")
                    .build());
+    }
+
+    @BeforeClass
+    public static void setupValuesFirefly2() {
         values.add(new EpisodeTestData.Builder()
                    .filenameShow("firefly")
                    .properShowName("Firefly")
@@ -822,10 +826,6 @@ public class FileEpisodeTest {
                    .replacementMask("%S S%0sE%0e %t")
                    .expectedReplacement("Firefly S01E07 Jaynestown")
                    .build());
-    }
-
-    @BeforeClass
-    public static void setupValuesFirefly2() {
         values.add(new EpisodeTestData.Builder()
                    .filenameShow("firefly")
                    .properShowName("Firefly")
@@ -837,6 +837,10 @@ public class FileEpisodeTest {
                    .replacementMask("%S S%0sE%0e %t")
                    .expectedReplacement("Firefly S01E08 Out of Gas")
                    .build());
+    }
+
+    @BeforeClass
+    public static void setupValuesFirefly3() {
         values.add(new EpisodeTestData.Builder()
                    .filenameShow("firefly")
                    .properShowName("Firefly")
@@ -881,6 +885,10 @@ public class FileEpisodeTest {
                    .replacementMask("%S S%0sE%0e %t")
                    .expectedReplacement("Firefly S01E12 The Message")
                    .build());
+    }
+
+    @BeforeClass
+    public static void setupValuesFirefly4() {
         values.add(new EpisodeTestData.Builder()
                    .filenameShow("firefly")
                    .properShowName("Firefly")
