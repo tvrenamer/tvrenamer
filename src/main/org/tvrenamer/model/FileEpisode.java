@@ -654,6 +654,18 @@ public class FileEpisode {
         return replacementOptions;
     }
 
+    /**
+     * Refresh the proposed destination for this file episode, presumably after
+     * the user has made a change to something like the replacement template,
+     * the output destination folder, etc.
+     *
+     */
+    public void refreshReplacement() {
+        if (seriesStatus == SeriesStatus.GOT_LISTINGS) {
+            buildReplacementTextOptions();
+        }
+    }
+
     @Override
     public String toString() {
         String val = "FileEpisode {file: " + fileNameString + ", show: ";
