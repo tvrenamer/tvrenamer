@@ -146,6 +146,8 @@ public class FileEpisode {
     @SuppressWarnings("unused")
     private FileStatus fileStatus = FileStatus.UNCHECKED;
 
+    private String reasonIgnored = null;
+
     // This is the basic part of what we would rename the file to.  That is, we would
     // rename it to destinationFolder + baseForRename + filenameSuffix.
     private String baseForRename = null;
@@ -295,7 +297,7 @@ public class FileEpisode {
     }
 
     public boolean isReady() {
-        return (actualEpisode != null);
+        return (actualEpisode != null) && (reasonIgnored == null);
     }
 
     public void setParsed() {
@@ -559,10 +561,23 @@ public class FileEpisode {
     }
 
     /**
+     *
+     * @param ignoreReason the substring that is contained in the filename that
+     *   the user has told us to ignore
+     */
+    public void setIgnoreReason(final String ignoreReason) {
+        reasonIgnored = ignoreReason;
+    }
+
+    /**
+     *
      * @return the new full file path (for table display) using {@link #getRenamedBasename()} and
      *          the destination directory
      */
     public String getReplacementText() {
+        if (reasonIgnored != null) {
+            return "Ignoring file due to \"" + reasonIgnored + "\"";
+        }
         switch (seriesStatus) {
             case GOT_LISTINGS: {
                 if (userPrefs.isRenameEnabled()) {
