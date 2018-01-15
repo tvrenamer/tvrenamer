@@ -484,13 +484,10 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     private void setProposedDestColumn(final TableItem item, final FileEpisode ep) {
         deleteItemCombo(item);
 
-        if (ep.hasOptions()) {
+        int nOptions = ep.optionCount();
+        if (nOptions > 1) {
             final List<String> options = ep.getReplacementOptions();
-            if (options.size() > 1) {
-                setComboBoxProposedDest(item, ep, options);
-            } else {
-                logger.warning("should not be using options when there are less than two");
-            }
+            setComboBoxProposedDest(item, ep, options);
         } else {
             item.setText(NEW_FILENAME_COLUMN, ep.getReplacementText());
         }
@@ -636,7 +633,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                 String fileName = item.getText(CURRENT_FILE_COLUMN);
                 final FileEpisode episode = episodeMap.get(fileName);
                 // Skip files not successfully downloaded and ready to be moved
-                if (!episode.isReady()) {
+                if (episode.optionCount() == 0) {
                     logger.info("selected but not ready: " + episode.getFilepath());
                     continue;
                 }

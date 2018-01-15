@@ -303,14 +303,16 @@ public class FileEpisode {
         return (parseStatus == ParseStatus.PARSED);
     }
 
-    public boolean isReady() {
-        return (actualEpisodes != null);
-    }
-
-    public boolean hasOptions() {
-        return ((seriesStatus == SeriesStatus.GOT_LISTINGS)
-                && (actualEpisodes != null)
-                && (actualEpisodes.size() > 1));
+    public int optionCount() {
+        if (seriesStatus != SeriesStatus.GOT_LISTINGS) {
+            return 0;
+        }
+        if (replacementOptions == null) {
+            // This should never happen
+            logger.warning("error: replacementOptions is null despite GOT_LISTINGS");
+            return 0;
+        }
+        return replacementOptions.size();
     }
 
     public void setParsed() {
