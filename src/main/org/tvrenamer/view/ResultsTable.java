@@ -694,7 +694,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         swtTable.setSortColumn(column);
     }
 
-    void refreshTable() {
+    public void refreshAll() {
         logger.info("Refreshing table");
         for (TableItem item : swtTable.getItems()) {
             String fileName = item.getText(CURRENT_FILE_COLUMN);
@@ -756,7 +756,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
             || (userPref == UserPreference.SEASON_PREFIX)
             || (userPref == UserPreference.LEADING_ZERO))
         {
-            refreshTable();
+            refreshAll();
         }
 
         if (userPref == UserPreference.IGNORE_REGEX) {
