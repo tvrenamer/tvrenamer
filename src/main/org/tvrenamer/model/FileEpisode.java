@@ -608,7 +608,7 @@ public class FileEpisode {
      * and the destination directory
      *
      */
-    private synchronized void buildReplacementTextOptions() {
+    public synchronized void buildReplacementTextOptions() {
         seriesStatus = SeriesStatus.GOT_LISTINGS;
         replacementOptions = new LinkedList<>();
         chosenEpisode = 0;
