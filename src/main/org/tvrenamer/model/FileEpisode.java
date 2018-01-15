@@ -635,8 +635,9 @@ public class FileEpisode {
         } else if (userPrefs.isMoveEnabled()) {
             replacementOptions.add(getMoveToDirectory() + FILE_SEPARATOR_STRING + fileNameString);
         } else {
-            // This setting doesn't make any sense, but we haven't bothered to
-            // disallow it yet.
+            // This setting is prohibited, and both the UI and the UserPreferences class are set
+            // up to prevent it.  But, if it somehow happens, we always want to fail gracefully.
+            logger.severe("apparently both rename and move are disabled! This is not allowed!");
             replacementOptions.add(fileNameString);
         }
         replacementText = replacementOptions.get(0);

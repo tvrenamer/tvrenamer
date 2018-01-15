@@ -213,6 +213,13 @@ public class UserPreferences extends Observable {
             logger.fine("Modified read preferences: " + prefs.toString());
             store(prefs);
         }
+        if (prefs.moveEnabled == false) {
+            if (prefs.renameEnabled == false) {
+                logger.info("if move is disabled, rename must be enabled.");
+                prefs.renameEnabled = true;
+                store(prefs);
+            }
+        }
 
         return prefs;
     }
@@ -335,18 +342,28 @@ public class UserPreferences extends Observable {
      */
     public void setMoveEnabled(boolean moveEnabled) {
         if (valuesAreDifferent(this.moveEnabled, moveEnabled)) {
-            this.moveEnabled = moveEnabled;
-            // We might be in a situation where move was disabled at startup, and so,
-            // ensureDestDir did nothing.  And then, the user enabled "move", causing
-            // this method to be called.  In that case, we should run ensureDestDir now.
-            // Except, we know that the implementation is, the PreferencesDialog is
-            // going to call setDestinationDirectory() after this method, no matter what.
-            // So, rather than call it twice, we'll rely on inside implementation
-            // knowledge.  If the PreferencesDialog should ever change in a way that no
-            // longer calls setDestinationDirectory() every time, this method might need
-            // to be changed.
+            if (moveEnabled == false) {
+                if (renameEnabled == false) {
+                    // This should never happen.  The UI should prevent it.
+                    // In the erroneous case where it does happen, we're going to reject it.
+                    logger.warning("cannot disable move while reame is disabled.");
+                    return;
+                }
+            } else {
+                this.moveEnabled = moveEnabled;
 
-            preferenceChanged(UserPreference.MOVE_ENABLED);
+                // We might be in a situation where move was disabled at startup, and so,
+                // ensureDestDir did nothing.  And then, the user enabled "move", causing
+                // this method to be called.  In that case, we should run ensureDestDir now.
+                // Except, we know that the implementation is, the PreferencesDialog is
+                // going to call setDestinationDirectory() after this method, no matter what.
+                // So, rather than call it twice, we'll rely on inside implementation
+                // knowledge.  If the PreferencesDialog should ever change in a way that no
+                // longer calls setDestinationDirectory() every time, this method might need
+                // to be changed.
+
+                preferenceChanged(UserPreference.MOVE_ENABLED);
+            }
         }
     }
 
@@ -367,9 +384,18 @@ public class UserPreferences extends Observable {
      */
     public void setRenameEnabled(boolean renameEnabled) {
         if (valuesAreDifferent(this.renameEnabled, renameEnabled)) {
-            this.renameEnabled = renameEnabled;
+            if (renameEnabled == false) {
+                if (moveEnabled == false) {
+                    // This should never happen.  The UI should prevent it.
+                    // In the erroneous case where it does happen, we're going to reject it.
+                    logger.warning("cannot disable rename while move is disabled.");
+                    return;
+                }
+            } else {
+                this.renameEnabled = renameEnabled;
 
-            preferenceChanged(UserPreference.RENAME_ENABLED);
+                preferenceChanged(UserPreference.RENAME_ENABLED);
+            }
         }
     }
 
