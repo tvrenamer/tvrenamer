@@ -51,6 +51,15 @@ public class EpisodeDb implements Observer {
         return null;
     }
 
+    private FileEpisode createFileEpisode(final Path path) {
+        final FileEpisode episode = new FileEpisode(path);
+        episode.setIgnoreReason(ignorableReason(path.toString()));
+        if (!episode.wasParsed()) {
+            logger.warning("Couldn't parse file: " + path);
+        }
+        return episode;
+    }
+
     private FileEpisode createFileEpisode(final Folder parent,
                                           final Path fileName)
     {
@@ -58,22 +67,10 @@ public class EpisodeDb implements Observer {
         final FileEpisode episode = new FileEpisode(path);
         episode.setIgnoreReason(ignorableReason(fileName.toString()));
         if (!episode.wasParsed()) {
-            logger.warning("Couldn't parse file: " + fileName);
-            return null;
-        }
-        return episode;
-    }
-
-    private FileEpisode add(final String pathname) {
-        Path path = Paths.get(pathname);
-        final FileEpisode episode = new FileEpisode(path);
-        episode.setIgnoreReason(ignorableReason(pathname));
-        if (!episode.wasParsed()) {
             // We're putting the episode in the table anyway, but it's
             // not much use.  TODO: make better use of it.
-            logger.warning("Couldn't parse file: " + pathname);
+            logger.warning("Couldn't parse file: " + fileName);
         }
-        put(pathname, episode);
         return episode;
     }
 
@@ -150,22 +147,20 @@ public class EpisodeDb implements Observer {
             logger.info("already in table: " + key);
         } else {
             FileEpisode ep = createFileEpisode(parent, fileName);
-            if (ep != null) {
-                put(key, ep);
-                contents.add(ep);
-            }
+            put(key, ep);
+            contents.add(ep);
         }
     }
 
     private void addFileToQueue(final Queue<FileEpisode> contents,
-                                final Path path)
+                                final Path realpath)
     {
-        final Path absPath = path.toAbsolutePath();
-        final String key = absPath.toString();
+        final String key = realpath.toString();
         if (episodes.containsKey(key)) {
             logger.info("already in table: " + key);
         } else {
-            FileEpisode ep = add(key);
+            FileEpisode ep = createFileEpisode(realpath);
+            put(key, ep);
             contents.add(ep);
         }
     }
@@ -174,7 +169,10 @@ public class EpisodeDb implements Observer {
                                   final Path path)
     {
         if (fileIsVisible(path) && Files.isRegularFile(path)) {
-            addFileToQueue(contents, path);
+            final Folder root = Folder.getFolder(path.getRoot());
+            final Path subpath = root.relativize(path);
+            logger.finer("for " + path + " adding as " + root + ", " + subpath);
+            addFileToQueue(contents, root, subpath, path);
         }
     }
 
@@ -213,39 +211,8 @@ public class EpisodeDb implements Observer {
                 logger.warning("IO Exception descending " + realpath);
             }
         } else {
-            logger.info("adding file from " + parent + ":\n  " + fileName);
+            logger.finer("adding file from " + parent + ":\n  " + fileName);
             addFileToQueue(contents, parent, fileName, realpath);
-        }
-    }
-
-    private void addFilesRecursively(final Queue<FileEpisode> contents,
-                                     final Path parent,
-                                     final Path filename)
-    {
-        if (parent == null) {
-            logger.warning("cannot add files; parent is null");
-            return;
-        }
-        if (filename == null) {
-            logger.warning("cannot add files; filename is null");
-            return;
-        }
-        final Path fullpath = parent.resolve(filename);
-        if (fileIsVisible(fullpath)) {
-            if (Files.isDirectory(fullpath)) {
-                try (DirectoryStream<Path> files = Files.newDirectoryStream(fullpath)) {
-                    if (files != null) {
-                        // recursive call
-                        files.forEach(pth -> addFilesRecursively(contents,
-                                                                 fullpath,
-                                                                 pth.getFileName()));
-                    }
-                } catch (IOException ioe) {
-                    logger.warning("IO Exception descending " + fullpath);
-                }
-            } else {
-                addFileToQueue(contents, fullpath);
-            }
         }
     }
 
@@ -271,7 +238,7 @@ public class EpisodeDb implements Observer {
     /**
      * Add the given folder to the queue.  This is intended to support the
      * "Add Folder" functionality.  This method itself does only sanity
-     * checking, and if everything's in order, calls addFilesRecursively()
+     * checking, and if everything's in order, calls addRealPathFolderToQueue()
      * to do the actual work.
      *
      * @param pathname the name of a folder
@@ -287,10 +254,34 @@ public class EpisodeDb implements Observer {
             return;
         }
 
-        Queue<FileEpisode> contents = new ConcurrentLinkedQueue<>();
-        final Path path = Paths.get(pathname);
-        addFilesRecursively(contents, path.getParent(), path.getFileName());
-        publish(contents);
+        final Path filepath = Paths.get(pathname);
+        if (filepath == null) {
+            logger.warning("cannot add files; filepath is null");
+            return;
+        }
+
+        Path realpath = null;
+        try {
+            realpath = filepath.toRealPath();
+        } catch (IOException ioe) {
+            if (Files.notExists(filepath)) {
+                logger.warning("will not add nonexistent file: " + filepath);
+                return;
+            }
+            logger.warning("skipping " + pathname + " due to I/O exception");
+            return;
+        }
+
+        if (!fileIsVisible(realpath)) {
+            return;
+        }
+
+        if (!Files.isDirectory(realpath)) {
+            logger.warning("argument to 'add folder' is not a folder");
+        }
+
+        final Folder folder = Folder.getFolder(realpath);
+        addRealPathFolderToQueue(folder);
     }
 
     /**
@@ -327,7 +318,7 @@ public class EpisodeDb implements Observer {
         for (final String fileName : fileNames) {
             final Path path = Paths.get(fileName);
             if (descend) {
-                addFilesRecursively(contents, path.getParent(), path.getFileName());
+                addFilesRecursively(contents, null, path);
             } else {
                 addFileIfVisible(contents, path);
             }
@@ -355,6 +346,7 @@ public class EpisodeDb implements Observer {
             UserPreference userPref = (UserPreference) value;
             if ((userPref == UserPreference.IGNORE_REGEX) && (observable instanceof UserPreferences)) {
                 UserPreferences observed = (UserPreferences) observable;
+                logger.info("looking for new ignorable files");
                 ignoreKeywords = observed.getIgnoreKeywords();
                 for (FileEpisode ep : episodes.values()) {
                     ep.setIgnoreReason(ignorableReason(ep.getFilepath()));
