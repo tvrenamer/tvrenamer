@@ -61,6 +61,17 @@ public class FilenameParserTest {
     }
 
     @BeforeClass
+    public static void setupValuesBug20() {
+        // See Issue #20
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("Neighbours/neighbours.s23e233.pdtv.xvid-ss.txt")
+                   .filenameShow("neighbours.")
+                   .seasonNumString("23")
+                   .episodeNumString("233")
+                   .build());
+    }
+
+    @BeforeClass
     public static void setupValuesNotThreeDigits() {
         // Make sure this is parsed as episode 14, not episode 142
         values.add(new EpisodeTestData.Builder()
