@@ -304,7 +304,7 @@ public class FileEpisode {
         return (parseStatus == ParseStatus.PARSED);
     }
 
-    public int optionCount() {
+    public synchronized int optionCount() {
         if (seriesStatus != SeriesStatus.GOT_LISTINGS) {
             return 0;
         }
