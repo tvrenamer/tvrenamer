@@ -809,7 +809,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         }
     }
 
-    void refreshTable() {
+    public void refreshAll() {
         logger.info("Refreshing table");
         for (TableItem item : resultsTable.getItems()) {
             String fileName = item.getText(CURRENT_FILE_COLUMN);
@@ -823,7 +823,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
 
     void finishAllMoves() {
         setAppIcon();
-        refreshTable();
+        refreshAll();
     }
 
     private void setRenameButtonText(Button b) {
@@ -876,7 +876,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
             || (userPref == UserPreference.SEASON_PREFIX)
             || (userPref == UserPreference.LEADING_ZERO))
         {
-            refreshTable();
+            refreshAll();
         }
 
         if (userPref == UserPreference.IGNORE_REGEX) {
