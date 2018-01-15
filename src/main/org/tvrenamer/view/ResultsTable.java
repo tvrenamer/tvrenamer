@@ -427,6 +427,11 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
      */
     private void setProposedDestColumn(final TableItem item, final FileEpisode ep) {
         item.setText(NEW_FILENAME_COLUMN, ep.getReplacementText());
+        if (ep.isReady()) {
+            item.setChecked(true);
+        } else {
+            item.setChecked(false);
+        }
     }
 
     private void listingsDownloaded(TableItem item, FileEpisode episode) {
@@ -436,7 +441,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                 setProposedDestColumn(item, episode);
                 if (epFound) {
                     item.setImage(STATUS_COLUMN, FileMoveIcon.ADDED.icon);
-                    item.setChecked(true);
                 } else {
                     item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
                     item.setChecked(false);
@@ -594,8 +598,10 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     private TableItem createTableItem(Table tblResults, String fileName, FileEpisode episode) {
         TableItem item = new TableItem(tblResults, SWT.NONE);
 
-        // Set if the item is checked or not according to a list of banned keywords
-        item.setChecked(!isNameIgnored(fileName));
+        // Initially we add items to the table unchecked.  When we successfully obtain enough
+        // information about the episode to determine how to rename it, the check box will
+        // automatically be selected.
+        item.setChecked(false);
         item.setText(CURRENT_FILE_COLUMN, fileName);
         setProposedDestColumn(item, episode);
         item.setImage(STATUS_COLUMN, FileMoveIcon.DOWNLOADING.icon);
