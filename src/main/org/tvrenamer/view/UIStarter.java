@@ -542,6 +542,11 @@ public final class UIStarter implements Observer, AddEpisodeListener {
      */
     private void setProposedDestColumn(final TableItem item, final FileEpisode ep) {
         item.setText(NEW_FILENAME_COLUMN, ep.getReplacementText());
+        if (ep.isReady()) {
+            item.setChecked(true);
+        } else {
+            item.setChecked(false);
+        }
     }
 
     private void listingsDownloaded(TableItem item, FileEpisode episode) {
@@ -706,7 +711,10 @@ public final class UIStarter implements Observer, AddEpisodeListener {
     private TableItem createTableItem(Table tblResults, String fileName, FileEpisode episode) {
         TableItem item = new TableItem(tblResults, SWT.NONE);
 
-        item.setChecked(true);
+        // Initially we add items to the table unchecked.  When we successfully obtain enough
+        // information about the episode to determine how to rename it, the check box will
+        // automatically be activated.
+        item.setChecked(false);
         item.setText(CURRENT_FILE_COLUMN, fileName);
         setProposedDestColumn(item, episode);
         item.setImage(STATUS_COLUMN, FileMoveIcon.getIcon(DOWNLOADING));
