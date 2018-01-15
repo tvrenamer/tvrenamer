@@ -88,7 +88,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     private ProgressBar totalProgressBar;
     private TaskItem taskItem = null;
 
-    private List<String> ignoreKeywords;
     private boolean apiDeprecated = false;
 
     void ready() {
@@ -572,9 +571,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
 
     @Override
     public void addEpisodes(Queue<FileEpisode> episodes) {
-        // Update the list of ignored keywords
-        ignoreKeywords = prefs.getIgnoreKeywords();
-
         for (final FileEpisode episode : episodes) {
             final String fileName = episode.getFilepath();
             final TableItem item = createTableItem(swtTable, fileName, episode);
@@ -663,15 +659,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         setProposedDestColumn(item, episode);
         item.setImage(STATUS_COLUMN, FileMoveIcon.DOWNLOADING.icon);
         return item;
-    }
-
-    private boolean isNameIgnored(String fileName) {
-        for (String ignoreKeyword : ignoreKeywords) {
-            if (StringUtils.toLower(fileName).contains(ignoreKeyword)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private static String itemDestDisplayedText(final TableItem item) {
@@ -829,10 +816,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
             || (userPref == UserPreference.LEADING_ZERO))
         {
             refreshAll();
-        }
-
-        if (userPref == UserPreference.IGNORE_REGEX) {
-            ignoreKeywords = observed.getIgnoreKeywords();
         }
 
         if (userPref == UserPreference.DEST_DIR) {
