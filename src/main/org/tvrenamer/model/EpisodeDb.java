@@ -8,17 +8,23 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Logger;
 
-public class EpisodeDb {
+public class EpisodeDb implements Observer {
 
     private static final Logger logger = Logger.getLogger(EpisodeDb.class.getName());
     private static final UserPreferences prefs = UserPreferences.getInstance();
 
     private final Map<String, FileEpisode> episodes = new ConcurrentHashMap<>(1000);
+
+    public EpisodeDb() {
+        prefs.addObserver(this);
+    }
 
     public void put(String key, FileEpisode value) {
         if (value == null) {
@@ -210,6 +216,18 @@ public class EpisodeDb {
             if (preload != null) {
                 // TODO: do in separate thread
                 addFolderToQueue(preload);
+            }
+        }
+    }
+
+    @Override
+    public void update(Observable observable, Object value) {
+        if (value instanceof UserPreference) {
+            UserPreference userPref = (UserPreference) value;
+            if ((userPref == UserPreference.IGNORE_REGEX) && (observable instanceof UserPreferences)) {
+                for (AddEpisodeListener listener : listeners) {
+                    listener.refreshAll();
+                }
             }
         }
     }
