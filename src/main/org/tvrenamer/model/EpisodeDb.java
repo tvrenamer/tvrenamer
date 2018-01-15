@@ -7,6 +7,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
@@ -21,6 +22,7 @@ public class EpisodeDb implements Observer {
     private static final UserPreferences prefs = UserPreferences.getInstance();
 
     private final Map<String, FileEpisode> episodes = new ConcurrentHashMap<>(1000);
+    private List<String> ignoreKeywords = prefs.getIgnoreKeywords();
 
     public EpisodeDb() {
         prefs.addObserver(this);
@@ -40,9 +42,19 @@ public class EpisodeDb implements Observer {
         episodes.put(key, value);
     }
 
+    private String ignorableReason(String fileName) {
+        for (String ignoreKeyword : ignoreKeywords) {
+            if (fileName.contains(ignoreKeyword)) {
+                return ignoreKeyword;
+            }
+        }
+        return null;
+    }
+
     private FileEpisode add(final String pathname) {
         Path path = Paths.get(pathname);
         final FileEpisode episode = new FileEpisode(path);
+        episode.setIgnoreReason(ignorableReason(pathname));
         if (!episode.wasParsed()) {
             // TODO: we can add these episodes to the table anyway,
             // to provide information to the user, and in the future,
@@ -225,6 +237,11 @@ public class EpisodeDb implements Observer {
         if (value instanceof UserPreference) {
             UserPreference userPref = (UserPreference) value;
             if ((userPref == UserPreference.IGNORE_REGEX) && (observable instanceof UserPreferences)) {
+                UserPreferences observed = (UserPreferences) observable;
+                ignoreKeywords = observed.getIgnoreKeywords();
+                for (FileEpisode ep : episodes.values()) {
+                    ep.setIgnoreReason(ignorableReason(ep.getFilepath()));
+                }
                 for (AddEpisodeListener listener : listeners) {
                     listener.refreshAll();
                 }
