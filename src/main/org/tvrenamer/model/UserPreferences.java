@@ -213,6 +213,13 @@ public class UserPreferences extends Observable {
             logger.fine("Modified read preferences: " + prefs.toString());
             store(prefs);
         }
+        if (prefs.moveEnabled == false) {
+            if (prefs.renameEnabled == false) {
+                logger.info("if move is disabled, rename must be enabled.");
+                prefs.renameEnabled = true;
+                store(prefs);
+            }
+        }
 
         return prefs;
     }
@@ -335,6 +342,12 @@ public class UserPreferences extends Observable {
      */
     public void setMoveEnabled(boolean moveEnabled) {
         if (valuesAreDifferent(this.moveEnabled, moveEnabled)) {
+            if ((moveEnabled == false) && (renameEnabled == false)) {
+                // This should never happen.  The UI should prevent it.
+                // In the erroneous case where it does happen, we're going to reject it.
+                logger.warning("cannot disable move while reame is disabled.");
+                return;
+            }
             this.moveEnabled = moveEnabled;
             // We might be in a situation where move was disabled at startup, and so,
             // ensureDestDir did nothing.  And then, the user enabled "move", causing
@@ -367,6 +380,12 @@ public class UserPreferences extends Observable {
      */
     public void setRenameEnabled(boolean renameEnabled) {
         if (valuesAreDifferent(this.renameEnabled, renameEnabled)) {
+            if ((renameEnabled == false) && (moveEnabled == false)) {
+                // This should never happen.  The UI should prevent it.
+                // In the erroneous case where it does happen, we're going to reject it.
+                logger.warning("cannot disable rename while move is disabled.");
+                return;
+            }
             this.renameEnabled = renameEnabled;
 
             preferenceChanged(UserPreference.RENAME_ENABLED);

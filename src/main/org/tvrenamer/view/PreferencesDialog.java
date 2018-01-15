@@ -181,15 +181,48 @@ class PreferencesDialog extends Dialog {
 
     /**
      * Toggle whether the or not the listed {@link Control}s are enabled, based off the of
-     * the selection value of the checkbox
-     * @param decidingCheckbox the checkbox the enable flag is taken off
+     * the given state value.
+     *
+     * @param state the boolean to set the other controls to
      * @param controls the list of controls to update
      */
-    private void toggleEnableControls(Button decidingCheckbox, Control... controls) {
+    private void toggleEnableControls(boolean state, Control... controls) {
         for (Control control : controls) {
-            control.setEnabled(decidingCheckbox.getSelection());
+            control.setEnabled(state);
         }
         preferencesShell.redraw();
+    }
+
+    private void handleMoveCheckbox(final boolean moveEnabled) {
+        // The terminology here gets confusing.  These are checkboxes which enable or disable
+        // specific functionality.  But we also can enable or disable the checkboxes themselves!
+        // That's what we're doing here.  Because it does not make sense to have "move" and
+        // "rename" both disabled, when one functionality is disabled, we disable the other
+        // check box, so that the user cannot disable the other functionality.
+        if (moveEnabled) {
+            renameEnabledCheckbox.setEnabled(true);
+        } else {
+            // If we are here, the user has disabled move functionality, but unchecking the
+            // "move" checkbox.  Therefore, we need to make sure "rename' stays selected,
+            // unless or until "move" is re-enabled.  The very fact that we got here means,
+            // if things are working properly, that rename is *already* selected.  If it
+            // weren't, the user shouldn't have been able to uncheck "move".  So, the first
+            // line here should be redundant.  But, do it anyway, just in case somehow
+            // there's a bug.
+            renameEnabledCheckbox.setSelection(true);
+            renameEnabledCheckbox.setEnabled(false);
+        }
+        toggleEnableControls(moveEnabled, destDirText, destDirButton, seasonPrefixText);
+    }
+
+    private void handleRenameCheckbox(final boolean renameEnabled) {
+        // See comments in handleMoveCheckbox; all the same logic applies here, as well.
+        if (renameEnabled) {
+            moveEnabledCheckbox.setEnabled(true);
+        } else {
+            moveEnabledCheckbox.setSelection(true);
+            moveEnabledCheckbox.setEnabled(false);
+        }
     }
 
     private void createLabel(final String label, final String tooltip, final Composite group) {
@@ -247,10 +280,16 @@ class PreferencesDialog extends Dialog {
     }
 
     private void populateGeneralTab(final Composite generalGroup) {
+        final boolean moveIsEnabled = prefs.isMoveEnabled();
+        boolean renameIsEnabled = prefs.isRenameEnabled();
+        if (!moveIsEnabled && !renameIsEnabled) {
+            renameIsEnabled = true;
+            prefs.setRenameEnabled(true);
+        }
         moveEnabledCheckbox = createCheckbox(MOVE_ENABLED_TEXT, MOVE_ENABLED_TOOLTIP,
-                                             prefs.isMoveEnabled(), generalGroup, GridData.BEGINNING, 2);
+                                             moveIsEnabled, generalGroup, GridData.BEGINNING, 2);
         renameEnabledCheckbox = createCheckbox(RENAME_ENABLED_TEXT, RENAME_ENABLED_TOOLTIP,
-                                               prefs.isRenameEnabled(), generalGroup, GridData.END, 1);
+                                               renameIsEnabled, generalGroup, GridData.END, 1);
 
         createLabel(DEST_DIR_TEXT, DEST_DIR_TOOLTIP, generalGroup);
         destDirText = createText(prefs.getDestinationDirectoryName(), generalGroup, false);
@@ -272,12 +311,18 @@ class PreferencesDialog extends Dialog {
                                                  prefs.checkForUpdates(), generalGroup,
                                                  GridData.BEGINNING, 3);
 
-        toggleEnableControls(moveEnabledCheckbox, destDirText, destDirButton, seasonPrefixText);
+        handleMoveCheckbox(moveIsEnabled);
+        handleRenameCheckbox(renameIsEnabled);
         moveEnabledCheckbox.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                toggleEnableControls(moveEnabledCheckbox, destDirText,
-                                     destDirButton, seasonPrefixText);
+                handleMoveCheckbox(moveEnabledCheckbox.getSelection());
+            }
+        });
+        renameEnabledCheckbox.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                handleRenameCheckbox(renameEnabledCheckbox.getSelection());
             }
         });
     }
@@ -411,8 +456,23 @@ class PreferencesDialog extends Dialog {
         prefs.setDestinationDirectory(destDirText.getText());
 
         boolean isRenameEnabled = renameEnabledCheckbox.getSelection();
-        prefs.setMoveEnabled(moveEnabledCheckbox.getSelection());
-        prefs.setRenameEnabled(isRenameEnabled);
+        // Note, it is important to do the "enable" (true) before the "disable" (false),
+        // because we cannot disable both even momentarily.
+        if (moveEnabledCheckbox.getSelection()) {
+            prefs.setMoveEnabled(true);
+            prefs.setRenameEnabled(isRenameEnabled);
+        } else {
+            // Since move is disabled, rename needs to be enabled.  We're going to
+            // enable rename no matter what.  If that's not what the UI says to do,
+            // that's an error.
+            if (!isRenameEnabled) {
+                // The UI is supposed to prevent this situation from happening.
+                logger.severe("internal error! should not be able to disable "
+                              + "both move and rename! enabling rename");
+            }
+            prefs.setRenameEnabled(true);
+            prefs.setMoveEnabled(false);
+        }
 
         UIUtils.checkDestinationDirectory(prefs);
 
