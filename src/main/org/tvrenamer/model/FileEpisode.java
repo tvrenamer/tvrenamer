@@ -151,6 +151,7 @@ public class FileEpisode {
 
     private List<String> replacementOptions = null;
     private String replacementText = EMPTY_STRING;
+    private String reasonIgnored = null;
 
     // This is the basic part of what we would rename the file to.  That is, we would
     // rename it to destinationFolder + baseForRename + filenameSuffix.
@@ -305,6 +306,9 @@ public class FileEpisode {
 
     public int optionCount() {
         if (seriesStatus != SeriesStatus.GOT_LISTINGS) {
+            return 0;
+        }
+        if (reasonIgnored != null) {
             return 0;
         }
         if (replacementOptions == null) {
@@ -640,9 +644,21 @@ public class FileEpisode {
 
     /**
      *
+     * @param ignoreReason the substring that is contained in the filename that
+     *   the user has told us to ignore
+     */
+    public void setIgnoreReason(final String ignoreReason) {
+        reasonIgnored = ignoreReason;
+    }
+
+    /**
+     *
      * @return the replacement text for table display
      */
     public String getReplacementText() {
+        if (reasonIgnored != null) {
+            return "Ignoring file due to \"" + reasonIgnored + "\"";
+        }
         return replacementText;
     }
 
