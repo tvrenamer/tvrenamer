@@ -55,6 +55,9 @@ public class UserPreferences extends Observable {
 
     /**
      * UserPreferences constructor which ensures we have an ArrayList
+     *
+     * @param first the already-constructed UserPreferences object that was
+     *    created first, that the new one should be based off of
      */
     private UserPreferences(final UserPreferences first) {
         super();
