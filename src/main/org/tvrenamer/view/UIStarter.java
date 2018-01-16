@@ -17,11 +17,13 @@ import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public final class UIStarter implements Observer, AddEpisodeListener {
+public final class UIStarter {
     private static final Logger logger = Logger.getLogger(UIStarter.class.getName());
 
-    private Shell shell;
-    private Display display;
+    Shell shell;
+    Display display;
+
+    private ResultsTable resultsTable;
 
     private void init() {
         // Setup display and shell
@@ -35,14 +37,17 @@ public final class UIStarter implements Observer, AddEpisodeListener {
 
         // Setup the util class
         UIUtils.setShell(shell);
-        UIUtils.checkDestinationDirectory(prefs);
+        UIUtils.checkDestinationDirectory(UserPreferences.getInstance());
+
+        // Create the main window
+        resultsTable = new ResultsTable(this);
 
         setupIcons();
 
         shell.pack(true);
     }
 
-    private void uiCleanup() {
+    void uiCleanup() {
         shell.dispose();
         display.dispose();
     }
@@ -74,6 +79,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
             // Start the shell
             shell.pack();
             shell.open();
+            resultsTable.ready();
 
             while (!shell.isDisposed()) {
                 if (!display.readAndDispatch()) {
