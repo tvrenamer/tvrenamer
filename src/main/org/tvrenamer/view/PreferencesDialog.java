@@ -127,6 +127,7 @@ class PreferencesDialog extends Dialog {
     private Text ignoreWordsText;
     private Button checkForUpdatesCheckbox;
     private Button recurseFoldersCheckbox;
+    private Button rmdirEmptyCheckbox;
     private Button deleteRowsCheckbox;
     private Shell preferencesShell;
 
@@ -276,6 +277,9 @@ class PreferencesDialog extends Dialog {
         recurseFoldersCheckbox = createCheckbox(RECURSE_FOLDERS_TEXT, RECURSE_FOLDERS_TOOLTIP,
                                                 prefs.isRecursivelyAddFolders(), generalGroup,
                                                 GridData.BEGINNING, 3);
+        rmdirEmptyCheckbox = createCheckbox(REMOVE_EMPTIED_TEXT, REMOVE_EMPTIED_TOOLTIP,
+                                            prefs.isRemoveEmptiedDirectories(), generalGroup,
+                                            GridData.BEGINNING, 3);
         deleteRowsCheckbox = createCheckbox(DELETE_ROWS_TEXT, DELETE_ROWS_TOOLTIP,
                                             prefs.isDeleteRowAfterMove(), generalGroup,
                                             GridData.BEGINNING, 3);
@@ -413,6 +417,7 @@ class PreferencesDialog extends Dialog {
 
         prefs.setCheckForUpdates(checkForUpdatesCheckbox.getSelection());
         prefs.setRecursivelyAddFolders(recurseFoldersCheckbox.getSelection());
+        prefs.setRemoveEmptiedDirectories(rmdirEmptyCheckbox.getSelection());
         prefs.setDeleteRowAfterMove(deleteRowsCheckbox.getSelection());
         prefs.setDestinationDirectory(destDirText.getText());
 

@@ -46,7 +46,7 @@ public class UserPreferences extends Observable {
         seasonPrefixLeadingZero = false;
         moveEnabled = false;
         renameEnabled = true;
-        removeEmptiedDirectories = false;
+        removeEmptiedDirectories = true;
         deleteRowAfterMove = false;
         renameReplacementMask = DEFAULT_REPLACEMENT_MASK;
         checkForUpdates = true;
