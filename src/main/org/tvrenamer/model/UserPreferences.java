@@ -19,6 +19,8 @@ import java.util.logging.Logger;
 public class UserPreferences extends Observable {
     private static final Logger logger = Logger.getLogger(UserPreferences.class.getName());
 
+    private static final UserPreferences INSTANCE = load();
+
     private final String preloadFolder;
     private String destDir;
     private String seasonPrefix;
@@ -31,8 +33,6 @@ public class UserPreferences extends Observable {
     private boolean checkForUpdates;
     private boolean recursivelyAddFolders;
     private final List<String> ignoreKeywords;
-
-    private static final UserPreferences INSTANCE = load();
 
     /**
      * UserPreferences constructor which uses the defaults from {@link org.tvrenamer.model.util.Constants}
@@ -99,6 +99,16 @@ public class UserPreferences extends Observable {
                 }
             }
         }
+    }
+
+    /**
+     * Save preferences to xml file
+     *
+     * @param prefs the instance to export to XML
+     */
+    public static void store(UserPreferences prefs) {
+        UserPreferencesPersistence.persist(prefs, PREFERENCES_FILE);
+        logger.fine("Successfully saved/updated preferences");
     }
 
     /**
@@ -172,16 +182,6 @@ public class UserPreferences extends Observable {
         }
 
         return prefs;
-    }
-
-    /**
-     * Save preferences to xml file
-     *
-     * @param prefs the instance to export to XML
-     */
-    public static void store(UserPreferences prefs) {
-        UserPreferencesPersistence.persist(prefs, PREFERENCES_FILE);
-        logger.fine("Successfully saved/updated preferences");
     }
 
     /**
@@ -428,6 +428,28 @@ public class UserPreferences extends Observable {
     }
 
     /**
+     * @return a list of strings that indicate that the presence of that string in
+     *         a filename means that we should ignore that file
+     */
+    public List<String> getIgnoreKeywords() {
+        return ignoreKeywords;
+    }
+
+    /**
+     * @return a string containing the list of ignored keywords, separated by commas
+     */
+    public String getIgnoredKeywordsString() {
+        StringBuilder ignoreWords = new StringBuilder();
+        String sep = "";
+        for (String s : ignoreKeywords) {
+            ignoreWords.append(sep);
+            ignoreWords.append(s);
+            sep = ",";
+        }
+        return ignoreWords.toString();
+    }
+
+    /**
      * Sets the ignore keywords, given a string
      *
      * @param ignoreWordsString a string which, when parsed, indicate the files
@@ -451,28 +473,6 @@ public class UserPreferences extends Observable {
 
             preferenceChanged(UserPreference.IGNORE_REGEX);
         }
-    }
-
-    /**
-     * @return a list of strings that indicate that the presence of that string in
-     *         a filename means that we should ignore that file
-     */
-    public List<String> getIgnoreKeywords() {
-        return ignoreKeywords;
-    }
-
-    /**
-     * @return a string containing the list of ignored keywords, separated by commas
-     */
-    public String getIgnoredKeywordsString() {
-        StringBuilder ignoreWords = new StringBuilder();
-        String sep = "";
-        for (String s : ignoreKeywords) {
-            ignoreWords.append(sep);
-            ignoreWords.append(s);
-            sep = ",";
-        }
-        return ignoreWords.toString();
     }
 
     /**
