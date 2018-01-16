@@ -73,6 +73,8 @@ import java.util.logging.Logger;
 
 public final class UIStarter implements Observer, AddEpisodeListener {
     private static final Logger logger = Logger.getLogger(UIStarter.class.getName());
+    private static final Collator COLLATOR = Collator.getInstance(Locale.getDefault());
+
     private static final int SELECTED_COLUMN = 0;
     private static final int CURRENT_FILE_COLUMN = 1;
     private static final int NEW_FILENAME_COLUMN = 2;
@@ -758,16 +760,15 @@ public final class UIStarter implements Observer, AddEpisodeListener {
     private void sortTable(int position) {
         // Get the items
         TableItem[] items = resultsTable.getItems();
-        Collator collator = Collator.getInstance(Locale.getDefault());
 
-        // Go through the item list and
+        // Go through the item list and bubble rows up to the top as appropriate
         for (int i = 1; i < items.length; i++) {
             String value1 = getResultsTableTextValue(items, i, position);
             for (int j = 0; j < i; j++) {
                 String value2 = getResultsTableTextValue(items, j, position);
                 // Compare the two values and order accordingly
                 if (resultsTable.getSortDirection() == SWT.DOWN) {
-                    if (collator.compare(value1, value2) < 0) {
+                    if (COLLATOR.compare(value1, value2) < 0) {
                         setSortedItem(i, j);
                         // the snippet replaces the items with the new items, we
                         // do the same
@@ -775,7 +776,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
                         break;
                     }
                 } else {
-                    if (collator.compare(value1, value2) > 0) {
+                    if (COLLATOR.compare(value1, value2) > 0) {
                         setSortedItem(i, j);
                         // the snippet replaces the items with the new items, we
                         // do the same
