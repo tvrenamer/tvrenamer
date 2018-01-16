@@ -100,6 +100,16 @@ public class UserPreferences extends Observable {
     }
 
     /**
+     * Save preferences to xml file
+     *
+     * @param prefs the instance to export to XML
+     */
+    public static void store(UserPreferences prefs) {
+        UserPreferencesPersistence.persist(prefs, PREFERENCES_FILE);
+        logger.fine("Successfully saved/updated preferences");
+    }
+
+    /**
      * Deal with legacy files and set up
      */
     private static void initialize() {
@@ -170,16 +180,6 @@ public class UserPreferences extends Observable {
         }
 
         return prefs;
-    }
-
-    /**
-     * Save preferences to xml file
-     *
-     * @param prefs the instance to export to XML
-     */
-    public static void store(UserPreferences prefs) {
-        UserPreferencesPersistence.persist(prefs, PREFERENCES_FILE);
-        logger.fine("Successfully saved/updated preferences");
     }
 
     /**
