@@ -51,16 +51,26 @@ public class EpisodeDb implements Observer {
         return null;
     }
 
-    private FileEpisode add(final String pathname) {
-        Path path = Paths.get(pathname);
+    private FileEpisode createFileEpisode(final Path path) {
         final FileEpisode episode = new FileEpisode(path);
-        episode.setIgnoreReason(ignorableReason(pathname));
+        episode.setIgnoreReason(ignorableReason(path.toString()));
+        if (!episode.wasParsed()) {
+            logger.warning("Couldn't parse file: " + path);
+        }
+        return episode;
+    }
+
+    private FileEpisode createFileEpisode(final Folder parent,
+                                          final Path fileName)
+    {
+        Path path = parent.resolve(fileName);
+        final FileEpisode episode = new FileEpisode(path);
+        episode.setIgnoreReason(ignorableReason(fileName.toString()));
         if (!episode.wasParsed()) {
             // We're putting the episode in the table anyway, but it's
             // not much use.  TODO: make better use of it.
-            logger.warning("Couldn't parse file: " + pathname);
+            logger.warning("Couldn't parse file: " + fileName);
         }
-        put(pathname, episode);
         return episode;
     }
 
@@ -73,6 +83,38 @@ public class EpisodeDb implements Observer {
         // we could still find them, but just know they're not actively
         // in the table.
         return episodes.remove(key);
+    }
+
+    public boolean remove(String key, FileEpisode value) {
+        return episodes.remove(key, value);
+    }
+
+    public boolean replaceKey(String oldKey, FileEpisode ep, String newKey) {
+        if (ep == null) {
+            throw new IllegalStateException("cannot have null value in EpisodeDb!!!");
+        }
+
+        if ((oldKey == null) || (oldKey.length() == 0)) {
+            throw new IllegalStateException("cannot have null key in EpisodeDb!!!");
+        }
+
+        boolean removed = episodes.remove(oldKey, ep);
+        if (!removed) {
+            throw new IllegalStateException("unrecoverable episode DB corruption");
+        }
+
+        FileEpisode oldValue = episodes.put(newKey, ep);
+        // The value returned is the *old* value for the key.  We expect it to be
+        // null.  If it isn't, that means the new key was already mapped to an
+        // episode.  In theory, this could legitimately happen if we rename A to B
+        // and B to A, or any longer such cycle.  But that seems extremely unlikely
+        // with this particular program, so we'll just warn and do nothing about it.
+        if (oldValue != null) {
+            logger.warning("removing episode from db due to new episode at that location: "
+                           + oldValue);
+            return false;
+        }
+        return true;
     }
 
     public FileEpisode get(String key) {
@@ -96,14 +138,29 @@ public class EpisodeDb implements Observer {
     }
 
     private void addFileToQueue(final Queue<FileEpisode> contents,
-                                final Path path)
+                                final Folder parent,
+                                final Path fileName,
+                                final Path realpath)
     {
-        final Path absPath = path.toAbsolutePath();
-        final String key = absPath.toString();
+        final String key = realpath.toString();
         if (episodes.containsKey(key)) {
             logger.info("already in table: " + key);
         } else {
-            FileEpisode ep = add(key);
+            FileEpisode ep = createFileEpisode(parent, fileName);
+            put(key, ep);
+            contents.add(ep);
+        }
+    }
+
+    private void addFileToQueue(final Queue<FileEpisode> contents,
+                                final Path realpath)
+    {
+        final String key = realpath.toString();
+        if (episodes.containsKey(key)) {
+            logger.info("already in table: " + key);
+        } else {
+            FileEpisode ep = createFileEpisode(realpath);
+            put(key, ep);
             contents.add(ep);
         }
     }
@@ -112,45 +169,76 @@ public class EpisodeDb implements Observer {
                                   final Path path)
     {
         if (fileIsVisible(path) && Files.isRegularFile(path)) {
-            addFileToQueue(contents, path);
+            final Folder root = Folder.getFolder(path.getRoot());
+            final Path subpath = root.relativize(path);
+            logger.finer("for " + path + " adding as " + root + ", " + subpath);
+            addFileToQueue(contents, root, subpath, path);
         }
     }
 
     private void addFilesRecursively(final Queue<FileEpisode> contents,
-                                     final Path parent,
-                                     final Path filename)
+                                     final Folder parent,
+                                     final Path fileName)
     {
-        if (parent == null) {
-            logger.warning("cannot add files; parent is null");
-            return;
-        }
-        if (filename == null) {
-            logger.warning("cannot add files; filename is null");
-            return;
-        }
-        final Path fullpath = parent.resolve(filename);
-        if (fileIsVisible(fullpath)) {
-            if (Files.isDirectory(fullpath)) {
-                try (DirectoryStream<Path> files = Files.newDirectoryStream(fullpath)) {
-                    if (files != null) {
-                        // recursive call
-                        files.forEach(pth -> addFilesRecursively(contents,
-                                                                 fullpath,
-                                                                 pth.getFileName()));
-                    }
-                } catch (IOException ioe) {
-                    logger.warning("IO Exception descending " + fullpath);
-                }
-            } else {
-                addFileToQueue(contents, fullpath);
+        final Path resolved = parent.resolve(fileName);
+
+        Path realpath = null;
+        try {
+            realpath = resolved.toRealPath();
+        } catch (IOException ioe) {
+            if (Files.notExists(resolved)) {
+                logger.warning("will not add nonexistent file: " + resolved);
+                return;
             }
+            logger.warning("skipping " + parent + " / " + fileName
+                           + " due to I/O exception");
+            return;
         }
+
+        if (!fileIsVisible(realpath)) {
+            return;
+        }
+
+        if (Files.isDirectory(realpath)) {
+            final Folder folder = Folder.getFolder(realpath);
+            try (DirectoryStream<Path> files = Files.newDirectoryStream(realpath)) {
+                if (files != null) {
+                    // recursive call
+                    files.forEach(p -> addFilesRecursively(contents, folder,
+                                                           p.getFileName()));
+                }
+            } catch (IOException ioe) {
+                logger.warning("IO Exception descending " + realpath);
+            }
+        } else {
+            logger.finer("adding file from " + parent + ":\n  " + fileName);
+            addFileToQueue(contents, parent, fileName, realpath);
+        }
+    }
+
+    /**
+     * Recursively add the given folder to the queue.
+     *
+     * @param folder
+     *     an existing folder
+     */
+    public void addRealPathFolderToQueue(final Folder folder) {
+        Queue<FileEpisode> contents = new ConcurrentLinkedQueue<>();
+        try (DirectoryStream<Path> files = Files.newDirectoryStream(folder.toPath())) {
+            if (files != null) {
+                files.forEach(p -> addFilesRecursively(contents, folder,
+                                                       p.getFileName()));
+            }
+        } catch (IOException ioe) {
+            logger.warning("IO Exception descending " + folder);
+        }
+        publish(contents);
     }
 
     /**
      * Add the given folder to the queue.  This is intended to support the
      * "Add Folder" functionality.  This method itself does only sanity
-     * checking, and if everything's in order, calls addFilesRecursively()
+     * checking, and if everything's in order, calls addRealPathFolderToQueue()
      * to do the actual work.
      *
      * @param pathname the name of a folder
@@ -166,10 +254,34 @@ public class EpisodeDb implements Observer {
             return;
         }
 
-        Queue<FileEpisode> contents = new ConcurrentLinkedQueue<>();
-        final Path path = Paths.get(pathname);
-        addFilesRecursively(contents, path.getParent(), path.getFileName());
-        publish(contents);
+        final Path filepath = Paths.get(pathname);
+        if (filepath == null) {
+            logger.warning("cannot add files; filepath is null");
+            return;
+        }
+
+        Path realpath = null;
+        try {
+            realpath = filepath.toRealPath();
+        } catch (IOException ioe) {
+            if (Files.notExists(filepath)) {
+                logger.warning("will not add nonexistent file: " + filepath);
+                return;
+            }
+            logger.warning("skipping " + pathname + " due to I/O exception");
+            return;
+        }
+
+        if (!fileIsVisible(realpath)) {
+            return;
+        }
+
+        if (!Files.isDirectory(realpath)) {
+            logger.warning("argument to 'add folder' is not a folder");
+        }
+
+        final Folder folder = Folder.getFolder(realpath);
+        addRealPathFolderToQueue(folder);
     }
 
     /**
@@ -206,7 +318,7 @@ public class EpisodeDb implements Observer {
         for (final String fileName : fileNames) {
             final Path path = Paths.get(fileName);
             if (descend) {
-                addFilesRecursively(contents, path.getParent(), path.getFileName());
+                addFilesRecursively(contents, null, path);
             } else {
                 addFileIfVisible(contents, path);
             }
@@ -234,6 +346,7 @@ public class EpisodeDb implements Observer {
             UserPreference userPref = (UserPreference) value;
             if ((userPref == UserPreference.IGNORE_REGEX) && (observable instanceof UserPreferences)) {
                 UserPreferences observed = (UserPreferences) observable;
+                logger.info("looking for new ignorable files");
                 ignoreKeywords = observed.getIgnoreKeywords();
                 for (FileEpisode ep : episodes.values()) {
                     ep.setIgnoreReason(ignorableReason(ep.getFilepath()));

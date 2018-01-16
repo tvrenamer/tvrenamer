@@ -32,6 +32,7 @@ import java.nio.file.Paths;
 public class Constants {
 
     public static final Charset TVR_CHARSET = Charset.forName("UTF-8");
+    public static final Charset TVDB_CHARSET = Charset.forName("ISO-8859-1");
 
     public static final String APPLICATION_NAME = "TVRenamer";
     public static final String ABOUT_LABEL = "About " + APPLICATION_NAME;
@@ -58,6 +59,7 @@ public class Constants {
     public static final String SEND_SUPPORT_EMAIL = "Send support email";
     public static final String SOURCE_CODE_LINK = "Source Code";
 
+    public static final String JSON_SUFFIX = ".json";
     public static final String XML_SUFFIX = ".xml";
     public static final String ICON_PARENT_DIRECTORY = "res";
     public static final String TVRENAMER_ICON_PATH = "/icons/tvrenamer.png";
@@ -65,6 +67,12 @@ public class Constants {
         ICON_PARENT_DIRECTORY + TVRENAMER_ICON_PATH;
     public static final String LOGGING_PROPERTIES = "/logging.properties";
     public static final String DEVELOPER_DEFAULT_OVERRIDES_FILENAME = "etc/default-overrides.xml";
+
+    public static final int DEFAULT_TABLE_HEIGHT = 350;
+    public static final int SELECTED_COLUMN_DEFAULT_WIDTH = 60;
+    public static final int SOURCE_COLUMN_DEFAULT_WIDTH = 550;
+    public static final int DEST_COLUMN_DEFAULT_WIDTH = 550;
+    public static final int STATUS_COLUMN_DEFAULT_WIDTH = 60;
 
     public static final String QUIT_LABEL = "Quit";
     public static final String CANCEL_LABEL = "Cancel";
@@ -178,7 +186,10 @@ public class Constants {
 
     private static final String CONFIGURATION_DIRECTORY_NAME = ".tvrenamer";
     private static final String PREFERENCES_FILENAME = "prefs.xml";
+    private static final String APPDATA_FILENAME = "appdata.xml";
     private static final String OVERRIDES_FILENAME = "overrides.xml";
+    private static final String TVDB_DOWNLOAD_DIRNAME = "thetvdb";
+    private static final String LEGACY_TVDB_DL_DIRNAME = "v1tvdb";
 
     public static final Path WORKING_DIRECTORY = Paths.get(Environment.USER_DIR);
     public static final Path TMP_DIR = Paths.get(Environment.TMP_DIR_NAME);
@@ -187,7 +198,10 @@ public class Constants {
     public static final Path DEFAULT_DESTINATION_DIRECTORY = USER_HOME_DIR.resolve("TV");
     public static final Path CONFIGURATION_DIRECTORY = USER_HOME_DIR.resolve(CONFIGURATION_DIRECTORY_NAME);
     public static final Path PREFERENCES_FILE = CONFIGURATION_DIRECTORY.resolve(PREFERENCES_FILENAME);
+    public static final Path APPDATA_FILE = CONFIGURATION_DIRECTORY.resolve(APPDATA_FILENAME);
     public static final Path OVERRIDES_FILE = CONFIGURATION_DIRECTORY.resolve(OVERRIDES_FILENAME);
+    public static final Path THE_TVDB_DL_DIR = CONFIGURATION_DIRECTORY.resolve(TVDB_DOWNLOAD_DIRNAME);
+    public static final Path LEGACY_TVDB_DIR = CONFIGURATION_DIRECTORY.resolve(LEGACY_TVDB_DL_DIRNAME);
 
     public static final Path PREFERENCES_FILE_LEGACY = USER_HOME_DIR.resolve("tvrenamer.preferences");
     public static final Path OVERRIDES_FILE_LEGACY = USER_HOME_DIR.resolve(".tvrenameroverrides");

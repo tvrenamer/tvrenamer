@@ -1,5 +1,5 @@
 /**
- * TheTVDBProviderTest -- test the code's ability to fetch information from thetvdb.com.
+ * TheTVDBSwaggerProviderTest -- test the code's ability to fetch information from thetvdb.com.
  *
  * This is kind of an unreliable thing to try to do.  We're depending on "correctly"
  * receiving information that we have no control over.  The database we're querying
@@ -44,7 +44,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class TheTVDBProviderTest {
+public class TheTVDBSwaggerProviderTest {
 
     private static final String API_DISCONTINUED_NAME = "api_dead";
 
@@ -176,7 +176,7 @@ public class TheTVDBProviderTest {
 
         if (best == null) {
             try {
-                TheTVDBProvider.getShowOptions(showName);
+                TheTVDBSwaggerProvider.getSeriesOptions(showName);
             } catch (DiscontinuedApiException api) {
                 fail("API deprecation discovered getting show options for " + queryString);
             } catch (Exception e) {
@@ -203,12 +203,10 @@ public class TheTVDBProviderTest {
             series.setPreferDvd(epdata.preferDvd);
         }
         if (!series.hasEpisodes()) {
-            TheTVDBProvider.getSeriesListing(series);
+            TheTVDBSwaggerProvider.getSeriesListing(series);
         }
 
-        final EpisodePlacement placement = new EpisodePlacement(epdata.seasonNum, epdata.episodeNum);
-        final List<Episode> allEps = series.getEpisodes(placement);
-        final Episode ep = allEps.get(0);
+        final Episode ep = series.getEpisode(new EpisodePlacement(epdata.seasonNum, epdata.episodeNum));
         if (ep == null) {
             fail("result of calling getEpisode(" + epdata.seasonNum + ", " + epdata.episodeNum
                  + ") on " + actualName + " came back null");
@@ -245,8 +243,7 @@ public class TheTVDBProviderTest {
      * to download a lot of data by choosing a series with just one season.
      *
      */
-    // @Test
-    @SuppressWarnings("unused")
+    @Test
     public void testGetShowOptionsAndListings() throws Exception {
         testSeriesNameAndEpisodeTitle(new EpisodeTestData.Builder()
                                       .properShowName("Quintuplets")
@@ -353,8 +350,7 @@ public class TheTVDBProviderTest {
      * So this test is intended to verify that the bug is fixed, and check
      * that we don't regress.
      */
-    // @Test
-    @SuppressWarnings("unused")
+    @Test
     public void testSeasonMatchesEpisode() throws Exception {
         final String dvdTitle = "The Why of Fry";
         final String airedTitle = "A Leela of Her Own";
@@ -1100,7 +1096,8 @@ public class TheTVDBProviderTest {
                    .build());
     }
 
-    @BeforeClass
+    // @BeforeClass
+    @SuppressWarnings("unused")
     public static void setupValues65() {
         values.add(new EpisodeTestData.Builder()
                    .queryString("channel zero")
@@ -1136,7 +1133,7 @@ public class TheTVDBProviderTest {
         try {
             final CompletableFuture<ShowOption> futureShow = new CompletableFuture<>();
             ShowStore.getShow(queryString, new ShowDownloader(futureShow));
-            ShowOption gotShow = futureShow.get(4, TimeUnit.SECONDS);
+            ShowOption gotShow = futureShow.get(8, TimeUnit.SECONDS);
             if (API_DISCONTINUED_NAME.equals(gotShow.getName())) {
                 fail("API apparently discontinued parsing " + queryString);
                 return null;
@@ -1165,8 +1162,7 @@ public class TheTVDBProviderTest {
         }
     }
 
-    // @Test
-    @SuppressWarnings("unused")
+    @Test
     public void testGetEpisodeTitle() {
         for (EpisodeTestData testInput : values) {
             if (testInput.episodeTitle != null) {

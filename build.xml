@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--suppress ALL -->
 <project name="TVRenamer build script" default="usage"
          xmlns:ivy="antlib:org.apache.ivy.ant">
 
@@ -46,6 +47,9 @@
       <include name="xmlpull-*.jar" />
       <include name="xpp3_min*.jar" />
       <include name="commons-codec-*.jar" />
+      <include name="moshi-*.jar" />
+      <include name="okhttp-*.jar" />
+      <include name="okio-*.jar" />
     </fileset>
   </path>
 
