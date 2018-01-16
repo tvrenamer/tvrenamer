@@ -54,8 +54,8 @@ public final class UIStarter {
             Monitor primary = display.getPrimaryMonitor();
             Rectangle bounds = primary.getBounds();
             Rectangle rect = shell.getBounds();
-            int x = bounds.x + (bounds.width - rect.width) / 2;
-            int y = bounds.y + (bounds.height - rect.height) / 2;
+            int x = bounds.x + (bounds.width - rect.width) - 5;
+            int y = bounds.y + (bounds.height - rect.height) - 35;
             shell.setLocation(x, y);
 
             // Start the shell
