@@ -80,18 +80,28 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     private static final int STATUS_COLUMN = 3;
     private static final int ITEM_NOT_IN_TABLE = -1;
 
-    private Shell shell;
-    private Display display;
+    private final UIStarter ui;
+    private final Shell shell;
+    private final Display display;
+    private final Table resultsTable;
+    private final Image appIcon;
+    private final EpisodeDb episodeMap = new EpisodeDb();
 
     private Button actionButton;
-    private Table resultsTable;
     private ProgressBar totalProgressBar;
-    private Image appIcon = null;
     private TaskItem taskItem = null;
 
     private boolean apiDeprecated = false;
 
-    private final EpisodeDb episodeMap = new EpisodeDb();
+    void ready() {
+        prefs.addObserver(this);
+        resultsTable.setFocus();
+
+        // Load the preload folder into the episode map, which will call
+        // us back with the list of files once they've been loaded.
+        episodeMap.subscribe(this);
+        episodeMap.preload();
+    }
 
     private void setupUpdateStuff(final Composite parentComposite) {
         Link updatesAvailableLink = new Link(parentComposite, SWT.VERTICAL);
@@ -109,8 +119,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     }
 
     private void quit() {
-        shell.dispose();
-        display.dispose();
+        ui.uiCleanup();
     }
 
     private int getTableItemIndex(TableItem item) {
@@ -239,6 +248,8 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                 taskItem = taskBar.getItem(null);
             }
         }
+
+        setAppIcon();
     }
 
     private void makeMenuItem(Menu parent, String text, Listener listener, char shortcut) {
@@ -442,21 +453,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                 }
             }
         });
-    }
-
-    private void setupIcons() {
-        try {
-            InputStream icon = getClass().getResourceAsStream(TVRENAMER_ICON_PATH);
-            if (icon != null) {
-                appIcon = new Image(display, icon);
-            } else {
-                appIcon = new Image(display, TVRENAMER_ICON_DIRECT_PATH);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        setAppIcon();
     }
 
     Display getDisplay() {
@@ -840,5 +836,32 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
             updateUserPreferences((UserPreferences) observable,
                                   (UserPreference) value);
         }
+    }
+
+    private Image getAppIcon() {
+        try {
+            InputStream icon = getClass().getResourceAsStream(TVRENAMER_ICON_PATH);
+            if (icon != null) {
+                return new Image(display, icon);
+            } else {
+                return new Image(display, TVRENAMER_ICON_DIRECT_PATH);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    ResultsTable(UIStarter ui) {
+        this.ui = ui;
+        this.shell = ui.shell;
+        this.display = ui.display;
+        appIcon = getAppIcon();
+
+        setupTopButtons();
+        resultsTable = new Table(shell, SWT.CHECK | SWT.FULL_SELECTION | SWT.MULTI);
+        setupMainWindow();
+        setupMenuBar();
     }
 }

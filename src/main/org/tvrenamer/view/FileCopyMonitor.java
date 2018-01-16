@@ -11,7 +11,7 @@ import java.text.NumberFormat;
 public class FileCopyMonitor implements ProgressObserver {
     private final NumberFormat format = NumberFormat.getPercentInstance();
 
-    private final UIStarter ui;
+    private final ResultsTable ui;
     private final TableItem item;
     private final Display display;
     private Label label = null;
@@ -21,10 +21,10 @@ public class FileCopyMonitor implements ProgressObserver {
     /**
      * Creates the monitor, with the label and the display.
      *
-     * @param ui - the UIStarter instance
+     * @param ui - the ResultsTable instance
      * @param item - the TableItem to monitor
      */
-    public FileCopyMonitor(UIStarter ui, TableItem item) {
+    public FileCopyMonitor(ResultsTable ui, TableItem item) {
         this.ui = ui;
         this.item = item;
         display = ui.getDisplay();
