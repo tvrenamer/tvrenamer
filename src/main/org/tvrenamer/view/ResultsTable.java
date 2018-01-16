@@ -76,6 +76,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     private static final int STATUS_COLUMN = 3;
     private static final int ITEM_NOT_IN_TABLE = -1;
 
+    private final UIStarter ui;
     private Shell shell;
     private Display display;
     private List<String> ignoreKeywords;
@@ -93,6 +94,16 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
 
     private final EpisodeDb episodeMap = new EpisodeDb();
 
+    void ready() {
+        prefs.addObserver(this);
+        resultsTable.setFocus();
+
+        // Load the preload folder into the episode map, which will call
+        // us back with the list of files once they've been loaded.
+        episodeMap.subscribe(this);
+        episodeMap.preload();
+    }
+
     private void setupUpdateStuff(final Composite parentComposite) {
         Link updatesAvailableLink = new Link(parentComposite, SWT.VERTICAL);
         // updatesAvailableLink.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, true));
@@ -106,6 +117,10 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                 display.asyncExec(() -> updatesAvailableLink.setVisible(true));
             }
         });
+    }
+
+    private void quit() {
+        ui.uiCleanup();
     }
 
     private void setupMainWindow() {
@@ -164,7 +179,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         quitButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                uiCleanup();
+                quit();
             }
         });
     }
@@ -182,7 +197,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
 
         Listener preferencesListener = e -> showPreferencesPane();
         Listener aboutListener = e -> showAboutPane();
-        Listener quitListener = e -> uiCleanup();
+        Listener quitListener = e -> quit();
 
         if (Environment.IS_MAC_OSX) {
             // Add the special Mac OSX Preferences, About and Quit menus.
@@ -787,5 +802,17 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     private void showAboutPane() {
         AboutDialog aboutDialog = new AboutDialog(shell);
         aboutDialog.open();
+    }
+
+    ResultsTable(UIStarter ui) {
+        this.ui = ui;
+        this.shell = ui.shell;
+        this.display = ui.display;
+        prefs = UserPreferences.getInstance();
+
+        setupMainWindow();
+        setupAddFilesDialog();
+        setupClearFilesButton();
+        setupMenuBar();
     }
 }
