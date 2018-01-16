@@ -9,13 +9,13 @@ import org.tvrenamer.model.ProgressUpdater;
 
 public class ProgressBarUpdater implements ProgressUpdater {
 
-    private final UIStarter ui;
+    private final ResultsTable ui;
     private final Display display;
     private final TaskItem taskItem;
     private final ProgressBar progressBar;
     private final int barSize;
 
-    public ProgressBarUpdater(UIStarter ui) {
+    public ProgressBarUpdater(ResultsTable ui) {
         this.ui = ui;
         this.display = ui.getDisplay();
         this.taskItem = ui.getTaskItem();

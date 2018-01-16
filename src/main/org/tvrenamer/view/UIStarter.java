@@ -61,6 +61,7 @@ public final class UIStarter {
             // Start the shell
             shell.pack();
             shell.open();
+            resultsTable.ready();
 
             while (!shell.isDisposed()) {
                 if (!display.readAndDispatch()) {
