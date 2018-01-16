@@ -18,7 +18,6 @@ import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
@@ -33,7 +32,6 @@ import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
@@ -68,11 +66,10 @@ import java.util.Locale;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Queue;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public final class UIStarter implements Observer, AddEpisodeListener {
-    private static final Logger logger = Logger.getLogger(UIStarter.class.getName());
+public final class ResultsTable implements Observer, AddEpisodeListener {
+    private static final Logger logger = Logger.getLogger(ResultsTable.class.getName());
     // load preferences
     private static final UserPreferences prefs = UserPreferences.getInstance();
     private static final Collator COLLATOR = Collator.getInstance(Locale.getDefault());
@@ -95,34 +92,6 @@ public final class UIStarter implements Observer, AddEpisodeListener {
     private boolean apiDeprecated = false;
 
     private final EpisodeDb episodeMap = new EpisodeDb();
-
-    private void init() {
-        prefs.addObserver(this);
-
-        // Setup display and shell
-        GridLayout shellGridLayout = new GridLayout(3, false);
-        Display.setAppName(APPLICATION_NAME);
-        display = new Display();
-
-        shell = new Shell(display);
-
-        shell.setText(APPLICATION_NAME);
-        shell.setLayout(shellGridLayout);
-
-        // Setup the util class
-        UIUtils.setShell(shell);
-        UIUtils.checkDestinationDirectory();
-
-        // Add controls to main shell
-        setupTopButtons();
-        resultsTable = new Table(shell, SWT.CHECK | SWT.FULL_SELECTION | SWT.MULTI);
-        setupMainWindow();
-        setupMenuBar();
-
-        setupIcons();
-
-        shell.pack(true);
-    }
 
     private void setupUpdateStuff(final Composite parentComposite) {
         Link updatesAvailableLink = new Link(parentComposite, SWT.VERTICAL);
@@ -500,46 +469,6 @@ public final class UIStarter implements Observer, AddEpisodeListener {
 
     TaskItem getTaskItem() {
         return taskItem;
-    }
-
-    private int launch() {
-        try {
-            // place the window in the centre of the primary monitor
-            Monitor primary = display.getPrimaryMonitor();
-            Rectangle bounds = primary.getBounds();
-            Rectangle rect = shell.getBounds();
-            int x = bounds.x + (bounds.width - rect.width) / 2;
-            int y = bounds.y + (bounds.height - rect.height) / 2;
-            shell.setLocation(x, y);
-
-            // Start the shell
-            shell.pack();
-            shell.open();
-            resultsTable.setFocus();
-
-            // Load the preload folder into the episode map, which will call
-            // us back with the list of files once they've been loaded.
-            episodeMap.subscribe(this);
-            episodeMap.preload();
-
-            while (!shell.isDisposed()) {
-                if (!display.readAndDispatch()) {
-                    display.sleep();
-                }
-            }
-            return 0;
-        } catch (Exception exception) {
-            showMessageBox(SWTMessageBoxType.ERROR, ERROR_LABEL, UNKNOWN_EXCEPTION, exception);
-            logger.log(Level.SEVERE, UNKNOWN_EXCEPTION, exception);
-            return 1;
-        }
-    }
-
-    public int run() {
-        init();
-        int rval = launch();
-        quit();
-        return rval;
     }
 
     /**
