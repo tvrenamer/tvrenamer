@@ -32,10 +32,12 @@ import org.eclipse.swt.widgets.Text;
 import org.tvrenamer.model.ReplacementToken;
 import org.tvrenamer.model.UserPreferences;
 
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 class PreferencesDialog extends Dialog {
+    private static final Logger logger = Logger.getLogger(PreferencesDialog.class.getName());
 
     private static final int DND_OPERATIONS = DND.DROP_MOVE;
 
@@ -260,15 +262,6 @@ class PreferencesDialog extends Dialog {
                                                          prefs.isSeasonPrefixLeadingZero(),
                                                          generalGroup, GridData.BEGINNING, 3);
 
-        toggleEnableControls(moveEnabledCheckbox, destDirText, destDirButton, seasonPrefixText);
-
-        moveEnabledCheckbox.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                toggleEnableControls(moveEnabledCheckbox, destDirText,
-                                     destDirButton, seasonPrefixText);
-            }
-        });
         createLabel(IGNORE_LABEL_TEXT, IGNORE_LABEL_TOOLTIP, generalGroup);
         ignoreWordsText = createText(prefs.getIgnoredKeywordsString(), generalGroup, false);
 
@@ -278,6 +271,15 @@ class PreferencesDialog extends Dialog {
         checkForUpdatesCheckbox = createCheckbox(CHECK_UPDATES_TEXT, CHECK_UPDATES_TOOLTIP,
                                                  prefs.checkForUpdates(), generalGroup,
                                                  GridData.BEGINNING, 3);
+
+        toggleEnableControls(moveEnabledCheckbox, destDirText, destDirButton, seasonPrefixText);
+        moveEnabledCheckbox.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                toggleEnableControls(moveEnabledCheckbox, destDirText,
+                                     destDirButton, seasonPrefixText);
+            }
+        });
     }
 
     private void createGeneralTab(final TabFolder tabFolder) {
@@ -400,15 +402,17 @@ class PreferencesDialog extends Dialog {
      */
     private void savePreferences() {
         // Update the preferences object from the UI control values
-        prefs.setMoveEnabled(moveEnabledCheckbox.getSelection());
         prefs.setSeasonPrefix(seasonPrefixText.getText());
         prefs.setSeasonPrefixLeadingZero(seasonPrefixLeadingZeroCheckbox.getSelection());
         prefs.setRenameReplacementString(replacementStringText.getText());
         prefs.setIgnoreKeywords(ignoreWordsText.getText());
-        prefs.setRenameEnabled(renameEnabledCheckbox.getSelection());
         prefs.setCheckForUpdates(checkForUpdatesCheckbox.getSelection());
         prefs.setRecursivelyAddFolders(recurseFoldersCheckbox.getSelection());
         prefs.setDestinationDirectory(destDirText.getText());
+
+        boolean isRenameEnabled = renameEnabledCheckbox.getSelection();
+        prefs.setMoveEnabled(moveEnabledCheckbox.getSelection());
+        prefs.setRenameEnabled(isRenameEnabled);
 
         UIUtils.checkDestinationDirectory(prefs);
 
