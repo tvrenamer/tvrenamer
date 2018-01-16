@@ -94,6 +94,9 @@ public class Constants {
     public static final String RECURSE_FOLDERS_TEXT = "Recursively add shows in subdirectories [?]";
     public static final String RECURSE_FOLDERS_TOOLTIP = "If unchecked, do not look into subfolders "
         + "for shows to add";
+    public static final String REMOVE_EMPTIED_TEXT = "Remove emptied directories [?]";
+    public static final String REMOVE_EMPTIED_TOOLTIP = "When selected, directories which become empty "
+        + "due to file movement will be deleted.";
     public static final String CHECK_UPDATES_TEXT = "Check for Updates at startup [?]";
     public static final String CHECK_UPDATES_TOOLTIP = "If checked, will automatically check "
         + APPLICATION_NAME + " website for new versions at startup, and offer to update if found";
