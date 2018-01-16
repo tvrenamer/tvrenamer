@@ -75,6 +75,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
     private static final Logger logger = Logger.getLogger(UIStarter.class.getName());
     // load preferences
     private static final UserPreferences prefs = UserPreferences.getInstance();
+    private static final Collator COLLATOR = Collator.getInstance(Locale.getDefault());
 
     private static final int CHECKBOX_COLUMN = 0;
     private static final int CURRENT_FILE_COLUMN = 1;
@@ -765,7 +766,6 @@ public final class UIStarter implements Observer, AddEpisodeListener {
     {
         // Get the items
         TableItem[] items = resultsTable.getItems();
-        Collator collator = Collator.getInstance(Locale.getDefault());
 
         // Go through the item list and bubble rows up to the top as appropriate
         for (int i = 1; i < items.length; i++) {
@@ -773,7 +773,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
             for (int j = 0; j < i; j++) {
                 String value2 = getItemTextValue(items[j], columnNum);
                 // Compare the two values and order accordingly
-                int comparison = collator.compare(value1, value2);
+                int comparison = COLLATOR.compare(value1, value2);
                 if (((comparison < 0) && (sortDirection == SWT.UP))
                     || (comparison > 0) && (sortDirection == SWT.DOWN))
                 {
