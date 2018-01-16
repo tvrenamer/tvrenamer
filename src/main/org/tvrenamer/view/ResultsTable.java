@@ -77,22 +77,21 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     private static final int ITEM_NOT_IN_TABLE = -1;
 
     private final UIStarter ui;
-    private Shell shell;
-    private Display display;
-    private List<String> ignoreKeywords;
+    private final Shell shell;
+    private final Display display;
+    private final EpisodeDb episodeMap = new EpisodeDb();
+    private final UserPreferences prefs = UserPreferences.getInstance();
 
+    private Table resultsTable;
+    private Button renameSelectedButton;
+    private ProgressBar totalProgressBar;
+    private TaskItem taskItem = null;
     private Button addFilesButton;
     private Button addFolderButton;
     private Button clearFilesButton;
-    private Button renameSelectedButton;
-    private Table resultsTable;
-    private ProgressBar totalProgressBar;
-    private TaskItem taskItem = null;
 
-    private UserPreferences prefs;
+    private List<String> ignoreKeywords;
     private boolean apiDeprecated = false;
-
-    private final EpisodeDb episodeMap = new EpisodeDb();
 
     void ready() {
         prefs.addObserver(this);
@@ -808,7 +807,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         this.ui = ui;
         this.shell = ui.shell;
         this.display = ui.display;
-        prefs = UserPreferences.getInstance();
 
         setupMainWindow();
         setupAddFilesDialog();
