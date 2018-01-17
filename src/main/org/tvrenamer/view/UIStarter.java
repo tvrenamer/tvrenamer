@@ -73,6 +73,9 @@ import java.util.logging.Logger;
 
 public final class UIStarter implements Observer, AddEpisodeListener {
     private static final Logger logger = Logger.getLogger(UIStarter.class.getName());
+    // load preferences
+    private static final UserPreferences prefs = UserPreferences.getInstance();
+
     private static final int SELECTED_COLUMN = 0;
     private static final int CURRENT_FILE_COLUMN = 1;
     private static final int NEW_FILENAME_COLUMN = 2;
@@ -91,14 +94,11 @@ public final class UIStarter implements Observer, AddEpisodeListener {
     private ProgressBar totalProgressBar;
     private TaskItem taskItem = null;
 
-    private UserPreferences prefs;
     private boolean apiDeprecated = false;
 
     private final EpisodeDb episodeMap = new EpisodeDb();
 
     private void init() {
-        // load preferences
-        prefs = UserPreferences.getInstance();
         prefs.addObserver(this);
 
         // Setup display and shell
