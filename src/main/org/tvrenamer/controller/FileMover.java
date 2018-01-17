@@ -20,12 +20,12 @@ import java.util.logging.Logger;
 
 public class FileMover implements Callable<Boolean> {
     private static final Logger logger = Logger.getLogger(FileMover.class.getName());
+    private static final UserPreferences userPrefs = UserPreferences.getInstance();
 
     private final FileEpisode episode;
     private final Path destRoot;
     private final String destBasename;
     private final String destSuffix;
-    private final UserPreferences userPrefs = UserPreferences.getInstance();
     private ProgressObserver observer = null;
     Integer destIndex = null;
 

@@ -69,6 +69,7 @@ import java.util.logging.Logger;
 
 public final class ResultsTable implements Observer, AddEpisodeListener {
     private static final Logger logger = Logger.getLogger(ResultsTable.class.getName());
+    private static final UserPreferences prefs = UserPreferences.getInstance();
     private static final Collator COLLATOR = Collator.getInstance(Locale.getDefault());
 
     private static final int SELECTED_COLUMN = 0;
@@ -82,7 +83,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     private final Display display;
     private final Table swtTable;
     private final EpisodeDb episodeMap = new EpisodeDb();
-    private final UserPreferences prefs = UserPreferences.getInstance();
 
     private Button renameSelectedButton;
     private ProgressBar totalProgressBar;
