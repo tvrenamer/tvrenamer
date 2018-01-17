@@ -92,6 +92,10 @@ public class FileEpisode {
     // "The One With The Thanksgiving Flashbacks (a.k.a. The One With All The Thanksgivings)"
     private static final int MAX_TITLE_LENGTH = 85;
 
+    // This class actually figures out the proposed new name for the file, so we need
+    // a link to the user preferences to know how the user wants the file renamed.
+    private static final UserPreferences userPrefs = UserPreferences.getInstance();
+
     // This is the one final field in this class; it's the one thing that should never
     // change in a FileEpisode.  It could be the empty string (though it would be unusual).
     // If the file does actually have a suffix, this variable *includes* the leading dot.
@@ -138,10 +142,6 @@ public class FileEpisode {
     // Once we have the listings, we should be able to map this instance to an Episode.
     private List<Episode> actualEpisodes = null;
     private int chosenEpisode = 0;
-
-    // This class actually figures out the proposed new name for the file, so we need
-    // a link to the user preferences to know how the user wants the file renamed.
-    private final UserPreferences userPrefs = UserPreferences.getInstance();
 
     // The state of this object, not the state of the actual TV episode.
     private ParseStatus parseStatus = ParseStatus.UNPARSED;
