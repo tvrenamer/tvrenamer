@@ -283,8 +283,14 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         Menu menuBarMenu = new Menu(shell, SWT.BAR);
         Menu helpMenu;
 
-        Listener preferencesListener = e -> showPreferencesPane();
-        Listener aboutListener = e -> showAboutPane();
+        Listener preferencesListener = e -> {
+            PreferencesDialog preferencesDialog = new PreferencesDialog(shell);
+            preferencesDialog.open();
+        };
+        Listener aboutListener = e -> {
+            AboutDialog aboutDialog = new AboutDialog(shell);
+            aboutDialog.open();
+        };
         Listener quitListener = e -> quit();
 
         if (Environment.IS_MAC_OSX) {
@@ -900,18 +906,5 @@ public final class UIStarter implements Observer, AddEpisodeListener {
             updateUserPreferences((UserPreferences) observable,
                                   (UserPreference) value);
         }
-    }
-
-    private void showPreferencesPane() {
-        PreferencesDialog preferencesDialog = new PreferencesDialog(shell);
-        preferencesDialog.open();
-    }
-
-    /**
-     * Create the 'About' dialog.
-     */
-    private void showAboutPane() {
-        AboutDialog aboutDialog = new AboutDialog(shell);
-        aboutDialog.open();
     }
 }
