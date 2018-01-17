@@ -19,9 +19,9 @@ import java.util.logging.Logger;
 public class EpisodeDb implements Observer {
 
     private static final Logger logger = Logger.getLogger(EpisodeDb.class.getName());
+    private static final UserPreferences prefs = UserPreferences.getInstance();
 
     private final Map<String, FileEpisode> episodes = new ConcurrentHashMap<>(1000);
-    private final UserPreferences prefs = UserPreferences.getInstance();
     private List<String> ignoreKeywords = prefs.getIgnoreKeywords();
 
     public EpisodeDb() {
