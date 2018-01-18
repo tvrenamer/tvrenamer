@@ -113,7 +113,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
 
         // Setup the util class
         UIUtils.setShell(shell);
-        UIUtils.checkDestinationDirectory(prefs);
+        UIUtils.checkDestinationDirectory();
 
         // Add controls to main shell
         setupMainWindow();
@@ -857,7 +857,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         }
 
         if (userPref == UserPreference.DEST_DIR) {
-            UIUtils.checkDestinationDirectory(observed);
+            UIUtils.checkDestinationDirectory();
         }
     }
 
