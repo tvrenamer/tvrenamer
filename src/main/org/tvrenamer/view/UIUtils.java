@@ -21,6 +21,7 @@ import javax.swing.JOptionPane;
 
 class UIUtils {
     private static final Logger logger = Logger.getLogger(UIUtils.class.getName());
+    private static final UserPreferences prefs = UserPreferences.getInstance();
 
     private static Shell shell = null;
 
@@ -122,7 +123,7 @@ class UIUtils {
         return rval;
     }
 
-    public static void checkDestinationDirectory(UserPreferences prefs) {
+    public static void checkDestinationDirectory() {
         boolean success = prefs.ensureDestDir();
         if (!success) {
             logger.warning(CANT_CREATE_DEST);

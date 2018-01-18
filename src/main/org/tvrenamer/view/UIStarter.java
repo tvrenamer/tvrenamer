@@ -11,7 +11,6 @@ import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 
 import org.tvrenamer.model.SWTMessageBoxType;
-import org.tvrenamer.model.UserPreferences;
 
 import java.io.InputStream;
 import java.util.logging.Level;
@@ -56,7 +55,7 @@ public final class UIStarter {
 
         // Setup the util class
         UIUtils.setShell(shell);
-        UIUtils.checkDestinationDirectory(UserPreferences.getInstance());
+        UIUtils.checkDestinationDirectory();
 
         // Create the main window
         resultsTable = new ResultsTable(this);
