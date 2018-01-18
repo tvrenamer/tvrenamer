@@ -188,7 +188,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         }
     }
 
-    private void setRenameButtonText(Button b) {
+    private void setRenameButtonText(final Button b) {
         String label = RENAME_LABEL;
         String tooltip = RENAME_TOOLTIP;
 
@@ -214,7 +214,9 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         shell.layout(false, true);
     }
 
-    private void updateUserPreferences(UserPreferences observed, UserPreference userPref) {
+    private void updateUserPreferences(final UserPreferences observed,
+                                       final UserPreference userPref)
+    {
         logger.info("Preference change event: " + userPref);
 
         if ((userPref == UserPreference.MOVE_ENABLED)
@@ -242,14 +244,16 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
      * @see java.util.Observer#update(java.util.Observable, java.lang.Object)
      */
     @Override
-    public void update(Observable observable, Object value) {
+    public void update(final Observable observable, final Object value) {
         if (observable instanceof UserPreferences && value instanceof UserPreference) {
             updateUserPreferences((UserPreferences) observable,
                                   (UserPreference) value);
         }
     }
 
-    private TableItem createTableItem(Table tblResults, String fileName, FileEpisode episode) {
+    private TableItem createTableItem(final Table tblResults, final String fileName,
+                                      final FileEpisode episode)
+    {
         TableItem item = new TableItem(tblResults, SWT.NONE);
 
         // Initially we add items to the table unchecked.  When we successfully obtain enough
@@ -262,7 +266,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         return item;
     }
 
-    private int getTableItemIndex(TableItem item) {
+    private int getTableItemIndex(final TableItem item) {
         try {
             return swtTable.indexOf(item);
         } catch (IllegalArgumentException | SWTException ignored) {
@@ -271,16 +275,16 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         return ITEM_NOT_IN_TABLE;
     }
 
-    private boolean tableContainsTableItem(TableItem item) {
+    private boolean tableContainsTableItem(final TableItem item) {
         return (ITEM_NOT_IN_TABLE != getTableItemIndex(item));
     }
 
-    private void failTableItem(TableItem item) {
+    private void failTableItem(final TableItem item) {
         item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
         item.setChecked(false);
     }
 
-    private void listingsDownloaded(TableItem item, FileEpisode episode) {
+    private void listingsDownloaded(final TableItem item, final FileEpisode episode) {
         boolean epFound = episode.listingsComplete();
         display.asyncExec(() -> {
             if (tableContainsTableItem(item)) {
@@ -295,7 +299,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         });
     }
 
-    private void listingsFailed(TableItem item, FileEpisode episode, Exception err) {
+    private void listingsFailed(final TableItem item, final FileEpisode episode, final Exception err) {
         episode.listingsFailed(err);
         display.asyncExec(() -> {
             if (tableContainsTableItem(item)) {
@@ -305,7 +309,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         });
     }
 
-    private void tableItemFailed(TableItem item, FileEpisode episode) {
+    private void tableItemFailed(final TableItem item, final FileEpisode episode) {
         display.asyncExec(() -> {
             if (tableContainsTableItem(item)) {
                 setProposedDestColumn(item, episode);
@@ -314,7 +318,9 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         });
     }
 
-    private void getSeriesListings(Series series, TableItem item, FileEpisode episode) {
+    private void getSeriesListings(final Series series, final TableItem item,
+                                   final FileEpisode episode)
+    {
         series.addListingsListener(new ShowListingsListener() {
                 @Override
                 public void listingsDownloadComplete() {
@@ -339,7 +345,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     }
 
     @Override
-    public void addEpisodes(Queue<FileEpisode> episodes) {
+    public void addEpisodes(final Queue<FileEpisode> episodes) {
         for (final FileEpisode episode : episodes) {
             final String fileName = episode.getFilepath();
             final TableItem item = createTableItem(swtTable, fileName, episode);
@@ -390,7 +396,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         }
     }
 
-    public Label getProgressLabel(TableItem item) {
+    public Label getProgressLabel(final TableItem item) {
         Label progressLabel = new Label(swtTable, SWT.SHADOW_NONE | SWT.CENTER);
         TableEditor editor = new TableEditor(swtTable);
         editor.grabHorizontal = true;
@@ -499,7 +505,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
      * @param column
      *    the TableColumn to sort by
      */
-    private void sortTable(TableColumn column) {
+    private void sortTable(final TableColumn column) {
         final int columnNum = swtTable.indexOf(column);
         if (ITEM_NOT_IN_TABLE == columnNum) {
             logger.severe("unable to locate column in table: " + column);
@@ -798,14 +804,16 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         }
     }
 
-    private void makeMenuItem(Menu parent, String text, Listener listener, char shortcut) {
+    private void makeMenuItem(final Menu parent, final String text,
+                              final Listener listener, final char shortcut)
+    {
         MenuItem newItem = new MenuItem(parent, SWT.PUSH);
         newItem.setText(text + "\tCtrl+" + shortcut);
         newItem.addListener(SWT.Selection, listener);
         newItem.setAccelerator(SWT.CONTROL | shortcut);
     }
 
-    private Menu setupHelpMenuBar(Menu menuBar) {
+    private Menu setupHelpMenuBar(final Menu menuBar) {
         MenuItem helpMenuHeader = new MenuItem(menuBar, SWT.CASCADE);
         helpMenuHeader.setText("Help");
 
@@ -864,7 +872,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         shell.setMenuBar(menuBarMenu);
     }
 
-    ResultsTable(UIStarter ui) {
+    ResultsTable(final UIStarter ui) {
         this.ui = ui;
         this.shell = ui.shell;
         this.display = ui.display;
