@@ -38,6 +38,7 @@ import java.util.regex.Pattern;
 
 class PreferencesDialog extends Dialog {
     private static final Logger logger = Logger.getLogger(PreferencesDialog.class.getName());
+    private static final UserPreferences prefs = UserPreferences.getInstance();
 
     private static final int DND_OPERATIONS = DND.DROP_MOVE;
 
@@ -116,8 +117,6 @@ class PreferencesDialog extends Dialog {
         }
     }
 
-    private final UserPreferences prefs;
-
     // The controls to save
     private Button moveEnabledCheckbox;
     private Button renameEnabledCheckbox;
@@ -140,7 +139,6 @@ class PreferencesDialog extends Dialog {
      */
     public PreferencesDialog(Shell parent) {
         super(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
-        this.prefs = UserPreferences.getInstance();
     }
 
     public void open() {
@@ -479,7 +477,7 @@ class PreferencesDialog extends Dialog {
             prefs.setMoveEnabled(false);
         }
 
-        UIUtils.checkDestinationDirectory(prefs);
+        UIUtils.checkDestinationDirectory();
 
         UserPreferences.store(prefs);
     }
