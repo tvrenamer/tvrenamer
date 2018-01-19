@@ -164,10 +164,8 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         int nOptions = ep.optionCount();
         if (nOptions > 1) {
             setComboBoxProposedDest(item, ep);
-            item.setChecked(true);
         } else if (nOptions == 1) {
             item.setText(NEW_FILENAME_COLUMN, ep.getReplacementText());
-            item.setChecked(true);
         } else {
             item.setText(NEW_FILENAME_COLUMN, ep.getReplacementText());
             item.setChecked(false);
@@ -294,6 +292,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                 setProposedDestColumn(item, episode);
                 if (epFound) {
                     item.setImage(STATUS_COLUMN, ADDED.icon);
+                    item.setChecked(true);
                 } else {
                     failTableItem(item);
                 }
