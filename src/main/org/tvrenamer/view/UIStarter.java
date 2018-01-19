@@ -591,15 +591,6 @@ public final class UIStarter implements Observer, AddEpisodeListener {
     }
 
 
-    private void tableItemDownloaded(TableItem item, FileEpisode episode) {
-        display.asyncExec(() -> {
-            if (tableContainsTableItem(item)) {
-                setProposedDestColumn(item, episode);
-                item.setImage(STATUS_COLUMN, FileMoveIcon.getIcon(ADDED));
-            }
-        });
-    }
-
     private void tableItemFailed(TableItem item, FileEpisode episode) {
         display.asyncExec(() -> {
             if (tableContainsTableItem(item)) {
@@ -636,7 +627,12 @@ public final class UIStarter implements Observer, AddEpisodeListener {
                     @Override
                     public void downloadSucceeded(Show show) {
                         episode.setEpisodeShow(show);
-                        tableItemDownloaded(item, episode);
+                        display.asyncExec(() -> {
+                            if (tableContainsTableItem(item)) {
+                                setProposedDestColumn(item, episode);
+                                item.setImage(STATUS_COLUMN, FileMoveIcon.getIcon(ADDED));
+                            }
+                        });
                         if (show.isValidSeries()) {
                             getSeriesListings(show.asSeries(), item, episode);
                         }
