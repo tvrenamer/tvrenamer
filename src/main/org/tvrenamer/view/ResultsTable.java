@@ -494,7 +494,21 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         }
     }
 
-    private void sortTable(TableColumn column, int columnNum) {
+    /**
+     * Sort the table by the given column.
+     *
+     * If the column to sort by is the same column that the table is already
+     * sorted by, then the effect is to reverse the ordering of the sort.
+     *
+     * @param column
+     *    the TableColumn to sort by
+     */
+    private void sortTable(TableColumn column) {
+        final int columnNum = swtTable.indexOf(column);
+        if (ITEM_NOT_IN_TABLE == columnNum) {
+            logger.severe("unable to locate column in table: " + column);
+            return;
+        }
         // Get the items
         TableItem[] items = swtTable.getItems();
 
@@ -540,7 +554,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         checkboxColumn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                sortTable(checkboxColumn, CHECKBOX_COLUMN);
+                sortTable(checkboxColumn);
             }
         });
 
@@ -550,17 +564,16 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         sourceColumn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                sortTable(sourceColumn, CURRENT_FILE_COLUMN);
+                sortTable(sourceColumn);
             }
         });
 
         final TableColumn destinationColumn = new TableColumn(swtTable, SWT.LEFT);
-        setColumnDestText(destinationColumn);
         destinationColumn.setWidth(550);
         destinationColumn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                sortTable(destinationColumn, NEW_FILENAME_COLUMN);
+                sortTable(destinationColumn);
             }
         });
 
@@ -570,7 +583,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         statusColumn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                sortTable(statusColumn, STATUS_COLUMN);
+                sortTable(statusColumn);
             }
         });
 
@@ -686,6 +699,9 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         swtTable.setLayoutData(gridData);
 
         setupColumns();
+        setColumnDestText(swtTable.getColumn(NEW_FILENAME_COLUMN));
+        swtTable.setSortColumn(swtTable.getColumn(CURRENT_FILE_COLUMN));
+        swtTable.setSortDirection(SWT.UP);
 
         // Allow deleting of elements
         swtTable.addKeyListener(new KeyAdapter() {
