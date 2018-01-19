@@ -314,15 +314,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         });
     }
 
-    private void tableItemDownloaded(TableItem item, FileEpisode episode) {
-        display.asyncExec(() -> {
-            if (tableContainsTableItem(item)) {
-                setProposedDestColumn(item, episode);
-                item.setImage(STATUS_COLUMN, FileMoveIcon.ADDED.icon);
-            }
-        });
-    }
-
     private void getSeriesListings(Series series, TableItem item, FileEpisode episode) {
         series.addListingsListener(new ShowListingsListener() {
                 @Override
@@ -372,7 +363,12 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                     @Override
                     public void downloadSucceeded(Show show) {
                         episode.setEpisodeShow(show);
-                        tableItemDownloaded(item, episode);
+                        display.asyncExec(() -> {
+                            if (tableContainsTableItem(item)) {
+                                setProposedDestColumn(item, episode);
+                                item.setImage(STATUS_COLUMN, FileMoveIcon.ADDED.icon);
+                            }
+                        });
                         if (show.isValidSeries()) {
                             getSeriesListings(show.asSeries(), item, episode);
                         }
@@ -586,7 +582,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                 sortTable(statusColumn);
             }
         });
-
     }
 
     private void setupUpdateStuff(final Composite parentComposite) {
