@@ -260,7 +260,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
 
         // Initially we add items to the table unchecked.  When we successfully obtain enough
         // information about the episode to determine how to rename it, the check box will
-        // automatically be selected.
+        // automatically be activated.
         item.setChecked(false);
         item.setText(CURRENT_FILE_COLUMN, fileName);
         setProposedDestColumn(item, episode);
@@ -426,7 +426,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                 final FileEpisode episode = episodeMap.get(fileName);
                 // Skip files not successfully downloaded and ready to be moved
                 if (episode.optionCount() == 0) {
-                    logger.info("selected but not ready: " + episode.getFilepath());
+                    logger.info("checked but not ready: " + episode.getFilepath());
                     continue;
                 }
                 FileMover pendingMove = new FileMover(episode);
@@ -539,13 +539,13 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     }
 
     private void setupColumns() {
-        final TableColumn selectedColumn = new TableColumn(swtTable, SWT.LEFT);
-        selectedColumn.setText(CHECKBOX_HEADER);
-        selectedColumn.setWidth(60);
-        selectedColumn.addSelectionListener(new SelectionAdapter() {
+        final TableColumn checkboxColumn = new TableColumn(swtTable, SWT.LEFT);
+        checkboxColumn.setText(CHECKBOX_HEADER);
+        checkboxColumn.setWidth(60);
+        checkboxColumn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                sortTable(selectedColumn, SELECTED_COLUMN);
+                sortTable(checkboxColumn, CHECKBOX_COLUMN);
             }
         });
 
