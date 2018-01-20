@@ -88,7 +88,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
     private Button addFilesButton;
     private Button addFolderButton;
     private Button clearFilesButton;
-    private Button renameSelectedButton;
+    private Button actionButton;
     private Table resultsTable;
     private ProgressBar totalProgressBar;
     private Image appIcon = null;
@@ -181,13 +181,13 @@ public final class UIStarter implements Observer, AddEpisodeListener {
             }
         }
 
-        renameSelectedButton = new Button(bottomButtonsComposite, SWT.PUSH);
-        GridData renameSelectedButtonGridData = new GridData(GridData.END, GridData.CENTER, false, false);
-        renameSelectedButton.setLayoutData(renameSelectedButtonGridData);
+        actionButton = new Button(bottomButtonsComposite, SWT.PUSH);
+        GridData actionButtonGridData = new GridData(GridData.END, GridData.CENTER, false, false);
+        actionButton.setLayoutData(actionButtonGridData);
 
-        setRenameButtonText(renameSelectedButton);
+        setActionButtonText(actionButton);
 
-        renameSelectedButton.addSelectionListener(new SelectionAdapter() {
+        actionButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 renameFiles();
@@ -819,7 +819,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         refreshAll();
     }
 
-    private void setRenameButtonText(Button b) {
+    private void setActionButtonText(Button b) {
         String label = RENAME_LABEL;
         String tooltip = RENAME_TOOLTIP;
 
@@ -860,7 +860,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
             || (userPref == UserPreference.RENAME_ENABLED))
         {
             setColumnDestText(resultsTable.getColumn(NEW_FILENAME_COLUMN));
-            setRenameButtonText(renameSelectedButton);
+            setActionButtonText(actionButton);
         }
         if ((userPref == UserPreference.REPLACEMENT_MASK)
             || (userPref == UserPreference.MOVE_ENABLED)
