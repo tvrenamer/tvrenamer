@@ -251,6 +251,12 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         shell.setMenuBar(menuBarMenu);
     }
 
+    public void finishMove(final TableItem item, final boolean success) {
+        if (!success) {
+            logger.info("failed to move item: " + item);
+        }
+    }
+
     private Menu setupHelpMenuBar(Menu menuBar) {
         MenuItem helpMenuHeader = new MenuItem(menuBar, SWT.CASCADE);
         helpMenuHeader.setText("Help");
