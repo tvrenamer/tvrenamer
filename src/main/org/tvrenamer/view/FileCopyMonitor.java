@@ -79,15 +79,13 @@ public class FileCopyMonitor implements ProgressObserver {
      * Dispose of the label.  We need to do this whether the label was used or not.
      */
     @Override
-    public void cleanUp() {
+    public void finishProgress(final boolean succeeded) {
         if (!display.isDisposed()) {
             display.asyncExec(() -> {
-                if (label.isDisposed()) {
-                    return;
+                if ((label != null) && (!label.isDisposed())) {
+                    label.dispose();
                 }
-                label.dispose();
             });
         }
     }
-
 }

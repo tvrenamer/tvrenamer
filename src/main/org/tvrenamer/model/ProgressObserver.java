@@ -37,8 +37,10 @@ public interface ProgressObserver {
     void setStatus(String status);
 
     /**
-     * Clean up after we're done
+     * Finish the activity
      *
+     * @param succeeded
+     *    whether the activity completed successfully
      */
-    void cleanUp();
+    void finishProgress(boolean succeeded);
 }
