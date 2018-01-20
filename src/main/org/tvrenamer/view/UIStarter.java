@@ -76,7 +76,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
     // load preferences
     private static final UserPreferences prefs = UserPreferences.getInstance();
 
-    private static final int SELECTED_COLUMN = 0;
+    private static final int CHECKBOX_COLUMN = 0;
     private static final int CURRENT_FILE_COLUMN = 1;
     private static final int NEW_FILENAME_COLUMN = 2;
     private static final int STATUS_COLUMN = 3;
@@ -403,7 +403,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
             public void widgetSelected(SelectionEvent e) {
                 int newDirection = resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
                 resultsTable.setSortDirection(newDirection);
-                sortTable(SELECTED_COLUMN);
+                sortTable(CHECKBOX_COLUMN);
                 resultsTable.setSortColumn(selectedColumn);
             }
         });
@@ -761,7 +761,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
 
     private String getResultsTableTextValue(TableItem[] items, int row, int column) {
         switch (column) {
-            case SELECTED_COLUMN:
+            case CHECKBOX_COLUMN:
                 return (items[row].getChecked()) ? "0" : "1";
             case STATUS_COLUMN:
                 return FileMoveIcon.getImagePriority(items[row].getImage(column));
