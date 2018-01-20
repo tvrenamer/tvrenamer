@@ -54,33 +54,6 @@ public class UserPreferences extends Observable {
     }
 
     /**
-     * UserPreferences constructor which ensures we have an ArrayList
-     *
-     * @param first the already-constructed UserPreferences object that was
-     *    created first, that the new one should be based off of
-     */
-    private UserPreferences(final UserPreferences first) {
-        super();
-
-        preloadFolder = first.preloadFolder;
-        destDir = first.destDir;
-        seasonPrefix = first.seasonPrefix;
-        seasonPrefixLeadingZero = first.seasonPrefixLeadingZero;
-        moveEnabled = first.moveEnabled;
-        renameEnabled = first.renameEnabled;
-        removeEmptiedDirectories = first.removeEmptiedDirectories;
-        renameReplacementMask = first.renameReplacementMask;
-        checkForUpdates = first.checkForUpdates;
-        recursivelyAddFolders = first.recursivelyAddFolders;
-        ignoreKeywords = new ArrayList<>();
-        if (first.ignoreKeywords != null) {
-            for (String keyword : first.ignoreKeywords) {
-                ignoreKeywords.add(keyword);
-            }
-        }
-    }
-
-    /**
      * @return the singleton UserPreferences instance for this application
      */
     public static UserPreferences getInstance() {
@@ -198,20 +171,12 @@ public class UserPreferences extends Observable {
 
         // retrieve from file and update in-memory copy
         UserPreferences prefs = UserPreferencesPersistence.retrieve(PREFERENCES_FILE);
-        if (prefs == null) {
-            prefs = new UserPreferences();
-            store(prefs);
-        } else if (prefs.ignoreKeywords instanceof ArrayList) {
+
+        if (prefs != null) {
             logger.finer("Successfully read preferences from: " + PREFERENCES_FILE.toAbsolutePath());
             logger.fine("Successfully read preferences: " + prefs.toString());
         } else {
-            // This is to fix a bug where we created UserPreferences with Arrays.asList, which
-            // created an object of a weird type that we couldn't use easily.  Recreate the
-            // UserPreferences object with an ArrayList, and write it out so that we don't
-            // have the same problem next time.
-            prefs = new UserPreferences(prefs);
-            logger.fine("Modified read preferences: " + prefs.toString());
-            store(prefs);
+            prefs = new UserPreferences();
         }
         if (prefs.moveEnabled == false) {
             if (prefs.renameEnabled == false) {
