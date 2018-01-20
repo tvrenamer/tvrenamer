@@ -84,7 +84,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     private final Table swtTable;
     private final EpisodeDb episodeMap = new EpisodeDb();
 
-    private Button renameSelectedButton;
+    private Button actionButton;
     private ProgressBar totalProgressBar;
     private TaskItem taskItem = null;
 
@@ -221,7 +221,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
             || (userPref == UserPreference.RENAME_ENABLED))
         {
             setColumnDestText(swtTable.getColumn(NEW_FILENAME_COLUMN));
-            setRenameButtonText(renameSelectedButton);
+            setRenameButtonText(actionButton);
         }
         if ((userPref == UserPreference.REPLACEMENT_MASK)
             || (userPref == UserPreference.MOVE_ENABLED)
@@ -759,11 +759,11 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         totalProgressBar = new ProgressBar(bottomButtonsComposite, SWT.SMOOTH);
         totalProgressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
 
-        renameSelectedButton = new Button(bottomButtonsComposite, SWT.PUSH);
-        GridData renameSelectedButtonGridData = new GridData(GridData.END, GridData.CENTER, false, false);
-        renameSelectedButton.setLayoutData(renameSelectedButtonGridData);
-        setRenameButtonText(renameSelectedButton);
-        renameSelectedButton.addSelectionListener(new SelectionAdapter() {
+        actionButton = new Button(bottomButtonsComposite, SWT.PUSH);
+        GridData actionButtonGridData = new GridData(GridData.END, GridData.CENTER, false, false);
+        actionButton.setLayoutData(actionButtonGridData);
+        setRenameButtonText(actionButton);
+        actionButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 renameFiles();
