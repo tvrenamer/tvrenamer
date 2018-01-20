@@ -553,6 +553,16 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         item.dispose();
     }
 
+    public void finishMove(final TableItem item, final boolean success) {
+        if (success) {
+            if (prefs.isDeleteRowAfterMove()) {
+                deleteTableItem(item);
+            }
+        } else {
+            logger.info("failed to move item: " + item);
+        }
+    }
+
     private void setupColumns() {
         final TableColumn checkboxColumn = new TableColumn(swtTable, SWT.LEFT);
         checkboxColumn.setText(CHECKBOX_HEADER);

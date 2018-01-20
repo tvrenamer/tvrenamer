@@ -85,6 +85,7 @@ public class FileCopyMonitor implements ProgressObserver {
                 if ((label != null) && (!label.isDisposed())) {
                     label.dispose();
                 }
+                ui.finishMove(item, succeeded);
             });
         }
     }
