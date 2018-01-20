@@ -26,6 +26,7 @@ public class UserPreferences extends Observable {
     private boolean moveEnabled;
     private boolean renameEnabled;
     private boolean removeEmptiedDirectories;
+    private boolean deleteRowAfterMove;
     private String renameReplacementMask;
     private boolean checkForUpdates;
     private boolean recursivelyAddFolders;
@@ -46,6 +47,7 @@ public class UserPreferences extends Observable {
         moveEnabled = false;
         renameEnabled = true;
         removeEmptiedDirectories = false;
+        deleteRowAfterMove = false;
         renameReplacementMask = DEFAULT_REPLACEMENT_MASK;
         checkForUpdates = true;
         recursivelyAddFolders = true;
@@ -375,6 +377,32 @@ public class UserPreferences extends Observable {
     }
 
     /**
+     * Sets whether or not we want the UI to automatically delete rows after the
+     * files have been successfully moved/renamed.
+     *
+     * @param deleteRowAfterMove whether or not we want the UI to automatically
+     *     delete rows after the files have been successfully moved/renamed.
+     */
+    public void setDeleteRowAfterMove(boolean deleteRowAfterMove) {
+        if (valuesAreDifferent(this.deleteRowAfterMove, deleteRowAfterMove)) {
+            this.deleteRowAfterMove = deleteRowAfterMove;
+
+            preferenceChanged(UserPreference.DELETE_ROWS);
+        }
+    }
+
+    /**
+     * Get whether or not we want the UI to automatically delete rows after the
+     * files have been successfully moved/renamed.
+     *
+     * @return true if we want the UI to automatically delete rows after the
+     *     files have been successfully moved/renamed.
+     */
+    public boolean isDeleteRowAfterMove() {
+        return deleteRowAfterMove;
+    }
+
+    /**
      * Sets whether or not we want "Add Folder" to descend into subdirectories.
      *
      * @param recursivelyAddFolders whether or not we want "Add Folder" to descend
@@ -554,6 +582,7 @@ public class UserPreferences extends Observable {
             + ",\n  moveEnabled=" + moveEnabled + ",\n  renameEnabled=" + renameEnabled
             + ",\n  renameReplacementMask=" + renameReplacementMask
             + ",\n  checkForUpdates=" + checkForUpdates
+            + ",\n  deleteRowAfterMove=" + deleteRowAfterMove
             + ",\n  setRecursivelyAddFolders=" + recursivelyAddFolders + "]";
     }
 }

@@ -252,7 +252,12 @@ public final class UIStarter implements Observer, AddEpisodeListener {
     }
 
     public void finishMove(final TableItem item, final boolean success) {
-        if (!success) {
+        if (success) {
+            if (prefs.isDeleteRowAfterMove()) {
+                episodeMap.remove(item.getText(CURRENT_FILE_COLUMN));
+                item.dispose();
+            }
+        } else {
             logger.info("failed to move item: " + item);
         }
     }
