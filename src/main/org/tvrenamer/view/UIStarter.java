@@ -361,11 +361,11 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         resultsTable.setLayoutData(gridData);
 
         final TableColumn selectedColumn = new TableColumn(resultsTable, SWT.LEFT);
-        selectedColumn.setText("Selected");
+        selectedColumn.setText(CHECKBOX_HEADER);
         selectedColumn.setWidth(60);
 
         final TableColumn sourceColumn = new TableColumn(resultsTable, SWT.LEFT);
-        sourceColumn.setText("Current File");
+        sourceColumn.setText(SOURCE_HEADER);
         sourceColumn.setWidth(550);
 
         final TableColumn destinationColumn = new TableColumn(resultsTable, SWT.LEFT);
@@ -373,7 +373,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         destinationColumn.setWidth(550);
 
         final TableColumn statusColumn = new TableColumn(resultsTable, SWT.LEFT);
-        statusColumn.setText("Status");
+        statusColumn.setText(STATUS_HEADER);
         statusColumn.setWidth(60);
 
         // Allow deleting of elements
