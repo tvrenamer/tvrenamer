@@ -166,8 +166,14 @@ public class FileMover implements Callable<Boolean> {
         if (tryRename) {
             try {
                 actualDest = Files.move(srcPath, destPath);
+                if (observer != null) {
+                    observer.finishProgress(true);
+                }
             } catch (IOException ioe) {
                 logger.log(Level.SEVERE, "Unable to move " + srcPath, ioe);
+                if (observer != null) {
+                    observer.finishProgress(false);
+                }
                 return false;
             }
         } else {
