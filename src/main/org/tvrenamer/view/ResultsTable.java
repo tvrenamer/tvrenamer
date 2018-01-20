@@ -72,7 +72,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     private static final UserPreferences prefs = UserPreferences.getInstance();
     private static final Collator COLLATOR = Collator.getInstance(Locale.getDefault());
 
-    private static final int SELECTED_COLUMN = 0;
+    private static final int CHECKBOX_COLUMN = 0;
     private static final int CURRENT_FILE_COLUMN = 1;
     private static final int NEW_FILENAME_COLUMN = 2;
     private static final int STATUS_COLUMN = 3;
@@ -445,7 +445,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
 
     private static String getItemTextValue(final TableItem item, final int column) {
         switch (column) {
-            case SELECTED_COLUMN:
+            case CHECKBOX_COLUMN:
                 return (item.getChecked()) ? "0" : "1";
             case STATUS_COLUMN:
                 // Sorting alphabetically by the status icon's filename is pretty random.
