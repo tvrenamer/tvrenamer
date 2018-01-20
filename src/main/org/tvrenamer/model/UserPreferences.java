@@ -26,6 +26,7 @@ public class UserPreferences extends Observable {
     private boolean moveEnabled;
     private boolean renameEnabled;
     private boolean removeEmptiedDirectories;
+    private boolean deleteRowAfterMove;
     private String renameReplacementMask;
     private boolean checkForUpdates;
     private boolean recursivelyAddFolders;
@@ -46,6 +47,7 @@ public class UserPreferences extends Observable {
         moveEnabled = false;
         renameEnabled = true;
         removeEmptiedDirectories = true;
+        deleteRowAfterMove = false;
         renameReplacementMask = DEFAULT_REPLACEMENT_MASK;
         checkForUpdates = true;
         recursivelyAddFolders = true;
@@ -391,6 +393,32 @@ public class UserPreferences extends Observable {
      */
     public boolean isRemoveEmptiedDirectories() {
         return removeEmptiedDirectories;
+    }
+
+    /**
+     * Sets whether or not we want the UI to automatically delete rows after the
+     * files have been successfully moved/renamed.
+     *
+     * @param deleteRowAfterMove whether or not we want the UI to automatically
+     *     delete rows after the files have been successfully moved/renamed.
+     */
+    public void setDeleteRowAfterMove(boolean deleteRowAfterMove) {
+        if (valuesAreDifferent(this.deleteRowAfterMove, deleteRowAfterMove)) {
+            this.deleteRowAfterMove = deleteRowAfterMove;
+
+            preferenceChanged(UserPreference.DELETE_ROWS);
+        }
+    }
+
+    /**
+     * Get whether or not we want the UI to automatically delete rows after the
+     * files have been successfully moved/renamed.
+     *
+     * @return true if we want the UI to automatically delete rows after the
+     *     files have been successfully moved/renamed.
+     */
+    public boolean isDeleteRowAfterMove() {
+        return deleteRowAfterMove;
     }
 
     /**

@@ -104,6 +104,9 @@ public class Constants {
     public static final String CHECK_UPDATES_TEXT = "Check for Updates at startup [?]";
     public static final String CHECK_UPDATES_TOOLTIP = "If checked, will automatically check "
         + APPLICATION_NAME + " website for new versions at startup, and offer to update if found";
+    public static final String DELETE_ROWS_TEXT = "Delete rows after successful move [?]";
+    public static final String DELETE_ROWS_TOOLTIP = "If checked, after a file has been successfully "
+        + "moved/renamed, delete the row from the table.";
     public static final String RENAME_TOKEN_TEXT = "Rename Tokens [?]";
     public static final String RENAME_FORMAT_TEXT = "Rename Format [?]";
     public static final String RENAME_ENABLED_TOOLTIP = "Whether the 'rename' functionality is enabled.\n"

@@ -129,6 +129,7 @@ class PreferencesDialog extends Dialog {
     private Button checkForUpdatesCheckbox;
     private Button recurseFoldersCheckbox;
     private Button rmdirEmptyCheckbox;
+    private Button deleteRowsCheckbox;
     private Shell preferencesShell;
 
     /**
@@ -309,6 +310,9 @@ class PreferencesDialog extends Dialog {
         rmdirEmptyCheckbox = createCheckbox(REMOVE_EMPTIED_TEXT, REMOVE_EMPTIED_TOOLTIP,
                                             prefs.isRemoveEmptiedDirectories(), generalGroup,
                                             GridData.BEGINNING, 3);
+        deleteRowsCheckbox = createCheckbox(DELETE_ROWS_TEXT, DELETE_ROWS_TOOLTIP,
+                                            prefs.isDeleteRowAfterMove(), generalGroup,
+                                            GridData.BEGINNING, 3);
         checkForUpdatesCheckbox = createCheckbox(CHECK_UPDATES_TEXT, CHECK_UPDATES_TOOLTIP,
                                                  prefs.checkForUpdates(), generalGroup,
                                                  GridData.BEGINNING, 3);
@@ -456,6 +460,7 @@ class PreferencesDialog extends Dialog {
         prefs.setCheckForUpdates(checkForUpdatesCheckbox.getSelection());
         prefs.setRecursivelyAddFolders(recurseFoldersCheckbox.getSelection());
         prefs.setRemoveEmptiedDirectories(rmdirEmptyCheckbox.getSelection());
+        prefs.setDeleteRowAfterMove(deleteRowsCheckbox.getSelection());
         prefs.setDestinationDirectory(destDirText.getText());
 
         boolean isRenameEnabled = renameEnabledCheckbox.getSelection();
