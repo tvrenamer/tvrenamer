@@ -77,8 +77,11 @@ public class Constants {
     public static final String RENAME_LABEL = "Rename Selected";
     public static final String JUST_MOVE_LABEL = "Move Selected";
     public static final String RENAME_AND_MOVE = "Rename && Move Selected";
+    public static final String CHECKBOX_HEADER = "Selected";
+    public static final String SOURCE_HEADER = "Current File";
     public static final String MOVE_HEADER = "Proposed File Path";
     public static final String RENAME_HEADER = "Proposed File Name";
+    public static final String STATUS_HEADER = "Status";
     public static final String REPLACEMENT_OPTIONS_LIST_ENTRY_REGEX = "(.*) :.*";
     public static final String IGNORE_WORDS_SPLIT_REGEX = "\\s*,\\s*";
     public static final String GENERAL_LABEL = "General";

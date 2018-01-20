@@ -534,7 +534,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
 
     private void setupColumns() {
         final TableColumn selectedColumn = new TableColumn(swtTable, SWT.LEFT);
-        selectedColumn.setText("Selected");
+        selectedColumn.setText(CHECKBOX_HEADER);
         selectedColumn.setWidth(60);
         selectedColumn.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -544,7 +544,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         });
 
         final TableColumn sourceColumn = new TableColumn(swtTable, SWT.LEFT);
-        sourceColumn.setText("Current File");
+        sourceColumn.setText(SOURCE_HEADER);
         sourceColumn.setWidth(550);
         sourceColumn.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -564,7 +564,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         });
 
         final TableColumn statusColumn = new TableColumn(swtTable, SWT.LEFT);
-        statusColumn.setText("Status");
+        statusColumn.setText(STATUS_HEADER);
         statusColumn.setWidth(60);
         statusColumn.addSelectionListener(new SelectionAdapter() {
             @Override
