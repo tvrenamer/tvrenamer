@@ -360,9 +360,9 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         gridData.horizontalSpan = 3;
         resultsTable.setLayoutData(gridData);
 
-        final TableColumn selectedColumn = new TableColumn(resultsTable, SWT.LEFT);
-        selectedColumn.setText(CHECKBOX_HEADER);
-        selectedColumn.setWidth(60);
+        final TableColumn checkboxColumn = new TableColumn(resultsTable, SWT.LEFT);
+        checkboxColumn.setText(CHECKBOX_HEADER);
+        checkboxColumn.setWidth(60);
 
         final TableColumn sourceColumn = new TableColumn(resultsTable, SWT.LEFT);
         sourceColumn.setText(SOURCE_HEADER);
@@ -398,13 +398,13 @@ public final class UIStarter implements Observer, AddEpisodeListener {
             }
         });
 
-        selectedColumn.addSelectionListener(new SelectionAdapter() {
+        checkboxColumn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 int newDirection = resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
                 resultsTable.setSortDirection(newDirection);
                 sortTable(CHECKBOX_COLUMN);
-                resultsTable.setSortColumn(selectedColumn);
+                resultsTable.setSortColumn(checkboxColumn);
             }
         });
 
