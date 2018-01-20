@@ -74,10 +74,10 @@ public class Constants {
     public static final String OK_LABEL = "OK";
     public static final String PREFERENCES_LABEL = "Preferences";
     public static final String FILE_MOVE_THREAD_LABEL = "MoveRunnerThread";
-    public static final String RENAME_LABEL = "Rename Selected";
-    public static final String JUST_MOVE_LABEL = "Move Selected";
-    public static final String RENAME_AND_MOVE = "Rename && Move Selected";
-    public static final String CHECKBOX_HEADER = "Selected";
+    public static final String RENAME_LABEL = "Rename Checked";
+    public static final String JUST_MOVE_LABEL = "Move Checked";
+    public static final String RENAME_AND_MOVE = "Rename && Move Checked";
+    public static final String CHECKBOX_HEADER = "Active";
     public static final String SOURCE_HEADER = "Current File";
     public static final String MOVE_HEADER = "Proposed File Path";
     public static final String RENAME_HEADER = "Proposed File Name";
@@ -133,10 +133,10 @@ public class Constants {
     public static final String MOVE_NOW_DISABLED = "Move is now disabled.";
     public static final String MOVE_INTRO = "Clicking this button will ";
     public static final String AND_RENAME = "rename and ";
-    public static final String INTRO_MOVE_DIR = "move the selected files to the directory "
+    public static final String INTRO_MOVE_DIR = "move the checked files to the directory "
         + "set in preferences (currently ";
     public static final String FINISH_MOVE_DIR = ").";
-    public static final String RENAME_TOOLTIP = "Clicking this button will rename the selected "
+    public static final String RENAME_TOOLTIP = "Clicking this button will rename the checked "
         + "files but leave them where they are.";
     public static final String NO_ACTION_TOOLTIP = "You have selected not to move files, "
         + "and not to rename them, either.  Therefore, there's no action to be taken.  "
