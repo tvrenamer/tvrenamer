@@ -177,7 +177,7 @@ public class FileMover implements Callable<Boolean> {
             }
             boolean success = copyAndDelete(srcPath, destPath);
             if (observer != null) {
-                observer.cleanUp();
+                observer.finishProgress(success);
             }
             // TODO: what about file attributes?  In the case of owner, it might be
             // desirable to change it, or not.  What about writability?  And the

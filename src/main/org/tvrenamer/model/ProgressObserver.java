@@ -37,8 +37,8 @@ public interface ProgressObserver {
     void setStatus(String status);
 
     /**
-     * Clean up after we're done
+     * Finish the activity
      *
      */
-    void cleanUp();
+    void finishProgress(boolean succeeded);
 }
