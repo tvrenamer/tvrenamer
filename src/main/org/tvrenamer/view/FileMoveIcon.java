@@ -7,8 +7,9 @@ import org.tvrenamer.model.util.Constants;
 public enum FileMoveIcon {
     ADDED("/icons/SweetieLegacy/16-circle-blue.png"),
     DOWNLOADING("/icons/SweetieLegacy/16-clock.png"),
+    OPTIONS("/icons/SweetieLegacy/16-comment-question.png"),
     RENAMING(Constants.RENAMING_PATH),
-    // SUCCESS("/icons/SweetieLegacy/16-em-check.png"),
+    SUCCESS("/icons/SweetieLegacy/16-em-check.png"),
     FAIL("/icons/SweetieLegacy/16-em-cross.png");
 
     public final Image icon;
