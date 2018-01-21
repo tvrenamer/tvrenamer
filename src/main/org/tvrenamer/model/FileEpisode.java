@@ -506,9 +506,15 @@ public class FileEpisode {
     }
 
     private static String plugInInformation(final String replacementTemplate, final String showName,
-                                            final String episodeTitle, final String resolution,
-                                            final EpisodePlacement placement, final LocalDate airDate)
+                                            final EpisodePlacement placement, final Episode actualEpisode,
+                                            final String resolution)
     {
+        String episodeTitle = actualEpisode.getTitle();
+        int len = episodeTitle.length();
+        if (len > MAX_TITLE_LENGTH) {
+            logger.fine("truncating episode title to " + episodeTitle);
+            episodeTitle = episodeTitle.substring(0, MAX_TITLE_LENGTH);
+        }
         String newFilename = replacementTemplate
             .replaceAll(ReplacementToken.SEASON_NUM.getToken(),
                         String.valueOf(placement.season))
@@ -528,7 +534,10 @@ public class FileEpisode {
                         resolution);
 
         // Date and times
+        final LocalDate airDate = actualEpisode.getAirDate();
         if (airDate == null) {
+            logger.log(Level.WARNING, "Episode air date not found for " + showName
+                       + ", " + placement + ", \"" + episodeTitle + "\"");
             newFilename = newFilename
                 .replaceAll(ReplacementToken.DATE_DAY_NUM.getToken(), "")
                 .replaceAll(ReplacementToken.DATE_DAY_NUMLZ.getToken(), "")
@@ -556,36 +565,21 @@ public class FileEpisode {
     }
 
     String getRenamedBasename(final int n) {
-        String showName;
         if (actualShow == null) {
-            logger.warning("should not be renaming without an actual Show.");
-            showName = filenameShow;
-        } else {
-            showName = actualShow.getName();
+            logger.severe("cannot rename without an actual Show.");
+            return fileNameString;
+        }
+        if (actualEpisodes == null) {
+            logger.severe("should not be renaming when have no actual episodes");
+            return fileNameString;
+        }
+        if (actualEpisodes.size() <= n) {
+            logger.severe("cannot get option " + n + " of " + this);
+            return fileNameString;
         }
 
-        String titleString = "";
-        LocalDate airDate = null;
-        if (actualEpisodes != null) {
-            if (n >= actualEpisodes.size()) {
-                logger.warning("cannot get option " + n + " of " + showName);
-            } else {
-                Episode actualEpisode = actualEpisodes.get(n);
-                titleString = actualEpisode.getTitle();
-                int len = titleString.length();
-                if (len > MAX_TITLE_LENGTH) {
-                    logger.fine("truncating episode title " + titleString);
-                    titleString = titleString.substring(0, MAX_TITLE_LENGTH);
-                }
-                airDate = actualEpisode.getAirDate();
-                if (airDate == null) {
-                    logger.log(Level.WARNING, "Episode air date not found for '" + this + "'");
-                }
-            }
-        }
-
-        return plugInInformation(userPrefs.getRenameReplacementString(), showName,
-                                 titleString, filenameResolution, placement, airDate);
+        return plugInInformation(userPrefs.getRenameReplacementString(), actualShow.getName(),
+                                 placement, actualEpisodes.get(n), filenameResolution);
     }
 
     /**
