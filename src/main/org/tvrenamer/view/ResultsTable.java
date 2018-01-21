@@ -290,7 +290,11 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
             if (tableContainsTableItem(item)) {
                 setProposedDestColumn(item, episode);
                 if (epFound) {
-                    item.setImage(STATUS_COLUMN, FileMoveIcon.ADDED.icon);
+                    if (episode.optionCount() > 1) {
+                        item.setImage(STATUS_COLUMN, FileMoveIcon.OPTIONS.icon);
+                    } else {
+                        item.setImage(STATUS_COLUMN, FileMoveIcon.SUCCESS.icon);
+                    }
                     item.setChecked(true);
                 } else {
                     failTableItem(item);
