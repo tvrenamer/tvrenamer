@@ -712,6 +712,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         MoveRunner mover = new MoveRunner(pendingMoves);
         mover.setUpdater(new ProgressBarUpdater(this));
         mover.runThread();
+        resultsTable.setFocus();
     }
 
     private TableItem createTableItem(Table tblResults, String fileName, FileEpisode episode) {
