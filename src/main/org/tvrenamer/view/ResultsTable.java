@@ -133,7 +133,8 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
 
     private void setComboBoxProposedDest(final TableItem item, final FileEpisode ep) {
         final List<String> options = ep.getReplacementOptions();
-        String defaultOption = options.get(0);
+        final int chosen = ep.getChosenEpisode();
+        final String defaultOption = options.get(chosen);
         item.setText(NEW_FILENAME_COLUMN, defaultOption);
 
         final Combo combo = new Combo(swtTable, SWT.DROP_DOWN | SWT.READ_ONLY);
