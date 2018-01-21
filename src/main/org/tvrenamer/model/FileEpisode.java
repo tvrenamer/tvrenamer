@@ -398,6 +398,7 @@ public class FileEpisode {
      * @return true if the episode associated with this item is found in the listings
      */
     public boolean listingsComplete() {
+        chosenEpisode = 0;
         if (actualShow == null) {
             logger.warning("error: should not get listings, do not have show!");
             seriesStatus = SeriesStatus.NOT_STARTED;
@@ -606,6 +607,16 @@ public class FileEpisode {
         }
     }
 
+    /**
+     * Get the currently chosen option
+     *
+     * @return
+     *    the option currently chosen
+     */
+    public int getChosenEpisode() {
+        return chosenEpisode;
+    }
+
     public String getDestinationBasename() {
         return baseForRename;
     }
@@ -618,7 +629,6 @@ public class FileEpisode {
     private synchronized void buildReplacementTextOptions() {
         seriesStatus = SeriesStatus.GOT_LISTINGS;
         replacementOptions = new LinkedList<>();
-        chosenEpisode = 0;
         if (userPrefs.isRenameEnabled()) {
             for (int i=0; i < actualEpisodes.size(); i++) {
                 String newBasename = getRenamedBasename(i);
@@ -641,7 +651,7 @@ public class FileEpisode {
             logger.severe("apparently both rename and move are disabled! This is not allowed!");
             replacementOptions.add(fileNameString);
         }
-        replacementText = replacementOptions.get(0);
+        replacementText = replacementOptions.get(chosenEpisode);
     }
 
     /**
