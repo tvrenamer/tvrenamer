@@ -428,6 +428,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         MoveRunner mover = new MoveRunner(pendingMoves);
         mover.setUpdater(new ProgressBarUpdater(this));
         mover.runThread();
+        swtTable.setFocus();
     }
 
     private static String itemDestDisplayedText(final TableItem item) {
