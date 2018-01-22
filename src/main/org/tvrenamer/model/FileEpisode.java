@@ -401,20 +401,21 @@ public class FileEpisode {
 
     /**
      *
+     * @return the number of episode options to offer the user
      */
-    public void listingsComplete() {
+    public int listingsComplete() {
         chosenEpisode = 0;
         if (actualShow == null) {
             logger.warning("error: should not get listings, do not have show!");
             seriesStatus = SeriesStatus.NOT_STARTED;
             replacementText = BAD_PARSE_MESSAGE;
-            return;
+            return 0;
         }
 
         if (!actualShow.hasEpisodes()) {
             seriesStatus = SeriesStatus.NO_LISTINGS;
             replacementText = getNoListingsPlaceholder();
-            return;
+            return 0;
         }
 
         actualEpisodes = actualShow.getEpisodes(placement);
@@ -427,11 +428,19 @@ public class FileEpisode {
                         + filenameShow + "'");
             seriesStatus = SeriesStatus.NO_MATCH;
             replacementText = getNoMatchPlaceholder();
-            return;
+            return 0;
         }
 
         // Success!!!
-        buildReplacementTextOptions();
+        synchronized (this) {
+            buildReplacementTextOptions();
+
+            if (reasonIgnored != null) {
+                return 0;
+            }
+
+            return replacementOptions.size();
+        }
     }
 
     /**

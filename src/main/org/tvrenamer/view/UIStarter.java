@@ -552,11 +552,11 @@ public final class UIStarter implements Observer, AddEpisodeListener {
     }
 
     private void listingsDownloaded(TableItem item, FileEpisode episode) {
-        episode.listingsComplete();
+        int epsFound = episode.listingsComplete();
         display.asyncExec(() -> {
             if (tableContainsTableItem(item)) {
                 setProposedDestColumn(item, episode);
-                if (episode.isReady()) {
+                if (epsFound >= 1) {
                     item.setImage(STATUS_COLUMN, FileMoveIcon.getIcon(SUCCESS));
                     item.setChecked(true);
                 } else {
