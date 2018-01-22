@@ -282,16 +282,15 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     }
 
     private void listingsDownloaded(final TableItem item, final FileEpisode episode) {
-        boolean epFound = episode.listingsComplete();
+        int epsFound = episode.listingsComplete();
         display.asyncExec(() -> {
             if (tableContainsTableItem(item)) {
                 setProposedDestColumn(item, episode);
-                if (epFound) {
-                    if (episode.optionCount() > 1) {
-                        item.setImage(STATUS_COLUMN, FileMoveIcon.OPTIONS.icon);
-                    } else {
-                        item.setImage(STATUS_COLUMN, FileMoveIcon.SUCCESS.icon);
-                    }
+                if (epsFound > 1) {
+                    item.setImage(STATUS_COLUMN, FileMoveIcon.OPTIONS.icon);
+                    item.setChecked(true);
+                } else if (epsFound == 1) {
+                    item.setImage(STATUS_COLUMN, FileMoveIcon.SUCCESS.icon);
                     item.setChecked(true);
                 } else {
                     failTableItem(item);
