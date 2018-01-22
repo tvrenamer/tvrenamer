@@ -122,12 +122,10 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         }
     }
 
-    private void setComboBoxProposedDest(final TableItem item,
-                                         final FileEpisode ep,
-                                         final List<String> options)
-    {
-        int chosen = ep.getChosenEpisode();
-        String defaultOption = options.get(chosen);
+    private void setComboBoxProposedDest(final TableItem item, final FileEpisode ep) {
+        final List<String> options = ep.getReplacementOptions();
+        final int chosen = ep.getChosenEpisode();
+        final String defaultOption = options.get(chosen);
         item.setText(NEW_FILENAME_COLUMN, defaultOption);
 
         final Combo combo = new Combo(swtTable, SWT.DROP_DOWN | SWT.READ_ONLY);
@@ -157,8 +155,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
 
         int nOptions = ep.optionCount();
         if (nOptions > 1) {
-            final List<String> options = ep.getReplacementOptions();
-            setComboBoxProposedDest(item, ep, options);
+            setComboBoxProposedDest(item, ep);
         } else if (nOptions == 1) {
             item.setText(NEW_FILENAME_COLUMN, ep.getReplacementText());
         } else {
