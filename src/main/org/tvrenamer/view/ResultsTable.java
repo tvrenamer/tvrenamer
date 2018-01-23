@@ -1,7 +1,7 @@
 package org.tvrenamer.view;
 
 import static org.tvrenamer.model.util.Constants.*;
-import static org.tvrenamer.view.FileMoveIcon.*;
+import static org.tvrenamer.view.FileMoveIcon.Status.*;
 import static org.tvrenamer.view.UIUtils.showMessageBox;
 
 import org.eclipse.swt.SWT;
@@ -115,11 +115,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     }
 
     private static String getCellStatusString(final TableItem item, final int columnId) {
-        // Sorting alphabetically by the status icon's filename is pretty random.
-        // I don't think there is any real ordering for a status; sorting based
-        // on this column makes sense simply to group together items of the
-        // same status.  I don't think it matters what order they're in.
-        return item.getImage(columnId).toString();
+        return FileMoveIcon.getImagePriority(item.getImage(columnId));
     }
 
     private static Image getCellImage(final TableItem item, final int columnId) {
@@ -135,9 +131,9 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
 
     private static void setCellImage(final TableItem item,
                                      final int columnId,
-                                     final FileMoveIcon newStatus)
+                                     final FileMoveIcon.Status newStatus)
     {
-        item.setImage(columnId, newStatus.icon);
+        item.setImage(columnId, FileMoveIcon.getIcon(newStatus));
     }
 
     private static String getCellText(final TableItem item, final int columnId) {
