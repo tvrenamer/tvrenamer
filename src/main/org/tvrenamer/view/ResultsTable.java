@@ -1,6 +1,7 @@
 package org.tvrenamer.view;
 
 import static org.tvrenamer.model.util.Constants.*;
+import static org.tvrenamer.view.FileMoveIcon.*;
 import static org.tvrenamer.view.UIUtils.showMessageBox;
 
 import org.eclipse.swt.SWT;
@@ -267,7 +268,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         item.setChecked(false);
         item.setText(CURRENT_FILE_COLUMN, fileName);
         setProposedDestColumn(item, episode);
-        item.setImage(STATUS_COLUMN, FileMoveIcon.DOWNLOADING.icon);
+        item.setImage(STATUS_COLUMN, DOWNLOADING.icon);
         return item;
     }
 
@@ -285,7 +286,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     }
 
     private void failTableItem(final TableItem item) {
-        item.setImage(STATUS_COLUMN, FileMoveIcon.FAIL.icon);
+        item.setImage(STATUS_COLUMN, FAIL.icon);
         item.setChecked(false);
     }
 
@@ -295,10 +296,10 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
             if (tableContainsTableItem(item)) {
                 setProposedDestColumn(item, episode);
                 if (epsFound > 1) {
-                    item.setImage(STATUS_COLUMN, FileMoveIcon.OPTIONS.icon);
+                    item.setImage(STATUS_COLUMN, OPTIONS.icon);
                     item.setChecked(true);
                 } else if (epsFound == 1) {
-                    item.setImage(STATUS_COLUMN, FileMoveIcon.SUCCESS.icon);
+                    item.setImage(STATUS_COLUMN, SUCCESS.icon);
                     item.setChecked(true);
                 } else {
                     failTableItem(item);
@@ -380,7 +381,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                         display.asyncExec(() -> {
                             if (tableContainsTableItem(item)) {
                                 setProposedDestColumn(item, episode);
-                                item.setImage(STATUS_COLUMN, FileMoveIcon.ADDED.icon);
+                                item.setImage(STATUS_COLUMN, ADDED.icon);
                             }
                         });
                         if (show.isValidSeries()) {
