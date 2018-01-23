@@ -39,6 +39,8 @@ public interface ProgressObserver {
     /**
      * Finish the activity
      *
+     * @param succeeded
+     *    whether the activity completed successfully
      */
     void finishProgress(boolean succeeded);
 }
