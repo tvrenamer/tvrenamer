@@ -750,7 +750,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
             case SELECTED_COLUMN:
                 return (items[row].getChecked()) ? "0" : "1";
             case STATUS_COLUMN:
-                return items[row].getImage(column).toString();
+                return FileMoveIcon.getImagePriority(items[row].getImage(column));
             default:
                 return items[row].getText(column);
         }
