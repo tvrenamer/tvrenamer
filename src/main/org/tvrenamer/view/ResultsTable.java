@@ -112,6 +112,14 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         return taskItem;
     }
 
+    private static String getCellStatusString(final TableItem item, final int columnId) {
+        // Sorting alphabetically by the status icon's filename is pretty random.
+        // I don't think there is any real ordering for a status; sorting based
+        // on this column makes sense simply to group together items of the
+        // same status.  I don't think it matters what order they're in.
+        return item.getImage(columnId).toString();
+    }
+
     private void deleteItemCombo(final TableItem item) {
         final Object itemData = item.getData();
         if (itemData != null) {
@@ -451,11 +459,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
             case CHECKBOX_COLUMN:
                 return (item.getChecked()) ? "0" : "1";
             case STATUS_COLUMN:
-                // Sorting alphabetically by the status icon's filename is pretty random.
-                // I don't think there is any real ordering for a status; sorting based
-                // on this column makes sense simply to group together items of the
-                // same status.  I don't think it matters what order they're in.
-                return item.getImage(column).toString();
+                return getCellStatusString(item, column);
             case NEW_FILENAME_COLUMN:
                 return itemDestDisplayedText(item);
             default:
