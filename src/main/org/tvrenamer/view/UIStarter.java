@@ -1,7 +1,7 @@
 package org.tvrenamer.view;
 
 import static org.tvrenamer.model.util.Constants.*;
-import static org.tvrenamer.view.FileMoveIcon.*;
+import static org.tvrenamer.view.FileMoveIcon.Status.*;
 import static org.tvrenamer.view.UIUtils.showMessageBox;
 
 import org.eclipse.swt.SWT;
@@ -531,10 +531,10 @@ public final class UIStarter implements Observer, AddEpisodeListener {
             if (tableContainsTableItem(item)) {
                 setProposedDestColumn(item, episode);
                 if (epFound) {
-                    item.setImage(STATUS_COLUMN, SUCCESS.icon);
+                    item.setImage(STATUS_COLUMN, FileMoveIcon.getIcon(SUCCESS));
                     item.setChecked(true);
                 } else {
-                    item.setImage(STATUS_COLUMN, FAIL.icon);
+                    item.setImage(STATUS_COLUMN, FileMoveIcon.getIcon(FAIL));
                     item.setChecked(false);
                 }
             }
@@ -546,7 +546,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         display.asyncExec(() -> {
             if (tableContainsTableItem(item)) {
                 setProposedDestColumn(item, episode);
-                item.setImage(STATUS_COLUMN, FAIL.icon);
+                item.setImage(STATUS_COLUMN, FileMoveIcon.getIcon(FAIL));
                 item.setChecked(false);
             }
         });
@@ -571,7 +571,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         display.asyncExec(() -> {
             if (tableContainsTableItem(item)) {
                 setProposedDestColumn(item, episode);
-                item.setImage(STATUS_COLUMN, ADDED.icon);
+                item.setImage(STATUS_COLUMN, FileMoveIcon.getIcon(ADDED));
             }
         });
     }
@@ -580,7 +580,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         display.asyncExec(() -> {
             if (tableContainsTableItem(item)) {
                 setProposedDestColumn(item, episode);
-                item.setImage(STATUS_COLUMN, FAIL.icon);
+                item.setImage(STATUS_COLUMN, FileMoveIcon.getIcon(FAIL));
                 item.setChecked(false);
             }
         });
@@ -694,7 +694,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         item.setChecked(!isNameIgnored(fileName));
         item.setText(CURRENT_FILE_COLUMN, fileName);
         setProposedDestColumn(item, episode);
-        item.setImage(STATUS_COLUMN, DOWNLOADING.icon);
+        item.setImage(STATUS_COLUMN, FileMoveIcon.getIcon(DOWNLOADING));
         return item;
     }
 

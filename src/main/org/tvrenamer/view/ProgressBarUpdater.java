@@ -24,7 +24,7 @@ public class ProgressBarUpdater implements ProgressUpdater {
 
         if (taskItem != null) {
             taskItem.setProgressState(SWT.NORMAL);
-            taskItem.setOverlayImage(FileMoveIcon.RENAMING.icon);
+            taskItem.setOverlayImage(FileMoveIcon.getIcon(FileMoveIcon.Status.RENAMING));
         }
     }
 
