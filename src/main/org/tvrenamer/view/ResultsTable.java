@@ -497,28 +497,20 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     }
 
     /**
-     * Sort the table by the given column.
-     *
-     * If the column to sort by is the same column that the table is already
-     * sorted by, then the effect is to reverse the ordering of the sort.
+     * Sort the table by the given column in the given direction.
      *
      * @param column
      *    the TableColumn to sort by
+     * @param columnNum
+     *    the position of the TableColumn in the Table
+     * @param sortDirection
+     *    the direction to sort by; SWT.UP means sort A-Z, while SWT.DOWN is Z-A
      */
-    private void sortTable(TableColumn column) {
-        final int columnNum = swtTable.indexOf(column);
-        if (ITEM_NOT_IN_TABLE == columnNum) {
-            logger.severe("unable to locate column in table: " + column);
-            return;
-        }
+    private void sortTable(final TableColumn column, final int columnNum,
+                           final int sortDirection)
+    {
         // Get the items
         TableItem[] items = swtTable.getItems();
-
-        int sortDirection = SWT.UP;
-        TableColumn previousSort = swtTable.getSortColumn();
-        if (column.equals(previousSort)) {
-            sortDirection = swtTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
-        }
 
         // Go through the item list and bubble rows up to the top as appropriate
         for (int i = 1; i < items.length; i++) {
@@ -541,6 +533,29 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         }
         swtTable.setSortDirection(sortDirection);
         swtTable.setSortColumn(column);
+    }
+
+    /**
+     * Sort the table by the given column.
+     *
+     * If the column to sort by is the same column that the table is already
+     * sorted by, then the effect is to reverse the ordering of the sort.
+     *
+     * @param column
+     *    the TableColumn to sort by
+     */
+    void sortTable(final TableColumn column) {
+        final int columnNum = swtTable.indexOf(column);
+        if (ITEM_NOT_IN_TABLE == columnNum) {
+            logger.severe("unable to locate column in table: " + column);
+            return;
+        }
+        int sortDirection = SWT.UP;
+        TableColumn previousSort = swtTable.getSortColumn();
+        if (column.equals(previousSort)) {
+            sortDirection = swtTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
+        }
+        sortTable(column, columnNum, sortDirection);
     }
 
     private void deleteTableItem(final TableItem item) {
