@@ -311,7 +311,7 @@ class PreferencesDialog extends Dialog {
                                             prefs.isRemoveEmptiedDirectories(), generalGroup,
                                             GridData.BEGINNING, 3);
         deleteRowsCheckbox = createCheckbox(DELETE_ROWS_TEXT, DELETE_ROWS_TOOLTIP,
-                                            prefs.isRemoveEmptiedDirectories(), generalGroup,
+                                            prefs.isDeleteRowAfterMove(), generalGroup,
                                             GridData.BEGINNING, 3);
         checkForUpdatesCheckbox = createCheckbox(CHECK_UPDATES_TEXT, CHECK_UPDATES_TOOLTIP,
                                                  prefs.checkForUpdates(), generalGroup,
