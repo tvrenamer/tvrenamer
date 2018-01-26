@@ -123,6 +123,17 @@ class UIUtils {
         return rval;
     }
 
+    /**
+     * Read an image.
+     *
+     * @param resourcePath
+     *     the relative path to try to locate the file as a resource
+     * @return an Image read from the given path
+     */
+    public static Image readImageFromPath(final String resourcePath) {
+        return readImageFromPath(resourcePath, ICON_PARENT_DIRECTORY + "/" + resourcePath);
+    }
+
     public static void checkDestinationDirectory() {
         boolean success = prefs.ensureDestDir();
         if (!success) {

@@ -63,6 +63,7 @@ public class Constants {
     public static final String TVRENAMER_ICON_PATH = "/icons/tvrenamer.png";
     public static final String TVRENAMER_ICON_DIRECT_PATH =
         ICON_PARENT_DIRECTORY + TVRENAMER_ICON_PATH;
+    public static final String RENAMING_PATH = "/icons/SweetieLegacy/16-em-pencil.png";
     public static final String LOGGING_PROPERTIES = "/logging.properties";
     public static final String DEVELOPER_DEFAULT_OVERRIDES_FILENAME = "etc/default-overrides.xml";
 

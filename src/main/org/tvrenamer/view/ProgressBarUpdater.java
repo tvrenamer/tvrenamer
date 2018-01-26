@@ -1,13 +1,17 @@
 package org.tvrenamer.view;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.TaskItem;
 
 import org.tvrenamer.model.ProgressUpdater;
+import org.tvrenamer.model.util.Constants;
 
 public class ProgressBarUpdater implements ProgressUpdater {
+
+    private static Image OVERLAY_IMG = UIUtils.readImageFromPath(Constants.RENAMING_PATH);
 
     private final ResultsTable ui;
     private final Display display;
@@ -24,7 +28,7 @@ public class ProgressBarUpdater implements ProgressUpdater {
 
         if (taskItem != null) {
             taskItem.setProgressState(SWT.NORMAL);
-            taskItem.setOverlayImage(FileMoveIcon.RENAMING.icon);
+            taskItem.setOverlayImage(OVERLAY_IMG);
         }
     }
 
