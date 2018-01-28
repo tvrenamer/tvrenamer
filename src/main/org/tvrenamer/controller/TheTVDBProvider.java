@@ -244,7 +244,7 @@ public class TheTVDBProvider {
             logger.log(Level.WARNING, nfe.getMessage(), nfe);
             throw new TVRenamerIOException(ERROR_PARSING_NUMBERS, nfe);
         } catch (IOException ioe) {
-            logger.log(Level.WARNING, ioe.getMessage(), ioe);
+            logger.warning(ioe.getMessage());
             throw new TVRenamerIOException(DOWNLOADING_FAILED_MESSAGE, ioe);
         }
     }
