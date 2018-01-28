@@ -61,7 +61,6 @@ import org.tvrenamer.model.UserPreference;
 import org.tvrenamer.model.UserPreferences;
 import org.tvrenamer.model.util.Environment;
 
-import java.io.InputStream;
 import java.text.Collator;
 import java.util.LinkedList;
 import java.util.List;
@@ -909,26 +908,11 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         }
     }
 
-    private Image getAppIcon() {
-        try {
-            InputStream icon = getClass().getResourceAsStream(TVRENAMER_ICON_PATH);
-            if (icon != null) {
-                return new Image(display, icon);
-            } else {
-                return new Image(display, TVRENAMER_ICON_DIRECT_PATH);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     ResultsTable(final UIStarter ui) {
         this.ui = ui;
         this.shell = ui.shell;
         this.display = ui.display;
-        appIcon = getAppIcon();
+        appIcon = UIUtils.readImageFromPath(TVRENAMER_ICON_PATH);
 
         setupTopButtons();
         swtTable = new Table(shell, SWT.CHECK | SWT.FULL_SELECTION | SWT.MULTI);
