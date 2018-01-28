@@ -21,6 +21,16 @@ public final class UIStarter {
     private final Display display;
     private final ResultsTable resultsTable;
 
+    private void positionWindow() {
+        // place the window near the lower right-hand corner
+        Monitor primary = display.getPrimaryMonitor();
+        Rectangle bounds = primary.getBounds();
+        Rectangle rect = shell.getBounds();
+        int x = bounds.x + (bounds.width - rect.width) - 5;
+        int y = bounds.y + (bounds.height - rect.height) - 35;
+        shell.setLocation(x, y);
+    }
+
     public UIStarter() {
         // Setup display and shell
         display = new Display();
@@ -44,13 +54,7 @@ public final class UIStarter {
 
     public int run() {
         try {
-            // place the window near the lower right-hand corner
-            Monitor primary = display.getPrimaryMonitor();
-            Rectangle bounds = primary.getBounds();
-            Rectangle rect = shell.getBounds();
-            int x = bounds.x + (bounds.width - rect.width) - 5;
-            int y = bounds.y + (bounds.height - rect.height) - 35;
-            shell.setLocation(x, y);
+            positionWindow();
 
             // Start the shell
             shell.pack();
