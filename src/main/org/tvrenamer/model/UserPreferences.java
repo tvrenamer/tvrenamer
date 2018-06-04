@@ -583,6 +583,7 @@ public class UserPreferences extends Observable {
             + ",\n  moveEnabled=" + moveEnabled + ",\n  renameEnabled=" + renameEnabled
             + ",\n  renameReplacementMask=" + renameReplacementMask
             + ",\n  checkForUpdates=" + checkForUpdates
+            + ",\n  deleteRowAfterMove=" + deleteRowAfterMove
             + ",\n  setRecursivelyAddFolders=" + recursivelyAddFolders + "]";
     }
 }
