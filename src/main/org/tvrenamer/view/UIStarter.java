@@ -144,9 +144,30 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         display.dispose();
     }
 
+    private int getTableItemIndex(TableItem item) {
+        try {
+            return resultsTable.indexOf(item);
+        } catch (IllegalArgumentException | SWTException ignored) {
+            // We'll just fall through and return the sentinel.
+        }
+        return ITEM_NOT_IN_TABLE;
+    }
+
     private void deleteTableItem(final TableItem item) {
         episodeMap.remove(item.getText(CURRENT_FILE_COLUMN));
         item.dispose();
+    }
+
+    private void deleteSelectedTableItems() {
+        for (final TableItem item : resultsTable.getSelection()) {
+            int index = getTableItemIndex(item);
+            deleteTableItem(item);
+
+            if (ITEM_NOT_IN_TABLE == index) {
+                logger.info("error: somehow selected item not found in table");
+            }
+        }
+        resultsTable.deselectAll();
     }
 
     private void setupTopButtons() {
@@ -643,15 +664,6 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         }
     }
 
-    private int getTableItemIndex(TableItem item) {
-        try {
-            return resultsTable.indexOf(item);
-        } catch (IllegalArgumentException | SWTException ignored) {
-            // We'll just fall through and return the sentinel.
-        }
-        return ITEM_NOT_IN_TABLE;
-    }
-
     private boolean tableContainsTableItem(TableItem item) {
         return (ITEM_NOT_IN_TABLE != getTableItemIndex(item));
     }
@@ -705,16 +717,15 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         return item;
     }
 
-    private void deleteSelectedTableItems() {
-        for (final TableItem item : resultsTable.getSelection()) {
-            int index = getTableItemIndex(item);
-            deleteTableItem(item);
-
-            if (ITEM_NOT_IN_TABLE == index) {
-                logger.info("error: somehow selected item not found in table");
-            }
+    private static String getItemTextValue(final TableItem item, final int column) {
+        switch (column) {
+            case CHECKBOX_COLUMN:
+                return (item.getChecked()) ? "0" : "1";
+            case STATUS_COLUMN:
+                return FileMoveIcon.getImagePriority(item.getImage(column));
+            default:
+                return item.getText(column);
         }
-        resultsTable.deselectAll();
     }
 
     /**
@@ -737,18 +748,9 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         item.setText(NEW_FILENAME_COLUMN, oldItem.getText(NEW_FILENAME_COLUMN));
         item.setImage(STATUS_COLUMN, oldItem.getImage(STATUS_COLUMN));
 
+        // Although the name suggests dispose() is primarily about reclaiming system
+        // resources, it also deletes the item from the Table.
         oldItem.dispose();
-    }
-
-    private static String getItemTextValue(final TableItem item, final int column) {
-        switch (column) {
-            case CHECKBOX_COLUMN:
-                return (item.getChecked()) ? "0" : "1";
-            case STATUS_COLUMN:
-                return FileMoveIcon.getImagePriority(item.getImage(column));
-            default:
-                return item.getText(column);
-        }
     }
 
     /**
