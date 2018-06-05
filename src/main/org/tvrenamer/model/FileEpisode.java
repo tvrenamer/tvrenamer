@@ -141,6 +141,7 @@ public class FileEpisode {
     // information about an actual episode of a show, based on listings from the provider.
     // Once we have the listings, we should be able to map this instance to an Episode.
     private List<Episode> actualEpisodes = null;
+    private int chosenEpisode = 0;
 
     // The state of this object, not the state of the actual TV episode.
     private ParseStatus parseStatus = ParseStatus.UNPARSED;
@@ -293,7 +294,7 @@ public class FileEpisode {
             throw new IllegalStateException("suffix of a FileEpisode may not change!");
         }
         originalBasename = StringUtils.removeLast(fileNameString, filenameSuffix);
-        baseForRename = getRenamedBasename(0);
+        baseForRename = getRenamedBasename(chosenEpisode);
         checkFile(true);
     }
 
@@ -402,6 +403,7 @@ public class FileEpisode {
      *
      */
     public void listingsComplete() {
+        chosenEpisode = 0;
         if (actualShow == null) {
             logger.warning("error: should not get listings, do not have show!");
             seriesStatus = SeriesStatus.NOT_STARTED;
@@ -594,6 +596,25 @@ public class FileEpisode {
 
     /**
      *
+     * @param n
+     *    the option chosen
+     */
+    public void setChosenEpisode(final int n) {
+        if (n >= actualEpisodes.size()) {
+            logger.warning("no option " + n + " for " + this);
+        } else {
+            int previous = chosenEpisode;
+            chosenEpisode = n;
+            if (chosenEpisode != previous) {
+                logger.info("changing episode from " + actualEpisodes.get(previous).getTitle()
+                            + " to " + actualEpisodes.get(chosenEpisode).getTitle());
+                baseForRename = getRenamedBasename(chosenEpisode);
+            }
+        }
+    }
+
+    /**
+     *
      */
     public String getDestinationBasename() {
         if (userPrefs.isRenameEnabled()) {
@@ -620,7 +641,7 @@ public class FileEpisode {
         if (userPrefs.isRenameEnabled()) {
             for (int i=0; i < actualEpisodes.size(); i++) {
                 String newBasename = getRenamedBasename(i);
-                if (i == 0) {
+                if (i == chosenEpisode) {
                     baseForRename = newBasename;
                 }
 
@@ -639,7 +660,7 @@ public class FileEpisode {
             logger.severe("apparently both rename and move are disabled! This is not allowed!");
             replacementOptions.add(fileNameString);
         }
-        replacementText = replacementOptions.get(0);
+        replacementText = replacementOptions.get(chosenEpisode);
     }
 
     /**
