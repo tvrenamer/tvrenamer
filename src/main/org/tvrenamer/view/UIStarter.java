@@ -728,12 +728,22 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         resultsTable.deselectAll();
     }
 
-    private void setSortedItem(int i, int j) {
+    /**
+     * Insert a copy of the row at the given position, and then delete the original row.
+     * Note that insertion does not overwrite the row that is already there.  It pushes
+     * the row, and every row below it, down one slot.
+     *
+     * @param i
+     *   the index of the TableItem to copy
+     * @param positionToInsert
+     *   the position where we should insert the row
+     */
+    private void setSortedItem(final int i, final int positionToInsert) {
         TableItem oldItem = resultsTable.getItem(i);
         boolean wasChecked = oldItem.getChecked();
         int oldStyle = oldItem.getStyle();
 
-        TableItem item = new TableItem(resultsTable, oldStyle, j);
+        TableItem item = new TableItem(resultsTable, oldStyle, positionToInsert);
         item.setChecked(wasChecked);
         item.setText(CURRENT_FILE_COLUMN, oldItem.getText(CURRENT_FILE_COLUMN));
         item.setText(NEW_FILENAME_COLUMN, oldItem.getText(NEW_FILENAME_COLUMN));
@@ -742,7 +752,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         oldItem.dispose();
     }
 
-    private String getResultsTableTextValue(TableItem[] items, int row, int column) {
+    private static String getResultsTableTextValue(TableItem[] items, int row, final int column) {
         switch (column) {
             case CHECKBOX_COLUMN:
                 return (items[row].getChecked()) ? "0" : "1";
@@ -753,33 +763,28 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         }
     }
 
-    private void sortTable(int position) {
+    private void sortTable(final int columnNum) {
+        int sortDirection = resultsTable.getSortDirection();
         // Get the items
         TableItem[] items = resultsTable.getItems();
         Collator collator = Collator.getInstance(Locale.getDefault());
 
-        // Go through the item list and
+        // Go through the item list and bubble rows up to the top as appropriate
         for (int i = 1; i < items.length; i++) {
-            String value1 = getResultsTableTextValue(items, i, position);
+            String value1 = getResultsTableTextValue(items, i, columnNum);
             for (int j = 0; j < i; j++) {
-                String value2 = getResultsTableTextValue(items, j, position);
+                String value2 = getResultsTableTextValue(items, j, columnNum);
                 // Compare the two values and order accordingly
-                if (resultsTable.getSortDirection() == SWT.UP) {
-                    if (collator.compare(value1, value2) < 0) {
-                        setSortedItem(i, j);
-                        // the snippet replaces the items with the new items, we
-                        // do the same
-                        items = resultsTable.getItems();
-                        break;
-                    }
-                } else {
-                    if (collator.compare(value1, value2) > 0) {
-                        setSortedItem(i, j);
-                        // the snippet replaces the items with the new items, we
-                        // do the same
-                        items = resultsTable.getItems();
-                        break;
-                    }
+                int comparison = collator.compare(value1, value2);
+                if (((comparison < 0) && (sortDirection == SWT.UP))
+                    || (comparison > 0) && (sortDirection == SWT.DOWN))
+                {
+                    // Insert a copy of row i at position j, and then delete
+                    // row i.  Then fetch the list of items anew, since we
+                    // just modified it.
+                    setSortedItem(i, j);
+                    items = resultsTable.getItems();
+                    break;
                 }
             }
         }
