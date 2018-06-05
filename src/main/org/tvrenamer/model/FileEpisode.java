@@ -146,6 +146,7 @@ public class FileEpisode {
     @SuppressWarnings("unused")
     private FileStatus fileStatus = FileStatus.UNCHECKED;
 
+    private String replacementText = ADDED_PLACEHOLDER_FILENAME;
     private String reasonIgnored = null;
 
     // The originalBasename is what you get when you take original file path, remove the
@@ -310,10 +311,12 @@ public class FileEpisode {
 
     public void setParsed() {
         parseStatus = ParseStatus.PARSED;
+        replacementText = ADDED_PLACEHOLDER_FILENAME;
     }
 
     public void setFailToParse() {
         parseStatus = ParseStatus.BAD_PARSE;
+        replacementText = BAD_PARSE_MESSAGE;
     }
 
     public void setMoving() {
@@ -372,8 +375,10 @@ public class FileEpisode {
         actualShow = show;
         if (actualShow == null) {
             seriesStatus = SeriesStatus.UNFOUND;
+            replacementText = getNoShowPlaceholder();
         } else {
             seriesStatus = SeriesStatus.GOT_SHOW;
+            replacementText = getShowNamePlaceholder();
         }
     }
 
@@ -384,11 +389,13 @@ public class FileEpisode {
         if (actualShow == null) {
             logger.warning("error: should not get listings, do not have show!");
             seriesStatus = SeriesStatus.NOT_STARTED;
+            replacementText = BAD_PARSE_MESSAGE;
             return;
         }
 
         if (!actualShow.hasEpisodes()) {
             seriesStatus = SeriesStatus.NO_LISTINGS;
+            replacementText = getNoListingsPlaceholder();
             return;
         }
 
@@ -398,11 +405,13 @@ public class FileEpisode {
                         + placement.episode + " not found for show '"
                         + filenameShow + "'");
             seriesStatus = SeriesStatus.NO_MATCH;
+            replacementText = getNoMatchPlaceholder();
             return;
         }
 
         // Success!!!
         seriesStatus = SeriesStatus.GOT_LISTINGS;
+        replacementText = buildReplacementText();
     }
 
     /**
@@ -413,6 +422,7 @@ public class FileEpisode {
      */
     public void listingsFailed(Exception err) {
         seriesStatus = SeriesStatus.NO_LISTINGS;
+        replacementText = getNoListingsPlaceholder();
         if (err != null) {
             logger.log(Level.WARNING, "failed to get listings for " + this, err);
         }
@@ -572,60 +582,43 @@ public class FileEpisode {
 
     /**
      *
-     * @return the new full file path (for table display) using {@link #getRenamedBasename()} and
-     *          the destination directory
+     * @return the new full file path, or user message, for table display
      */
     public String getReplacementText() {
         if (reasonIgnored != null) {
             return "Ignoring file due to \"" + reasonIgnored + "\"";
         }
-        switch (seriesStatus) {
-            case GOT_LISTINGS: {
-                if (userPrefs.isRenameEnabled()) {
-                    String newFilename = getRenamedBasename() + filenameSuffix;
+        return replacementText;
+    }
 
-                    if (userPrefs.isMoveEnabled()) {
-                        return getMoveToDirectory() + FILE_SEPARATOR_STRING + newFilename;
-                    } else {
-                        return newFilename;
-                    }
-                } else if (userPrefs.isMoveEnabled()) {
-                    return getMoveToDirectory() + FILE_SEPARATOR_STRING + fileNameString;
-                } else {
-                    // This setting doesn't make any sense, but we haven't bothered to
-                    // disallow it yet.
-                    return fileNameString;
-                }
+    private String buildReplacementText() {
+        if (userPrefs.isRenameEnabled()) {
+            String newFilename = getRenamedBasename() + filenameSuffix;
+
+            if (userPrefs.isMoveEnabled()) {
+                return getMoveToDirectory() + FILE_SEPARATOR_STRING + newFilename;
+            } else {
+                return newFilename;
             }
-            case NO_MATCH: {
-                return getNoMatchPlaceholder();
-            }
-            case NO_LISTINGS: {
-                return getNoListingsPlaceholder();
-            }
-            case GOT_SHOW: {
-                return getShowNamePlaceholder();
-            }
-            case UNFOUND: {
-                return getNoShowPlaceholder();
-            }
-            default: {
-                if (seriesStatus != SeriesStatus.NOT_STARTED) {
-                    logger.warning("internal error, seriesStatus check apparently not exhaustive: "
-                                   + seriesStatus);
-                }
-                switch (parseStatus) {
-                    case UNPARSED: {
-                        return EMPTY_STRING;
-                    }
-                    case BAD_PARSE: {
-                        return BAD_PARSE_MESSAGE;
-                    }
-                    default: {
-                        return ADDED_PLACEHOLDER_FILENAME;
-                    }
-                }
-            }
+        } else if (userPrefs.isMoveEnabled()) {
+            return getMoveToDirectory() + FILE_SEPARATOR_STRING + fileNameString;
+        } else {
+            // This setting doesn't make any sense, but we haven't bothered to
+            // disallow it yet.
+            logger.severe("apparently both rename and move are disabled! This is not allowed!");
+            return fileNameString;
+        }
+    }
+
+    /**
+     * Refresh the proposed destination for this file episode, presumably after
+     * the user has made a change to something like the replacement template,
+     * the output destination folder, etc.
+     *
+     */
+    public void refreshReplacement() {
+        if (seriesStatus == SeriesStatus.GOT_LISTINGS) {
+            replacementText = buildReplacementText();
         }
     }
 

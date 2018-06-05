@@ -802,6 +802,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         for (TableItem item : resultsTable.getItems()) {
             String fileName = item.getText(CURRENT_FILE_COLUMN);
             FileEpisode episode = episodeMap.remove(fileName);
+            episode.refreshReplacement();
             String newFileName = episode.getFilepath();
             episodeMap.put(newFileName, episode);
             item.setText(CURRENT_FILE_COLUMN, newFileName);
