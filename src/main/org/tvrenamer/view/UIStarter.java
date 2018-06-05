@@ -546,6 +546,11 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         }
     }
 
+    private void failTableItem(final TableItem item) {
+        item.setImage(STATUS_COLUMN, FileMoveIcon.getIcon(FAIL));
+        item.setChecked(false);
+    }
+
     private void listingsDownloaded(TableItem item, FileEpisode episode) {
         episode.listingsComplete();
         display.asyncExec(() -> {
@@ -555,8 +560,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
                     item.setImage(STATUS_COLUMN, FileMoveIcon.getIcon(SUCCESS));
                     item.setChecked(true);
                 } else {
-                    item.setImage(STATUS_COLUMN, FileMoveIcon.getIcon(FAIL));
-                    item.setChecked(false);
+                    failTableItem(item);
                 }
             }
         });
@@ -567,8 +571,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         display.asyncExec(() -> {
             if (tableContainsTableItem(item)) {
                 setProposedDestColumn(item, episode);
-                item.setImage(STATUS_COLUMN, FileMoveIcon.getIcon(FAIL));
-                item.setChecked(false);
+                failTableItem(item);
             }
         });
     }
@@ -601,8 +604,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         display.asyncExec(() -> {
             if (tableContainsTableItem(item)) {
                 setProposedDestColumn(item, episode);
-                item.setImage(STATUS_COLUMN, FileMoveIcon.getIcon(FAIL));
-                item.setChecked(false);
+                failTableItem(item);
             }
         });
     }
