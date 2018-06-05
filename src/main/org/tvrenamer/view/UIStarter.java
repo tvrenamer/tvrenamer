@@ -746,7 +746,7 @@ public final class UIStarter implements Observer,  AddEpisodeListener {
             for (int j = 0; j < i; j++) {
                 String value2 = items[j].getText(position);
                 // Compare the two values and order accordingly
-                if (resultsTable.getSortDirection() == SWT.DOWN) {
+                if (resultsTable.getSortDirection() == SWT.UP) {
                     if (collator.compare(value1, value2) < 0) {
                         setSortedItem(i, j);
                         // the snippet replaces the items with the new items, we
