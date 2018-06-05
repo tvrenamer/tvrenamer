@@ -414,8 +414,6 @@ class PreferencesDialog extends Dialog {
         prefs.setRecursivelyAddFolders(recurseFoldersCheckbox.getSelection());
         prefs.setDestinationDirectory(destDirText.getText());
 
-        UIUtils.checkDestinationDirectory(prefs);
-
         UserPreferences.store(prefs);
     }
 }
