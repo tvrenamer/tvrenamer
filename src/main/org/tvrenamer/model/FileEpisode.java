@@ -290,6 +290,7 @@ public class FileEpisode {
             throw new IllegalStateException("suffix of a FileEpisode may not change!");
         }
         originalBasename = StringUtils.removeLast(fileNameString, filenameSuffix);
+        baseForRename = getRenamedBasename();
         checkFile(true);
     }
 
@@ -547,25 +548,39 @@ public class FileEpisode {
         return StringUtils.sanitiseTitle(newFilename);
     }
 
+    /**
+     *
+     */
     String getRenamedBasename() {
+        if (!userPrefs.isRenameEnabled()) {
+            return null;
+        }
+
         if (actualShow == null) {
             logger.severe("cannot rename without an actual Show.");
-            return fileNameString;
+            return originalBasename;
         }
         if (actualEpisode == null) {
             logger.severe("should not be renaming when have no actual episodes");
-            return fileNameString;
+            return originalBasename;
         }
 
-        // Note, this is an instance variable, not a local variable.
-        baseForRename = plugInInformation(userPrefs.getRenameReplacementString(), actualShow.getName(),
-                                          placement, actualEpisode, filenameResolution);
-        return baseForRename;
+        return plugInInformation(userPrefs.getRenameReplacementString(), actualShow.getName(),
+                                 placement, actualEpisode, filenameResolution);
     }
 
+    /**
+     *
+     */
     public String getDestinationBasename() {
         if (userPrefs.isRenameEnabled()) {
-            return getRenamedBasename();
+            if (baseForRename == null) {
+                logger.warning("unable to get destination basename; "
+                               + "reverting to original basename "
+                               + originalBasename);
+                return originalBasename;
+            }
+            return baseForRename;
         } else {
             return originalBasename;
         }
@@ -592,8 +607,9 @@ public class FileEpisode {
     }
 
     private String buildReplacementText() {
+        baseForRename = getRenamedBasename();
         if (userPrefs.isRenameEnabled()) {
-            String newFilename = getRenamedBasename() + filenameSuffix;
+            String newFilename = baseForRename + filenameSuffix;
 
             if (userPrefs.isMoveEnabled()) {
                 return getMoveToDirectory() + FILE_SEPARATOR_STRING + newFilename;
