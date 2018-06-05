@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -138,7 +139,7 @@ public class FileEpisode {
     // believe it refers to, based on the filename.  The "Episode" class represents
     // information about an actual episode of a show, based on listings from the provider.
     // Once we have the listings, we should be able to map this instance to an Episode.
-    private Episode actualEpisode = null;
+    private List<Episode> actualEpisodes = null;
 
     // The state of this object, not the state of the actual TV episode.
     private ParseStatus parseStatus = ParseStatus.UNPARSED;
@@ -307,7 +308,7 @@ public class FileEpisode {
     }
 
     public boolean isReady() {
-        return (actualEpisode != null) && (reasonIgnored == null);
+        return (actualEpisodes != null) && (actualEpisodes.size() > 0) && (reasonIgnored == null);
     }
 
     public void setParsed() {
@@ -400,8 +401,11 @@ public class FileEpisode {
             return;
         }
 
-        actualEpisode = actualShow.getEpisode(placement);
-        if (actualEpisode == null) {
+        actualEpisodes = actualShow.getEpisodes(placement);
+        if ((actualEpisodes != null) && (actualEpisodes.size() == 0)) {
+            actualEpisodes = null;
+        }
+        if (actualEpisodes == null) {
             logger.info("Season #" + placement.season + ", Episode #"
                         + placement.episode + " not found for show '"
                         + filenameShow + "'");
@@ -411,8 +415,7 @@ public class FileEpisode {
         }
 
         // Success!!!
-        seriesStatus = SeriesStatus.GOT_LISTINGS;
-        replacementText = buildReplacementText();
+        buildReplacementTextOptions();
     }
 
     /**
@@ -560,13 +563,17 @@ public class FileEpisode {
             logger.severe("cannot rename without an actual Show.");
             return originalBasename;
         }
-        if (actualEpisode == null) {
+        if (actualEpisodes == null) {
             logger.severe("should not be renaming when have no actual episodes");
+            return originalBasename;
+        }
+        if (actualEpisodes.size() == 0) {
+            logger.severe("cannot get option of " + this);
             return originalBasename;
         }
 
         return plugInInformation(userPrefs.getRenameReplacementString(), actualShow.getName(),
-                                 placement, actualEpisode, filenameResolution);
+                                 placement, actualEpisodes.get(0), filenameResolution);
     }
 
     /**
@@ -583,6 +590,33 @@ public class FileEpisode {
             return baseForRename;
         } else {
             return originalBasename;
+        }
+    }
+
+    /**
+     * Build the new full file path options (for table display) using {@link #getRenamedBasename()}
+     * and the destination directory
+     *
+     */
+    private synchronized void buildReplacementTextOptions() {
+        seriesStatus = SeriesStatus.GOT_LISTINGS;
+        if (userPrefs.isRenameEnabled()) {
+            Episode actualEpisode = actualEpisodes.get(0);
+            baseForRename = getRenamedBasename();
+
+            if (userPrefs.isMoveEnabled()) {
+                replacementText = getMoveToDirectory() + FILE_SEPARATOR_STRING
+                    + baseForRename + filenameSuffix;
+            } else {
+                replacementText = baseForRename + filenameSuffix;
+            }
+        } else if (userPrefs.isMoveEnabled()) {
+            replacementText = getMoveToDirectory() + FILE_SEPARATOR_STRING + fileNameString;
+        } else {
+            // This setting doesn't make any sense, but we haven't bothered to
+            // disallow it yet.
+            logger.severe("apparently both rename and move are disabled! This is not allowed!");
+            replacementText = fileNameString;
         }
     }
 
@@ -606,26 +640,6 @@ public class FileEpisode {
         return replacementText;
     }
 
-    private String buildReplacementText() {
-        baseForRename = getRenamedBasename();
-        if (userPrefs.isRenameEnabled()) {
-            String newFilename = baseForRename + filenameSuffix;
-
-            if (userPrefs.isMoveEnabled()) {
-                return getMoveToDirectory() + FILE_SEPARATOR_STRING + newFilename;
-            } else {
-                return newFilename;
-            }
-        } else if (userPrefs.isMoveEnabled()) {
-            return getMoveToDirectory() + FILE_SEPARATOR_STRING + fileNameString;
-        } else {
-            // This setting doesn't make any sense, but we haven't bothered to
-            // disallow it yet.
-            logger.severe("apparently both rename and move are disabled! This is not allowed!");
-            return fileNameString;
-        }
-    }
-
     /**
      * Refresh the proposed destination for this file episode, presumably after
      * the user has made a change to something like the replacement template,
@@ -634,7 +648,7 @@ public class FileEpisode {
      */
     public void refreshReplacement() {
         if (seriesStatus == SeriesStatus.GOT_LISTINGS) {
-            replacementText = buildReplacementText();
+            buildReplacementTextOptions();
         }
     }
 
