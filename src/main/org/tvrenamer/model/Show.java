@@ -306,6 +306,28 @@ public class Show extends ShowOption {
     }
 
     /**
+     * Look up episodes for the given season and episode of this show.
+     * Returns null if no such episode was found.
+     *
+     * @param placement
+     *           the placement of the episode to return
+     * @return the episodes indexed at the given season and episode of this show.
+     *    Null if no such episode was found.
+     */
+    public List<Episode> getEpisodes(final EpisodePlacement placement) {
+        Season season = seasons.get(placement.season);
+        if (season == null) {
+            logger.warning("no season " + placement.season + " found for show " + name);
+            return null;
+        }
+        List<Episode> rval;
+        synchronized (this) {
+            rval = season.getAll(preferDvd, placement.episode);
+        }
+        return rval;
+    }
+
+    /**
      * Find out whether or not there are seasons associated with this show.
      * Generally this indicates that the show's listings have been downloaded,
      * the episodes have been organized into seasons, and the show is ready to go.
