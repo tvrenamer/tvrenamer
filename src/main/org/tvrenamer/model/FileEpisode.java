@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -147,6 +148,7 @@ public class FileEpisode {
     @SuppressWarnings("unused")
     private FileStatus fileStatus = FileStatus.UNCHECKED;
 
+    private List<String> replacementOptions = null;
     private String replacementText = ADDED_PLACEHOLDER_FILENAME;
     private String reasonIgnored = null;
 
@@ -291,7 +293,7 @@ public class FileEpisode {
             throw new IllegalStateException("suffix of a FileEpisode may not change!");
         }
         originalBasename = StringUtils.removeLast(fileNameString, filenameSuffix);
-        baseForRename = getRenamedBasename();
+        baseForRename = getRenamedBasename(0);
         checkFile(true);
     }
 
@@ -307,8 +309,20 @@ public class FileEpisode {
         return (parseStatus == ParseStatus.PARSED);
     }
 
-    public boolean isReady() {
-        return (actualEpisodes != null) && (actualEpisodes.size() > 0) && (reasonIgnored == null);
+    public synchronized boolean isReady() {
+        if (seriesStatus != SeriesStatus.GOT_LISTINGS) {
+            return false;
+        }
+        if (reasonIgnored != null) {
+            return false;
+        }
+        if (replacementOptions == null) {
+            // This should never happen; if we have GOT_LISTINGS,
+            // replacementOptions should be initialized
+            logger.warning("error: replacementOptions is null despite GOT_LISTINGS");
+            return false;
+        }
+        return true;
     }
 
     public void setParsed() {
@@ -553,8 +567,10 @@ public class FileEpisode {
 
     /**
      *
+     * @param n
+     *    the episode option to get the basename of
      */
-    String getRenamedBasename() {
+    String getRenamedBasename(final int n) {
         if (!userPrefs.isRenameEnabled()) {
             return null;
         }
@@ -567,13 +583,13 @@ public class FileEpisode {
             logger.severe("should not be renaming when have no actual episodes");
             return originalBasename;
         }
-        if (actualEpisodes.size() == 0) {
-            logger.severe("cannot get option of " + this);
+        if (actualEpisodes.size() <= n) {
+            logger.severe("cannot get option " + n + " of " + this);
             return originalBasename;
         }
 
         return plugInInformation(userPrefs.getRenameReplacementString(), actualShow.getName(),
-                                 placement, actualEpisodes.get(0), filenameResolution);
+                                 placement, actualEpisodes.get(n), filenameResolution);
     }
 
     /**
@@ -594,30 +610,36 @@ public class FileEpisode {
     }
 
     /**
-     * Build the new full file path options (for table display) using {@link #getRenamedBasename()}
+     * Build the new full file path options (for table display) using {@link #getRenamedBasename(int)}
      * and the destination directory
      *
      */
     private synchronized void buildReplacementTextOptions() {
         seriesStatus = SeriesStatus.GOT_LISTINGS;
+        replacementOptions = new LinkedList<>();
         if (userPrefs.isRenameEnabled()) {
-            Episode actualEpisode = actualEpisodes.get(0);
-            baseForRename = getRenamedBasename();
+            for (int i=0; i < actualEpisodes.size(); i++) {
+                String newBasename = getRenamedBasename(i);
+                if (i == 0) {
+                    baseForRename = newBasename;
+                }
 
-            if (userPrefs.isMoveEnabled()) {
-                replacementText = getMoveToDirectory() + FILE_SEPARATOR_STRING
-                    + baseForRename + filenameSuffix;
-            } else {
-                replacementText = baseForRename + filenameSuffix;
+                if (userPrefs.isMoveEnabled()) {
+                    replacementOptions.add(getMoveToDirectory() + FILE_SEPARATOR_STRING
+                                           + newBasename + filenameSuffix);
+                } else {
+                    replacementOptions.add(newBasename + filenameSuffix);
+                }
             }
         } else if (userPrefs.isMoveEnabled()) {
-            replacementText = getMoveToDirectory() + FILE_SEPARATOR_STRING + fileNameString;
+            replacementOptions.add(getMoveToDirectory() + FILE_SEPARATOR_STRING + fileNameString);
         } else {
             // This setting doesn't make any sense, but we haven't bothered to
             // disallow it yet.
             logger.severe("apparently both rename and move are disabled! This is not allowed!");
-            replacementText = fileNameString;
+            replacementOptions.add(fileNameString);
         }
+        replacementText = replacementOptions.get(0);
     }
 
     /**

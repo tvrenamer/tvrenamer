@@ -1096,7 +1096,7 @@ public class FileEpisodeTest {
                 assertEquals("suffix fail on " + data.inputFilename,
                              data.filenameSuffix, episode.getFilenameSuffix());
                 assertEquals("test which " + data.documentation,
-                             data.expectedReplacement, episode.getRenamedBasename());
+                             data.expectedReplacement, episode.getRenamedBasename(0));
             } catch (Exception e) {
                 verboseFail("testing " + data, e);
             }
