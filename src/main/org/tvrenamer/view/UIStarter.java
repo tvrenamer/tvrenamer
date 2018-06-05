@@ -631,6 +631,10 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         for (final FileEpisode episode : episodes) {
             final String fileName = episode.getFilepath();
             final TableItem item = createTableItem(resultsTable, fileName, episode);
+            if (!episode.wasParsed()) {
+                failTableItem(item);
+                continue;
+            }
             synchronized (this) {
                 if (apiDeprecated) {
                     tableItemFailed(item, episode);
