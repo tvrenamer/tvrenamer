@@ -49,7 +49,6 @@ import org.tvrenamer.controller.ShowInformationListener;
 import org.tvrenamer.controller.ShowListingsListener;
 import org.tvrenamer.controller.UpdateChecker;
 import org.tvrenamer.controller.UrlLauncher;
-import org.tvrenamer.controller.util.StringUtils;
 import org.tvrenamer.model.EpisodeDb;
 import org.tvrenamer.model.FailedShow;
 import org.tvrenamer.model.FileEpisode;
@@ -85,7 +84,6 @@ public final class UIStarter implements Observer, AddEpisodeListener {
 
     private Shell shell;
     private Display display;
-    private List<String> ignoreKeywords;
 
     private Button addFilesButton;
     private Button addFolderButton;
@@ -619,9 +617,6 @@ public final class UIStarter implements Observer, AddEpisodeListener {
 
     @Override
     public void addEpisodes(Queue<FileEpisode> episodes) {
-        // Update the list of ignored keywords
-        ignoreKeywords = prefs.getIgnoreKeywords();
-
         for (final FileEpisode episode : episodes) {
             final String fileName = episode.getFilepath();
             final TableItem item = createTableItem(resultsTable, fileName, episode);
@@ -711,21 +706,11 @@ public final class UIStarter implements Observer, AddEpisodeListener {
     private TableItem createTableItem(Table tblResults, String fileName, FileEpisode episode) {
         TableItem item = new TableItem(tblResults, SWT.NONE);
 
-        // Set if the item is checked or not according to a list of banned keywords
-        item.setChecked(!isNameIgnored(fileName));
+        item.setChecked(true);
         item.setText(CURRENT_FILE_COLUMN, fileName);
         setProposedDestColumn(item, episode);
         item.setImage(STATUS_COLUMN, FileMoveIcon.getIcon(DOWNLOADING));
         return item;
-    }
-
-    private boolean isNameIgnored(String fileName) {
-        for (String ignoreKeyword : ignoreKeywords) {
-            if (StringUtils.toLower(fileName).contains(ignoreKeyword)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private void deleteSelectedTableItems() {
@@ -877,10 +862,6 @@ public final class UIStarter implements Observer, AddEpisodeListener {
             || (userPref == UserPreference.LEADING_ZERO))
         {
             refreshAll();
-        }
-
-        if (userPref == UserPreference.IGNORE_REGEX) {
-            ignoreKeywords = observed.getIgnoreKeywords();
         }
 
         if (userPref == UserPreference.DEST_DIR) {
