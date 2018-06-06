@@ -576,6 +576,11 @@ public class FileEpisode {
         return StringUtils.sanitiseTitle(newFilename);
     }
 
+    /**
+     *
+     * @param n
+     *    the episode option to get the basename of
+     */
     String getRenamedBasename(final int n) {
         if (!userPrefs.isRenameEnabled()) {
             return null;
