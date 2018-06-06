@@ -196,7 +196,10 @@ public final class UIStarter implements Observer, AddEpisodeListener {
     private void setupMainWindow() {
         setupResultsTable();
         setupTableDragDrop();
+        setupBottomComposite();
+    }
 
+    private void setupBottomComposite() {
         Composite bottomButtonsComposite = new Composite(shell, SWT.FILL);
         bottomButtonsComposite.setLayout(new GridLayout(3, false));
 
