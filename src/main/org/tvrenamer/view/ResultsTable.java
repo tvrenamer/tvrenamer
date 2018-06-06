@@ -516,6 +516,34 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         item.setChecked(false);
     }
 
+    private void listingsDownloaded(final TableItem item, final FileEpisode episode) {
+        int epsFound = episode.listingsComplete();
+        display.asyncExec(() -> {
+            if (tableContainsTableItem(item)) {
+                setProposedDestColumn(item, episode);
+                if (epsFound > 1) {
+                    setCellImage(item, STATUS_COLUMN, OPTIONS);
+                    item.setChecked(true);
+                } else if (epsFound == 1) {
+                    setCellImage(item, STATUS_COLUMN, SUCCESS);
+                    item.setChecked(true);
+                } else {
+                    failTableItem(item);
+                }
+            }
+        });
+    }
+
+    private void listingsFailed(final TableItem item, final FileEpisode episode, final Exception err) {
+        episode.listingsFailed(err);
+        display.asyncExec(() -> {
+            if (tableContainsTableItem(item)) {
+                setProposedDestColumn(item, episode);
+                failTableItem(item);
+            }
+        });
+    }
+
     public void refreshAll() {
         logger.info("Refreshing table");
         for (TableItem item : swtTable.getItems()) {
@@ -617,34 +645,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
 
     private boolean tableContainsTableItem(final TableItem item) {
         return (ITEM_NOT_IN_TABLE != getTableItemIndex(item));
-    }
-
-    private void listingsDownloaded(final TableItem item, final FileEpisode episode) {
-        int epsFound = episode.listingsComplete();
-        display.asyncExec(() -> {
-            if (tableContainsTableItem(item)) {
-                setProposedDestColumn(item, episode);
-                if (epsFound > 1) {
-                    setCellImage(item, STATUS_COLUMN, OPTIONS);
-                    item.setChecked(true);
-                } else if (epsFound == 1) {
-                    setCellImage(item, STATUS_COLUMN, SUCCESS);
-                    item.setChecked(true);
-                } else {
-                    failTableItem(item);
-                }
-            }
-        });
-    }
-
-    private void listingsFailed(final TableItem item, final FileEpisode episode, final Exception err) {
-        episode.listingsFailed(err);
-        display.asyncExec(() -> {
-            if (tableContainsTableItem(item)) {
-                setProposedDestColumn(item, episode);
-                failTableItem(item);
-            }
-        });
     }
 
     private void tableItemFailed(final TableItem item, final FileEpisode episode) {
