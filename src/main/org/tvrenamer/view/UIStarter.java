@@ -360,18 +360,54 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         final TableColumn checkboxColumn = new TableColumn(resultsTable, SWT.LEFT);
         checkboxColumn.setText(CHECKBOX_HEADER);
         checkboxColumn.setWidth(60);
+        checkboxColumn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                int newDirection = resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
+                resultsTable.setSortDirection(newDirection);
+                sortTable(CHECKBOX_COLUMN);
+                resultsTable.setSortColumn(checkboxColumn);
+            }
+        });
 
         final TableColumn sourceColumn = new TableColumn(resultsTable, SWT.LEFT);
         sourceColumn.setText(SOURCE_HEADER);
         sourceColumn.setWidth(550);
+        sourceColumn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                int newDirection = resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
+                resultsTable.setSortDirection(newDirection);
+                sortTable(CURRENT_FILE_COLUMN);
+                resultsTable.setSortColumn(sourceColumn);
+            }
+        });
 
         final TableColumn destinationColumn = new TableColumn(resultsTable, SWT.LEFT);
         setColumnDestText(destinationColumn);
         destinationColumn.setWidth(550);
+        destinationColumn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                int newDirection = resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
+                resultsTable.setSortDirection(newDirection);
+                sortTable(NEW_FILENAME_COLUMN);
+                resultsTable.setSortColumn(destinationColumn);
+            }
+        });
 
         final TableColumn statusColumn = new TableColumn(resultsTable, SWT.LEFT);
         statusColumn.setText(STATUS_HEADER);
         statusColumn.setWidth(60);
+        statusColumn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                int newDirection = resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
+                resultsTable.setSortDirection(newDirection);
+                sortTable(STATUS_COLUMN);
+                resultsTable.setSortColumn(statusColumn);
+            }
+        });
 
         // Allow deleting of elements
         resultsTable.addKeyListener(new KeyAdapter() {
@@ -392,46 +428,6 @@ public final class UIStarter implements Observer, AddEpisodeListener {
                     default:
                 }
 
-            }
-        });
-
-        checkboxColumn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                int newDirection = resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
-                resultsTable.setSortDirection(newDirection);
-                sortTable(CHECKBOX_COLUMN);
-                resultsTable.setSortColumn(checkboxColumn);
-            }
-        });
-
-        sourceColumn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                int newDirection = resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
-                resultsTable.setSortDirection(newDirection);
-                sortTable(CURRENT_FILE_COLUMN);
-                resultsTable.setSortColumn(sourceColumn);
-            }
-        });
-
-        destinationColumn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                int newDirection = resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
-                resultsTable.setSortDirection(newDirection);
-                sortTable(NEW_FILENAME_COLUMN);
-                resultsTable.setSortColumn(destinationColumn);
-            }
-        });
-
-        statusColumn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                int newDirection = resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
-                resultsTable.setSortDirection(newDirection);
-                sortTable(STATUS_COLUMN);
-                resultsTable.setSortColumn(statusColumn);
             }
         });
 
