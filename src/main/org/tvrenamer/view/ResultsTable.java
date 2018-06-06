@@ -569,6 +569,68 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         });
     }
 
+    private synchronized void noteApiFailure() {
+        boolean showDialogBox = !apiDeprecated;
+        apiDeprecated = true;
+        if (showDialogBox) {
+            boolean updateIsAvailable = UpdateChecker.isUpdateAvailable();
+            showMessageBox(SWTMessageBoxType.ERROR, ERROR_LABEL,
+                           updateIsAvailable ? GET_UPDATE_MESSAGE : NEED_UPDATE);
+        }
+    }
+
+    @Override
+    public void addEpisodes(final Queue<FileEpisode> episodes) {
+        for (final FileEpisode episode : episodes) {
+            final String fileName = episode.getFilepath();
+            final TableItem item = createTableItem(swtTable, fileName, episode);
+            if (!episode.wasParsed()) {
+                failTableItem(item);
+                continue;
+            }
+            synchronized (this) {
+                if (apiDeprecated) {
+                    tableItemFailed(item, episode);
+                    continue;
+                }
+            }
+
+            final String showName = episode.getFilenameShow();
+            if (StringUtils.isBlank(showName)) {
+                logger.fine("no show name found for " + episode);
+                continue;
+            }
+            ShowStore.getShow(showName, new ShowInformationListener() {
+                    @Override
+                    public void downloadSucceeded(Show show) {
+                        episode.setEpisodeShow(show);
+                        display.asyncExec(() -> {
+                            if (tableContainsTableItem(item)) {
+                                setProposedDestColumn(item, episode);
+                                setCellImage(item, STATUS_COLUMN, ADDED);
+                            }
+                        });
+                        if (show.isValidSeries()) {
+                            getSeriesListings(show.asSeries(), item, episode);
+                        }
+                    }
+
+                    @Override
+                    public void downloadFailed(FailedShow failedShow) {
+                        // We don't send a FailedShow to the FileEpisode
+                        episode.setEpisodeShow(null);
+                        tableItemFailed(item, episode);
+                    }
+
+                    @Override
+                    public void apiHasBeenDeprecated() {
+                        noteApiFailure();
+                        tableItemFailed(item, episode);
+                    }
+                });
+        }
+    }
+
     public void refreshAll() {
         logger.info("Refreshing table");
         for (TableItem item : swtTable.getItems()) {
@@ -670,68 +732,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
 
     private boolean tableContainsTableItem(final TableItem item) {
         return (ITEM_NOT_IN_TABLE != getTableItemIndex(item));
-    }
-
-    private synchronized void noteApiFailure() {
-        boolean showDialogBox = !apiDeprecated;
-        apiDeprecated = true;
-        if (showDialogBox) {
-            boolean updateIsAvailable = UpdateChecker.isUpdateAvailable();
-            showMessageBox(SWTMessageBoxType.ERROR, ERROR_LABEL,
-                           updateIsAvailable ? GET_UPDATE_MESSAGE : NEED_UPDATE);
-        }
-    }
-
-    @Override
-    public void addEpisodes(final Queue<FileEpisode> episodes) {
-        for (final FileEpisode episode : episodes) {
-            final String fileName = episode.getFilepath();
-            final TableItem item = createTableItem(swtTable, fileName, episode);
-            if (!episode.wasParsed()) {
-                failTableItem(item);
-                continue;
-            }
-            synchronized (this) {
-                if (apiDeprecated) {
-                    tableItemFailed(item, episode);
-                    continue;
-                }
-            }
-
-            final String showName = episode.getFilenameShow();
-            if (StringUtils.isBlank(showName)) {
-                logger.fine("no show name found for " + episode);
-                continue;
-            }
-            ShowStore.getShow(showName, new ShowInformationListener() {
-                    @Override
-                    public void downloadSucceeded(Show show) {
-                        episode.setEpisodeShow(show);
-                        display.asyncExec(() -> {
-                            if (tableContainsTableItem(item)) {
-                                setProposedDestColumn(item, episode);
-                                setCellImage(item, STATUS_COLUMN, ADDED);
-                            }
-                        });
-                        if (show.isValidSeries()) {
-                            getSeriesListings(show.asSeries(), item, episode);
-                        }
-                    }
-
-                    @Override
-                    public void downloadFailed(FailedShow failedShow) {
-                        // We don't send a FailedShow to the FileEpisode
-                        episode.setEpisodeShow(null);
-                        tableItemFailed(item, episode);
-                    }
-
-                    @Override
-                    public void apiHasBeenDeprecated() {
-                        noteApiFailure();
-                        tableItemFailed(item, episode);
-                    }
-                });
-        }
     }
 
     public Label getProgressLabel(final TableItem item) {
