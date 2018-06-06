@@ -119,6 +119,15 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         ui.uiCleanup();
     }
 
+    private int getTableItemIndex(final TableItem item) {
+        try {
+            return swtTable.indexOf(item);
+        } catch (IllegalArgumentException | SWTException ignored) {
+            // We'll just fall through and return the sentinel.
+        }
+        return ITEM_NOT_IN_TABLE;
+    }
+
     Display getDisplay() {
         return display;
     }
@@ -321,15 +330,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         setProposedDestColumn(item, episode);
         setCellImage(item, STATUS_COLUMN, DOWNLOADING);
         return item;
-    }
-
-    private int getTableItemIndex(final TableItem item) {
-        try {
-            return swtTable.indexOf(item);
-        } catch (IllegalArgumentException | SWTException ignored) {
-            // We'll just fall through and return the sentinel.
-        }
-        return ITEM_NOT_IN_TABLE;
     }
 
     private boolean tableContainsTableItem(final TableItem item) {
