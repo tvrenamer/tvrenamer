@@ -36,6 +36,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 class PreferencesDialog extends Dialog {
+    private static final UserPreferences prefs = UserPreferences.getInstance();
 
     private static final int DND_OPERATIONS = DND.DROP_MOVE;
 
@@ -114,8 +115,6 @@ class PreferencesDialog extends Dialog {
         }
     }
 
-    private final UserPreferences prefs;
-
     // The controls to save
     private Button moveEnabledCheckbox;
     private Button renameEnabledCheckbox;
@@ -139,7 +138,6 @@ class PreferencesDialog extends Dialog {
      */
     public PreferencesDialog(Shell parent) {
         super(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
-        this.prefs = UserPreferences.getInstance();
     }
 
     public void open() {
@@ -247,10 +245,12 @@ class PreferencesDialog extends Dialog {
     }
 
     private void populateGeneralTab(final Composite generalGroup) {
+        final boolean moveIsEnabled = prefs.isMoveEnabled();
+        boolean renameIsEnabled = prefs.isRenameEnabled();
         moveEnabledCheckbox = createCheckbox(MOVE_ENABLED_TEXT, MOVE_ENABLED_TOOLTIP,
-                                             prefs.isMoveEnabled(), generalGroup, GridData.BEGINNING, 2);
+                                             moveIsEnabled, generalGroup, GridData.BEGINNING, 2);
         renameEnabledCheckbox = createCheckbox(RENAME_ENABLED_TEXT, RENAME_ENABLED_TOOLTIP,
-                                               prefs.isRenameEnabled(), generalGroup, GridData.END, 1);
+                                               renameIsEnabled, generalGroup, GridData.END, 1);
 
         createLabel(DEST_DIR_TEXT, DEST_DIR_TOOLTIP, generalGroup);
         destDirText = createText(prefs.getDestinationDirectoryName(), generalGroup, false);
