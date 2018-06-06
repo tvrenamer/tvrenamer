@@ -544,6 +544,22 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         });
     }
 
+    private void getSeriesListings(final Series series, final TableItem item,
+                                   final FileEpisode episode)
+    {
+        series.addListingsListener(new ShowListingsListener() {
+                @Override
+                public void listingsDownloadComplete() {
+                    listingsDownloaded(item, episode);
+                }
+
+                @Override
+                public void listingsDownloadFailed(Exception err) {
+                    listingsFailed(item, episode, err);
+                }
+            });
+    }
+
     public void refreshAll() {
         logger.info("Refreshing table");
         for (TableItem item : swtTable.getItems()) {
@@ -654,22 +670,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                 failTableItem(item);
             }
         });
-    }
-
-    private void getSeriesListings(final Series series, final TableItem item,
-                                   final FileEpisode episode)
-    {
-        series.addListingsListener(new ShowListingsListener() {
-                @Override
-                public void listingsDownloadComplete() {
-                    listingsDownloaded(item, episode);
-                }
-
-                @Override
-                public void listingsDownloadFailed(Exception err) {
-                    listingsFailed(item, episode, err);
-                }
-            });
     }
 
     private synchronized void noteApiFailure() {
