@@ -156,6 +156,51 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         swtTable.deselectAll();
     }
 
+    private void setupTopButtons() {
+        final Composite topButtonsComposite = new Composite(shell, SWT.FILL);
+        topButtonsComposite.setLayout(new RowLayout());
+
+        final FileDialog fd = new FileDialog(shell, SWT.MULTI);
+        final Button addFilesButton = new Button(topButtonsComposite, SWT.PUSH);
+        addFilesButton.setText("Add files");
+        addFilesButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                String pathPrefix = fd.open();
+                if (pathPrefix != null) {
+                    episodeMap.addFilesToQueue(pathPrefix, fd.getFileNames());
+                }
+            }
+        });
+
+        final DirectoryDialog dd = new DirectoryDialog(shell, SWT.SINGLE);
+        final Button addFolderButton = new Button(topButtonsComposite, SWT.PUSH);
+        addFolderButton.setText("Add Folder");
+        addFolderButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                String directory = dd.open();
+                if (directory != null) {
+                    // load all of the files in the dir
+                    episodeMap.addFolderToQueue(directory);
+                }
+            }
+
+        });
+
+        final Button clearFilesButton = new Button(topButtonsComposite, SWT.PUSH);
+        clearFilesButton.setText("Clear List");
+        clearFilesButton.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                for (final TableItem item : swtTable.getItems()) {
+                    deleteTableItem(item);
+                }
+            }
+        });
+
+        setupUpdateStuff(topButtonsComposite);
+    }
+
     Display getDisplay() {
         return display;
     }
@@ -640,51 +685,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         } else {
             logger.info("failed to move item: " + item);
         }
-    }
-
-    private void setupTopButtons() {
-        final Composite topButtonsComposite = new Composite(shell, SWT.FILL);
-        topButtonsComposite.setLayout(new RowLayout());
-
-        final FileDialog fd = new FileDialog(shell, SWT.MULTI);
-        final Button addFilesButton = new Button(topButtonsComposite, SWT.PUSH);
-        addFilesButton.setText("Add files");
-        addFilesButton.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                String pathPrefix = fd.open();
-                if (pathPrefix != null) {
-                    episodeMap.addFilesToQueue(pathPrefix, fd.getFileNames());
-                }
-            }
-        });
-
-        final DirectoryDialog dd = new DirectoryDialog(shell, SWT.SINGLE);
-        final Button addFolderButton = new Button(topButtonsComposite, SWT.PUSH);
-        addFolderButton.setText("Add Folder");
-        addFolderButton.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                String directory = dd.open();
-                if (directory != null) {
-                    // load all of the files in the dir
-                    episodeMap.addFolderToQueue(directory);
-                }
-            }
-
-        });
-
-        final Button clearFilesButton = new Button(topButtonsComposite, SWT.PUSH);
-        clearFilesButton.setText("Clear List");
-        clearFilesButton.addSelectionListener(new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent e) {
-                for (final TableItem item : swtTable.getItems()) {
-                    deleteTableItem(item);
-                }
-            }
-        });
-
-        setupUpdateStuff(topButtonsComposite);
     }
 
     private void setupSelectionListener() {
