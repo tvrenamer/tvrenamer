@@ -153,6 +153,11 @@ public class FileEpisode {
     private String replacementText = EMPTY_STRING;
     private String reasonIgnored = null;
 
+    // The originalBasename is what you get when you take original file path, remove the
+    // directory, and remove the file suffix.  For situations when the user wants to move,
+    // but not rename the file, the originalBasename is what the target will be based on.
+    private String originalBasename;
+
     // This is the basic part of what we would rename the file to.  That is, we would
     // rename it to destinationFolder + baseForRename + filenameSuffix.
     private String baseForRename = null;
@@ -172,7 +177,7 @@ public class FileEpisode {
         }
         fileNameString = justNamePath.toString();
         filenameSuffix = StringUtils.getExtension(fileNameString);
-        baseForRename = StringUtils.removeLast(fileNameString, filenameSuffix);
+        originalBasename = StringUtils.removeLast(fileNameString, filenameSuffix);
         checkFile(true);
         FilenameParser.parseFilename(this);
     }
@@ -191,7 +196,7 @@ public class FileEpisode {
         }
         fileNameString = justNamePath.toString();
         filenameSuffix = StringUtils.getExtension(fileNameString);
-        baseForRename = StringUtils.removeLast(fileNameString, filenameSuffix);
+        originalBasename = StringUtils.removeLast(fileNameString, filenameSuffix);
         checkFile(false);
     }
 
@@ -288,7 +293,7 @@ public class FileEpisode {
         if (!filenameSuffix.equals(newSuffix)) {
             throw new IllegalStateException("suffix of a FileEpisode may not change!");
         }
-        baseForRename = StringUtils.removeLast(fileNameString, filenameSuffix);
+        originalBasename = StringUtils.removeLast(fileNameString, filenameSuffix);
         checkFile(true);
     }
 
@@ -573,15 +578,15 @@ public class FileEpisode {
     String getRenamedBasename(final int n) {
         if (actualShow == null) {
             logger.severe("cannot rename without an actual Show.");
-            return fileNameString;
+            return originalBasename;
         }
         if (actualEpisodes == null) {
             logger.severe("should not be renaming when have no actual episodes");
-            return fileNameString;
+            return originalBasename;
         }
         if (actualEpisodes.size() <= n) {
             logger.severe("cannot get option " + n + " of " + this);
-            return fileNameString;
+            return originalBasename;
         }
 
         return plugInInformation(userPrefs.getRenameReplacementString(), actualShow.getName(),
@@ -618,7 +623,11 @@ public class FileEpisode {
     }
 
     public String getDestinationBasename() {
-        return baseForRename;
+        if (userPrefs.isRenameEnabled()) {
+            return baseForRename;
+        } else {
+            return originalBasename;
+        }
     }
 
     /**
