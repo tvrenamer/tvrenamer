@@ -100,6 +100,21 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         episodeMap.preload();
     }
 
+    private void setupUpdateStuff(final Composite parentComposite) {
+        Link updatesAvailableLink = new Link(parentComposite, SWT.VERTICAL);
+        // updatesAvailableLink.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, true));
+        updatesAvailableLink.setVisible(false);
+        updatesAvailableLink.setText(UPDATE_AVAILABLE);
+        updatesAvailableLink.addSelectionListener(new UrlLauncher(TVRENAMER_DOWNLOAD_URL));
+
+        // Show the label if updates are available (in a new thread)
+        UpdateChecker.notifyOfUpdate(updateIsAvailable -> {
+            if (updateIsAvailable) {
+                display.asyncExec(() -> updatesAvailableLink.setVisible(true));
+            }
+        });
+    }
+
     Display getDisplay() {
         return display;
     }
@@ -609,21 +624,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         } else {
             logger.info("failed to move item: " + item);
         }
-    }
-
-    private void setupUpdateStuff(final Composite parentComposite) {
-        Link updatesAvailableLink = new Link(parentComposite, SWT.VERTICAL);
-        // updatesAvailableLink.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, true));
-        updatesAvailableLink.setVisible(false);
-        updatesAvailableLink.setText(UPDATE_AVAILABLE);
-        updatesAvailableLink.addSelectionListener(new UrlLauncher(TVRENAMER_DOWNLOAD_URL));
-
-        // Show the label if updates are available (in a new thread)
-        UpdateChecker.notifyOfUpdate(updateIsAvailable -> {
-            if (updateIsAvailable) {
-                display.asyncExec(() -> updatesAvailableLink.setVisible(true));
-            }
-        });
     }
 
     private void setupTopButtons() {
