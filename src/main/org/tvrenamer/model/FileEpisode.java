@@ -685,7 +685,7 @@ public class FileEpisode {
 
     /**
      *
-     * @return the replacement text for table display
+     * @return the new full file path, or user message, for table display
      */
     public String getReplacementText() {
         if (reasonIgnored != null) {
