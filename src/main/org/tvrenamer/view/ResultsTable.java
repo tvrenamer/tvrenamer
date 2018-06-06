@@ -560,6 +560,15 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
             });
     }
 
+    private void tableItemFailed(final TableItem item, final FileEpisode episode) {
+        display.asyncExec(() -> {
+            if (tableContainsTableItem(item)) {
+                setProposedDestColumn(item, episode);
+                failTableItem(item);
+            }
+        });
+    }
+
     public void refreshAll() {
         logger.info("Refreshing table");
         for (TableItem item : swtTable.getItems()) {
@@ -661,15 +670,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
 
     private boolean tableContainsTableItem(final TableItem item) {
         return (ITEM_NOT_IN_TABLE != getTableItemIndex(item));
-    }
-
-    private void tableItemFailed(final TableItem item, final FileEpisode episode) {
-        display.asyncExec(() -> {
-            if (tableContainsTableItem(item)) {
-                setProposedDestColumn(item, episode);
-                failTableItem(item);
-            }
-        });
     }
 
     private synchronized void noteApiFailure() {
