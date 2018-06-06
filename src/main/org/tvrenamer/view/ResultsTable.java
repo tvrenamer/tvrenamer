@@ -250,6 +250,15 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         }
     }
 
+    private void makeMenuItem(final Menu parent, final String text,
+                              final Listener listener, final char shortcut)
+    {
+        MenuItem newItem = new MenuItem(parent, SWT.PUSH);
+        newItem.setText(text + "\tCtrl+" + shortcut);
+        newItem.addListener(SWT.Selection, listener);
+        newItem.setAccelerator(SWT.CONTROL | shortcut);
+    }
+
     Display getDisplay() {
         return display;
     }
@@ -822,15 +831,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                 }
             }
         });
-    }
-
-    private void makeMenuItem(final Menu parent, final String text,
-                              final Listener listener, final char shortcut)
-    {
-        MenuItem newItem = new MenuItem(parent, SWT.PUSH);
-        newItem.setText(text + "\tCtrl+" + shortcut);
-        newItem.addListener(SWT.Selection, listener);
-        newItem.setAccelerator(SWT.CONTROL | shortcut);
     }
 
     private Menu setupHelpMenuBar(final Menu menuBar) {
