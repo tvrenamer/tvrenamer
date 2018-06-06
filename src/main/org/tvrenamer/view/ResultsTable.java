@@ -259,6 +259,48 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         newItem.setAccelerator(SWT.CONTROL | shortcut);
     }
 
+    private void setupMenuBar() {
+        Menu menuBarMenu = new Menu(shell, SWT.BAR);
+        Menu helpMenu;
+
+        Listener preferencesListener = e -> {
+            PreferencesDialog preferencesDialog = new PreferencesDialog(shell);
+            preferencesDialog.open();
+        };
+        Listener aboutListener = e -> {
+            AboutDialog aboutDialog = new AboutDialog(shell);
+            aboutDialog.open();
+        };
+        Listener quitListener = e -> quit();
+
+        if (Environment.IS_MAC_OSX) {
+            // Add the special Mac OSX Preferences, About and Quit menus.
+            CocoaUIEnhancer enhancer = new CocoaUIEnhancer(APPLICATION_NAME);
+            enhancer.hookApplicationMenu(display, quitListener, aboutListener, preferencesListener);
+
+            setupHelpMenuBar(menuBarMenu);
+        } else {
+            // Add the normal Preferences, About and Quit menus.
+            MenuItem fileMenuItem = new MenuItem(menuBarMenu, SWT.CASCADE);
+            fileMenuItem.setText("File");
+
+            Menu fileMenu = new Menu(shell, SWT.DROP_DOWN);
+            fileMenuItem.setMenu(fileMenu);
+
+            makeMenuItem(fileMenu, PREFERENCES_LABEL, preferencesListener, 'P');
+            makeMenuItem(fileMenu, EXIT_LABEL, quitListener, 'Q');
+
+            helpMenu = setupHelpMenuBar(menuBarMenu);
+
+            // The About item is added to the OSX bar, so we need to add it manually here
+            MenuItem helpAboutItem = new MenuItem(helpMenu, SWT.PUSH);
+            helpAboutItem.setText("About");
+            helpAboutItem.addListener(SWT.Selection, aboutListener);
+        }
+
+        shell.setMenuBar(menuBarMenu);
+    }
+
     Display getDisplay() {
         return display;
     }
@@ -848,48 +890,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         helpVisitWebPageItem.addSelectionListener(new UrlLauncher(TVRENAMER_PROJECT_URL));
 
         return helpMenu;
-    }
-
-    private void setupMenuBar() {
-        Menu menuBarMenu = new Menu(shell, SWT.BAR);
-        Menu helpMenu;
-
-        Listener preferencesListener = e -> {
-            PreferencesDialog preferencesDialog = new PreferencesDialog(shell);
-            preferencesDialog.open();
-        };
-        Listener aboutListener = e -> {
-            AboutDialog aboutDialog = new AboutDialog(shell);
-            aboutDialog.open();
-        };
-        Listener quitListener = e -> quit();
-
-        if (Environment.IS_MAC_OSX) {
-            // Add the special Mac OSX Preferences, About and Quit menus.
-            CocoaUIEnhancer enhancer = new CocoaUIEnhancer(APPLICATION_NAME);
-            enhancer.hookApplicationMenu(display, quitListener, aboutListener, preferencesListener);
-
-            setupHelpMenuBar(menuBarMenu);
-        } else {
-            // Add the normal Preferences, About and Quit menus.
-            MenuItem fileMenuItem = new MenuItem(menuBarMenu, SWT.CASCADE);
-            fileMenuItem.setText("File");
-
-            Menu fileMenu = new Menu(shell, SWT.DROP_DOWN);
-            fileMenuItem.setMenu(fileMenu);
-
-            makeMenuItem(fileMenu, PREFERENCES_LABEL, preferencesListener, 'P');
-            makeMenuItem(fileMenu, EXIT_LABEL, quitListener, 'Q');
-
-            helpMenu = setupHelpMenuBar(menuBarMenu);
-
-            // The About item is added to the OSX bar, so we need to add it manually here
-            MenuItem helpAboutItem = new MenuItem(helpMenu, SWT.PUSH);
-            helpAboutItem.setText("About");
-            helpAboutItem.addListener(SWT.Selection, aboutListener);
-        }
-
-        shell.setMenuBar(menuBarMenu);
     }
 
     ResultsTable(final UIStarter ui) {
