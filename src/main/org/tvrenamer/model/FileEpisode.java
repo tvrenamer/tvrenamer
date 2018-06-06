@@ -150,7 +150,7 @@ public class FileEpisode {
     private FileStatus fileStatus = FileStatus.UNCHECKED;
 
     private List<String> replacementOptions = null;
-    private String replacementText = EMPTY_STRING;
+    private String replacementText = ADDED_PLACEHOLDER_FILENAME;
     private String reasonIgnored = null;
 
     // The originalBasename is what you get when you take original file path, remove the
