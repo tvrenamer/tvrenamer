@@ -115,6 +115,10 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         });
     }
 
+    private void quit() {
+        ui.uiCleanup();
+    }
+
     Display getDisplay() {
         return display;
     }
@@ -769,10 +773,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                 }
             }
         });
-    }
-
-    private void quit() {
-        ui.uiCleanup();
     }
 
     private void setupBottomComposite() {
