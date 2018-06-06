@@ -138,6 +138,12 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         }
     }
 
+    private void deleteTableItem(final TableItem item) {
+        deleteItemCombo(item);
+        episodeMap.remove(getCellText(item, CURRENT_FILE_COLUMN));
+        item.dispose();
+    }
+
     Display getDisplay() {
         return display;
     }
@@ -612,12 +618,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
             sortDirection = swtTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
         }
         sortTable(column, columnNum, sortDirection);
-    }
-
-    private void deleteTableItem(final TableItem item) {
-        deleteItemCombo(item);
-        episodeMap.remove(getCellText(item, CURRENT_FILE_COLUMN));
-        item.dispose();
     }
 
     public void finishMove(final TableItem item, final boolean success) {
