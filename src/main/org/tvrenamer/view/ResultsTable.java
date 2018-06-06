@@ -201,6 +201,41 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         setupUpdateStuff(topButtonsComposite);
     }
 
+    private void setupBottomComposite() {
+        Composite bottomButtonsComposite = new Composite(shell, SWT.FILL);
+        bottomButtonsComposite.setLayout(new GridLayout(3, false));
+
+        GridData bottomButtonsCompositeGridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1);
+        bottomButtonsComposite.setLayoutData(bottomButtonsCompositeGridData);
+
+        final Button quitButton = new Button(bottomButtonsComposite, SWT.PUSH);
+        GridData quitButtonGridData = new GridData(GridData.BEGINNING, GridData.CENTER, false, false);
+        quitButtonGridData.minimumWidth = 70;
+        quitButtonGridData.widthHint = 70;
+        quitButton.setLayoutData(quitButtonGridData);
+        quitButton.setText(QUIT_LABEL);
+        quitButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                quit();
+            }
+        });
+
+        totalProgressBar = new ProgressBar(bottomButtonsComposite, SWT.SMOOTH);
+        totalProgressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
+
+        actionButton = new Button(bottomButtonsComposite, SWT.PUSH);
+        GridData actionButtonGridData = new GridData(GridData.END, GridData.CENTER, false, false);
+        actionButton.setLayoutData(actionButtonGridData);
+        setRenameButtonText(actionButton);
+        actionButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                renameFiles();
+            }
+        });
+    }
+
     Display getDisplay() {
         return display;
     }
@@ -773,42 +808,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                 }
             }
         });
-    }
-
-    private void setupBottomComposite() {
-        Composite bottomButtonsComposite = new Composite(shell, SWT.FILL);
-        bottomButtonsComposite.setLayout(new GridLayout(3, false));
-
-        GridData bottomButtonsCompositeGridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1);
-        bottomButtonsComposite.setLayoutData(bottomButtonsCompositeGridData);
-
-        final Button quitButton = new Button(bottomButtonsComposite, SWT.PUSH);
-        GridData quitButtonGridData = new GridData(GridData.BEGINNING, GridData.CENTER, false, false);
-        quitButtonGridData.minimumWidth = 70;
-        quitButtonGridData.widthHint = 70;
-        quitButton.setLayoutData(quitButtonGridData);
-        quitButton.setText(QUIT_LABEL);
-        quitButton.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                quit();
-            }
-        });
-
-        totalProgressBar = new ProgressBar(bottomButtonsComposite, SWT.SMOOTH);
-        totalProgressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
-
-        actionButton = new Button(bottomButtonsComposite, SWT.PUSH);
-        GridData actionButtonGridData = new GridData(GridData.END, GridData.CENTER, false, false);
-        actionButton.setLayoutData(actionButtonGridData);
-        setRenameButtonText(actionButton);
-        actionButton.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                renameFiles();
-            }
-        });
-
     }
 
     private void setupMainWindow() {
