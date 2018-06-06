@@ -821,14 +821,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         }
     }
 
-    private void setColumnDestText(final TableColumn destinationColumn) {
-        if (prefs.isMoveEnabled()) {
-            destinationColumn.setText(MOVE_HEADER);
-        } else {
-            destinationColumn.setText(RENAME_HEADER);
-        }
-    }
-
     private void setRenameButtonText(final Button b) {
         String label = RENAME_LABEL;
         String tooltip = RENAME_TOOLTIP;
@@ -853,6 +845,14 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         b.setToolTipText(tooltip);
         shell.changed(new Control[] {b});
         shell.layout(false, true);
+    }
+
+    private void setColumnDestText(final TableColumn destinationColumn) {
+        if (prefs.isMoveEnabled()) {
+            destinationColumn.setText(MOVE_HEADER);
+        } else {
+            destinationColumn.setText(RENAME_HEADER);
+        }
     }
 
     private void updateUserPreferences(final UserPreferences observed,
