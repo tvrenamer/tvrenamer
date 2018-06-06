@@ -511,6 +511,11 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         }
     }
 
+    private void failTableItem(final TableItem item) {
+        setCellImage(item, STATUS_COLUMN, FAIL);
+        item.setChecked(false);
+    }
+
     public void refreshAll() {
         logger.info("Refreshing table");
         for (TableItem item : swtTable.getItems()) {
@@ -612,11 +617,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
 
     private boolean tableContainsTableItem(final TableItem item) {
         return (ITEM_NOT_IN_TABLE != getTableItemIndex(item));
-    }
-
-    private void failTableItem(final TableItem item) {
-        setCellImage(item, STATUS_COLUMN, FAIL);
-        item.setChecked(false);
     }
 
     private void listingsDownloaded(final TableItem item, final FileEpisode episode) {
