@@ -148,6 +148,11 @@ public class FileEpisode {
 
     private String reasonIgnored = null;
 
+    // The originalBasename is what you get when you take original file path, remove the
+    // directory, and remove the file suffix.  For situations when the user wants to move,
+    // but not rename the file, the originalBasename is what the target will be based on.
+    private String originalBasename;
+
     // This is the basic part of what we would rename the file to.  That is, we would
     // rename it to destinationFolder + baseForRename + filenameSuffix.
     private String baseForRename = null;
@@ -167,6 +172,7 @@ public class FileEpisode {
         }
         fileNameString = justNamePath.toString();
         filenameSuffix = StringUtils.getExtension(fileNameString);
+        originalBasename = StringUtils.removeLast(fileNameString, filenameSuffix);
         checkFile(true);
         FilenameParser.parseFilename(this);
     }
@@ -185,6 +191,7 @@ public class FileEpisode {
         }
         fileNameString = justNamePath.toString();
         filenameSuffix = StringUtils.getExtension(fileNameString);
+        originalBasename = StringUtils.removeLast(fileNameString, filenameSuffix);
         checkFile(false);
     }
 
@@ -281,6 +288,7 @@ public class FileEpisode {
         if (!filenameSuffix.equals(newSuffix)) {
             throw new IllegalStateException("suffix of a FileEpisode may not change!");
         }
+        originalBasename = StringUtils.removeLast(fileNameString, filenameSuffix);
         checkFile(true);
     }
 
@@ -554,7 +562,7 @@ public class FileEpisode {
         if (userPrefs.isRenameEnabled()) {
             return getRenamedBasename();
         } else {
-            return StringUtils.removeLast(fileNameString, filenameSuffix);
+            return originalBasename;
         }
     }
 
