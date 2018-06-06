@@ -311,6 +311,23 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         }
     }
 
+    private Menu setupHelpMenuBar(final Menu menuBar) {
+        MenuItem helpMenuHeader = new MenuItem(menuBar, SWT.CASCADE);
+        helpMenuHeader.setText("Help");
+
+        Menu helpMenu = new Menu(shell, SWT.DROP_DOWN);
+        helpMenuHeader.setMenu(helpMenu);
+
+        MenuItem helpHelpItem = new MenuItem(helpMenu, SWT.PUSH);
+        helpHelpItem.setText("Help");
+
+        MenuItem helpVisitWebPageItem = new MenuItem(helpMenu, SWT.PUSH);
+        helpVisitWebPageItem.setText("Visit Web Page");
+        helpVisitWebPageItem.addSelectionListener(new UrlLauncher(TVRENAMER_PROJECT_URL));
+
+        return helpMenu;
+    }
+
     Display getDisplay() {
         return display;
     }
@@ -873,23 +890,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                 }
             }
         });
-    }
-
-    private Menu setupHelpMenuBar(final Menu menuBar) {
-        MenuItem helpMenuHeader = new MenuItem(menuBar, SWT.CASCADE);
-        helpMenuHeader.setText("Help");
-
-        Menu helpMenu = new Menu(shell, SWT.DROP_DOWN);
-        helpMenuHeader.setMenu(helpMenu);
-
-        MenuItem helpHelpItem = new MenuItem(helpMenu, SWT.PUSH);
-        helpHelpItem.setText("Help");
-
-        MenuItem helpVisitWebPageItem = new MenuItem(helpMenu, SWT.PUSH);
-        helpVisitWebPageItem.setText("Visit Web Page");
-        helpVisitWebPageItem.addSelectionListener(new UrlLauncher(TVRENAMER_PROJECT_URL));
-
-        return helpMenu;
     }
 
     ResultsTable(final UIStarter ui) {
