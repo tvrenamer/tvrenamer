@@ -128,6 +128,16 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         return ITEM_NOT_IN_TABLE;
     }
 
+    private void deleteItemCombo(final TableItem item) {
+        final Object itemData = item.getData();
+        if (itemData != null) {
+            final Control oldCombo = (Control) itemData;
+            if (!oldCombo.isDisposed()) {
+                oldCombo.dispose();
+            }
+        }
+    }
+
     Display getDisplay() {
         return display;
     }
@@ -179,16 +189,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                                   final Control control)
     {
         editor.setEditor(control, item, columnId);
-    }
-
-    private void deleteItemCombo(final TableItem item) {
-        final Object itemData = item.getData();
-        if (itemData != null) {
-            final Control oldCombo = (Control) itemData;
-            if (!oldCombo.isDisposed()) {
-                oldCombo.dispose();
-            }
-        }
     }
 
     private void setComboBoxProposedDest(final TableItem item, final FileEpisode ep) {
