@@ -169,6 +169,12 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         quitButtonGridData.widthHint = 70;
         quitButton.setLayoutData(quitButtonGridData);
         quitButton.setText(QUIT_LABEL);
+        quitButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                uiCleanup();
+            }
+        });
 
         totalProgressBar = new ProgressBar(bottomButtonsComposite, SWT.SMOOTH);
         totalProgressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
@@ -184,20 +190,11 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         actionButton = new Button(bottomButtonsComposite, SWT.PUSH);
         GridData actionButtonGridData = new GridData(GridData.END, GridData.CENTER, false, false);
         actionButton.setLayoutData(actionButtonGridData);
-
         setActionButtonText(actionButton);
-
         actionButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 renameFiles();
-            }
-        });
-
-        quitButton.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                uiCleanup();
             }
         });
     }
