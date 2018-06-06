@@ -144,6 +144,18 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         item.dispose();
     }
 
+    private void deleteSelectedTableItems() {
+        for (final TableItem item : swtTable.getSelection()) {
+            int index = getTableItemIndex(item);
+            deleteTableItem(item);
+
+            if (ITEM_NOT_IN_TABLE == index) {
+                logger.info("error: somehow selected item not found in table");
+            }
+        }
+        swtTable.deselectAll();
+    }
+
     Display getDisplay() {
         return display;
     }
@@ -673,18 +685,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         });
 
         setupUpdateStuff(topButtonsComposite);
-    }
-
-    private void deleteSelectedTableItems() {
-        for (final TableItem item : swtTable.getSelection()) {
-            int index = getTableItemIndex(item);
-            deleteTableItem(item);
-
-            if (ITEM_NOT_IN_TABLE == index) {
-                logger.info("error: somehow selected item not found in table");
-            }
-        }
-        swtTable.deselectAll();
     }
 
     private void setupSelectionListener() {
