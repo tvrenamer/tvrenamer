@@ -301,6 +301,16 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         shell.setMenuBar(menuBarMenu);
     }
 
+    public void finishMove(final TableItem item, final boolean success) {
+        if (success) {
+            if (prefs.isDeleteRowAfterMove()) {
+                deleteTableItem(item);
+            }
+        } else {
+            logger.info("failed to move item: " + item);
+        }
+    }
+
     Display getDisplay() {
         return display;
     }
@@ -775,16 +785,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
             sortDirection = swtTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
         }
         sortTable(column, columnNum, sortDirection);
-    }
-
-    public void finishMove(final TableItem item, final boolean success) {
-        if (success) {
-            if (prefs.isDeleteRowAfterMove()) {
-                deleteTableItem(item);
-            }
-        } else {
-            logger.info("failed to move item: " + item);
-        }
     }
 
     private void setupSelectionListener() {
