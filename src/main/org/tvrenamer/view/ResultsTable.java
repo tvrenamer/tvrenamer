@@ -631,105 +631,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         }
     }
 
-    public void refreshAll() {
-        logger.info("Refreshing table");
-        for (TableItem item : swtTable.getItems()) {
-            String fileName = getCellText(item, CURRENT_FILE_COLUMN);
-            FileEpisode episode = episodeMap.remove(fileName);
-            episode.refreshReplacement();
-            String newFileName = episode.getFilepath();
-            episodeMap.put(newFileName, episode);
-            setCellText(item, CURRENT_FILE_COLUMN, newFileName);
-            setProposedDestColumn(item, episode);
-        }
-    }
-
-    private void setColumnDestText(final TableColumn destinationColumn) {
-        if (prefs.isMoveEnabled()) {
-            destinationColumn.setText(MOVE_HEADER);
-        } else {
-            destinationColumn.setText(RENAME_HEADER);
-        }
-    }
-
-    private void setRenameButtonText(final Button b) {
-        String label = RENAME_LABEL;
-        String tooltip = RENAME_TOOLTIP;
-
-        if (prefs.isMoveEnabled()) {
-            tooltip = INTRO_MOVE_DIR + prefs.getDestinationDirectoryName()
-                + FINISH_MOVE_DIR;
-            if (prefs.isRenameEnabled()) {
-                label = RENAME_AND_MOVE;
-                tooltip = MOVE_INTRO + AND_RENAME + tooltip;
-            } else {
-                label = JUST_MOVE_LABEL;
-                tooltip = MOVE_INTRO + tooltip;
-            }
-        } else if (!prefs.isRenameEnabled()) {
-            // This setting, "do not move and do not rename", really makes no sense.
-            // But for now, we're not taking the effort to explicitly disable it.
-            tooltip = NO_ACTION_TOOLTIP;
-        }
-
-        b.setText(label);
-        b.setToolTipText(tooltip);
-        shell.changed(new Control[] {b});
-        shell.layout(false, true);
-    }
-
-    private void updateUserPreferences(final UserPreferences observed,
-                                       final UserPreference userPref)
-    {
-        logger.info("Preference change event: " + userPref);
-
-        if ((userPref == UserPreference.MOVE_ENABLED)
-            || (userPref == UserPreference.RENAME_ENABLED))
-        {
-            setColumnDestText(swtTable.getColumn(NEW_FILENAME_COLUMN));
-            setRenameButtonText(actionButton);
-        }
-        if ((userPref == UserPreference.REPLACEMENT_MASK)
-            || (userPref == UserPreference.MOVE_ENABLED)
-            || (userPref == UserPreference.RENAME_ENABLED)
-            || (userPref == UserPreference.DEST_DIR)
-            || (userPref == UserPreference.SEASON_PREFIX)
-            || (userPref == UserPreference.LEADING_ZERO))
-        {
-            refreshAll();
-        }
-
-        if (userPref == UserPreference.DEST_DIR) {
-            UIUtils.checkDestinationDirectory();
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see java.util.Observer#update(java.util.Observable, java.lang.Object)
-     */
-    @Override
-    public void update(final Observable observable, final Object value) {
-        if (observable instanceof UserPreferences && value instanceof UserPreference) {
-            updateUserPreferences((UserPreferences) observable,
-                                  (UserPreference) value);
-        }
-    }
-
-    private TableItem createTableItem(final Table tblResults, final String fileName,
-                                      final FileEpisode episode)
-    {
-        TableItem item = new TableItem(tblResults, SWT.NONE);
-
-        // Initially we add items to the table unchecked.  When we successfully obtain enough
-        // information about the episode to determine how to rename it, the check box will
-        // automatically be activated.
-        item.setChecked(false);
-        setCellText(item, CURRENT_FILE_COLUMN, fileName);
-        setProposedDestColumn(item, episode);
-        setCellImage(item, STATUS_COLUMN, DOWNLOADING);
-        return item;
-    }
-
     private boolean tableContainsTableItem(final TableItem item) {
         return (ITEM_NOT_IN_TABLE != getTableItemIndex(item));
     }
@@ -769,6 +670,21 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         mover.setUpdater(new ProgressBarUpdater(this));
         mover.runThread();
         swtTable.setFocus();
+    }
+
+    private TableItem createTableItem(final Table tblResults, final String fileName,
+                                      final FileEpisode episode)
+    {
+        TableItem item = new TableItem(tblResults, SWT.NONE);
+
+        // Initially we add items to the table unchecked.  When we successfully obtain enough
+        // information about the episode to determine how to rename it, the check box will
+        // automatically be activated.
+        item.setChecked(false);
+        setCellText(item, CURRENT_FILE_COLUMN, fileName);
+        setProposedDestColumn(item, episode);
+        setCellImage(item, STATUS_COLUMN, DOWNLOADING);
+        return item;
     }
 
     private static String itemDestDisplayedText(final TableItem item) {
@@ -890,6 +806,90 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
             sortDirection = swtTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
         }
         sortTable(column, columnNum, sortDirection);
+    }
+
+    public void refreshAll() {
+        logger.info("Refreshing table");
+        for (TableItem item : swtTable.getItems()) {
+            String fileName = getCellText(item, CURRENT_FILE_COLUMN);
+            FileEpisode episode = episodeMap.remove(fileName);
+            episode.refreshReplacement();
+            String newFileName = episode.getFilepath();
+            episodeMap.put(newFileName, episode);
+            setCellText(item, CURRENT_FILE_COLUMN, newFileName);
+            setProposedDestColumn(item, episode);
+        }
+    }
+
+    private void setColumnDestText(final TableColumn destinationColumn) {
+        if (prefs.isMoveEnabled()) {
+            destinationColumn.setText(MOVE_HEADER);
+        } else {
+            destinationColumn.setText(RENAME_HEADER);
+        }
+    }
+
+    private void setRenameButtonText(final Button b) {
+        String label = RENAME_LABEL;
+        String tooltip = RENAME_TOOLTIP;
+
+        if (prefs.isMoveEnabled()) {
+            tooltip = INTRO_MOVE_DIR + prefs.getDestinationDirectoryName()
+                + FINISH_MOVE_DIR;
+            if (prefs.isRenameEnabled()) {
+                label = RENAME_AND_MOVE;
+                tooltip = MOVE_INTRO + AND_RENAME + tooltip;
+            } else {
+                label = JUST_MOVE_LABEL;
+                tooltip = MOVE_INTRO + tooltip;
+            }
+        } else if (!prefs.isRenameEnabled()) {
+            // This setting, "do not move and do not rename", really makes no sense.
+            // But for now, we're not taking the effort to explicitly disable it.
+            tooltip = NO_ACTION_TOOLTIP;
+        }
+
+        b.setText(label);
+        b.setToolTipText(tooltip);
+        shell.changed(new Control[] {b});
+        shell.layout(false, true);
+    }
+
+    private void updateUserPreferences(final UserPreferences observed,
+                                       final UserPreference userPref)
+    {
+        logger.info("Preference change event: " + userPref);
+
+        if ((userPref == UserPreference.MOVE_ENABLED)
+            || (userPref == UserPreference.RENAME_ENABLED))
+        {
+            setColumnDestText(swtTable.getColumn(NEW_FILENAME_COLUMN));
+            setRenameButtonText(actionButton);
+        }
+        if ((userPref == UserPreference.REPLACEMENT_MASK)
+            || (userPref == UserPreference.MOVE_ENABLED)
+            || (userPref == UserPreference.RENAME_ENABLED)
+            || (userPref == UserPreference.DEST_DIR)
+            || (userPref == UserPreference.SEASON_PREFIX)
+            || (userPref == UserPreference.LEADING_ZERO))
+        {
+            refreshAll();
+        }
+
+        if (userPref == UserPreference.DEST_DIR) {
+            UIUtils.checkDestinationDirectory();
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see java.util.Observer#update(java.util.Observable, java.lang.Object)
+     */
+    @Override
+    public void update(final Observable observable, final Object value) {
+        if (observable instanceof UserPreferences && value instanceof UserPreference) {
+            updateUserPreferences((UserPreferences) observable,
+                                  (UserPreference) value);
+        }
     }
 
     ResultsTable(final UIStarter ui) {
