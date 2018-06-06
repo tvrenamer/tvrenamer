@@ -236,6 +236,20 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         });
     }
 
+    private void setupMainWindow() {
+        setupResultsTable();
+        setupTableDragDrop();
+        setupBottomComposite();
+
+        TaskBar taskBar = display.getSystemTaskBar();
+        if (taskBar != null) {
+            taskItem = taskBar.getItem(shell);
+            if (taskItem == null) {
+                taskItem = taskBar.getItem(null);
+            }
+        }
+    }
+
     Display getDisplay() {
         return display;
     }
@@ -808,20 +822,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                 }
             }
         });
-    }
-
-    private void setupMainWindow() {
-        setupResultsTable();
-        setupTableDragDrop();
-        setupBottomComposite();
-
-        TaskBar taskBar = display.getSystemTaskBar();
-        if (taskBar != null) {
-            taskItem = taskBar.getItem(shell);
-            if (taskItem == null) {
-                taskItem = taskBar.getItem(null);
-            }
-        }
     }
 
     private void makeMenuItem(final Menu parent, final String text,
