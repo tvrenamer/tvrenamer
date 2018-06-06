@@ -197,6 +197,14 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         setupResultsTable();
         setupTableDragDrop();
         setupBottomComposite();
+
+        TaskBar taskBar = display.getSystemTaskBar();
+        if (taskBar != null) {
+            taskItem = taskBar.getItem(shell);
+            if (taskItem == null) {
+                taskItem = taskBar.getItem(null);
+            }
+        }
     }
 
     private void setupBottomComposite() {
@@ -221,14 +229,6 @@ public final class UIStarter implements Observer, AddEpisodeListener {
 
         totalProgressBar = new ProgressBar(bottomButtonsComposite, SWT.SMOOTH);
         totalProgressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
-
-        TaskBar taskBar = display.getSystemTaskBar();
-        if (taskBar != null) {
-            taskItem = taskBar.getItem(shell);
-            if (taskItem == null) {
-                taskItem = taskBar.getItem(null);
-            }
-        }
 
         actionButton = new Button(bottomButtonsComposite, SWT.PUSH);
         GridData actionButtonGridData = new GridData(GridData.END, GridData.CENTER, false, false);
