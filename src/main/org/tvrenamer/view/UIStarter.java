@@ -355,7 +355,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         checkboxColumn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                sortTable(checkboxColumn, CHECKBOX_COLUMN);
+                sortTable(checkboxColumn);
             }
         });
 
@@ -365,7 +365,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         sourceColumn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                sortTable(sourceColumn, CURRENT_FILE_COLUMN);
+                sortTable(sourceColumn);
             }
         });
 
@@ -375,7 +375,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         destinationColumn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                sortTable(destinationColumn, NEW_FILENAME_COLUMN);
+                sortTable(destinationColumn);
             }
         });
 
@@ -385,7 +385,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         statusColumn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                sortTable(statusColumn, STATUS_COLUMN);
+                sortTable(statusColumn);
             }
         });
     }
@@ -799,7 +799,12 @@ public final class UIStarter implements Observer, AddEpisodeListener {
      * @param column
      *    the TableColumn to sort by
      */
-    private void sortTable(final TableColumn column, final int columnNum) {
+    private void sortTable(final TableColumn column) {
+        final int columnNum = resultsTable.indexOf(column);
+        if (ITEM_NOT_IN_TABLE == columnNum) {
+            logger.severe("unable to locate column in table: " + column);
+            return;
+        }
         int sortDirection = resultsTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
         sortTable(column, columnNum, sortDirection);
     }
