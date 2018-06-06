@@ -193,20 +193,6 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         setupUpdateStuff(topButtonsComposite);
     }
 
-    private void setupMainWindow() {
-        setupResultsTable();
-        setupTableDragDrop();
-        setupBottomComposite();
-
-        TaskBar taskBar = display.getSystemTaskBar();
-        if (taskBar != null) {
-            taskItem = taskBar.getItem(shell);
-            if (taskItem == null) {
-                taskItem = taskBar.getItem(null);
-            }
-        }
-    }
-
     private void setupBottomComposite() {
         Composite bottomButtonsComposite = new Composite(shell, SWT.FILL);
         bottomButtonsComposite.setLayout(new GridLayout(3, false));
@@ -247,6 +233,20 @@ public final class UIStarter implements Observer, AddEpisodeListener {
             logger.warning("unable to get application icon");
         } else {
             shell.setImage(appIcon);
+        }
+    }
+
+    private void setupMainWindow() {
+        setupResultsTable();
+        setupTableDragDrop();
+        setupBottomComposite();
+
+        TaskBar taskBar = display.getSystemTaskBar();
+        if (taskBar != null) {
+            taskItem = taskBar.getItem(shell);
+            if (taskItem == null) {
+                taskItem = taskBar.getItem(null);
+            }
         }
     }
 
