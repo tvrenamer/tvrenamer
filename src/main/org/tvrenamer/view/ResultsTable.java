@@ -328,6 +328,94 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         return helpMenu;
     }
 
+    private void setupSelectionListener() {
+        swtTable.addListener(SWT.Selection, event -> {
+            if (event.detail == SWT.CHECK) {
+                TableItem eventItem = (TableItem) event.item;
+                // This assumes that the current status of the TableItem
+                // already reflects its toggled state, which appears to
+                // be the case.
+                boolean checked = eventItem.getChecked();
+                boolean isSelected = false;
+
+                for (final TableItem item : swtTable.getSelection()) {
+                    if (item == eventItem) {
+                        isSelected = true;
+                        break;
+                    }
+                }
+                if (isSelected) {
+                    for (final TableItem item : swtTable.getSelection()) {
+                        item.setChecked(checked);
+                    }
+                } else {
+                    swtTable.deselectAll();
+                }
+            }
+            // else, it's a SELECTED event, which we just don't care about
+        });
+    }
+
+    private void setupResultsTable() {
+        swtTable.setHeaderVisible(true);
+        swtTable.setLinesVisible(true);
+        GridData gridData = new GridData(GridData.FILL_BOTH);
+        // gridData.widthHint = 780;
+        gridData.heightHint = 350;
+        gridData.horizontalSpan = 3;
+        swtTable.setLayoutData(gridData);
+
+        Columns.createColumns(this, swtTable);
+        setColumnDestText(swtTable.getColumn(NEW_FILENAME_COLUMN));
+        swtTable.setSortColumn(swtTable.getColumn(CURRENT_FILE_COLUMN));
+        swtTable.setSortDirection(SWT.UP);
+
+        // Allow deleting of elements
+        swtTable.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                super.keyReleased(e);
+
+                switch (e.keyCode) {
+
+                    // backspace
+                    case '\u0008':
+                    // delete
+                    case '\u007F':
+                        deleteSelectedTableItems();
+                        break;
+
+                    // Code analysis says have a default clause...
+                    default:
+                }
+
+            }
+        });
+
+        // editable table
+        final TableEditor editor = new TableEditor(swtTable);
+        editor.horizontalAlignment = SWT.CENTER;
+        editor.grabHorizontal = true;
+
+        setupSelectionListener();
+    }
+
+    private void setupTableDragDrop() {
+        DropTarget dt = new DropTarget(swtTable, DND.DROP_DEFAULT | DND.DROP_MOVE);
+        dt.setTransfer(new Transfer[] { FileTransfer.getInstance() });
+        dt.addDropListener(new DropTargetAdapter() {
+
+            @Override
+            public void drop(DropTargetEvent e) {
+                FileTransfer ft = FileTransfer.getInstance();
+                if (ft.isSupportedType(e.currentDataType)) {
+                    String[] fileList = (String[]) e.data;
+                    episodeMap.addArrayOfStringsToQueue(fileList);
+                }
+            }
+        });
+    }
+
     Display getDisplay() {
         return display;
     }
@@ -802,94 +890,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
             sortDirection = swtTable.getSortDirection() == SWT.DOWN ? SWT.UP : SWT.DOWN;
         }
         sortTable(column, columnNum, sortDirection);
-    }
-
-    private void setupSelectionListener() {
-        swtTable.addListener(SWT.Selection, event -> {
-            if (event.detail == SWT.CHECK) {
-                TableItem eventItem = (TableItem) event.item;
-                // This assumes that the current status of the TableItem
-                // already reflects its toggled state, which appears to
-                // be the case.
-                boolean checked = eventItem.getChecked();
-                boolean isSelected = false;
-
-                for (final TableItem item : swtTable.getSelection()) {
-                    if (item == eventItem) {
-                        isSelected = true;
-                        break;
-                    }
-                }
-                if (isSelected) {
-                    for (final TableItem item : swtTable.getSelection()) {
-                        item.setChecked(checked);
-                    }
-                } else {
-                    swtTable.deselectAll();
-                }
-            }
-            // else, it's a SELECTED event, which we just don't care about
-        });
-    }
-
-    private void setupResultsTable() {
-        swtTable.setHeaderVisible(true);
-        swtTable.setLinesVisible(true);
-        GridData gridData = new GridData(GridData.FILL_BOTH);
-        // gridData.widthHint = 780;
-        gridData.heightHint = 350;
-        gridData.horizontalSpan = 3;
-        swtTable.setLayoutData(gridData);
-
-        Columns.createColumns(this, swtTable);
-        setColumnDestText(swtTable.getColumn(NEW_FILENAME_COLUMN));
-        swtTable.setSortColumn(swtTable.getColumn(CURRENT_FILE_COLUMN));
-        swtTable.setSortDirection(SWT.UP);
-
-        // Allow deleting of elements
-        swtTable.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyReleased(KeyEvent e) {
-                super.keyReleased(e);
-
-                switch (e.keyCode) {
-
-                    // backspace
-                    case '\u0008':
-                    // delete
-                    case '\u007F':
-                        deleteSelectedTableItems();
-                        break;
-
-                    // Code analysis says have a default clause...
-                    default:
-                }
-
-            }
-        });
-
-        // editable table
-        final TableEditor editor = new TableEditor(swtTable);
-        editor.horizontalAlignment = SWT.CENTER;
-        editor.grabHorizontal = true;
-
-        setupSelectionListener();
-    }
-
-    private void setupTableDragDrop() {
-        DropTarget dt = new DropTarget(swtTable, DND.DROP_DEFAULT | DND.DROP_MOVE);
-        dt.setTransfer(new Transfer[] { FileTransfer.getInstance() });
-        dt.addDropListener(new DropTargetAdapter() {
-
-            @Override
-            public void drop(DropTargetEvent e) {
-                FileTransfer ft = FileTransfer.getInstance();
-                if (ft.isSupportedType(e.currentDataType)) {
-                    String[] fileList = (String[]) e.data;
-                    episodeMap.addArrayOfStringsToQueue(fileList);
-                }
-            }
-        });
     }
 
     ResultsTable(final UIStarter ui) {
