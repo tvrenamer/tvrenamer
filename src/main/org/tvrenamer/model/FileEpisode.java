@@ -294,6 +294,7 @@ public class FileEpisode {
             throw new IllegalStateException("suffix of a FileEpisode may not change!");
         }
         originalBasename = StringUtils.removeLast(fileNameString, filenameSuffix);
+        baseForRename = getRenamedBasename(chosenEpisode);
         checkFile(true);
     }
 
@@ -576,6 +577,10 @@ public class FileEpisode {
     }
 
     String getRenamedBasename(final int n) {
+        if (!userPrefs.isRenameEnabled()) {
+            return null;
+        }
+
         if (actualShow == null) {
             logger.severe("cannot rename without an actual Show.");
             return originalBasename;
@@ -624,6 +629,12 @@ public class FileEpisode {
 
     public String getDestinationBasename() {
         if (userPrefs.isRenameEnabled()) {
+            if (baseForRename == null) {
+                logger.warning("unable to get destination basename; "
+                               + "reverting to original basename "
+                               + originalBasename);
+                return originalBasename;
+            }
             return baseForRename;
         } else {
             return originalBasename;
