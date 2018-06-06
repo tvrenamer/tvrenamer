@@ -72,6 +72,7 @@ import java.util.logging.Logger;
 
 public final class ResultsTable implements Observer, AddEpisodeListener {
     private static final Logger logger = Logger.getLogger(ResultsTable.class.getName());
+    // load preferences
     private static final UserPreferences prefs = UserPreferences.getInstance();
     private static final Collator COLLATOR = Collator.getInstance(Locale.getDefault());
 
