@@ -13,7 +13,7 @@ public class FileCopyMonitor implements ProgressObserver {
 
     private final UIStarter ui;
     private final TableItem item;
-    private Display display = null;
+    private final Display display;
     private Label label = null;
     private long maximum;
     private int loopCount = 0;
@@ -27,6 +27,7 @@ public class FileCopyMonitor implements ProgressObserver {
     public FileCopyMonitor(UIStarter ui, TableItem item) {
         this.ui = ui;
         this.item = item;
+        display = ui.getDisplay();
         format.setMaximumFractionDigits(1);
     }
 
@@ -37,7 +38,6 @@ public class FileCopyMonitor implements ProgressObserver {
      */
     @Override
     public void initialize(final long max) {
-        display = ui.getDisplay();
         display.syncExec(() -> label = ui.getProgressLabel(item));
         maximum = max;
         setValue(0);
