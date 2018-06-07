@@ -19,6 +19,8 @@ import java.util.logging.Logger;
 public class UserPreferences extends Observable {
     private static final Logger logger = Logger.getLogger(UserPreferences.class.getName());
 
+    private static final UserPreferences INSTANCE = load();
+
     private final String preloadFolder;
     private String destDir;
     private String seasonPrefix;
@@ -31,8 +33,6 @@ public class UserPreferences extends Observable {
     private boolean checkForUpdates;
     private boolean recursivelyAddFolders;
     private final List<String> ignoreKeywords;
-
-    private static final UserPreferences INSTANCE = load();
 
     /**
      * UserPreferences constructor which uses the defaults from {@link org.tvrenamer.model.util.Constants}
