@@ -531,7 +531,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
             if (tableContainsTableItem(item)) {
                 setProposedDestColumn(item, episode);
                 if (epFound) {
-                    item.setImage(STATUS_COLUMN, ADDED.icon);
+                    item.setImage(STATUS_COLUMN, SUCCESS.icon);
                     item.setChecked(true);
                 } else {
                     item.setImage(STATUS_COLUMN, FAIL.icon);
