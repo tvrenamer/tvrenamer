@@ -61,6 +61,7 @@ import org.tvrenamer.model.UserPreference;
 import org.tvrenamer.model.UserPreferences;
 import org.tvrenamer.model.util.Environment;
 
+import java.io.InputStream;
 import java.text.Collator;
 import java.util.LinkedList;
 import java.util.List;
@@ -82,6 +83,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     private final Shell shell;
     private final Display display;
     private final Table swtTable;
+    private final Image appIcon;
     private final EpisodeDb episodeMap = new EpisodeDb();
 
     private Button actionButton;
@@ -236,6 +238,14 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         });
     }
 
+    private void setAppIcon() {
+        if (appIcon == null) {
+            logger.warning("unable to get application icon");
+        } else {
+            shell.setImage(appIcon);
+        }
+    }
+
     private void setupMainWindow() {
         setupResultsTable();
         setupTableDragDrop();
@@ -248,6 +258,8 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                 taskItem = taskBar.getItem(null);
             }
         }
+
+        setAppIcon();
     }
 
     private void makeMenuItem(final Menu parent, final String text,
@@ -821,6 +833,11 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         }
     }
 
+    void finishAllMoves() {
+        setAppIcon();
+        refreshAll();
+    }
+
     private void setActionButtonText(final Button b) {
         String label = RENAME_LABEL;
         String tooltip = RENAME_TOOLTIP;
@@ -892,10 +909,26 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         }
     }
 
+    private Image getAppIcon() {
+        try {
+            InputStream icon = getClass().getResourceAsStream(TVRENAMER_ICON_PATH);
+            if (icon != null) {
+                return new Image(display, icon);
+            } else {
+                return new Image(display, TVRENAMER_ICON_DIRECT_PATH);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     ResultsTable(final UIStarter ui) {
         this.ui = ui;
         this.shell = ui.shell;
         this.display = ui.display;
+        appIcon = getAppIcon();
 
         setupTopButtons();
         swtTable = new Table(shell, SWT.CHECK | SWT.FULL_SELECTION | SWT.MULTI);

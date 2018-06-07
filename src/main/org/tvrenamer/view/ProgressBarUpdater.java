@@ -42,7 +42,7 @@ public class ProgressBarUpdater implements ProgressUpdater {
                 taskItem.setOverlayImage(null);
                 taskItem.setProgressState(SWT.DEFAULT);
             }
-            ui.refreshAll();
+            ui.finishAllMoves();
         });
     }
 

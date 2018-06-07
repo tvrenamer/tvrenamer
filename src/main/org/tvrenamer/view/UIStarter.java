@@ -3,7 +3,6 @@ package org.tvrenamer.view;
 import static org.tvrenamer.model.util.Constants.*;
 import static org.tvrenamer.view.UIUtils.showMessageBox;
 
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Display;
@@ -12,7 +11,6 @@ import org.eclipse.swt.widgets.Shell;
 
 import org.tvrenamer.model.SWTMessageBoxType;
 
-import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,20 +25,6 @@ public final class UIStarter {
     void uiCleanup() {
         shell.dispose();
         display.dispose();
-    }
-
-    private void setupIcons() {
-        try {
-            InputStream icon = getClass().getResourceAsStream(TVRENAMER_ICON_PATH);
-            if (icon != null) {
-                shell.setImage(new Image(display, icon));
-            } else {
-                shell.setImage(new Image(display, TVRENAMER_ICON_DIRECT_PATH));
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     private void init() {
@@ -60,8 +44,6 @@ public final class UIStarter {
 
         // Create the main window
         resultsTable = new ResultsTable(this);
-
-        setupIcons();
 
         shell.pack(true);
     }
