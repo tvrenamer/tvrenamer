@@ -35,6 +35,9 @@ public class ProgressBarUpdater implements ProgressUpdater {
     @Override
     public void finish() {
         display.asyncExec(() -> {
+            if (progressBar != null) {
+                progressBar.setSelection(0);
+            }
             if (taskItem != null) {
                 taskItem.setOverlayImage(null);
                 taskItem.setProgressState(SWT.DEFAULT);
