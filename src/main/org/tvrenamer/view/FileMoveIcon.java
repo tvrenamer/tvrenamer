@@ -17,8 +17,6 @@ public class FileMoveIcon {
         FAIL;
     }
 
-    private static final String ICON_PATH = "/icons/SweetieLegacy/";
-
     private final Status status;
     private final Image image;
     private final String ordering;
@@ -26,7 +24,7 @@ public class FileMoveIcon {
     FileMoveIcon(String ordering, Status status, String imageFilename) {
         this.ordering = ordering;
         this.status = status;
-        this.image = UIUtils.readImageFromPath(ICON_PATH + imageFilename);
+        this.image = UIUtils.readImageFromPath(SUBLINK_PATH + imageFilename);
     }
 
     private static final FileMoveIcon[] STANDARD_STATUSES = {
