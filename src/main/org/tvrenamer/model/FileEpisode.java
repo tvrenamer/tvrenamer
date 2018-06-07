@@ -401,7 +401,7 @@ public class FileEpisode {
 
     /**
      *
-     * @return true if the episode associated with this item is found in the listings
+     * @return the number of episode options to offer the user
      */
     public int listingsComplete() {
         chosenEpisode = 0;
