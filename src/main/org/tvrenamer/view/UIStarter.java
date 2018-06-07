@@ -93,6 +93,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
     private Button renameSelectedButton;
     private Table resultsTable;
     private ProgressBar totalProgressBar;
+    private Image appIcon = null;
     private TaskItem taskItem = null;
 
     private boolean apiDeprecated = false;
@@ -201,6 +202,14 @@ public final class UIStarter implements Observer, AddEpisodeListener {
                 uiCleanup();
             }
         });
+    }
+
+    private void setAppIcon() {
+        if (appIcon == null) {
+            logger.warning("unable to get application icon");
+        } else {
+            shell.setImage(appIcon);
+        }
     }
 
     private void uiCleanup() {
@@ -459,14 +468,15 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         try {
             InputStream icon = getClass().getResourceAsStream(TVRENAMER_ICON_PATH);
             if (icon != null) {
-                shell.setImage(new Image(display, icon));
+                appIcon = new Image(display, icon);
             } else {
-                shell.setImage(new Image(display, TVRENAMER_ICON_DIRECT_PATH));
+                appIcon = new Image(display, TVRENAMER_ICON_DIRECT_PATH);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+        setAppIcon();
     }
 
     Display getDisplay() {
@@ -809,6 +819,11 @@ public final class UIStarter implements Observer, AddEpisodeListener {
             item.setText(CURRENT_FILE_COLUMN, newFileName);
             setProposedDestColumn(item, episode);
         }
+    }
+
+    void finishAllMoves() {
+        setAppIcon();
+        refreshTable();
     }
 
     private void setRenameButtonText(Button b) {
