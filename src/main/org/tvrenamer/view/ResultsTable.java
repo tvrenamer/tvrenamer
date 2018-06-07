@@ -227,7 +227,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         actionButton = new Button(bottomButtonsComposite, SWT.PUSH);
         GridData actionButtonGridData = new GridData(GridData.END, GridData.CENTER, false, false);
         actionButton.setLayoutData(actionButtonGridData);
-        setRenameButtonText(actionButton);
+        setActionButtonText(actionButton);
         actionButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -821,7 +821,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         }
     }
 
-    private void setRenameButtonText(final Button b) {
+    private void setActionButtonText(final Button b) {
         String label = RENAME_LABEL;
         String tooltip = RENAME_TOOLTIP;
 
@@ -864,7 +864,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
             || (userPref == UserPreference.RENAME_ENABLED))
         {
             setColumnDestText(swtTable.getColumn(NEW_FILENAME_COLUMN));
-            setRenameButtonText(actionButton);
+            setActionButtonText(actionButton);
         }
         if ((userPref == UserPreference.REPLACEMENT_MASK)
             || (userPref == UserPreference.MOVE_ENABLED)
