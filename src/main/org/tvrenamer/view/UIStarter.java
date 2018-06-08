@@ -50,7 +50,7 @@ public final class UIStarter {
 
     private int launch() {
         try {
-            // place the window in the centre of the primary monitor
+            // place the window near the lower right-hand corner
             Monitor primary = display.getPrimaryMonitor();
             Rectangle bounds = primary.getBounds();
             Rectangle rect = shell.getBounds();
