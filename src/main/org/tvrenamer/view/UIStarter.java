@@ -17,12 +17,11 @@ import java.util.logging.Logger;
 public final class UIStarter {
     private static final Logger logger = Logger.getLogger(UIStarter.class.getName());
 
-    Shell shell;
-    Display display;
+    private final Shell shell;
+    private final Display display;
+    private final ResultsTable resultsTable;
 
-    private ResultsTable resultsTable;
-
-    private void init() {
+    public UIStarter() {
         // Setup display and shell
         display = new Display();
         shell = new Shell(display);
@@ -43,7 +42,7 @@ public final class UIStarter {
         shell.pack(true);
     }
 
-    private int launch() {
+    public int run() {
         try {
             // place the window near the lower right-hand corner
             Monitor primary = display.getPrimaryMonitor();
@@ -71,11 +70,5 @@ public final class UIStarter {
             shell.dispose();
             return 1;
         }
-    }
-
-    public int run() {
-        init();
-        int rval = launch();
-        return rval;
     }
 }
