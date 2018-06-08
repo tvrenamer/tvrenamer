@@ -141,6 +141,11 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         });
     }
 
+    private void quit() {
+        shell.dispose();
+        display.dispose();
+    }
+
     private void setupMainWindow() {
         final Composite topButtonsComposite = new Composite(shell, SWT.FILL);
         topButtonsComposite.setLayout(new RowLayout());
@@ -172,7 +177,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         quitButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                uiCleanup();
+                quit();
             }
         });
 
@@ -207,11 +212,6 @@ public final class UIStarter implements Observer, AddEpisodeListener {
         }
     }
 
-    private void uiCleanup() {
-        shell.dispose();
-        display.dispose();
-    }
-
     private void makeMenuItem(Menu parent, String text, Listener listener, char shortcut) {
         MenuItem newItem = new MenuItem(parent, SWT.PUSH);
         newItem.setText(text + "\tCtrl+" + shortcut);
@@ -225,7 +225,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
 
         Listener preferencesListener = e -> showPreferencesPane();
         Listener aboutListener = e -> showAboutPane();
-        Listener quitListener = e -> uiCleanup();
+        Listener quitListener = e -> quit();
 
         if (Environment.IS_MAC_OSX) {
             // Add the special Mac OSX Preferences, About and Quit menus.
@@ -522,7 +522,7 @@ public final class UIStarter implements Observer, AddEpisodeListener {
     public int run() {
         init();
         int rval = launch();
-        uiCleanup();
+        quit();
         return rval;
     }
 
