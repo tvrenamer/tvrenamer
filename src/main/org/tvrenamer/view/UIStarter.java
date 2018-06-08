@@ -48,12 +48,11 @@ public final class UIStarter {
 
         // Create the main window
         resultsTable = new ResultsTable(shell);
-
-        shell.pack(true);
     }
 
     public int run() {
         try {
+            shell.pack(true);
             positionWindow();
 
             // Start the shell
