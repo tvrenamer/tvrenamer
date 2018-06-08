@@ -45,12 +45,13 @@ public final class UIStarter {
 
     private void init() {
         // Setup display and shell
-        GridLayout shellGridLayout = new GridLayout(3, false);
-        Display.setAppName(APPLICATION_NAME);
         display = new Display();
-
         shell = new Shell(display);
+
+        Display.setAppName(APPLICATION_NAME);
         shell.setText(APPLICATION_NAME);
+
+        GridLayout shellGridLayout = new GridLayout(3, false);
         shell.setLayout(shellGridLayout);
 
         // Setup the util class
