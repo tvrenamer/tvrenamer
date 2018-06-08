@@ -78,7 +78,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
 
     private static final int ITEM_NOT_IN_TABLE = -1;
 
-    private final UIStarter ui;
     private final Shell shell;
     private final Display display;
     private final Table swtTable;
@@ -908,10 +907,9 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         }
     }
 
-    ResultsTable(final UIStarter ui) {
-        this.ui = ui;
-        this.shell = ui.shell;
-        this.display = ui.display;
+    ResultsTable(final Shell shell) {
+        this.shell = shell;
+        display = shell.getDisplay();
         appIcon = UIUtils.readImageFromPath(TVRENAMER_ICON_PATH);
 
         setupTopButtons();
