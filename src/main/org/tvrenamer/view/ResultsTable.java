@@ -117,7 +117,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     }
 
     private void quit() {
-        ui.uiCleanup();
+        shell.dispose();
     }
 
     private int getTableItemIndex(final TableItem item) {

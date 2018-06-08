@@ -22,11 +22,6 @@ public final class UIStarter {
 
     private ResultsTable resultsTable;
 
-    void uiCleanup() {
-        shell.dispose();
-        display.dispose();
-    }
-
     private void init() {
         // Setup display and shell
         display = new Display();
@@ -68,10 +63,12 @@ public final class UIStarter {
                     display.sleep();
                 }
             }
+            display.dispose();
             return 0;
         } catch (Exception exception) {
             showMessageBox(SWTMessageBoxType.ERROR, ERROR_LABEL, UNKNOWN_EXCEPTION, exception);
             logger.log(Level.SEVERE, UNKNOWN_EXCEPTION, exception);
+            shell.dispose();
             return 1;
         }
     }
@@ -79,7 +76,6 @@ public final class UIStarter {
     public int run() {
         init();
         int rval = launch();
-        uiCleanup();
         return rval;
     }
 }
