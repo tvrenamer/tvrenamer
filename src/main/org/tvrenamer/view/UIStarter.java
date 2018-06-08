@@ -38,7 +38,7 @@ public final class UIStarter {
         UIUtils.checkDestinationDirectory();
 
         // Create the main window
-        resultsTable = new ResultsTable(this);
+        resultsTable = new ResultsTable(shell);
 
         shell.pack(true);
     }
