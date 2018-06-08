@@ -44,7 +44,6 @@ public final class UIStarter {
 
         // Setup the util class
         UIUtils.setShell(shell);
-        UIUtils.checkDestinationDirectory();
 
         // Create the main window
         resultsTable = new ResultsTable(shell);
@@ -52,6 +51,8 @@ public final class UIStarter {
 
     public int run() {
         try {
+            UIUtils.checkDestinationDirectory();
+
             shell.pack(true);
             positionWindow();
 
