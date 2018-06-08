@@ -29,7 +29,7 @@ public class FileMoveIcon {
 
     private static final FileMoveIcon[] STANDARD_STATUSES = {
         new FileMoveIcon("a", Status.SUCCESS, "16-em-check.png"),
-        new FileMoveIcon("b", Status.OPTIONS, "16-comment-question.png"),
+        new FileMoveIcon("b", Status.OPTIONS, "16-circle-green-add.png"),
         new FileMoveIcon("c", Status.ADDED, "16-circle-blue.png"),
         new FileMoveIcon("d", Status.DOWNLOADING, "16-clock.png"),
         new FileMoveIcon("e", Status.RENAMING, "16-em-pencil.png"),
