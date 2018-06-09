@@ -33,10 +33,10 @@ public final class UIStarter {
 
     public UIStarter() {
         // Setup display and shell
+        Display.setAppName(APPLICATION_NAME);
         display = new Display();
         shell = new Shell(display);
 
-        Display.setAppName(APPLICATION_NAME);
         shell.setText(APPLICATION_NAME);
 
         GridLayout shellGridLayout = new GridLayout(3, false);
