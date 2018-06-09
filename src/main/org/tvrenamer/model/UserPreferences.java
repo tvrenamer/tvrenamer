@@ -4,7 +4,6 @@ import static org.tvrenamer.model.util.Constants.*;
 
 import org.tvrenamer.controller.UserPreferencesPersistence;
 import org.tvrenamer.controller.util.FileUtilities;
-import org.tvrenamer.controller.util.StringUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -482,13 +481,8 @@ public class UserPreferences extends Observable {
      *         seasons of a show
      */
     public void setSeasonPrefix(String prefix) {
-        // Remove the displayed "
-        prefix = prefix.replaceAll("\"", "");
-
         if (valuesAreDifferent(seasonPrefix, prefix)) {
-            // TODO: rather than silently replacing, we should probably
-            // reject any text that has an illegal character in it.
-            seasonPrefix = StringUtils.replaceIllegalCharacters(prefix);
+            seasonPrefix = prefix;
 
             preferenceChanged(UserPreference.SEASON_PREFIX);
         }
@@ -500,13 +494,6 @@ public class UserPreferences extends Observable {
      */
     public String getSeasonPrefix() {
         return seasonPrefix;
-    }
-
-    /**
-     * @return the season prefix, suitable for displaying in the Preferences dialog
-     */
-    public String getSeasonPrefixForDisplay() {
-        return ("\"" + seasonPrefix + "\"");
     }
 
     /**

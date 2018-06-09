@@ -29,6 +29,7 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
 
+import org.tvrenamer.controller.util.StringUtils;
 import org.tvrenamer.model.ReplacementToken;
 import org.tvrenamer.model.UserPreferences;
 
@@ -244,6 +245,21 @@ class PreferencesDialog extends Dialog {
         return button;
     }
 
+    private String getCleanSeasonPrefixText() {
+        String prefixText = seasonPrefixText.getText();
+
+        // Remove the surrounding double quotes, if present;
+        // any other double quotes should not be removed.
+        String unquoted = StringUtils.unquoteString(prefixText);
+        prefixText = StringUtils.replaceIllegalCharacters(unquoted);
+
+        // TODO: rather than silently replacing, we should probably reject any text
+        // that has an illegal character in it. We could compare prefixText and unquoted,
+        // and if they're different, warn the user.
+
+        return prefixText;
+    }
+
     private void populateGeneralTab(final Composite generalGroup) {
         final boolean moveIsEnabled = prefs.isMoveEnabled();
         boolean renameIsEnabled = prefs.isRenameEnabled();
@@ -257,7 +273,8 @@ class PreferencesDialog extends Dialog {
         destDirButton = createDestDirButton(generalGroup);
 
         createLabel(SEASON_PREFIX_TEXT, PREFIX_TOOLTIP, generalGroup);
-        seasonPrefixText = createText(prefs.getSeasonPrefixForDisplay(), generalGroup, true);
+        seasonPrefixText = createText(StringUtils.makeQuotedString(prefs.getSeasonPrefix()),
+                                      generalGroup, true);
         seasonPrefixLeadingZeroCheckbox = createCheckbox(SEASON_PREFIX_ZERO_TEXT, SEASON_PREFIX_ZERO_TOOLTIP,
                                                          prefs.isSeasonPrefixLeadingZero(),
                                                          generalGroup, GridData.BEGINNING, 3);
@@ -410,7 +427,7 @@ class PreferencesDialog extends Dialog {
     private void savePreferences() {
         // Update the preferences object from the UI control values
         prefs.setMoveEnabled(moveEnabledCheckbox.getSelection());
-        prefs.setSeasonPrefix(seasonPrefixText.getText());
+        prefs.setSeasonPrefix(getCleanSeasonPrefixText());
         prefs.setSeasonPrefixLeadingZero(seasonPrefixLeadingZeroCheckbox.getSelection());
         prefs.setRenameReplacementString(replacementStringText.getText());
         prefs.setIgnoreKeywords(ignoreWordsText.getText());
