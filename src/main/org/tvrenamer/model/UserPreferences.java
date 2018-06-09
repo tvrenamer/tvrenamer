@@ -31,6 +31,9 @@ public class UserPreferences extends Observable {
     private String renameReplacementMask;
     private boolean checkForUpdates;
     private boolean recursivelyAddFolders;
+
+    // For the ignore keywords, we do some processing.  So we also preserve exactly what the user specified.
+    private transient String specifiedIgnoreKeywords;
     private final List<String> ignoreKeywords;
 
     /**
@@ -52,6 +55,7 @@ public class UserPreferences extends Observable {
         recursivelyAddFolders = true;
         ignoreKeywords = new ArrayList<>();
         ignoreKeywords.add(DEFAULT_IGNORED_KEYWORD);
+        buildIgnoredKeywordsString();
     }
 
     /**
@@ -174,6 +178,7 @@ public class UserPreferences extends Observable {
         UserPreferences prefs = UserPreferencesPersistence.retrieve(PREFERENCES_FILE);
 
         if (prefs != null) {
+            prefs.buildIgnoredKeywordsString();
             logger.finer("Successfully read preferences from: " + PREFERENCES_FILE.toAbsolutePath());
             logger.fine("Successfully read preferences: " + prefs.toString());
         } else {
@@ -438,6 +443,17 @@ public class UserPreferences extends Observable {
      * @return a string containing the list of ignored keywords, separated by commas
      */
     public String getIgnoredKeywordsString() {
+        return specifiedIgnoreKeywords;
+    }
+
+    /**
+     * Turn the "ignore keywords" list into a String.  This is only necessary when we are restoring
+     * the user preferences from XML.  When the keywords are modified by the user via the preferences
+     * dialog, we maintain the actual string the user entered.
+     *
+     * @return a string containing the list of ignored keywords, separated by commas
+     */
+    private void buildIgnoredKeywordsString() {
         StringBuilder ignoreWords = new StringBuilder();
         String sep = "";
         for (String s : ignoreKeywords) {
@@ -445,7 +461,7 @@ public class UserPreferences extends Observable {
             ignoreWords.append(s);
             sep = ",";
         }
-        return ignoreWords.toString();
+        specifiedIgnoreKeywords = ignoreWords.toString();
     }
 
     /**
@@ -456,7 +472,8 @@ public class UserPreferences extends Observable {
      *           a string must be at least two characters long.
      */
     public void setIgnoreKeywords(String ignoreWordsString) {
-        if (valuesAreDifferent(getIgnoredKeywordsString(), ignoreWordsString)) {
+        if (valuesAreDifferent(specifiedIgnoreKeywords, ignoreWordsString)) {
+            specifiedIgnoreKeywords = ignoreWordsString;
             ignoreKeywords.clear();
             String[] ignoreWords = ignoreWordsString.split(IGNORE_WORDS_SPLIT_REGEX);
             for (String ignorable : ignoreWords) {
@@ -470,6 +487,9 @@ public class UserPreferences extends Observable {
                 }
             }
 
+            // Technically, we could end up with an identical array of strings despite the
+            // fact that the input was not precisely identical to the previous input.  But
+            // not worth it to check.
             preferenceChanged(UserPreference.IGNORE_REGEX);
         }
     }
