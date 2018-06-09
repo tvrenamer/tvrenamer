@@ -108,6 +108,44 @@ public class StringUtils {
         return input;
     }
 
+    public static String makeQuotedString(final String original) {
+        return ("\"" + original + "\"");
+    }
+
+    /**
+     * Strip away double-quote characters at the beginning and end of a string.
+     *
+     * Returns a string identical to the original, except that if the first and/or last
+     * character of the original was a double-quote character, it is omitted.  The quotes
+     * do not have to be balanced.  If there is one at the beginning but not the end, it's
+     * removed.  Or the end but not the beginning, or both.
+     *
+     * Any double-quote characters that may occur in the middle of the string are untouched.
+     * This would even include a situation where the string begins with two double quotes.
+     * It is not analagous to String.trim() in that sense.  It strips at most one character
+     * from the beginning, and at most one from the end.
+     *
+     * @param original the String to trim double quotes from
+     * @return the original, stripped of an opening double-quote, if it was present, and
+     *   stripped of a closing double-quote, if it was present.
+     *
+     */
+    public static String unquoteString(final String original) {
+        int start = 0;
+        int end = original.length();
+
+        // Remove surrounding double quotes, if present;
+        // any other double quotes should not be removed.
+        if ((end >= 1) && (original.charAt(0) == '"')) {
+            start++;
+        }
+        if ((end >= 2) && (original.charAt(end - 1) == '"')) {
+            end--;
+        }
+
+        return original.substring(start, end);
+    }
+
     /**
      * Certain characters cannot be included in file or folder names.  We create files and folders
      * based on both information the user provides, and data about the actual episode.  It's likely
