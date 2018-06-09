@@ -379,12 +379,9 @@ class PreferencesDialog extends Dialog {
 
     private void createActionButtonGroup() {
         Composite bottomButtonsComposite = new Composite(preferencesShell, SWT.FILL);
-        bottomButtonsComposite.setLayoutData(new GridData(SWT.END, SWT.CENTER,
-                                                          true, true, 0, 1));
         bottomButtonsComposite.setLayout(new GridLayout(2, false));
-        GridData bottomButtonsCompositeGridData = new GridData(SWT.FILL, SWT.CENTER,
-                                                               true, true, 2, 1);
-        bottomButtonsComposite.setLayoutData(bottomButtonsCompositeGridData);
+        bottomButtonsComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER,
+                                                          true, true, 2, 1));
 
         Button cancelButton = new Button(bottomButtonsComposite, SWT.PUSH);
         GridData cancelButtonGridData = new GridData(GridData.BEGINNING, GridData.CENTER,
@@ -393,7 +390,6 @@ class PreferencesDialog extends Dialog {
         cancelButtonGridData.widthHint = 150;
         cancelButton.setLayoutData(cancelButtonGridData);
         cancelButton.setText(CANCEL_LABEL);
-
         cancelButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
@@ -408,7 +404,6 @@ class PreferencesDialog extends Dialog {
         saveButton.setLayoutData(saveButtonGridData);
         saveButton.setText(SAVE_LABEL);
         saveButton.setFocus();
-
         saveButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
