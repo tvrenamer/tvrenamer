@@ -92,6 +92,37 @@ public class StringUtilsTest {
     }
 
     @Test
+    public void testUnquoteStringNormal() {
+        assertEquals("Season ", StringUtils.unquoteString("\"Season \""));
+    }
+
+    @Test
+    public void testUnquoteStringUnbalanced() {
+        assertEquals("Season ", StringUtils.unquoteString("Season \""));
+        assertEquals("Season ", StringUtils.unquoteString("\"Season "));
+    }
+
+    @Test
+    public void testUnquoteStringNoQuotes() {
+        assertEquals("Season ", StringUtils.unquoteString("Season "));
+    }
+
+    @Test
+    public void testUnquoteStringShort() {
+        assertEquals("", StringUtils.unquoteString(""));
+        assertEquals(" ", StringUtils.unquoteString(" "));
+        assertEquals("s", StringUtils.unquoteString("s"));
+    }
+
+    @Test
+    public void testUnquoteStringWeird() {
+        assertEquals("", StringUtils.unquoteString("\""));
+        assertEquals("", StringUtils.unquoteString("\"\""));
+        assertEquals("\"foo", StringUtils.unquoteString("\"\"foo"));
+        assertEquals("foo\"", StringUtils.unquoteString("\"foo\"\""));
+    }
+
+    @Test
     public void testZeroPad() {
         assertEquals("00", StringUtils.zeroPadTwoDigits(0));
         assertEquals("08", StringUtils.zeroPadTwoDigits(8));
