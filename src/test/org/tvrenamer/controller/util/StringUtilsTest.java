@@ -67,6 +67,31 @@ public class StringUtilsTest {
     }
 
     @Test
+    public void testSanitiseTitleTrim() {
+        assertEquals("Test", StringUtils.sanitiseTitle("  <Test> \n"));
+        assertEquals("  Test \n", StringUtils.replaceIllegalCharacters("  <Test> \n"));
+    }
+
+    @Test
+    public void testSanitiseTitleOnlyTrim() {
+        // The whitespace in between the words should NOT be removed.
+        assertEquals("Test Two", StringUtils.sanitiseTitle(" \t<Test Two> "));
+        assertEquals(" \tTest Two ", StringUtils.replaceIllegalCharacters(" \t<Test Two> "));
+    }
+
+    @Test
+    public void testSanitiseTitleEmpty() {
+        assertEquals("", StringUtils.sanitiseTitle(""));
+        assertEquals("", StringUtils.replaceIllegalCharacters(""));
+    }
+
+    @Test
+    public void testSanitiseTitleBlank() {
+        assertEquals("", StringUtils.sanitiseTitle("   "));
+        assertEquals("   ", StringUtils.replaceIllegalCharacters("   "));
+    }
+
+    @Test
     public void testZeroPad() {
         assertEquals("00", StringUtils.zeroPadTwoDigits(0));
         assertEquals("08", StringUtils.zeroPadTwoDigits(8));
