@@ -104,7 +104,7 @@ public class StringUtils {
 
         title = title.replace('\\', '-'); // replace '\' with '-'
         title = title.replace('/', '-'); // replace '/' with '-'
-        title = title.replace(":", " -"); // replace ':' with ' -'
+        title = title.replace(":", "-"); // replace ':' with '-'
         title = title.replace('|', '-'); // replace '|' with '-'
         // For example, the episode "C**tgate" of Veep should become "C--tgate", not "Ctgate"
         title = title.replace("*", "-"); // replace '*' with '-'
