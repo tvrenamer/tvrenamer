@@ -3,6 +3,7 @@ package org.tvrenamer.controller.util;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.logging.Logger;
 
@@ -10,6 +11,28 @@ public class StringUtils {
     private static final Logger logger = Logger.getLogger(StringUtils.class.getName());
 
     private static final Locale THIS_LOCALE = Locale.getDefault();
+
+    public static final HashMap<Character, String> SANITISE
+        = new HashMap<Character, String>()
+        {
+            // provide a replacement for anything that's not valid in Windows
+            // this list is: \ / : * ? " < > |
+            // see http://msdn.microsoft.com/en-us/library/aa365247%28VS.85%29.aspx for more information
+            {
+                put('\\', "-"); // replace backslash with hyphen
+                put('/', "-");  // replace forward slash with hyphen
+                put(':', "-");  // replace colon with a hyphen
+                put('|', "-");  // replace vertical bar with hyphen
+                put('*', "-");  // replace asterisk with hyphen; for example,
+                                // the episode "C**tgate" of Veep should become "C--tgate", not "Ctgate"
+                put('?', "");   // remove question marks
+                put('<', "");   // remove less-than symbols
+                put('>', "");   // remove greater-than symbols
+                put('"', "'");  // replace double quote with apostrophe
+                put('`', "'");  // replace backquote with apostrophe
+            }
+        };
+
 
     private static final ThreadLocal<DecimalFormat> DIGITS =
         new ThreadLocal<DecimalFormat>() {
@@ -94,35 +117,49 @@ public class StringUtils {
      * How illegal characters are handled actually depends on the particular character.  Some are
      * simply stripped away, others are replaced with a hyphen or apostrophe.
      *
+     * This method operates only on the specified portion of the string, and ignores (strips away)
+     * anything that comes before the start or after the end.
+     *
      * @param title the original string, which may contain illegal characters
-     * @return a version of the original string which contains no illegal characters
+     * @param start the index of the first character to consider
+     * @param end the index of the last character to consider
+     * @return a version of the substring, from start to end, of the original string,
+     *    which contains no illegal characters
      */
-    public static String replaceIllegalCharacters(String title) {
-        // anything that's not valid in Windows will be replaced
-        // this list is: \ / : * ? " < > |
-        // see http://msdn.microsoft.com/en-us/library/aa365247%28VS.85%29.aspx for more information
-
-        title = title.replace('\\', '-'); // replace '\' with '-'
-        title = title.replace('/', '-'); // replace '/' with '-'
-        title = title.replace(":", "-"); // replace ':' with '-'
-        title = title.replace('|', '-'); // replace '|' with '-'
-        // For example, the episode "C**tgate" of Veep should become "C--tgate", not "Ctgate"
-        title = title.replace("*", "-"); // replace '*' with '-'
-        title = title.replace("?", ""); // replace '?' with ''
-        title = title.replace("<", ""); // replace '<' with ''
-        title = title.replace(">", ""); // replace '>' with ''
-        title = title.replace("\"", "'"); // replace '"' with "'"
-        title = title.replace("`", "'"); // replace '`' with "'"
-
-        return title;
+    public static String replaceIllegalCharacters(final String title, final int start, final int end) {
+        StringBuilder sanitised = new StringBuilder(end + 1);
+        for (int i = start; i <= end; i++) {
+            char c = title.charAt(i);
+            String replace = SANITISE.get(c);
+            if (replace == null) {
+                sanitised.append(c);
+            } else {
+                sanitised.append(replace);
+            }
+        }
+        return sanitised.toString();
     }
 
-    public static String sanitiseTitle(final String title) {
-        String sanitised = replaceIllegalCharacters(title);
+    public static String replaceIllegalCharacters(final String title) {
+        return replaceIllegalCharacters(title, 0, title.length() - 1);
+    }
 
+    public static String sanitiseTitle(String title) {
         // We don't only replace illegal characters; we also want to "trim" the string of whitespace
-        // at the front and back, but not in the middle.
-        return sanitised.trim();
+        // at the front and back, but not in the middle.  We'll accomplish this by finding the limits
+        // of the non-whitespace characters before we even create the StringBuilder, and use those as
+        // the limits of the string.
+        int end = title.length() - 1;
+        while ((end > 0) && Character.isWhitespace(title.charAt(end))) {
+            end--;
+        }
+
+        int i = 0;
+        while ((i <= end) && Character.isWhitespace(title.charAt(i))) {
+            i++;
+        }
+
+        return replaceIllegalCharacters(title, i, end);
     }
 
     /**
