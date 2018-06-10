@@ -85,7 +85,19 @@ public class StringUtils {
         return input;
     }
 
-    public static String sanitiseTitle(String title) {
+    /**
+     * Certain characters cannot be included in file or folder names.  We create files and folders
+     * based on both information the user provides, and data about the actual episode.  It's likely
+     * that sometimes illegal characters will occur.  This method takes a String that may have
+     * illegal characters, and returns one that is similar but has no illegal characters.
+     *
+     * How illegal characters are handled actually depends on the particular character.  Some are
+     * simply stripped away, others are replaced with a hyphen or apostrophe.
+     *
+     * @param title the original string, which may contain illegal characters
+     * @return a version of the original string which contains no illegal characters
+     */
+    public static String replaceIllegalCharacters(String title) {
         // anything that's not valid in Windows will be replaced
         // this list is: \ / : * ? " < > |
         // see http://msdn.microsoft.com/en-us/library/aa365247%28VS.85%29.aspx for more information
@@ -101,7 +113,16 @@ public class StringUtils {
         title = title.replace(">", ""); // replace '>' with ''
         title = title.replace("\"", "'"); // replace '"' with "'"
         title = title.replace("`", "'"); // replace '`' with "'"
-        return title.trim();
+
+        return title;
+    }
+
+    public static String sanitiseTitle(final String title) {
+        String sanitised = replaceIllegalCharacters(title);
+
+        // We don't only replace illegal characters; we also want to "trim" the string of whitespace
+        // at the front and back, but not in the middle.
+        return sanitised.trim();
     }
 
     /**
