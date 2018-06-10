@@ -9,51 +9,61 @@ public class StringUtilsTest {
     @Test
     public void testSanitiseTitleBackslash() {
         assertEquals("Test-", StringUtils.sanitiseTitle("Test\\"));
+        assertEquals("Test-", StringUtils.replaceIllegalCharacters("Test\\"));
     }
 
     @Test
     public void testSanitiseTitleForwardSlash() {
         assertEquals("Test-", StringUtils.sanitiseTitle("Test/"));
+        assertEquals("Test-", StringUtils.replaceIllegalCharacters("Test/"));
     }
 
     @Test
     public void testSanitiseTitleColon() {
         assertEquals("Test -", StringUtils.sanitiseTitle("Test:"));
+        assertEquals("Test -", StringUtils.replaceIllegalCharacters("Test:"));
     }
 
     @Test
     public void testSanitiseTitlePipe() {
         assertEquals("Test-", StringUtils.sanitiseTitle("Test|"));
+        assertEquals("Test-", StringUtils.replaceIllegalCharacters("Test|"));
     }
 
     @Test
     public void testSanitiseTitleAsterisk() {
         assertEquals("Test-", StringUtils.sanitiseTitle("Test*"));
+        assertEquals("Test-", StringUtils.replaceIllegalCharacters("Test*"));
     }
 
     @Test
     public void testSanitiseTitleQuestionMark() {
         assertEquals("Test", StringUtils.sanitiseTitle("Test?"));
+        assertEquals("Test", StringUtils.replaceIllegalCharacters("Test?"));
     }
 
     @Test
     public void testSanitiseTitleGreaterThan() {
         assertEquals("Test", StringUtils.sanitiseTitle("Test>"));
+        assertEquals("Test", StringUtils.replaceIllegalCharacters("Test>"));
     }
 
     @Test
     public void testSanitiseTitleLessThan() {
         assertEquals("Test", StringUtils.sanitiseTitle("Test<"));
+        assertEquals("Test", StringUtils.replaceIllegalCharacters("Test<"));
     }
 
     @Test
     public void testSanitiseTitleDoubleQuote() {
         assertEquals("Test'", StringUtils.sanitiseTitle("Test\""));
+        assertEquals("Test'", StringUtils.replaceIllegalCharacters("Test\""));
     }
 
     @Test
     public void testSanitiseTitleTilde() {
         assertEquals("Test'", StringUtils.sanitiseTitle("Test`"));
+        assertEquals("Test'", StringUtils.replaceIllegalCharacters("Test`"));
     }
 
     @Test
