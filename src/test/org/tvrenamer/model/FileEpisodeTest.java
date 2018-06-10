@@ -180,7 +180,7 @@ public class FileEpisodeTest {
                    .episodeTitle("The Way of the Gun")
                    .replacementMask("%S [%sx%e] %t")
                    .documentation("makes sure illegal characters are not included in filename")
-                   .expectedReplacement("Steven Seagal - Lawman [1x1] The Way of the Gun")
+                   .expectedReplacement("Steven Seagal- Lawman [1x1] The Way of the Gun")
                    .build());
         /**
          * Ensure that an episode from season 9 of a show, when using "%0s",
@@ -371,7 +371,7 @@ public class FileEpisodeTest {
                    .episodeId("806851")
                    // .replacementMask("%S [%sx%e] %t %r")
                    .replacementMask("%S S%0sE%0e %t")
-                   .expectedReplacement("24 S08E01 Day 8 - 4 -00 P.M. - 5 -00 P.M.")
+                   .expectedReplacement("24 S08E01 Day 8- 4-00 P.M. - 5-00 P.M.")
                    .build());
     }
 
@@ -388,7 +388,7 @@ public class FileEpisodeTest {
                    .episodeId("423760")
                    // .replacementMask("%S [%sx%e] %t %r")
                    .replacementMask("%S S%0sE%0e %t")
-                   .expectedReplacement("24 S07E18 Day 7 - 1 -00 A.M. - 2 -00 A.M.")
+                   .expectedReplacement("24 S07E18 Day 7- 1-00 A.M. - 2-00 A.M.")
                    .build());
         values.add(new EpisodeTestData.Builder()
                    .filenameShow("dexter")

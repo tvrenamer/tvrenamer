@@ -20,8 +20,8 @@ public class StringUtilsTest {
 
     @Test
     public void testSanitiseTitleColon() {
-        assertEquals("Test -", StringUtils.sanitiseTitle("Test:"));
-        assertEquals("Test -", StringUtils.replaceIllegalCharacters("Test:"));
+        assertEquals("Test-", StringUtils.sanitiseTitle("Test:"));
+        assertEquals("Test-", StringUtils.replaceIllegalCharacters("Test:"));
     }
 
     @Test
