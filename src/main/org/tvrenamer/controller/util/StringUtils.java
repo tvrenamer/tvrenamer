@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Set;
 import java.util.logging.Logger;
 
 public class StringUtils {
@@ -32,7 +33,7 @@ public class StringUtils {
                 put('`', "'");  // replace backquote with apostrophe
             }
         };
-
+    public static final Set<Character> ILLEGAL_CHARACTERS = SANITISE.keySet();
 
     private static final ThreadLocal<DecimalFormat> DIGITS =
         new ThreadLocal<DecimalFormat>() {
@@ -144,6 +145,16 @@ public class StringUtils {
         }
 
         return original.substring(start, end);
+    }
+
+    /**
+     * Return whether or not the given character is legal in filenames.
+     *
+     * @param ch the character to check
+     * @return true if the character is ok to include in filenames, false if it is not
+     */
+    public static boolean isLegalFilenameCharacter(final char ch) {
+        return !ILLEGAL_CHARACTERS.contains(ch);
     }
 
     /**
