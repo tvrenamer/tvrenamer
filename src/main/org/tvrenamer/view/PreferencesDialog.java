@@ -262,13 +262,14 @@ class PreferencesDialog extends Dialog {
                                                          prefs.isSeasonPrefixLeadingZero(),
                                                          generalGroup, GridData.BEGINNING, 3);
 
-        toggleEnableControls(moveEnabledCheckbox, destDirText, destDirButton, seasonPrefixText);
+        toggleEnableControls(moveEnabledCheckbox, destDirText, destDirButton,
+                             seasonPrefixText, seasonPrefixLeadingZeroCheckbox);
 
         moveEnabledCheckbox.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                toggleEnableControls(moveEnabledCheckbox, destDirText,
-                                     destDirButton, seasonPrefixText);
+                toggleEnableControls(moveEnabledCheckbox, destDirText, destDirButton,
+                                     seasonPrefixText, seasonPrefixLeadingZeroCheckbox);
             }
         });
         createLabel(IGNORE_LABEL_TEXT, IGNORE_LABEL_TOOLTIP, generalGroup);
