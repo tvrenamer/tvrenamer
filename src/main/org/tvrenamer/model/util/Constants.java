@@ -164,6 +164,10 @@ public class Constants {
         + "used in file paths:";
     public static final String ILLEGAL_CHARACTERS_WARNING = ILLEGAL_CHARS_INTRO
         + charsToSpaceString(StringUtils.ILLEGAL_CHARACTERS);
+    public static final String NO_TEXT_BEFORE_OPENING_QUOTE = "Cannot insert text before "
+        + "the opening double quote";
+    public static final String NO_TEXT_AFTER_CLOSING_QUOTE = "Cannot insert text after "
+        + "the closing double quote";
 
     public static final String UPDATE_TEXT = "Check for Updates...";
     private static final String TO_DOWNLOAD = "Please visit " + TVRENAMER_PROJECT_URL
