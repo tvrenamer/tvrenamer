@@ -180,13 +180,14 @@ class PreferencesDialog extends Dialog {
 
     /**
      * Toggle whether the or not the listed {@link Control}s are enabled, based off the of
-     * the selection value of the checkbox
-     * @param decidingCheckbox the checkbox the enable flag is taken off
+     * the given state value.
+     *
+     * @param state the boolean to set the other controls to
      * @param controls the list of controls to update
      */
-    private void toggleEnableControls(Button decidingCheckbox, Control... controls) {
+    private void toggleEnableControls(boolean state, Control... controls) {
         for (Control control : controls) {
-            control.setEnabled(decidingCheckbox.getSelection());
+            control.setEnabled(state);
         }
         preferencesShell.redraw();
     }
@@ -279,13 +280,13 @@ class PreferencesDialog extends Dialog {
                                                          prefs.isSeasonPrefixLeadingZero(),
                                                          generalGroup, GridData.BEGINNING, 3);
 
-        toggleEnableControls(moveEnabledCheckbox, destDirText, destDirButton,
+        toggleEnableControls(moveEnabledCheckbox.getSelection(), destDirText, destDirButton,
                              seasonPrefixText, seasonPrefixLeadingZeroCheckbox);
 
         moveEnabledCheckbox.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                toggleEnableControls(moveEnabledCheckbox, destDirText, destDirButton,
+                toggleEnableControls(moveEnabledCheckbox.getSelection(), destDirText, destDirButton,
                                      seasonPrefixText, seasonPrefixLeadingZeroCheckbox);
             }
         });
