@@ -1,8 +1,11 @@
 package org.tvrenamer.model.util;
 
+import org.tvrenamer.controller.util.StringUtils;
+
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Set;
 
 /**
  * Constants.java -- the most important reason for this class to exist is for pieces of
@@ -66,6 +69,15 @@ public class Constants {
     public static final String SUBLINK_PATH = "/icons/SweetieLegacy/";
     public static final String LOGGING_PROPERTIES = "/logging.properties";
     public static final String DEVELOPER_DEFAULT_OVERRIDES_FILENAME = "etc/default-overrides.xml";
+
+    private static String charsToSpaceString(final Set<Character> chars) {
+        StringBuilder str = new StringBuilder(2 * chars.size());
+        for (Character c : chars) {
+            str.append(' ');
+            str.append(c);
+        }
+        return str.toString();
+    }
 
     public static final String QUIT_LABEL = "Quit";
     public static final String CANCEL_LABEL = "Cancel";
@@ -148,6 +160,10 @@ public class Constants {
         + "to take some action.";
     public static final String UNKNOWN_EXCEPTION = "An error occurred, please check "
         + "the console output to see any errors:";
+    public static final String ILLEGAL_CHARS_INTRO = "The following characters cannot be "
+        + "used in file paths:";
+    public static final String ILLEGAL_CHARACTERS_WARNING = ILLEGAL_CHARS_INTRO
+        + charsToSpaceString(StringUtils.ILLEGAL_CHARACTERS);
 
     public static final String UPDATE_TEXT = "Check for Updates...";
     private static final String TO_DOWNLOAD = "Please visit " + TVRENAMER_PROJECT_URL
