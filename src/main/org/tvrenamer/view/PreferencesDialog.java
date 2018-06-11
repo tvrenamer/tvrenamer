@@ -119,8 +119,8 @@ class PreferencesDialog extends Dialog {
     }
 
     // The controls to save
-    private Button moveEnabledCheckbox;
-    private Button renameEnabledCheckbox;
+    private Button moveSelectedCheckbox;
+    private Button renameSelectedCheckbox;
     private Text destDirText;
     private Button destDirButton;
     private Text seasonPrefixText;
@@ -251,12 +251,12 @@ class PreferencesDialog extends Dialog {
     }
 
     private void populateGeneralTab(final Composite generalGroup) {
-        final boolean moveIsEnabled = prefs.isMoveEnabled();
-        boolean renameIsEnabled = prefs.isRenameEnabled();
-        moveEnabledCheckbox = createCheckbox(MOVE_ENABLED_TEXT, MOVE_ENABLED_TOOLTIP,
-                                             moveIsEnabled, generalGroup, GridData.BEGINNING, 2);
-        renameEnabledCheckbox = createCheckbox(RENAME_ENABLED_TEXT, RENAME_ENABLED_TOOLTIP,
-                                               renameIsEnabled, generalGroup, GridData.END, 1);
+        final boolean moveIsSelected = prefs.isMoveEnabled();
+        boolean renameIsSelected = prefs.isRenameEnabled();
+        moveSelectedCheckbox = createCheckbox(MOVE_SELECTED_TEXT, MOVE_SELECTED_TOOLTIP,
+                                              moveIsSelected, generalGroup, GridData.BEGINNING, 2);
+        renameSelectedCheckbox = createCheckbox(RENAME_SELECTED_TEXT, RENAME_SELECTED_TOOLTIP,
+                                                renameIsSelected, generalGroup, GridData.END, 1);
 
         createLabel(DEST_DIR_TEXT, DEST_DIR_TOOLTIP, generalGroup);
         destDirText = createText(prefs.getDestinationDirectoryName(), generalGroup, false);
@@ -285,13 +285,13 @@ class PreferencesDialog extends Dialog {
                                                          prefs.isSeasonPrefixLeadingZero(),
                                                          generalGroup, GridData.BEGINNING, 3);
 
-        toggleEnableControls(moveIsEnabled, destDirText, destDirButton,
+        toggleEnableControls(moveIsSelected, destDirText, destDirButton,
                              seasonPrefixText, seasonPrefixLeadingZeroCheckbox);
 
-        moveEnabledCheckbox.addSelectionListener(new SelectionAdapter() {
+        moveSelectedCheckbox.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                toggleEnableControls(moveEnabledCheckbox.getSelection(), destDirText, destDirButton,
+                toggleEnableControls(moveSelectedCheckbox.getSelection(), destDirText, destDirButton,
                                      seasonPrefixText, seasonPrefixLeadingZeroCheckbox);
             }
         });
@@ -427,12 +427,12 @@ class PreferencesDialog extends Dialog {
      */
     private void savePreferences() {
         // Update the preferences object from the UI control values
-        prefs.setMoveEnabled(moveEnabledCheckbox.getSelection());
+        prefs.setMoveEnabled(moveSelectedCheckbox.getSelection());
         prefs.setSeasonPrefix(seasonPrefixString);
         prefs.setSeasonPrefixLeadingZero(seasonPrefixLeadingZeroCheckbox.getSelection());
         prefs.setRenameReplacementString(replacementStringText.getText());
         prefs.setIgnoreKeywords(ignoreWordsText.getText());
-        prefs.setRenameEnabled(renameEnabledCheckbox.getSelection());
+        prefs.setRenameEnabled(renameSelectedCheckbox.getSelection());
 
         prefs.setCheckForUpdates(checkForUpdatesCheckbox.getSelection());
         prefs.setRecursivelyAddFolders(recurseFoldersCheckbox.getSelection());
