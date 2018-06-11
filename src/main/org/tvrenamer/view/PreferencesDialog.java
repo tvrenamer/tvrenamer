@@ -133,6 +133,8 @@ class PreferencesDialog extends Dialog {
     private Button deleteRowsCheckbox;
     private Shell preferencesShell;
 
+    private final StatusLabel statusLabel;
+
     private String seasonPrefixString;
 
     /**
@@ -143,6 +145,7 @@ class PreferencesDialog extends Dialog {
      */
     public PreferencesDialog(Shell parent) {
         super(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+        statusLabel = new StatusLabel();
     }
 
     public void open() {
@@ -164,7 +167,7 @@ class PreferencesDialog extends Dialog {
     }
 
     private void createContents() {
-        GridLayout shellGridLayout = new GridLayout(3, false);
+        GridLayout shellGridLayout = new GridLayout(4, false);
         preferencesShell.setLayout(shellGridLayout);
 
         Label helpLabel = new Label(preferencesShell, SWT.NONE);
@@ -178,6 +181,8 @@ class PreferencesDialog extends Dialog {
 
         createGeneralTab(tabFolder);
         createRenameTab(tabFolder);
+
+        statusLabel.open(preferencesShell, shellGridLayout.numColumns);
 
         createActionButtonGroup();
     }
