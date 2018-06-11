@@ -432,12 +432,10 @@ class PreferencesDialog extends Dialog {
     }
 
     private void populateGeneralTab(final Composite generalGroup) {
-        final boolean moveIsSelected = prefs.isMoveEnabled();
-        boolean renameIsSelected = prefs.isRenameEnabled();
         moveSelectedCheckbox = createCheckbox(MOVE_SELECTED_TEXT, MOVE_SELECTED_TOOLTIP,
-                                              moveIsSelected, generalGroup, GridData.BEGINNING, 2);
+                                              true, generalGroup, GridData.BEGINNING, 2);
         renameSelectedCheckbox = createCheckbox(RENAME_SELECTED_TEXT, RENAME_SELECTED_TOOLTIP,
-                                                renameIsSelected, generalGroup, GridData.END, 1);
+                                                true, generalGroup, GridData.END, 1);
 
         createLabel(DEST_DIR_TEXT, DEST_DIR_TOOLTIP, generalGroup);
         destDirText = createText(prefs.getDestinationDirectoryName(), generalGroup, false);
@@ -445,16 +443,6 @@ class PreferencesDialog extends Dialog {
 
         createSeasonPrefixControls(generalGroup);
 
-        toggleEnableControls(moveIsSelected, destDirText, destDirButton,
-                             seasonPrefixText, seasonPrefixLeadingZeroCheckbox);
-
-        moveSelectedCheckbox.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                toggleEnableControls(moveSelectedCheckbox.getSelection(), destDirText, destDirButton,
-                                     seasonPrefixText, seasonPrefixLeadingZeroCheckbox);
-            }
-        });
         createLabel(IGNORE_LABEL_TEXT, IGNORE_LABEL_TOOLTIP, generalGroup);
         ignoreWordsText = createText(prefs.getIgnoredKeywordsString(), generalGroup, false);
 
@@ -472,6 +460,23 @@ class PreferencesDialog extends Dialog {
                                                  GridData.BEGINNING, 3);
     }
 
+    private void initializeGeneralControls(final Composite generalGroup) {
+        final boolean moveIsSelected = prefs.isMoveEnabled();
+        moveSelectedCheckbox.setSelection(moveIsSelected);
+        toggleEnableControls(moveIsSelected, destDirText, destDirButton,
+                             seasonPrefixText, seasonPrefixLeadingZeroCheckbox);
+        moveSelectedCheckbox.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                toggleEnableControls(moveSelectedCheckbox.getSelection(), destDirText, destDirButton,
+                                     seasonPrefixText, seasonPrefixLeadingZeroCheckbox);
+            }
+        });
+
+        boolean renameIsSelected = prefs.isRenameEnabled();
+        renameSelectedCheckbox.setSelection(renameIsSelected);
+    }
+
     private void createGeneralTab(final TabFolder tabFolder) {
         final TabItem item = new TabItem(tabFolder, SWT.NULL);
         item.setText(GENERAL_LABEL);
@@ -482,6 +487,7 @@ class PreferencesDialog extends Dialog {
         generalGroup.setToolTipText(GENERAL_TOOLTIP);
 
         populateGeneralTab(generalGroup);
+        initializeGeneralControls(generalGroup);
 
         item.setControl(generalGroup);
     }
@@ -587,18 +593,18 @@ class PreferencesDialog extends Dialog {
      */
     private void savePreferences() {
         // Update the preferences object from the UI control values
-        prefs.setMoveEnabled(moveSelectedCheckbox.getSelection());
         prefs.setSeasonPrefix(seasonPrefixString);
         prefs.setSeasonPrefixLeadingZero(seasonPrefixLeadingZeroCheckbox.getSelection());
         prefs.setRenameReplacementString(replacementStringText.getText());
         prefs.setIgnoreKeywords(ignoreWordsText.getText());
-        prefs.setRenameEnabled(renameSelectedCheckbox.getSelection());
-
         prefs.setCheckForUpdates(checkForUpdatesCheckbox.getSelection());
         prefs.setRecursivelyAddFolders(recurseFoldersCheckbox.getSelection());
         prefs.setRemoveEmptiedDirectories(rmdirEmptyCheckbox.getSelection());
         prefs.setDeleteRowAfterMove(deleteRowsCheckbox.getSelection());
         prefs.setDestinationDirectory(destDirText.getText());
+
+        prefs.setMoveEnabled(moveSelectedCheckbox.getSelection());
+        prefs.setRenameEnabled(renameSelectedCheckbox.getSelection());
 
         UserPreferences.store(prefs);
     }
