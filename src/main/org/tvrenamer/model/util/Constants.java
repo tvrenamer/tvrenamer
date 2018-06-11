@@ -87,8 +87,8 @@ public class Constants {
     public static final String IGNORE_WORDS_SPLIT_REGEX = "\\s*,\\s*";
     public static final String GENERAL_LABEL = "General";
     public static final String RENAMING_LABEL = "Renaming";
-    public static final String MOVE_ENABLED_TEXT = "Move Enabled [?]";
-    public static final String RENAME_ENABLED_TEXT = "Rename Enabled [?]";
+    public static final String MOVE_SELECTED_TEXT = "Move Enabled [?]";
+    public static final String RENAME_SELECTED_TEXT = "Rename Enabled [?]";
     public static final String DEST_DIR_TEXT = "TV Directory [?]";
     public static final String DEST_DIR_BUTTON_TEXT = "Select directory";
     public static final String DIR_DIALOG_TEXT = "Please select a directory and click OK";
@@ -109,7 +109,7 @@ public class Constants {
         + "moved/renamed, delete the row from the table.";
     public static final String RENAME_TOKEN_TEXT = "Rename Tokens [?]";
     public static final String RENAME_FORMAT_TEXT = "Rename Format [?]";
-    public static final String RENAME_ENABLED_TOOLTIP = "Whether the 'rename' functionality is enabled.\n"
+    public static final String RENAME_SELECTED_TOOLTIP = "Whether the 'rename' functionality is enabled.\n"
         + "You can move a file into a folder based on its show\n"
         + "without actually renaming the file";
     public static final String HELP_TOOLTIP = "Hover mouse over [?] to get help";
@@ -117,7 +117,7 @@ public class Constants {
         + "to your 'TV' folder if you want it to.  \n"
         + " - It will move the file to <tv directory>/<series name>/<season prefix> #/ \n"
         + " - Once enabled, set the location below.";
-    public static final String MOVE_ENABLED_TOOLTIP = "Whether the "
+    public static final String MOVE_SELECTED_TOOLTIP = "Whether the "
         + "'move to TV location' functionality is enabled";
     public static final String DEST_DIR_TOOLTIP = "The location of your 'TV' folder";
     public static final String PREFIX_TOOLTIP = " - The prefix of the season when renaming and "
