@@ -16,6 +16,8 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -44,6 +46,7 @@ class PreferencesDialog extends Dialog {
     private static final UserPreferences prefs = UserPreferences.getInstance();
 
     private static final int DND_OPERATIONS = DND.DROP_MOVE;
+    private static final char DOUBLE_QUOTE = '"';
 
     private static class PreferencesDragSourceListener implements DragSourceListener {
 
@@ -258,6 +261,135 @@ class PreferencesDialog extends Dialog {
     }
 
     /*
+     * Return true if the parameters indicate a double-quote character
+     * is being inserted as the first or last character of the text.
+     *
+     * The purpose of this method is that the double-quote is an illegal
+     * character in file paths, but it is allowed in the text box where
+     * the user enters the prefix -- but only as surrounding characters,
+     * to show the limits of the text being entered (i.e., to help display
+     * whitespace).
+     *
+     * Note this test is not sufficient on its own.  If the text is quoted
+     * already, and then the user tries to add a double-quote in front of
+     * the existing quote, that should not be allowed.  It's assumed that
+     * situation is caught by other code; this method just detects if it's
+     * the first or last character.
+     */
+    private boolean quoteAtBeginningOrEnd(final char c, final int pos,
+                                          final int start, final int end,
+                                          final int originalLength,
+                                          final int insertLength)
+    {
+        // The user has entered a character that is not a double quote.
+        if (c != DOUBLE_QUOTE) {
+            return false;
+        }
+        // If start is 0, that means we're inserting at the beginning of the text box;
+        // but this may be the result of a paste, so we may be inserting multiple
+        // characters.  Checking (pos == 0) makes sure we're looking at the first
+        // character of the text that's being inserted.
+        if ((start == 0) && (pos == 0)) {
+            return true;
+        }
+        // This is the same idea.  "end == originalLength" means we're inserting at
+        // the end of the text box, but we only want to allow the double quote if
+        // it's the LAST character of the text being inserted.
+        if ((end == originalLength) && (pos == (insertLength - 1))) {
+            return true;
+        }
+        // The user has tried to insert a double quote somewhere other than the first
+        // or last character.
+        return false;
+    }
+
+    /*
+     * A sub-method to be called once it's been determined that the user has tried to insert
+     * text into the "season prefix" text box, in a legal position (i.e., not before the
+     * opening quote, and not after the closing quote.)  Not all edits are insertions; some
+     * just delete text.
+     *
+     * Constructs a string with any illegal characters removed.  If the text is the same
+     * length as what we got from the event, then all characters were legal.  If the new text
+     * is zero length, then all characters were illegal, and we reject the insertion.  If the
+     * length is neither zero, nor the full length of the inserted text, then the user has
+     * pasted in some mix of legal and illegal characters.  We strip away the illegal ones,
+     * and insert the legal ones, with a warning given to the user.
+     */
+    private void filterEnteredSeasonPrefixText(VerifyEvent e, final int previousTextLength) {
+        String textToInsert = e.text;
+        int insertLength = textToInsert.length();
+        StringBuilder acceptedText = new StringBuilder(insertLength);
+        for (int i = 0; i < insertLength; i++) {
+            char c = textToInsert.charAt(i);
+            boolean isLegal = StringUtils.isLegalFilenameCharacter(c)
+                || quoteAtBeginningOrEnd(c, i, e.start, e.end,
+                                         previousTextLength, insertLength);
+            if (isLegal) {
+                acceptedText.append(c);
+            }
+        }
+        if (acceptedText.length() == insertLength) {
+            statusLabel.clear(ILLEGAL_CHARACTERS_WARNING);
+        } else {
+            statusLabel.add(ILLEGAL_CHARACTERS_WARNING);
+            if (acceptedText.length() == 0) {
+                e.doit = false;
+            } else {
+                e.text = acceptedText.toString();
+            }
+        }
+    }
+
+    /*
+     * The main verifier method for the "season prefix" text box.  The basic idea is
+     * that we want to prohibit characters that are illegal in filenames.  But we
+     * added a complication by deciding to display (and accept) the text with or without
+     * surrounding double quotes.
+     *
+     * Double quotes are, of course, illegal in filenames (on the filesystems we care
+     * about, anyway).  So they are generally prohibited.  And we put the surrounding
+     * quotes up by default, so the user never needs to type them.  But it's very possible
+     * they might delete the quotes, and then try to re-enter them, and that should be
+     * supported.  And we also support them deleting the quotes and NOT reinstating them.
+     *
+     * A really stringent application might insist the quotes be either absent or balanced.
+     * But that makes it impossible to delete a quote, unless you delete the entire text.
+     * That's very annoying.  So we allow them to be unbalanced.  The StringUtils method
+     * unquoteString will remove the quote from the front and from the back, whether they
+     * are balanced or not.
+     *
+     * In order to avoid having the illegal quote character in the middle of the text, we
+     * cannot allow the user to insert any text before the opening quote, or any text after
+     * the closing quote.  Doing so would change them from delimiters to part of the text.
+     *
+     * Edits might not be inserting text at all.  They could be deleting text.  This method
+     * checks that the user is trying to insert text, and that it's not before the opening
+     * quote or after the closing quote.  If that's the case, it calls the next method,
+     * filterEnteredSeasonPrefixText, to ensure no illegal characters are being entered.
+     */
+    private void verifySeasonPrefixText(VerifyEvent e) {
+        if (e.text.length() > 0) {
+            String previousText = seasonPrefixText.getText();
+            int originalLength = previousText.length();
+
+            if ((e.end < (originalLength - 1))
+                && (previousText.charAt(e.end) == DOUBLE_QUOTE))
+            {
+                statusLabel.add(NO_TEXT_BEFORE_OPENING_QUOTE);
+                e.doit = false;
+            } else if ((e.start > 1)
+                       && (previousText.charAt(e.start - 1) == DOUBLE_QUOTE))
+            {
+                statusLabel.add(NO_TEXT_AFTER_CLOSING_QUOTE);
+                e.doit = false;
+            } else {
+                filterEnteredSeasonPrefixText(e, originalLength);
+            }
+        }
+    }
+
+    /*
      * Create the controls that regard the naming of the season prefix folder.
      * The text box gets both a verify listener and a modify listener.
      */
@@ -266,6 +398,14 @@ class PreferencesDialog extends Dialog {
         seasonPrefixString = prefs.getSeasonPrefix();
         seasonPrefixText = createText(StringUtils.makeQuotedString(seasonPrefixString),
                                       generalGroup, true);
+        seasonPrefixText.addVerifyListener(new VerifyListener() {
+            @Override
+            public void verifyText(VerifyEvent e) {
+                statusLabel.clear(NO_TEXT_BEFORE_OPENING_QUOTE);
+                statusLabel.clear(NO_TEXT_AFTER_CLOSING_QUOTE);
+                verifySeasonPrefixText(e);
+            }
+        });
         seasonPrefixText.addModifyListener(new ModifyListener() {
             @Override
             public void modifyText(ModifyEvent e) {
@@ -274,11 +414,16 @@ class PreferencesDialog extends Dialog {
                 // Remove the surrounding double quotes, if present;
                 // any other double quotes should not be removed.
                 String unquoted = StringUtils.unquoteString(prefixText);
+                // The verifier should have prevented any illegal characters from
+                // being entered.  This is just to check.
                 seasonPrefixString = StringUtils.replaceIllegalCharacters(unquoted);
 
-                // TODO: rather than silently replacing, we should probably reject any text
-                // that has an illegal character in it. We could compare prefixText and unquoted,
-                // and if they're different, warn the user.
+                if (!seasonPrefixString.equals(unquoted)) {
+                    // Somehow, illegal characters got through.
+                    logger.severe("Illegal characters recognized in season prefix");
+                    logger.severe("Instead of \"" + unquoted + "\", will use \""
+                                 + seasonPrefixString + "\"");
+                }
             }
         });
         seasonPrefixLeadingZeroCheckbox = createCheckbox(SEASON_PREFIX_ZERO_TEXT, SEASON_PREFIX_ZERO_TOOLTIP,
