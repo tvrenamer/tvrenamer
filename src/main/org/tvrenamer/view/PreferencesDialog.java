@@ -12,6 +12,8 @@ import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.DropTargetListener;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -131,6 +133,8 @@ class PreferencesDialog extends Dialog {
     private Button deleteRowsCheckbox;
     private Shell preferencesShell;
 
+    private String seasonPrefixString;
+
     /**
      * PreferencesDialog constructor
      *
@@ -246,21 +250,6 @@ class PreferencesDialog extends Dialog {
         return button;
     }
 
-    private String getCleanSeasonPrefixText() {
-        String prefixText = seasonPrefixText.getText();
-
-        // Remove the surrounding double quotes, if present;
-        // any other double quotes should not be removed.
-        String unquoted = StringUtils.unquoteString(prefixText);
-        prefixText = StringUtils.replaceIllegalCharacters(unquoted);
-
-        // TODO: rather than silently replacing, we should probably reject any text
-        // that has an illegal character in it. We could compare prefixText and unquoted,
-        // and if they're different, warn the user.
-
-        return prefixText;
-    }
-
     private void populateGeneralTab(final Composite generalGroup) {
         final boolean moveIsEnabled = prefs.isMoveEnabled();
         boolean renameIsEnabled = prefs.isRenameEnabled();
@@ -274,8 +263,24 @@ class PreferencesDialog extends Dialog {
         destDirButton = createDestDirButton(generalGroup);
 
         createLabel(SEASON_PREFIX_TEXT, PREFIX_TOOLTIP, generalGroup);
-        seasonPrefixText = createText(StringUtils.makeQuotedString(prefs.getSeasonPrefix()),
+        seasonPrefixString = prefs.getSeasonPrefix();
+        seasonPrefixText = createText(StringUtils.makeQuotedString(seasonPrefixString),
                                       generalGroup, true);
+        seasonPrefixText.addModifyListener(new ModifyListener() {
+            @Override
+            public void modifyText(ModifyEvent e) {
+                String prefixText = seasonPrefixText.getText();
+
+                // Remove the surrounding double quotes, if present;
+                // any other double quotes should not be removed.
+                String unquoted = StringUtils.unquoteString(prefixText);
+                seasonPrefixString = StringUtils.replaceIllegalCharacters(unquoted);
+
+                // TODO: rather than silently replacing, we should probably reject any text
+                // that has an illegal character in it. We could compare prefixText and unquoted,
+                // and if they're different, warn the user.
+            }
+        });
         seasonPrefixLeadingZeroCheckbox = createCheckbox(SEASON_PREFIX_ZERO_TEXT, SEASON_PREFIX_ZERO_TOOLTIP,
                                                          prefs.isSeasonPrefixLeadingZero(),
                                                          generalGroup, GridData.BEGINNING, 3);
@@ -423,7 +428,7 @@ class PreferencesDialog extends Dialog {
     private void savePreferences() {
         // Update the preferences object from the UI control values
         prefs.setMoveEnabled(moveEnabledCheckbox.getSelection());
-        prefs.setSeasonPrefix(getCleanSeasonPrefixText());
+        prefs.setSeasonPrefix(seasonPrefixString);
         prefs.setSeasonPrefixLeadingZero(seasonPrefixLeadingZeroCheckbox.getSelection());
         prefs.setRenameReplacementString(replacementStringText.getText());
         prefs.setIgnoreKeywords(ignoreWordsText.getText());
