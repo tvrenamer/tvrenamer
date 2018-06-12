@@ -285,7 +285,7 @@ class PreferencesDialog extends Dialog {
                                                          prefs.isSeasonPrefixLeadingZero(),
                                                          generalGroup, GridData.BEGINNING, 3);
 
-        toggleEnableControls(moveEnabledCheckbox.getSelection(), destDirText, destDirButton,
+        toggleEnableControls(moveIsEnabled, destDirText, destDirButton,
                              seasonPrefixText, seasonPrefixLeadingZeroCheckbox);
 
         moveEnabledCheckbox.addSelectionListener(new SelectionAdapter() {
