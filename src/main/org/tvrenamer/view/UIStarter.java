@@ -17,9 +17,9 @@ import java.util.logging.Logger;
 public final class UIStarter {
     private static final Logger logger = Logger.getLogger(UIStarter.class.getName());
 
-    private final Shell shell;
-    private final Display display;
-    private final ResultsTable resultsTable;
+    final Shell shell;
+    final Display display;
+    final ResultsTable resultsTable;
 
     private void positionWindow() {
         // place the window near the lower right-hand corner
@@ -46,7 +46,7 @@ public final class UIStarter {
         UIUtils.setShell(shell);
 
         // Create the main window
-        resultsTable = new ResultsTable(shell);
+        resultsTable = new ResultsTable(this);
     }
 
     public int run() {
