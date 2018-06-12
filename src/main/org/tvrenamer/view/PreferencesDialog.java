@@ -255,18 +255,11 @@ class PreferencesDialog extends Dialog {
         return button;
     }
 
-    private void populateGeneralTab(final Composite generalGroup) {
-        final boolean moveIsSelected = prefs.isMoveEnabled();
-        boolean renameIsSelected = prefs.isRenameEnabled();
-        moveSelectedCheckbox = createCheckbox(MOVE_SELECTED_TEXT, MOVE_SELECTED_TOOLTIP,
-                                              moveIsSelected, generalGroup, GridData.BEGINNING, 2);
-        renameSelectedCheckbox = createCheckbox(RENAME_SELECTED_TEXT, RENAME_SELECTED_TOOLTIP,
-                                                renameIsSelected, generalGroup, GridData.END, 1);
-
-        createLabel(DEST_DIR_TEXT, DEST_DIR_TOOLTIP, generalGroup);
-        destDirText = createText(prefs.getDestinationDirectoryName(), generalGroup, false);
-        destDirButton = createDestDirButton(generalGroup);
-
+    /*
+     * Create the controls that regard the naming of the season prefix folder.
+     * The text box gets both a verify listener and a modify listener.
+     */
+    private void createSeasonPrefixControls(final Composite generalGroup) {
         createLabel(SEASON_PREFIX_TEXT, PREFIX_TOOLTIP, generalGroup);
         seasonPrefixString = prefs.getSeasonPrefix();
         seasonPrefixText = createText(StringUtils.makeQuotedString(seasonPrefixString),
@@ -289,6 +282,21 @@ class PreferencesDialog extends Dialog {
         seasonPrefixLeadingZeroCheckbox = createCheckbox(SEASON_PREFIX_ZERO_TEXT, SEASON_PREFIX_ZERO_TOOLTIP,
                                                          prefs.isSeasonPrefixLeadingZero(),
                                                          generalGroup, GridData.BEGINNING, 3);
+    }
+
+    private void populateGeneralTab(final Composite generalGroup) {
+        final boolean moveIsSelected = prefs.isMoveEnabled();
+        boolean renameIsSelected = prefs.isRenameEnabled();
+        moveSelectedCheckbox = createCheckbox(MOVE_SELECTED_TEXT, MOVE_SELECTED_TOOLTIP,
+                                              moveIsSelected, generalGroup, GridData.BEGINNING, 2);
+        renameSelectedCheckbox = createCheckbox(RENAME_SELECTED_TEXT, RENAME_SELECTED_TOOLTIP,
+                                                renameIsSelected, generalGroup, GridData.END, 1);
+
+        createLabel(DEST_DIR_TEXT, DEST_DIR_TOOLTIP, generalGroup);
+        destDirText = createText(prefs.getDestinationDirectoryName(), generalGroup, false);
+        destDirButton = createDestDirButton(generalGroup);
+
+        createSeasonPrefixControls(generalGroup);
 
         toggleEnableControls(moveIsSelected, destDirText, destDirButton,
                              seasonPrefixText, seasonPrefixLeadingZeroCheckbox);
