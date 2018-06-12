@@ -526,20 +526,24 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         item.setChecked(false);
     }
 
+    private void setTableItemStatus(final TableItem item, final int epsFound) {
+        if (epsFound > 1) {
+            setCellImage(item, STATUS_COLUMN, OPTIONS);
+            item.setChecked(true);
+        } else if (epsFound == 1) {
+            setCellImage(item, STATUS_COLUMN, SUCCESS);
+            item.setChecked(true);
+        } else {
+            failTableItem(item);
+        }
+    }
+
     private void listingsDownloaded(final TableItem item, final FileEpisode episode) {
         int epsFound = episode.listingsComplete();
         display.asyncExec(() -> {
             if (tableContainsTableItem(item)) {
                 setProposedDestColumn(item, episode);
-                if (epsFound > 1) {
-                    setCellImage(item, STATUS_COLUMN, OPTIONS);
-                    item.setChecked(true);
-                } else if (epsFound == 1) {
-                    setCellImage(item, STATUS_COLUMN, SUCCESS);
-                    item.setChecked(true);
-                } else {
-                    failTableItem(item);
-                }
+                setTableItemStatus(item, epsFound);
             }
         });
     }
@@ -828,6 +832,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
             episodeMap.put(newFileName, episode);
             setCellText(item, CURRENT_FILE_COLUMN, newFileName);
             setProposedDestColumn(item, episode);
+            setTableItemStatus(item, episode.optionCount());
         }
     }
 
