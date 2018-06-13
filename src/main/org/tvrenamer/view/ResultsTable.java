@@ -279,7 +279,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
             preferencesDialog.open();
         };
         Listener aboutListener = e -> {
-            AboutDialog aboutDialog = new AboutDialog(shell);
+            AboutDialog aboutDialog = new AboutDialog(ui);
             aboutDialog.open();
         };
         Listener quitListener = e -> quit();
