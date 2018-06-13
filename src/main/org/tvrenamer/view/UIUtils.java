@@ -8,7 +8,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import org.tvrenamer.model.SWTMessageBoxType;
-import org.tvrenamer.model.UserPreferences;
 
 import java.awt.HeadlessException;
 import java.io.IOException;
@@ -19,7 +18,6 @@ import javax.swing.JOptionPane;
 
 class UIUtils {
     private static final Logger logger = Logger.getLogger(UIUtils.class.getName());
-    private static final UserPreferences prefs = UserPreferences.getInstance();
 
     private static Shell shell = null;
 
@@ -114,14 +112,5 @@ class UIUtils {
      */
     public static Image readImageFromPath(final String resourcePath) {
         return readImageFromPath(resourcePath, ICON_PARENT_DIRECTORY + "/" + resourcePath);
-    }
-
-    public static void checkDestinationDirectory() {
-        boolean success = prefs.ensureDestDir();
-        if (!success) {
-            logger.warning(CANT_CREATE_DEST);
-            showMessageBox(SWTMessageBoxType.ERROR, ERROR_LABEL, CANT_CREATE_DEST + ": '"
-                           + prefs.getDestinationDirectoryName() + "'. " + MOVE_NOW_DISABLED);
-        }
     }
 }

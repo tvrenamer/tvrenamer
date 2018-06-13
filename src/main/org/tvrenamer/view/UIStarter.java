@@ -11,16 +11,21 @@ import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 
 import org.tvrenamer.model.SWTMessageBoxType;
+import org.tvrenamer.model.UserPreference;
+import org.tvrenamer.model.UserPreferences;
 
+import java.util.Observable;
+import java.util.Observer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public final class UIStarter {
+public final class UIStarter implements Observer {
     private static final Logger logger = Logger.getLogger(UIStarter.class.getName());
 
     final Shell shell;
     final Display display;
     final ResultsTable resultsTable;
+    final UserPreferences prefs = UserPreferences.getInstance();
 
     /**
      * Determine the system default font
@@ -66,16 +71,39 @@ public final class UIStarter {
         resultsTable = new ResultsTable(this);
     }
 
+    private void checkDestinationDirectory() {
+        boolean success = prefs.ensureDestDir();
+        if (!success) {
+            logger.warning(CANT_CREATE_DEST);
+            showMessageBox(SWTMessageBoxType.ERROR, ERROR_LABEL, CANT_CREATE_DEST + ": '"
+                           + prefs.getDestinationDirectoryName() + "'. " + MOVE_NOW_DISABLED);
+        }
+    }
+
+    @Override
+    public void update(final Observable observable, final Object value) {
+        if (observable instanceof UserPreferences && value instanceof UserPreference) {
+            final UserPreference userPref = (UserPreference) value;
+            if ((userPref == UserPreference.DEST_DIR)
+                || (userPref == UserPreference.MOVE_ENABLED))
+            {
+                checkDestinationDirectory();
+            }
+        }
+    }
+
     public int run() {
         try {
-            UIUtils.checkDestinationDirectory();
-
             shell.pack(true);
             positionWindow();
 
             // Start the shell
             shell.pack();
             shell.open();
+
+            checkDestinationDirectory();
+            prefs.addObserver(this);
+
             resultsTable.ready();
 
             while (!shell.isDisposed()) {
