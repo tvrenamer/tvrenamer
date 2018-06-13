@@ -912,7 +912,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         this.ui = ui;
         shell = ui.shell;
         display = ui.display;
-        appIcon = UIUtils.readImageFromPath(TVRENAMER_ICON_PATH);
+        appIcon = UIStarter.readImageFromPath(TVRENAMER_ICON_PATH);
 
         setupTopButtons();
         swtTable = new Table(shell, SWT.CHECK | SWT.FULL_SELECTION | SWT.MULTI);
