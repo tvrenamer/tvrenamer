@@ -34,7 +34,7 @@ final class AboutDialog extends Dialog {
     /**
      * Static inner class to check if there's an update available
      */
-    private static class UpdateNotifier extends SelectionAdapter {
+    private class UpdateNotifier extends SelectionAdapter {
         /**
          * The link has been clicked.
          *
@@ -46,11 +46,11 @@ final class AboutDialog extends Dialog {
             UpdateChecker.notifyOfUpdate(updateIsAvailable -> {
                 if (updateIsAvailable) {
                     logger.fine(NEW_VERSION_AVAILABLE);
-                    UIUtils.showMessageBox(SWTMessageBoxType.OK, NEW_VERSION_TITLE,
-                                           NEW_VERSION_AVAILABLE);
+                    ui.showMessageBox(SWTMessageBoxType.OK, NEW_VERSION_TITLE,
+                                      NEW_VERSION_AVAILABLE);
                 } else {
-                    UIUtils.showMessageBox(SWTMessageBoxType.WARNING, NO_NEW_VERSION_TITLE,
-                                           NO_NEW_VERSION_AVAILABLE);
+                    ui.showMessageBox(SWTMessageBoxType.WARNING, NO_NEW_VERSION_TITLE,
+                                      NO_NEW_VERSION_AVAILABLE);
                 }
             });
         }

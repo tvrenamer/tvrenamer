@@ -3,7 +3,6 @@ package org.tvrenamer.view;
 import static org.tvrenamer.model.util.Constants.*;
 import static org.tvrenamer.view.Columns.*;
 import static org.tvrenamer.view.FileMoveIcon.Status.*;
-import static org.tvrenamer.view.UIUtils.showMessageBox;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
@@ -589,8 +588,8 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         apiDeprecated = true;
         if (showDialogBox) {
             boolean updateIsAvailable = UpdateChecker.isUpdateAvailable();
-            showMessageBox(SWTMessageBoxType.ERROR, ERROR_LABEL,
-                           updateIsAvailable ? GET_UPDATE_MESSAGE : NEED_UPDATE);
+            ui.showMessageBox(SWTMessageBoxType.ERROR, ERROR_LABEL,
+                              updateIsAvailable ? GET_UPDATE_MESSAGE : NEED_UPDATE);
         }
     }
 
