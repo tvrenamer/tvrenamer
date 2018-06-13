@@ -505,7 +505,7 @@ public class FileEpisode {
      *         we've gathered, and the user's preferences
      */
     public Path getMoveToPath() {
-        if (userPrefs.isMoveEnabled()) {
+        if (userPrefs.isMoveSelected()) {
             return Paths.get(getMoveToDirectory());
         } else {
             return pathObj.toAbsolutePath().getParent();
@@ -582,7 +582,7 @@ public class FileEpisode {
      *    the episode option to get the basename of
      */
     String getRenamedBasename(final int n) {
-        if (!userPrefs.isRenameEnabled()) {
+        if (!userPrefs.isRenameSelected()) {
             return null;
         }
 
@@ -633,7 +633,7 @@ public class FileEpisode {
     }
 
     public String getDestinationBasename() {
-        if (userPrefs.isRenameEnabled()) {
+        if (userPrefs.isRenameSelected()) {
             if (baseForRename == null) {
                 logger.warning("unable to get destination basename; "
                                + "reverting to original basename "
@@ -654,21 +654,21 @@ public class FileEpisode {
     private synchronized void buildReplacementTextOptions() {
         seriesStatus = SeriesStatus.GOT_LISTINGS;
         replacementOptions = new LinkedList<>();
-        if (userPrefs.isRenameEnabled()) {
+        if (userPrefs.isRenameSelected()) {
             for (int i=0; i < actualEpisodes.size(); i++) {
                 String newBasename = getRenamedBasename(i);
                 if (i == chosenEpisode) {
                     baseForRename = newBasename;
                 }
 
-                if (userPrefs.isMoveEnabled()) {
+                if (userPrefs.isMoveSelected()) {
                     replacementOptions.add(getMoveToDirectory() + FILE_SEPARATOR_STRING
                                            + newBasename + filenameSuffix);
                 } else {
                     replacementOptions.add(newBasename + filenameSuffix);
                 }
             }
-        } else if (userPrefs.isMoveEnabled()) {
+        } else if (userPrefs.isMoveSelected()) {
             replacementOptions.add(getMoveToDirectory() + FILE_SEPARATOR_STRING + fileNameString);
         } else {
             // This setting doesn't make any sense, but we haven't bothered to

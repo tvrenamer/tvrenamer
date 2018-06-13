@@ -178,7 +178,7 @@ public final class UIStarter implements Observer {
         if (observable instanceof UserPreferences && value instanceof UserPreference) {
             final UserPreference userPref = (UserPreference) value;
             if ((userPref == UserPreference.DEST_DIR)
-                || (userPref == UserPreference.MOVE_ENABLED))
+                || (userPref == UserPreference.MOVE_SELECTED))
             {
                 checkDestinationDirectory();
             }

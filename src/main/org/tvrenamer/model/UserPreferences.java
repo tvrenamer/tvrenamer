@@ -24,8 +24,8 @@ public class UserPreferences extends Observable {
     private String destDir;
     private String seasonPrefix;
     private boolean seasonPrefixLeadingZero;
-    private boolean moveEnabled;
-    private boolean renameEnabled;
+    private boolean moveSelected;
+    private boolean renameSelected;
     private boolean removeEmptiedDirectories;
     private boolean deleteRowAfterMove;
     private String renameReplacementMask;
@@ -48,8 +48,8 @@ public class UserPreferences extends Observable {
         destDir = DEFAULT_DESTINATION_DIRECTORY.toString();
         seasonPrefix = DEFAULT_SEASON_PREFIX;
         seasonPrefixLeadingZero = false;
-        moveEnabled = false;
-        renameEnabled = true;
+        moveSelected = false;
+        renameSelected = true;
         removeEmptiedDirectories = true;
         deleteRowAfterMove = false;
         renameReplacementMask = DEFAULT_REPLACEMENT_MASK;
@@ -234,8 +234,8 @@ public class UserPreferences extends Observable {
      *              directory does not exist and could not be created.
      */
     public boolean ensureDestDir() {
-        if (!moveEnabled) {
-            // It doesn't matter if the directory exists or not if move is not enabled.
+        if (!moveSelected) {
+            // It doesn't matter if the directory exists or not if move is not selected.
             return true;
         }
 
@@ -271,7 +271,7 @@ public class UserPreferences extends Observable {
      *
      * Note that this returns a directory name even if "move" is disabled.
      * Therefore, this is NOT necessarily "where files should be moved to".
-     * Callers need to check isMoveEnabled() separately.
+     * Callers need to check isMoveSelected() separately.
      *
      * @return name of the directory.
      */
@@ -286,37 +286,52 @@ public class UserPreferences extends Observable {
     /**
      * Sets whether or not we want the FileMover to move files to a destination directory
      *
-     * @param moveEnabled whether or not we want the FileMover to move files to a
+     * @param moveSelected whether or not we want the FileMover to move files to a
      *           destination directory
      */
-    public void setMoveEnabled(boolean moveEnabled) {
-        if (valuesAreDifferent(this.moveEnabled, moveEnabled)) {
-            this.moveEnabled = moveEnabled;
+    public void setMoveSelected(boolean moveSelected) {
+        if (valuesAreDifferent(this.moveSelected, moveSelected)) {
+            this.moveSelected = moveSelected;
             ensureDestDir();
-            preferenceChanged(UserPreference.MOVE_ENABLED);
+            preferenceChanged(UserPreference.MOVE_SELECTED);
         }
     }
 
     /**
-     * Get whether or not we want the FileMover to move files to a destination directory
+     * Get whether or not the user has requested that the FileMover move files to
+     * a destination directory.  This can be true even if the destination directory
+     * is invalid.
      *
-     * @return true if we want the FileMover to move files to a destination directory
+     * @return true if the user requested that the FileMover move files to a
+     *    destination directory
+     */
+    public boolean isMoveSelected() {
+        return moveSelected;
+    }
+
+    /**
+     * Get whether or the FileMover should try to move files to a destination directory.
+     * For this to be true, the following BOTH must be true:
+     *  - the user has requested we move files
+     *  - the user has supplied a valid place to move them to.
+     *
+     * @return true if the FileMover should try to move files to a destination directory.
      */
     public boolean isMoveEnabled() {
-        return moveEnabled;
+        return moveSelected && !destDirProblem;
     }
 
     /**
      * Sets whether or not we want the FileMover to rename files based on the show,
      * season, and episode we find.
      *
-     * @param renameEnabled whether or not we want the FileMover to rename files
+     * @param renameSelected whether or not we want the FileMover to rename files
      */
-    public void setRenameEnabled(boolean renameEnabled) {
-        if (valuesAreDifferent(this.renameEnabled, renameEnabled)) {
-            this.renameEnabled = renameEnabled;
+    public void setRenameSelected(boolean renameSelected) {
+        if (valuesAreDifferent(this.renameSelected, renameSelected)) {
+            this.renameSelected = renameSelected;
 
-            preferenceChanged(UserPreference.RENAME_ENABLED);
+            preferenceChanged(UserPreference.RENAME_SELECTED);
         }
     }
 
@@ -326,8 +341,8 @@ public class UserPreferences extends Observable {
      *
      * @return true if we want the FileMover to rename files
      */
-    public boolean isRenameEnabled() {
-        return renameEnabled;
+    public boolean isRenameSelected() {
+        return renameSelected;
     }
 
     /**
@@ -563,7 +578,7 @@ public class UserPreferences extends Observable {
     @Override
     public String toString() {
         return "UserPreferences\n [destDir=" + destDir + ",\n  seasonPrefix=" + seasonPrefix
-            + ",\n  moveEnabled=" + moveEnabled + ",\n  renameEnabled=" + renameEnabled
+            + ",\n  moveSelected=" + moveSelected + ",\n  renameSelected=" + renameSelected
             + ",\n  renameReplacementMask=" + renameReplacementMask
             + ",\n  checkForUpdates=" + checkForUpdates
             + ",\n  deleteRowAfterMove=" + deleteRowAfterMove

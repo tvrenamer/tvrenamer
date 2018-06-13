@@ -22,7 +22,8 @@ public class UserPreferencesPersistence {
 
     static {
         xstream.alias("preferences", UserPreferences.class);
-        xstream.omitField(UserPreferences.class, "proxy");
+        xstream.aliasField("moveEnabled", UserPreferences.class, "moveSelected");
+        xstream.aliasField("renameEnabled", UserPreferences.class, "renameSelected");
         // Make the fields of Observable transient
         xstream.omitField(Observable.class, "obs");
         xstream.omitField(Observable.class, "changed");

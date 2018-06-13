@@ -461,7 +461,7 @@ class PreferencesDialog extends Dialog {
     }
 
     private void initializeGeneralControls(final Composite generalGroup) {
-        final boolean moveIsSelected = prefs.isMoveEnabled();
+        final boolean moveIsSelected = prefs.isMoveSelected();
         moveSelectedCheckbox.setSelection(moveIsSelected);
         toggleEnableControls(moveIsSelected, destDirText, destDirButton,
                              seasonPrefixText, seasonPrefixLeadingZeroCheckbox);
@@ -473,7 +473,7 @@ class PreferencesDialog extends Dialog {
             }
         });
 
-        boolean renameIsSelected = prefs.isRenameEnabled();
+        boolean renameIsSelected = prefs.isRenameSelected();
         renameSelectedCheckbox.setSelection(renameIsSelected);
     }
 
@@ -603,8 +603,8 @@ class PreferencesDialog extends Dialog {
         prefs.setDeleteRowAfterMove(deleteRowsCheckbox.getSelection());
         prefs.setDestinationDirectory(destDirText.getText());
 
-        prefs.setMoveEnabled(moveSelectedCheckbox.getSelection());
-        prefs.setRenameEnabled(renameSelectedCheckbox.getSelection());
+        prefs.setMoveSelected(moveSelectedCheckbox.getSelection());
+        prefs.setRenameSelected(renameSelectedCheckbox.getSelection());
 
         UserPreferences.store(prefs);
     }
