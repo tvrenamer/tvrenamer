@@ -1,12 +1,12 @@
 package org.tvrenamer.view;
 
 import static org.tvrenamer.model.util.Constants.*;
-import static org.tvrenamer.view.UIUtils.getDefaultSystemFont;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -114,15 +114,16 @@ final class AboutDialog extends Dialog {
         iconLabel.setImage(UIUtils.readImageFromPath(TVRENAMER_ICON_PATH));
 
         Label applicationLabel = new Label(aboutShell, SWT.NONE);
-        applicationLabel.setFont(new Font(aboutShell.getDisplay(), getDefaultSystemFont().getName(),
-            getDefaultSystemFont().getHeight() + 4, SWT.BOLD));
+        FontData defaultFont = ui.getDefaultSystemFont();
+        applicationLabel.setFont(new Font(aboutShell.getDisplay(), defaultFont.getName(),
+            defaultFont.getHeight() + 4, SWT.BOLD));
         applicationLabel.setText(APPLICATION_NAME);
         applicationLabel.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, true, true));
 
         Label versionLabel = new Label(aboutShell, SWT.NONE);
         versionLabel.setFont(new Font(aboutShell.getDisplay(),
-                                      getDefaultSystemFont().getName(),
-                                      getDefaultSystemFont().getHeight() + 2,
+                                      defaultFont.getName(),
+                                      defaultFont.getHeight() + 2,
                                       SWT.BOLD));
 
         versionLabel.setText(VERSION_LABEL);

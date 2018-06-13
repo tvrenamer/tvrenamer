@@ -2,7 +2,6 @@ package org.tvrenamer.view;
 
 import static org.tvrenamer.model.util.Constants.*;
 
-import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
@@ -14,7 +13,6 @@ import org.tvrenamer.model.UserPreferences;
 import java.awt.HeadlessException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
@@ -37,22 +35,6 @@ class UIUtils {
      */
     public static void setShell(Shell shell) {
         UIUtils.shell = shell;
-    }
-
-    /**
-     * Determine the system default font
-     *
-     * @return the system default font
-     */
-    public static FontData getDefaultSystemFont() {
-        FontData defaultFont = null;
-        try {
-            defaultFont = shell.getDisplay().getSystemFont().getFontData()[0];
-        } catch (Exception e) {
-            logger.log(Level.WARNING, "Error attempting to determine system default font", e);
-        }
-
-        return defaultFont;
     }
 
     public static void showMessageBox(final SWTMessageBoxType type, final String title,

@@ -3,6 +3,7 @@ package org.tvrenamer.view;
 import static org.tvrenamer.model.util.Constants.*;
 import static org.tvrenamer.view.UIUtils.showMessageBox;
 
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Display;
@@ -20,6 +21,22 @@ public final class UIStarter {
     final Shell shell;
     final Display display;
     final ResultsTable resultsTable;
+
+    /**
+     * Determine the system default font
+     *
+     * @return the system default font
+     */
+    public FontData getDefaultSystemFont() {
+        FontData defaultFont = null;
+        try {
+            defaultFont = display.getSystemFont().getFontData()[0];
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "Error attempting to determine system default font", e);
+        }
+
+        return defaultFont;
+    }
 
     private void positionWindow() {
         // place the window near the lower right-hand corner
