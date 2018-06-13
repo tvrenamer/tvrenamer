@@ -896,10 +896,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         {
             refreshAll();
         }
-
-        if (userPref == UserPreference.DEST_DIR) {
-            UIUtils.checkDestinationDirectory();
-        }
     }
 
     /* (non-Javadoc)
