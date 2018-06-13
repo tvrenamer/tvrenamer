@@ -30,6 +30,7 @@ public final class UIStarter implements Observer {
 
     final Shell shell;
     final Display display;
+    final Image appIcon;
     final ResultsTable resultsTable;
     final UserPreferences prefs = UserPreferences.getInstance();
 
@@ -128,6 +129,14 @@ public final class UIStarter implements Observer {
         showMessageBox(type, title, message, null);
     }
 
+    public void setAppIcon() {
+        if (appIcon == null) {
+            logger.warning("unable to get application icon");
+        } else {
+            shell.setImage(appIcon);
+        }
+    }
+
     private void positionWindow() {
         // place the window near the lower right-hand corner
         Monitor primary = display.getPrimaryMonitor();
@@ -145,6 +154,9 @@ public final class UIStarter implements Observer {
         shell = new Shell(display);
 
         shell.setText(APPLICATION_NAME);
+
+        appIcon = readImageFromPath(TVRENAMER_ICON_PATH);
+        setAppIcon();
 
         GridLayout shellGridLayout = new GridLayout(3, false);
         shell.setLayout(shellGridLayout);

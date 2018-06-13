@@ -81,7 +81,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     private final Shell shell;
     private final Display display;
     private final Table swtTable;
-    private final Image appIcon;
     private final EpisodeDb episodeMap = new EpisodeDb();
 
     private Button actionButton;
@@ -236,14 +235,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         });
     }
 
-    private void setAppIcon() {
-        if (appIcon == null) {
-            logger.warning("unable to get application icon");
-        } else {
-            shell.setImage(appIcon);
-        }
-    }
-
     private void setupMainWindow() {
         setupResultsTable();
         setupTableDragDrop();
@@ -256,8 +247,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                 taskItem = taskBar.getItem(null);
             }
         }
-
-        setAppIcon();
     }
 
     private void makeMenuItem(final Menu parent, final String text,
@@ -837,7 +826,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     }
 
     void finishAllMoves() {
-        setAppIcon();
+        ui.setAppIcon();
         refreshAll();
     }
 
@@ -912,7 +901,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         this.ui = ui;
         shell = ui.shell;
         display = ui.display;
-        appIcon = UIStarter.readImageFromPath(TVRENAMER_ICON_PATH);
 
         setupTopButtons();
         swtTable = new Table(shell, SWT.CHECK | SWT.FULL_SELECTION | SWT.MULTI);
