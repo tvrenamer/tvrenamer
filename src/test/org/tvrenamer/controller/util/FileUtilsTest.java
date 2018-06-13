@@ -3,6 +3,7 @@ package org.tvrenamer.controller.util;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.tvrenamer.controller.util.FileUtilities.*;
 
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -38,13 +39,13 @@ public class FileUtilsTest {
                     Files.exists(dirpath));
 
         assertTrue("ensureWritableDirectory returned false",
-                   FileUtilities.ensureWritableDirectory(dirpath));
+                   ensureWritableDirectory(dirpath));
         assertTrue("dir from ensureWritableDirectory not found",
                    Files.exists(dirpath));
         assertTrue("dir from ensureWritableDirectory not a directory",
                    Files.isDirectory(dirpath));
 
-        assertTrue("rmdirs returned false", FileUtilities.rmdir(dirpath));
+        assertTrue("rmdirs returned false", rmdir(dirpath));
         assertFalse("dir from rmdirs not removed", Files.exists(dirpath));
     }
 
@@ -56,7 +57,7 @@ public class FileUtilsTest {
                    Files.exists(dirpath));
 
         assertTrue("ensureWritableDirectory returned false",
-                   FileUtilities.ensureWritableDirectory(dirpath));
+                   ensureWritableDirectory(dirpath));
         assertTrue("dir from ensureWritableDirectory not found",
                    Files.exists(dirpath));
         assertTrue("dir from ensureWritableDirectory not a directory",
@@ -79,7 +80,7 @@ public class FileUtilsTest {
                    Files.exists(dirpath));
 
         assertFalse("ensureWritableDirectory returned true when file was in the way",
-                    FileUtilities.ensureWritableDirectory(dirpath));
+                    ensureWritableDirectory(dirpath));
         assertTrue("file from ensureWritableDirectory not found",
                    Files.exists(dirpath));
         assertFalse("file from ensureWritableDirectory is a directory",
@@ -108,7 +109,7 @@ public class FileUtilsTest {
             perms.add(PosixFilePermission.OWNER_EXECUTE);
             Files.setPosixFilePermissions(dirpath, perms);
         } catch (UnsupportedOperationException ue) {
-            // If this platform can't support POSIX file permissions, then we just
+            // If this file system can't support POSIX file permissions, then we just
             // punt.  We can't properly test it, so there is no failure.
             return;
         } catch (IOException ioe) {
@@ -119,7 +120,7 @@ public class FileUtilsTest {
         assertFalse("failed to make temp dir not writable", Files.isWritable(dirpath));
 
         assertFalse("ensureWritableDirectory returned true when folder was not writable",
-                    FileUtilities.ensureWritableDirectory(dirpath));
+                    ensureWritableDirectory(dirpath));
         assertTrue("file from ensureWritableDirectory not found",
                    Files.exists(dirpath));
         assertTrue("file from ensureWritableDirectory is a directory",
