@@ -577,7 +577,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         apiDeprecated = true;
         if (showDialogBox) {
             boolean updateIsAvailable = UpdateChecker.isUpdateAvailable();
-            ui.showMessageBox(SWTMessageBoxType.ERROR, ERROR_LABEL,
+            ui.showMessageBox(SWTMessageBoxType.DLG_ERR, ERROR_LABEL,
                               updateIsAvailable ? GET_UPDATE_MESSAGE : NEED_UPDATE);
         }
     }

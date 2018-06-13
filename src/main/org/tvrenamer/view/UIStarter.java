@@ -169,7 +169,7 @@ public final class UIStarter implements Observer {
         boolean success = prefs.ensureDestDir();
         if (!success) {
             logger.warning(CANT_CREATE_DEST);
-            showMessageBox(SWTMessageBoxType.ERROR, ERROR_LABEL, CANT_CREATE_DEST + ": '"
+            showMessageBox(SWTMessageBoxType.DLG_ERR, ERROR_LABEL, CANT_CREATE_DEST + ": '"
                            + prefs.getDestinationDirectoryName() + "'. " + MOVE_NOW_DISABLED);
         }
     }
@@ -208,7 +208,7 @@ public final class UIStarter implements Observer {
             display.dispose();
             return 0;
         } catch (Exception exception) {
-            showMessageBox(SWTMessageBoxType.ERROR, ERROR_LABEL, UNKNOWN_EXCEPTION, exception);
+            showMessageBox(SWTMessageBoxType.DLG_ERR, ERROR_LABEL, UNKNOWN_EXCEPTION, exception);
             logger.log(Level.SEVERE, UNKNOWN_EXCEPTION, exception);
             shell.dispose();
             return 1;
