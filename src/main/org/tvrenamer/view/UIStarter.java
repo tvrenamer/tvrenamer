@@ -3,6 +3,7 @@ package org.tvrenamer.view;
 import static org.tvrenamer.model.util.Constants.*;
 
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Display;
@@ -15,6 +16,8 @@ import org.tvrenamer.model.UserPreference;
 import org.tvrenamer.model.UserPreferences;
 
 import java.awt.HeadlessException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.logging.Level;
@@ -29,6 +32,44 @@ public final class UIStarter implements Observer {
     final Display display;
     final ResultsTable resultsTable;
     final UserPreferences prefs = UserPreferences.getInstance();
+
+    /**
+     * Read an image.
+     *
+     * @param resourcePath
+     *     the relative path to try to locate the file as a resource
+     * @param filePath
+     *     the path to try to locate the file directly in the file system
+     * @return an Image read from the given path
+     */
+    public static Image readImageFromPath(final String resourcePath,
+                                          final String filePath)
+    {
+        Display display = Display.getCurrent();
+        Image rval = null;
+        try (InputStream in = UIStarter.class.getResourceAsStream(resourcePath)) {
+            if (in != null) {
+                rval = new Image(display, in);
+            }
+        } catch (IOException ioe) {
+            logger.warning("exception trying to read image from stream " + resourcePath);
+        }
+        if (rval == null) {
+            rval = new Image(display, filePath);
+        }
+        return rval;
+    }
+
+    /**
+     * Read an image.
+     *
+     * @param resourcePath
+     *     the relative path to try to locate the file as a resource
+     * @return an Image read from the given path
+     */
+    public static Image readImageFromPath(final String resourcePath) {
+        return readImageFromPath(resourcePath, ICON_PARENT_DIRECTORY + "/" + resourcePath);
+    }
 
     /**
      * Determine the system default font

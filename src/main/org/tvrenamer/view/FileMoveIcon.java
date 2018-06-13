@@ -24,7 +24,7 @@ public class FileMoveIcon {
     FileMoveIcon(String ordering, Status status, String imageFilename) {
         this.ordering = ordering;
         this.status = status;
-        this.image = UIUtils.readImageFromPath(SUBLINK_PATH + imageFilename);
+        this.image = UIStarter.readImageFromPath(SUBLINK_PATH + imageFilename);
     }
 
     private static final FileMoveIcon[] STANDARD_STATUSES = {
