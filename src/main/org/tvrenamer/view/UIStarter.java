@@ -169,7 +169,7 @@ public final class UIStarter implements Observer {
         if (!success) {
             logger.warning(CANT_CREATE_DEST);
             showMessageBox(SWTMessageBoxType.DLG_ERR, ERROR_LABEL, CANT_CREATE_DEST + ": '"
-                           + prefs.getDestinationDirectoryName() + "'. " + MOVE_NOW_DISABLED);
+                           + prefs.getDestinationDirectoryName() + "'. " + MOVE_NOT_POSSIBLE);
         }
     }
 

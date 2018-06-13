@@ -36,6 +36,8 @@ public class UserPreferences extends Observable {
     private transient String specifiedIgnoreKeywords;
     private final List<String> ignoreKeywords;
 
+    private transient boolean destDirProblem = false;
+
     /**
      * UserPreferences constructor which uses the defaults from {@link org.tvrenamer.model.util.Constants}
      */
@@ -56,6 +58,7 @@ public class UserPreferences extends Observable {
         ignoreKeywords = new ArrayList<>();
         ignoreKeywords.add(DEFAULT_IGNORED_KEYWORD);
         buildIgnoredKeywordsString();
+        destDirProblem = false;
     }
 
     /**
@@ -236,32 +239,14 @@ public class UserPreferences extends Observable {
             return true;
         }
 
-        Path destPath = Paths.get(destDir);
+        boolean canCreate = FileUtilities.checkForCreatableDirectory(destDir);
+        destDirProblem = !canCreate;
 
-        String errorMessage;
-        if (Files.exists(destPath)) {
-            if (Files.isDirectory(destPath)) {
-                // destPath already exists; we're all set.
-                return true;
-            }
-
-            // destDir exists but is not a directory.
-            errorMessage = "Destination path exists but is not a directory: '"
-                + destDir + "'. Move is now disabled";
-            // fall through to failure at bottom
-        } else if (FileUtilities.mkdirs(destPath)) {
-            // we have successfully created the destination directory
-            return true;
-        } else {
-            errorMessage = "Couldn't create path: '"
-                + destDir + "'. Move is now disabled";
-            // fall through to failure
+        if (destDirProblem) {
+            logger.warning(CANT_CREATE_DEST + destDir);
         }
 
-        moveEnabled = false;
-        logger.warning(errorMessage);
-
-        return false;
+        return canCreate;
     }
 
     /**
@@ -307,16 +292,7 @@ public class UserPreferences extends Observable {
     public void setMoveEnabled(boolean moveEnabled) {
         if (valuesAreDifferent(this.moveEnabled, moveEnabled)) {
             this.moveEnabled = moveEnabled;
-            // We might be in a situation where move was disabled at startup, and so,
-            // ensureDestDir did nothing.  And then, the user enabled "move", causing
-            // this method to be called.  In that case, we should run ensureDestDir now.
-            // Except, we know that the implementation is, the PreferencesDialog is
-            // going to call setDestinationDirectory() after this method, no matter what.
-            // So, rather than call it twice, we'll rely on inside implementation
-            // knowledge.  If the PreferencesDialog should ever change in a way that no
-            // longer calls setDestinationDirectory() every time, this method might need
-            // to be changed.
-
+            ensureDestDir();
             preferenceChanged(UserPreference.MOVE_ENABLED);
         }
     }
