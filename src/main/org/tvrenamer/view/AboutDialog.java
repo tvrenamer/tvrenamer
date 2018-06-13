@@ -28,6 +28,7 @@ import java.util.logging.Logger;
 final class AboutDialog extends Dialog {
     private static final Logger logger = Logger.getLogger(AboutDialog.class.getName());
 
+    private final UIStarter ui;
     private Shell aboutShell;
 
     /**
@@ -58,11 +59,12 @@ final class AboutDialog extends Dialog {
     /**
      * AboutDialog constructor
      *
-     * @param parent
-     *            the parent {@link Shell}
+     * @param ui
+     *            the parent {@link UIStarter}
      */
-    public AboutDialog(Shell parent) {
-        super(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+    public AboutDialog(final UIStarter ui) {
+        super(ui.shell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+        this.ui = ui;
     }
 
     public void open() {
