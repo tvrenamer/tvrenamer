@@ -2,8 +2,8 @@ package org.tvrenamer.model;
 
 public enum UserPreference {
     REPLACEMENT_MASK,
-    MOVE_ENABLED,
-    RENAME_ENABLED,
+    MOVE_SELECTED,
+    RENAME_SELECTED,
     REMOVE_EMPTY,
     DELETE_ROWS,
     DEST_DIR,

@@ -1083,8 +1083,8 @@ public class FileEpisodeTest {
      */
     @Test
     public void testGetReplacementText() {
-        prefs.setRenameEnabled(true);
-        prefs.setMoveEnabled(false);
+        prefs.setRenameSelected(true);
+        prefs.setMoveSelected(false);
         List<Path> testFiles = new ArrayList<>();
         for (EpisodeTestData data : values) {
             try {

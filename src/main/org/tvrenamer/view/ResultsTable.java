@@ -647,7 +647,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     }
 
     private void renameFiles() {
-        if (!prefs.isMoveEnabled() && !prefs.isRenameEnabled()) {
+        if (!prefs.isMoveEnabled() && !prefs.isRenameSelected()) {
             logger.info("move and rename both disabled, nothing to be done.");
             return;
         }
@@ -833,17 +833,17 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         String label = RENAME_LABEL;
         String tooltip = RENAME_TOOLTIP;
 
-        if (prefs.isMoveEnabled()) {
+        if (prefs.isMoveSelected()) {
             tooltip = INTRO_MOVE_DIR + prefs.getDestinationDirectoryName()
                 + FINISH_MOVE_DIR;
-            if (prefs.isRenameEnabled()) {
+            if (prefs.isRenameSelected()) {
                 label = RENAME_AND_MOVE;
                 tooltip = MOVE_INTRO + AND_RENAME + tooltip;
             } else {
                 label = JUST_MOVE_LABEL;
                 tooltip = MOVE_INTRO + tooltip;
             }
-        } else if (!prefs.isRenameEnabled()) {
+        } else if (!prefs.isRenameSelected()) {
             // This setting, "do not move and do not rename", really makes no sense.
             // But for now, we're not taking the effort to explicitly disable it.
             tooltip = NO_ACTION_TOOLTIP;
@@ -856,7 +856,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     }
 
     private void setColumnDestText(final TableColumn destinationColumn) {
-        if (prefs.isMoveEnabled()) {
+        if (prefs.isMoveSelected()) {
             destinationColumn.setText(MOVE_HEADER);
         } else {
             destinationColumn.setText(RENAME_HEADER);
@@ -868,15 +868,15 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     {
         logger.info("Preference change event: " + userPref);
 
-        if ((userPref == UserPreference.MOVE_ENABLED)
-            || (userPref == UserPreference.RENAME_ENABLED))
+        if ((userPref == UserPreference.MOVE_SELECTED)
+            || (userPref == UserPreference.RENAME_SELECTED))
         {
             setColumnDestText(swtTable.getColumn(NEW_FILENAME_COLUMN));
             setActionButtonText(actionButton);
         }
         if ((userPref == UserPreference.REPLACEMENT_MASK)
-            || (userPref == UserPreference.MOVE_ENABLED)
-            || (userPref == UserPreference.RENAME_ENABLED)
+            || (userPref == UserPreference.MOVE_SELECTED)
+            || (userPref == UserPreference.RENAME_SELECTED)
             || (userPref == UserPreference.DEST_DIR)
             || (userPref == UserPreference.SEASON_PREFIX)
             || (userPref == UserPreference.LEADING_ZERO))
