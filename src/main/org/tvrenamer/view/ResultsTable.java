@@ -880,26 +880,21 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     {
         logger.info("Preference change event: " + userPref);
 
-        if ((userPref == UserPreference.MOVE_SELECTED)
-            || (userPref == UserPreference.RENAME_SELECTED))
-        {
-            setColumnDestText(swtTable.getColumn(NEW_FILENAME_COLUMN));
-            setActionButtonText(actionButton);
-        }
-        if ((userPref == UserPreference.REPLACEMENT_MASK)
-            || (userPref == UserPreference.MOVE_SELECTED)
-            || (userPref == UserPreference.RENAME_SELECTED)
-            || (userPref == UserPreference.DEST_DIR)
-            || (userPref == UserPreference.SEASON_PREFIX)
-            || (userPref == UserPreference.LEADING_ZERO))
-        {
-            refreshAll();
+        if (userPref == UserPreference.DEST_DIR) {
+            checkDestinationDirectory();
         }
 
-        if ((userPref == UserPreference.DEST_DIR)
-            || (userPref == UserPreference.MOVE_SELECTED))
-        {
-            checkDestinationDirectory();
+        switch (userPref) {
+            case RENAME_SELECTED:
+            case MOVE_SELECTED:
+            case DEST_DIR:
+                setColumnDestText(swtTable.getColumn(NEW_FILENAME_COLUMN));
+                setActionButtonText(actionButton);
+                // Note: NO break!  We WANT to fall through.
+            case REPLACEMENT_MASK:
+            case SEASON_PREFIX:
+            case LEADING_ZERO:
+                refreshAll();
         }
     }
 
