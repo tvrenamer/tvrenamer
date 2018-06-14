@@ -854,18 +854,28 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         }
         b.setText(label);
 
+        // Enable the button, in case it had been disabled before.  But we may
+        // disable it again, below.
+        b.setEnabled(true);
+
         String tooltip = RENAME_TOOLTIP;
         if (prefs.isMoveSelected()) {
-            tooltip = INTRO_MOVE_DIR + prefs.getDestinationDirectoryName()
-                + FINISH_MOVE_DIR;
-            if (prefs.isRenameSelected()) {
-                tooltip = MOVE_INTRO + AND_RENAME + tooltip;
+            if (prefs.isMoveEnabled()) {
+                tooltip = INTRO_MOVE_DIR + prefs.getDestinationDirectoryName()
+                    + FINISH_MOVE_DIR;
+                if (prefs.isRenameSelected()) {
+                    tooltip = MOVE_INTRO + AND_RENAME + tooltip;
+                } else {
+                    tooltip = MOVE_INTRO + tooltip;
+                }
             } else {
-                tooltip = MOVE_INTRO + tooltip;
+                b.setEnabled(false);
+                tooltip = CANT_CREATE_DEST + ". " + MOVE_NOT_POSSIBLE;
             }
         } else if (!prefs.isRenameSelected()) {
             // This setting, "do not move and do not rename", really makes no sense.
             // But for now, we're not taking the effort to explicitly disable it.
+            b.setEnabled(false);
             tooltip = NO_ACTION_TOOLTIP;
         }
         b.setToolTipText(tooltip);
