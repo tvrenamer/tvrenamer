@@ -92,6 +92,8 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         prefs.addObserver(this);
         swtTable.setFocus();
 
+        checkDestinationDirectory();
+
         // Load the preload folder into the episode map, which will call
         // us back with the list of files once they've been loaded.
         episodeMap.subscribe(this);
@@ -152,6 +154,16 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
             }
         }
         swtTable.deselectAll();
+    }
+
+    private synchronized void checkDestinationDirectory() {
+        boolean success = prefs.ensureDestDir();
+        if (!success) {
+            logger.warning(CANT_CREATE_DEST);
+            ui.showMessageBox(SWTMessageBoxType.DLG_ERR, ERROR_LABEL, CANT_CREATE_DEST + ": '"
+                              + prefs.getDestinationDirectoryName() + "'. "
+                              + MOVE_NOT_POSSIBLE);
+        }
     }
 
     private void setupTopButtons() {
@@ -882,6 +894,12 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
             || (userPref == UserPreference.LEADING_ZERO))
         {
             refreshAll();
+        }
+
+        if ((userPref == UserPreference.DEST_DIR)
+            || (userPref == UserPreference.MOVE_SELECTED))
+        {
+            checkDestinationDirectory();
         }
     }
 

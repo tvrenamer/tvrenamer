@@ -11,27 +11,21 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 
-import org.tvrenamer.model.UserPreference;
-import org.tvrenamer.model.UserPreferences;
-
 import java.awt.HeadlessException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Observable;
-import java.util.Observer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 
-public final class UIStarter implements Observer {
+public final class UIStarter {
     private static final Logger logger = Logger.getLogger(UIStarter.class.getName());
 
     final Shell shell;
     final Display display;
     final Image appIcon;
     final ResultsTable resultsTable;
-    final UserPreferences prefs = UserPreferences.getInstance();
 
     /**
      * Read an image.
@@ -164,27 +158,6 @@ public final class UIStarter implements Observer {
         resultsTable = new ResultsTable(this);
     }
 
-    private void checkDestinationDirectory() {
-        boolean success = prefs.ensureDestDir();
-        if (!success) {
-            logger.warning(CANT_CREATE_DEST);
-            showMessageBox(SWTMessageBoxType.DLG_ERR, ERROR_LABEL, CANT_CREATE_DEST + ": '"
-                           + prefs.getDestinationDirectoryName() + "'. " + MOVE_NOT_POSSIBLE);
-        }
-    }
-
-    @Override
-    public void update(final Observable observable, final Object value) {
-        if (observable instanceof UserPreferences && value instanceof UserPreference) {
-            final UserPreference userPref = (UserPreference) value;
-            if ((userPref == UserPreference.DEST_DIR)
-                || (userPref == UserPreference.MOVE_SELECTED))
-            {
-                checkDestinationDirectory();
-            }
-        }
-    }
-
     public int run() {
         try {
             shell.pack(true);
@@ -193,9 +166,6 @@ public final class UIStarter implements Observer {
             // Start the shell
             shell.pack();
             shell.open();
-
-            checkDestinationDirectory();
-            prefs.addObserver(this);
 
             resultsTable.ready();
 
