@@ -52,7 +52,6 @@ import org.tvrenamer.controller.util.StringUtils;
 import org.tvrenamer.model.EpisodeDb;
 import org.tvrenamer.model.FailedShow;
 import org.tvrenamer.model.FileEpisode;
-import org.tvrenamer.model.SWTMessageBoxType;
 import org.tvrenamer.model.Series;
 import org.tvrenamer.model.Show;
 import org.tvrenamer.model.ShowStore;

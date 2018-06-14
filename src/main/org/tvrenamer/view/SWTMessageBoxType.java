@@ -1,4 +1,4 @@
-package org.tvrenamer.model;
+package org.tvrenamer.view;
 
 import static org.eclipse.swt.SWT.*;
 

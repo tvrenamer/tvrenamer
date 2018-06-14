@@ -11,7 +11,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 
-import org.tvrenamer.model.SWTMessageBoxType;
 import org.tvrenamer.model.UserPreference;
 import org.tvrenamer.model.UserPreferences;
 
