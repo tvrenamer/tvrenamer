@@ -154,7 +154,7 @@ public final class UIStarter implements Observer {
 
         shell.setText(APPLICATION_NAME);
 
-        appIcon = readImageFromPath(TVRENAMER_ICON_PATH);
+        appIcon = readImageFromPath(APPLICATION_ICON_PATH);
         setAppIcon();
 
         GridLayout shellGridLayout = new GridLayout(3, false);
