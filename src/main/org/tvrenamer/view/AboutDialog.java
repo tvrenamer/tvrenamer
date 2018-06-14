@@ -110,7 +110,7 @@ final class AboutDialog extends Dialog {
         iconGridData.grabExcessVerticalSpace = false;
         iconGridData.grabExcessHorizontalSpace = false;
         iconLabel.setLayoutData(iconGridData);
-        iconLabel.setImage(UIStarter.readImageFromPath(TVRENAMER_ICON_PATH));
+        iconLabel.setImage(UIStarter.readImageFromPath(APPLICATION_ICON_PATH));
 
         Label applicationLabel = new Label(aboutShell, SWT.NONE);
         FontData defaultFont = ui.getDefaultSystemFont();

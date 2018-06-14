@@ -63,9 +63,9 @@ public class Constants {
 
     public static final String XML_SUFFIX = ".xml";
     public static final String ICON_PARENT_DIRECTORY = "res";
-    public static final String TVRENAMER_ICON_PATH = "/icons/tvrenamer.png";
+    public static final String APPLICATION_ICON_PATH = "/icons/tvrenamer.png";
     public static final String TVRENAMER_ICON_DIRECT_PATH =
-        ICON_PARENT_DIRECTORY + TVRENAMER_ICON_PATH;
+        ICON_PARENT_DIRECTORY + APPLICATION_ICON_PATH;
     public static final String SUBLINK_PATH = "/icons/SweetieLegacy/";
     public static final String LOGGING_PROPERTIES = "/logging.properties";
     public static final String DEVELOPER_DEFAULT_OVERRIDES_FILENAME = "etc/default-overrides.xml";
