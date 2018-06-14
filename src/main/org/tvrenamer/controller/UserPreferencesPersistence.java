@@ -54,9 +54,7 @@ public class UserPreferencesPersistence {
         if (Files.exists(path)) {
             try (InputStream in = Files.newInputStream(path)) {
                 return (UserPreferences) xstream.fromXML(in);
-            } catch (IllegalArgumentException | UnsupportedOperationException
-                     | IOException  | SecurityException e)
-            {
+            } catch (Exception e) {
                 logger.log(Level.SEVERE, "Exception reading preferences file '"
                            + path.toAbsolutePath().toString(), e);
                 logger.info("assuming default preferences");
@@ -67,6 +65,6 @@ public class UserPreferencesPersistence {
                        + "' does not exist - assuming defaults");
         }
 
-        return UserPreferences.getInstance();
+        return null;
     }
 }
