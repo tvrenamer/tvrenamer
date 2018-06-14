@@ -18,7 +18,6 @@ import org.eclipse.swt.widgets.Shell;
 
 import org.tvrenamer.controller.UpdateChecker;
 import org.tvrenamer.controller.UrlLauncher;
-import org.tvrenamer.model.SWTMessageBoxType;
 
 import java.util.logging.Logger;
 
