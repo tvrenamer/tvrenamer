@@ -842,13 +842,15 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     }
 
     private void setActionButtonText(final Button b) {
-        String label = RENAME_LABEL;
-        if (prefs.isMoveSelected()) {
-            if (prefs.isRenameSelected()) {
+        String label = JUST_MOVE_LABEL;
+        if (prefs.isRenameSelected()) {
+            if (prefs.isMoveSelected()) {
                 label = RENAME_AND_MOVE;
             } else {
-                label = JUST_MOVE_LABEL;
+                label = RENAME_LABEL;
             }
+            // In the unlikely and erroneous case where neither is selected,
+            // we'll still stick with JUST_MOVE_LABEL for the label.
         }
         b.setText(label);
 
