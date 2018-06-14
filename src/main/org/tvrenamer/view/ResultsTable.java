@@ -843,16 +843,22 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
 
     private void setActionButtonText(final Button b) {
         String label = RENAME_LABEL;
-        String tooltip = RENAME_TOOLTIP;
+        if (prefs.isMoveSelected()) {
+            if (prefs.isRenameSelected()) {
+                label = RENAME_AND_MOVE;
+            } else {
+                label = JUST_MOVE_LABEL;
+            }
+        }
+        b.setText(label);
 
+        String tooltip = RENAME_TOOLTIP;
         if (prefs.isMoveSelected()) {
             tooltip = INTRO_MOVE_DIR + prefs.getDestinationDirectoryName()
                 + FINISH_MOVE_DIR;
             if (prefs.isRenameSelected()) {
-                label = RENAME_AND_MOVE;
                 tooltip = MOVE_INTRO + AND_RENAME + tooltip;
             } else {
-                label = JUST_MOVE_LABEL;
                 tooltip = MOVE_INTRO + tooltip;
             }
         } else if (!prefs.isRenameSelected()) {
@@ -860,9 +866,8 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
             // But for now, we're not taking the effort to explicitly disable it.
             tooltip = NO_ACTION_TOOLTIP;
         }
-
-        b.setText(label);
         b.setToolTipText(tooltip);
+
         shell.changed(new Control[] {b});
         shell.layout(false, true);
     }
