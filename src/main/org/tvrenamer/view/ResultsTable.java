@@ -880,14 +880,11 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     {
         logger.info("Preference change event: " + userPref);
 
-        if (userPref == UserPreference.DEST_DIR) {
-            checkDestinationDirectory();
-        }
-
         switch (userPref) {
             case RENAME_SELECTED:
             case MOVE_SELECTED:
             case DEST_DIR:
+                checkDestinationDirectory();
                 setColumnDestText(swtTable.getColumn(NEW_FILENAME_COLUMN));
                 setActionButtonText(actionButton);
                 // Note: NO break!  We WANT to fall through.
