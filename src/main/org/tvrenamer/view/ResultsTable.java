@@ -438,6 +438,14 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         return taskItem;
     }
 
+    Combo newComboBox() {
+        return new Combo(swtTable, SWT.DROP_DOWN | SWT.READ_ONLY);
+    }
+
+    TableItem newTableItem() {
+        return new TableItem(swtTable, SWT.NONE);
+    }
+
     private static String getCellStatusString(final TableItem item, final int columnId) {
         return FileMoveIcon.getImagePriority(item.getImage(columnId));
     }
@@ -485,7 +493,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         final String defaultOption = options.get(chosen);
         setCellText(item, NEW_FILENAME_FIELD, defaultOption);
 
-        final Combo combo = new Combo(swtTable, SWT.DROP_DOWN | SWT.READ_ONLY);
+        final Combo combo = newComboBox();
         options.forEach(combo::add);
         combo.setText(defaultOption);
         combo.addModifyListener(e -> ep.setChosenEpisode(combo.getSelectionIndex()));
@@ -596,8 +604,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     @Override
     public void addEpisodes(final Queue<FileEpisode> episodes) {
         for (final FileEpisode episode : episodes) {
-            final String fileName = episode.getFilepath();
-            final TableItem item = createTableItem(swtTable, fileName, episode);
+            final TableItem item = createTableItem(episode);
             if (!episode.wasParsed()) {
                 failTableItem(item);
                 continue;
@@ -686,16 +693,14 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         swtTable.setFocus();
     }
 
-    private TableItem createTableItem(final Table tblResults, final String fileName,
-                                      final FileEpisode episode)
-    {
-        TableItem item = new TableItem(tblResults, SWT.NONE);
+    private TableItem createTableItem(final FileEpisode episode) {
+        TableItem item = newTableItem();
 
         // Initially we add items to the table unchecked.  When we successfully obtain enough
         // information about the episode to determine how to rename it, the check box will
         // automatically be activated.
         item.setChecked(false);
-        setCellText(item, CURRENT_FILE_FIELD, fileName);
+        setCellText(item, CURRENT_FILE_FIELD, episode.getFilepath());
         setProposedDestColumn(item, episode);
         setCellImage(item, STATUS_FIELD, DOWNLOADING);
         return item;
@@ -739,9 +744,8 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
      */
     private void setSortedItem(final TableItem oldItem, final int positionToInsert) {
         boolean wasChecked = oldItem.getChecked();
-        int oldStyle = oldItem.getStyle();
 
-        TableItem item = new TableItem(swtTable, oldStyle, positionToInsert);
+        TableItem item = new TableItem(swtTable, SWT.NONE, positionToInsert);
         item.setChecked(wasChecked);
         setCellText(item, CURRENT_FILE_FIELD, getCellText(oldItem, CURRENT_FILE_FIELD));
         setCellText(item, NEW_FILENAME_FIELD, getCellText(oldItem, NEW_FILENAME_FIELD));
