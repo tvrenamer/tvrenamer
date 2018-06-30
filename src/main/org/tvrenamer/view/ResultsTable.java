@@ -88,74 +88,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
 
     private boolean apiDeprecated = false;
 
-    void ready() {
-        prefs.addObserver(this);
-        swtTable.setFocus();
-
-        checkDestinationDirectory();
-
-        // Load the preload folder into the episode map, which will call
-        // us back with the list of files once they've been loaded.
-        episodeMap.subscribe(this);
-        episodeMap.preload();
-    }
-
-    private void setupUpdateStuff(final Composite parentComposite) {
-        Link updatesAvailableLink = new Link(parentComposite, SWT.VERTICAL);
-        // updatesAvailableLink.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, true));
-        updatesAvailableLink.setVisible(false);
-        updatesAvailableLink.setText(UPDATE_AVAILABLE);
-        updatesAvailableLink.addSelectionListener(new UrlLauncher(TVRENAMER_DOWNLOAD_URL));
-
-        // Show the label if updates are available (in a new thread)
-        UpdateChecker.notifyOfUpdate(updateIsAvailable -> {
-            if (updateIsAvailable) {
-                display.asyncExec(() -> updatesAvailableLink.setVisible(true));
-            }
-        });
-    }
-
-    private void quit() {
-        shell.dispose();
-    }
-
-    private int getTableItemIndex(final TableItem item) {
-        try {
-            return swtTable.indexOf(item);
-        } catch (IllegalArgumentException | SWTException ignored) {
-            // We'll just fall through and return the sentinel.
-        }
-        return ITEM_NOT_IN_TABLE;
-    }
-
-    private void deleteItemCombo(final TableItem item) {
-        final Object itemData = item.getData();
-        if (itemData != null) {
-            final Control oldCombo = (Control) itemData;
-            if (!oldCombo.isDisposed()) {
-                oldCombo.dispose();
-            }
-        }
-    }
-
-    private void deleteTableItem(final TableItem item) {
-        deleteItemCombo(item);
-        episodeMap.remove(getCellText(item, CURRENT_FILE_FIELD));
-        item.dispose();
-    }
-
-    private void deleteSelectedTableItems() {
-        for (final TableItem item : swtTable.getSelection()) {
-            int index = getTableItemIndex(item);
-            deleteTableItem(item);
-
-            if (ITEM_NOT_IN_TABLE == index) {
-                logger.info("error: somehow selected item not found in table");
-            }
-        }
-        swtTable.deselectAll();
-    }
-
     private synchronized void checkDestinationDirectory() {
         boolean success = prefs.ensureDestDir();
         if (!success) {
@@ -166,264 +98,16 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         }
     }
 
-    private void setupTopButtons() {
-        final Composite topButtonsComposite = new Composite(shell, SWT.FILL);
-        topButtonsComposite.setLayout(new RowLayout());
+    void ready() {
+        prefs.addObserver(this);
+        swtTable.setFocus();
 
-        final FileDialog fd = new FileDialog(shell, SWT.MULTI);
-        final Button addFilesButton = new Button(topButtonsComposite, SWT.PUSH);
-        addFilesButton.setText("Add files");
-        addFilesButton.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                String pathPrefix = fd.open();
-                if (pathPrefix != null) {
-                    episodeMap.addFilesToQueue(pathPrefix, fd.getFileNames());
-                }
-            }
-        });
+        checkDestinationDirectory();
 
-        final DirectoryDialog dd = new DirectoryDialog(shell, SWT.SINGLE);
-        final Button addFolderButton = new Button(topButtonsComposite, SWT.PUSH);
-        addFolderButton.setText("Add Folder");
-        addFolderButton.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                String directory = dd.open();
-                if (directory != null) {
-                    // load all of the files in the dir
-                    episodeMap.addFolderToQueue(directory);
-                }
-            }
-
-        });
-
-        final Button clearFilesButton = new Button(topButtonsComposite, SWT.PUSH);
-        clearFilesButton.setText("Clear List");
-        clearFilesButton.addSelectionListener(new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent e) {
-                for (final TableItem item : swtTable.getItems()) {
-                    deleteTableItem(item);
-                }
-            }
-        });
-
-        setupUpdateStuff(topButtonsComposite);
-    }
-
-    private void setupBottomComposite() {
-        Composite bottomButtonsComposite = new Composite(shell, SWT.FILL);
-        bottomButtonsComposite.setLayout(new GridLayout(3, false));
-
-        GridData bottomButtonsCompositeGridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1);
-        bottomButtonsComposite.setLayoutData(bottomButtonsCompositeGridData);
-
-        final Button quitButton = new Button(bottomButtonsComposite, SWT.PUSH);
-        GridData quitButtonGridData = new GridData(GridData.BEGINNING, GridData.CENTER, false, false);
-        quitButtonGridData.minimumWidth = 70;
-        quitButtonGridData.widthHint = 70;
-        quitButton.setLayoutData(quitButtonGridData);
-        quitButton.setText(QUIT_LABEL);
-        quitButton.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                quit();
-            }
-        });
-
-        totalProgressBar = new ProgressBar(bottomButtonsComposite, SWT.SMOOTH);
-        totalProgressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
-
-        actionButton = new Button(bottomButtonsComposite, SWT.PUSH);
-        GridData actionButtonGridData = new GridData(GridData.END, GridData.CENTER, false, false);
-        actionButton.setLayoutData(actionButtonGridData);
-        setActionButtonText(actionButton);
-        actionButton.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                renameFiles();
-            }
-        });
-    }
-
-    private void setupMainWindow() {
-        setupResultsTable();
-        setupTableDragDrop();
-        setupBottomComposite();
-
-        TaskBar taskBar = display.getSystemTaskBar();
-        if (taskBar != null) {
-            taskItem = taskBar.getItem(shell);
-            if (taskItem == null) {
-                taskItem = taskBar.getItem(null);
-            }
-        }
-    }
-
-    private void makeMenuItem(final Menu parent, final String text,
-                              final Listener listener, final char shortcut)
-    {
-        MenuItem newItem = new MenuItem(parent, SWT.PUSH);
-        newItem.setText(text + "\tCtrl+" + shortcut);
-        newItem.addListener(SWT.Selection, listener);
-        newItem.setAccelerator(SWT.CONTROL | shortcut);
-    }
-
-    private void setupMenuBar() {
-        Menu menuBarMenu = new Menu(shell, SWT.BAR);
-        Menu helpMenu;
-
-        Listener preferencesListener = e -> {
-            PreferencesDialog preferencesDialog = new PreferencesDialog(shell);
-            preferencesDialog.open();
-        };
-        Listener aboutListener = e -> {
-            AboutDialog aboutDialog = new AboutDialog(ui);
-            aboutDialog.open();
-        };
-        Listener quitListener = e -> quit();
-
-        if (Environment.IS_MAC_OSX) {
-            // Add the special Mac OSX Preferences, About and Quit menus.
-            CocoaUIEnhancer enhancer = new CocoaUIEnhancer(APPLICATION_NAME);
-            enhancer.hookApplicationMenu(display, quitListener, aboutListener, preferencesListener);
-
-            setupHelpMenuBar(menuBarMenu);
-        } else {
-            // Add the normal Preferences, About and Quit menus.
-            MenuItem fileMenuItem = new MenuItem(menuBarMenu, SWT.CASCADE);
-            fileMenuItem.setText("File");
-
-            Menu fileMenu = new Menu(shell, SWT.DROP_DOWN);
-            fileMenuItem.setMenu(fileMenu);
-
-            makeMenuItem(fileMenu, PREFERENCES_LABEL, preferencesListener, 'P');
-            makeMenuItem(fileMenu, EXIT_LABEL, quitListener, 'Q');
-
-            helpMenu = setupHelpMenuBar(menuBarMenu);
-
-            // The About item is added to the OSX bar, so we need to add it manually here
-            MenuItem helpAboutItem = new MenuItem(helpMenu, SWT.PUSH);
-            helpAboutItem.setText("About");
-            helpAboutItem.addListener(SWT.Selection, aboutListener);
-        }
-
-        shell.setMenuBar(menuBarMenu);
-    }
-
-    public void finishMove(final TableItem item, final boolean success) {
-        if (success) {
-            if (prefs.isDeleteRowAfterMove()) {
-                deleteTableItem(item);
-            }
-        } else {
-            logger.info("failed to move item: " + item);
-        }
-    }
-
-    private Menu setupHelpMenuBar(final Menu menuBar) {
-        MenuItem helpMenuHeader = new MenuItem(menuBar, SWT.CASCADE);
-        helpMenuHeader.setText("Help");
-
-        Menu helpMenu = new Menu(shell, SWT.DROP_DOWN);
-        helpMenuHeader.setMenu(helpMenu);
-
-        MenuItem helpHelpItem = new MenuItem(helpMenu, SWT.PUSH);
-        helpHelpItem.setText("Help");
-
-        MenuItem helpVisitWebPageItem = new MenuItem(helpMenu, SWT.PUSH);
-        helpVisitWebPageItem.setText("Visit Web Page");
-        helpVisitWebPageItem.addSelectionListener(new UrlLauncher(TVRENAMER_PROJECT_URL));
-
-        return helpMenu;
-    }
-
-    private void setupSelectionListener() {
-        swtTable.addListener(SWT.Selection, event -> {
-            if (event.detail == SWT.CHECK) {
-                TableItem eventItem = (TableItem) event.item;
-                // This assumes that the current status of the TableItem
-                // already reflects its toggled state, which appears to
-                // be the case.
-                boolean checked = eventItem.getChecked();
-                boolean isSelected = false;
-
-                for (final TableItem item : swtTable.getSelection()) {
-                    if (item == eventItem) {
-                        isSelected = true;
-                        break;
-                    }
-                }
-                if (isSelected) {
-                    for (final TableItem item : swtTable.getSelection()) {
-                        item.setChecked(checked);
-                    }
-                } else {
-                    swtTable.deselectAll();
-                }
-            }
-            // else, it's a SELECTED event, which we just don't care about
-        });
-    }
-
-    private void setupResultsTable() {
-        swtTable.setHeaderVisible(true);
-        swtTable.setLinesVisible(true);
-        GridData gridData = new GridData(GridData.FILL_BOTH);
-        // gridData.widthHint = 780;
-        gridData.heightHint = 350;
-        gridData.horizontalSpan = 3;
-        swtTable.setLayoutData(gridData);
-
-        Columns.createColumns(this, swtTable);
-        setColumnDestText(swtTable.getColumn(NEW_FILENAME_FIELD));
-        swtTable.setSortColumn(swtTable.getColumn(CURRENT_FILE_FIELD));
-        swtTable.setSortDirection(SWT.UP);
-
-        // Allow deleting of elements
-        swtTable.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyReleased(KeyEvent e) {
-                super.keyReleased(e);
-
-                switch (e.keyCode) {
-
-                    // backspace
-                    case '\u0008':
-                    // delete
-                    case '\u007F':
-                        deleteSelectedTableItems();
-                        break;
-
-                    // Code analysis says have a default clause...
-                    default:
-                }
-
-            }
-        });
-
-        // editable table
-        final TableEditor editor = new TableEditor(swtTable);
-        editor.horizontalAlignment = SWT.CENTER;
-        editor.grabHorizontal = true;
-
-        setupSelectionListener();
-    }
-
-    private void setupTableDragDrop() {
-        DropTarget dt = new DropTarget(swtTable, DND.DROP_DEFAULT | DND.DROP_MOVE);
-        dt.setTransfer(new Transfer[] { FileTransfer.getInstance() });
-        dt.addDropListener(new DropTargetAdapter() {
-
-            @Override
-            public void drop(DropTargetEvent e) {
-                FileTransfer ft = FileTransfer.getInstance();
-                if (ft.isSupportedType(e.currentDataType)) {
-                    String[] fileList = (String[]) e.data;
-                    episodeMap.addArrayOfStringsToQueue(fileList);
-                }
-            }
-        });
+        // Load the preload folder into the episode map, which will call
+        // us back with the list of files once they've been loaded.
+        episodeMap.subscribe(this);
+        episodeMap.preload();
     }
 
     Display getDisplay() {
@@ -504,6 +188,16 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         setEditor(item, NEW_FILENAME_FIELD, editor, combo);
     }
 
+    private void deleteItemCombo(final TableItem item) {
+        final Object itemData = item.getData();
+        if (itemData != null) {
+            final Control oldCombo = (Control) itemData;
+            if (!oldCombo.isDisposed()) {
+                oldCombo.dispose();
+            }
+        }
+    }
+
     /**
      * Fill in the value for the "Proposed File" column of the given row, with the text
      * we get from the given episode.  This is the only method that should ever set
@@ -544,6 +238,19 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         } else {
             failTableItem(item);
         }
+    }
+
+    private int getTableItemIndex(final TableItem item) {
+        try {
+            return swtTable.indexOf(item);
+        } catch (IllegalArgumentException | SWTException ignored) {
+            // We'll just fall through and return the sentinel.
+        }
+        return ITEM_NOT_IN_TABLE;
+    }
+
+    private boolean tableContainsTableItem(final TableItem item) {
+        return (ITEM_NOT_IN_TABLE != getTableItemIndex(item));
     }
 
     private void listingsDownloaded(final TableItem item, final FileEpisode episode) {
@@ -601,6 +308,19 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         }
     }
 
+    private TableItem createTableItem(final FileEpisode episode) {
+        TableItem item = newTableItem();
+
+        // Initially we add items to the table unchecked.  When we successfully obtain enough
+        // information about the episode to determine how to rename it, the check box will
+        // automatically be activated.
+        item.setChecked(false);
+        setCellText(item, CURRENT_FILE_FIELD, episode.getFilepath());
+        setProposedDestColumn(item, episode);
+        setCellImage(item, STATUS_FIELD, DOWNLOADING);
+        return item;
+    }
+
     @Override
     public void addEpisodes(final Queue<FileEpisode> episodes) {
         for (final FileEpisode episode : episodes) {
@@ -652,10 +372,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         }
     }
 
-    private boolean tableContainsTableItem(final TableItem item) {
-        return (ITEM_NOT_IN_TABLE != getTableItemIndex(item));
-    }
-
     public Label getProgressLabel(final TableItem item) {
         Label progressLabel = new Label(swtTable, SWT.SHADOW_NONE | SWT.CENTER);
         TableEditor editor = new TableEditor(swtTable);
@@ -691,19 +407,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         mover.setUpdater(new ProgressBarUpdater(this));
         mover.runThread();
         swtTable.setFocus();
-    }
-
-    private TableItem createTableItem(final FileEpisode episode) {
-        TableItem item = newTableItem();
-
-        // Initially we add items to the table unchecked.  When we successfully obtain enough
-        // information about the episode to determine how to rename it, the check box will
-        // automatically be activated.
-        item.setChecked(false);
-        setCellText(item, CURRENT_FILE_FIELD, episode.getFilepath());
-        setProposedDestColumn(item, episode);
-        setCellImage(item, STATUS_FIELD, DOWNLOADING);
-        return item;
     }
 
     private static String itemDestDisplayedText(final TableItem item) {
@@ -840,11 +543,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         }
     }
 
-    void finishAllMoves() {
-        ui.setAppIcon();
-        refreshAll();
-    }
-
     private void setActionButtonText(final Button b) {
         String label = JUST_MOVE_LABEL;
         if (prefs.isRenameSelected()) {
@@ -896,6 +594,24 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         }
     }
 
+    private void deleteTableItem(final TableItem item) {
+        deleteItemCombo(item);
+        episodeMap.remove(getCellText(item, CURRENT_FILE_FIELD));
+        item.dispose();
+    }
+
+    private void deleteSelectedTableItems() {
+        for (final TableItem item : swtTable.getSelection()) {
+            int index = getTableItemIndex(item);
+            deleteTableItem(item);
+
+            if (ITEM_NOT_IN_TABLE == index) {
+                logger.info("error: somehow selected item not found in table");
+            }
+        }
+        swtTable.deselectAll();
+    }
+
     private void updateUserPreferences(final UserPreferences observed,
                                        final UserPreference userPref)
     {
@@ -928,6 +644,290 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
             updateUserPreferences((UserPreferences) observable,
                                   (UserPreference) value);
         }
+    }
+
+    void finishAllMoves() {
+        ui.setAppIcon();
+        refreshAll();
+    }
+
+    public void finishMove(final TableItem item, final boolean success) {
+        if (success) {
+            if (prefs.isDeleteRowAfterMove()) {
+                deleteTableItem(item);
+            }
+        } else {
+            logger.info("failed to move item: " + item);
+        }
+    }
+
+    private void quit() {
+        shell.dispose();
+    }
+
+    private void setupUpdateStuff(final Composite parentComposite) {
+        Link updatesAvailableLink = new Link(parentComposite, SWT.VERTICAL);
+        // updatesAvailableLink.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, true));
+        updatesAvailableLink.setVisible(false);
+        updatesAvailableLink.setText(UPDATE_AVAILABLE);
+        updatesAvailableLink.addSelectionListener(new UrlLauncher(TVRENAMER_DOWNLOAD_URL));
+
+        // Show the label if updates are available (in a new thread)
+        UpdateChecker.notifyOfUpdate(updateIsAvailable -> {
+            if (updateIsAvailable) {
+                display.asyncExec(() -> updatesAvailableLink.setVisible(true));
+            }
+        });
+    }
+
+    private void setupTopButtons() {
+        final Composite topButtonsComposite = new Composite(shell, SWT.FILL);
+        topButtonsComposite.setLayout(new RowLayout());
+
+        final FileDialog fd = new FileDialog(shell, SWT.MULTI);
+        final Button addFilesButton = new Button(topButtonsComposite, SWT.PUSH);
+        addFilesButton.setText("Add files");
+        addFilesButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                String pathPrefix = fd.open();
+                if (pathPrefix != null) {
+                    episodeMap.addFilesToQueue(pathPrefix, fd.getFileNames());
+                }
+            }
+        });
+
+        final DirectoryDialog dd = new DirectoryDialog(shell, SWT.SINGLE);
+        final Button addFolderButton = new Button(topButtonsComposite, SWT.PUSH);
+        addFolderButton.setText("Add Folder");
+        addFolderButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                String directory = dd.open();
+                if (directory != null) {
+                    // load all of the files in the dir
+                    episodeMap.addFolderToQueue(directory);
+                }
+            }
+
+        });
+
+        final Button clearFilesButton = new Button(topButtonsComposite, SWT.PUSH);
+        clearFilesButton.setText("Clear List");
+        clearFilesButton.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                for (final TableItem item : swtTable.getItems()) {
+                    deleteTableItem(item);
+                }
+            }
+        });
+
+        setupUpdateStuff(topButtonsComposite);
+    }
+
+    private void setupBottomComposite() {
+        Composite bottomButtonsComposite = new Composite(shell, SWT.FILL);
+        bottomButtonsComposite.setLayout(new GridLayout(3, false));
+
+        GridData bottomButtonsCompositeGridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1);
+        bottomButtonsComposite.setLayoutData(bottomButtonsCompositeGridData);
+
+        final Button quitButton = new Button(bottomButtonsComposite, SWT.PUSH);
+        GridData quitButtonGridData = new GridData(GridData.BEGINNING, GridData.CENTER, false, false);
+        quitButtonGridData.minimumWidth = 70;
+        quitButtonGridData.widthHint = 70;
+        quitButton.setLayoutData(quitButtonGridData);
+        quitButton.setText(QUIT_LABEL);
+        quitButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                quit();
+            }
+        });
+
+        totalProgressBar = new ProgressBar(bottomButtonsComposite, SWT.SMOOTH);
+        totalProgressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
+
+        actionButton = new Button(bottomButtonsComposite, SWT.PUSH);
+        GridData actionButtonGridData = new GridData(GridData.END, GridData.CENTER, false, false);
+        actionButton.setLayoutData(actionButtonGridData);
+        setActionButtonText(actionButton);
+        actionButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                renameFiles();
+            }
+        });
+    }
+
+    private void setupTableDragDrop() {
+        DropTarget dt = new DropTarget(swtTable, DND.DROP_DEFAULT | DND.DROP_MOVE);
+        dt.setTransfer(new Transfer[] { FileTransfer.getInstance() });
+        dt.addDropListener(new DropTargetAdapter() {
+
+            @Override
+            public void drop(DropTargetEvent e) {
+                FileTransfer ft = FileTransfer.getInstance();
+                if (ft.isSupportedType(e.currentDataType)) {
+                    String[] fileList = (String[]) e.data;
+                    episodeMap.addArrayOfStringsToQueue(fileList);
+                }
+            }
+        });
+    }
+
+    private void setupSelectionListener() {
+        swtTable.addListener(SWT.Selection, event -> {
+            if (event.detail == SWT.CHECK) {
+                TableItem eventItem = (TableItem) event.item;
+                // This assumes that the current status of the TableItem
+                // already reflects its toggled state, which appears to
+                // be the case.
+                boolean checked = eventItem.getChecked();
+                boolean isSelected = false;
+
+                for (final TableItem item : swtTable.getSelection()) {
+                    if (item == eventItem) {
+                        isSelected = true;
+                        break;
+                    }
+                }
+                if (isSelected) {
+                    for (final TableItem item : swtTable.getSelection()) {
+                        item.setChecked(checked);
+                    }
+                } else {
+                    swtTable.deselectAll();
+                }
+            }
+            // else, it's a SELECTED event, which we just don't care about
+        });
+    }
+
+    private void setupResultsTable() {
+        swtTable.setHeaderVisible(true);
+        swtTable.setLinesVisible(true);
+        GridData gridData = new GridData(GridData.FILL_BOTH);
+        // gridData.widthHint = 780;
+        gridData.heightHint = 350;
+        gridData.horizontalSpan = 3;
+        swtTable.setLayoutData(gridData);
+
+        Columns.createColumns(this, swtTable);
+        setColumnDestText(swtTable.getColumn(NEW_FILENAME_FIELD));
+        swtTable.setSortColumn(swtTable.getColumn(CURRENT_FILE_FIELD));
+        swtTable.setSortDirection(SWT.UP);
+
+        // Allow deleting of elements
+        swtTable.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                super.keyReleased(e);
+
+                switch (e.keyCode) {
+
+                    // backspace
+                    case '\u0008':
+                    // delete
+                    case '\u007F':
+                        deleteSelectedTableItems();
+                        break;
+
+                    // Code analysis says have a default clause...
+                    default:
+                }
+
+            }
+        });
+
+        // editable table
+        final TableEditor editor = new TableEditor(swtTable);
+        editor.horizontalAlignment = SWT.CENTER;
+        editor.grabHorizontal = true;
+
+        setupSelectionListener();
+    }
+
+    private void setupMainWindow() {
+        setupResultsTable();
+        setupTableDragDrop();
+        setupBottomComposite();
+
+        TaskBar taskBar = display.getSystemTaskBar();
+        if (taskBar != null) {
+            taskItem = taskBar.getItem(shell);
+            if (taskItem == null) {
+                taskItem = taskBar.getItem(null);
+            }
+        }
+    }
+
+    private void makeMenuItem(final Menu parent, final String text,
+                              final Listener listener, final char shortcut)
+    {
+        MenuItem newItem = new MenuItem(parent, SWT.PUSH);
+        newItem.setText(text + "\tCtrl+" + shortcut);
+        newItem.addListener(SWT.Selection, listener);
+        newItem.setAccelerator(SWT.CONTROL | shortcut);
+    }
+
+    private Menu setupHelpMenuBar(final Menu menuBar) {
+        MenuItem helpMenuHeader = new MenuItem(menuBar, SWT.CASCADE);
+        helpMenuHeader.setText("Help");
+
+        Menu helpMenu = new Menu(shell, SWT.DROP_DOWN);
+        helpMenuHeader.setMenu(helpMenu);
+
+        MenuItem helpHelpItem = new MenuItem(helpMenu, SWT.PUSH);
+        helpHelpItem.setText("Help");
+
+        MenuItem helpVisitWebPageItem = new MenuItem(helpMenu, SWT.PUSH);
+        helpVisitWebPageItem.setText("Visit Web Page");
+        helpVisitWebPageItem.addSelectionListener(new UrlLauncher(TVRENAMER_PROJECT_URL));
+
+        return helpMenu;
+    }
+
+    private void setupMenuBar() {
+        Menu menuBarMenu = new Menu(shell, SWT.BAR);
+        Menu helpMenu;
+
+        Listener preferencesListener = e -> {
+            PreferencesDialog preferencesDialog = new PreferencesDialog(shell);
+            preferencesDialog.open();
+        };
+        Listener aboutListener = e -> {
+            AboutDialog aboutDialog = new AboutDialog(ui);
+            aboutDialog.open();
+        };
+        Listener quitListener = e -> quit();
+
+        if (Environment.IS_MAC_OSX) {
+            // Add the special Mac OSX Preferences, About and Quit menus.
+            CocoaUIEnhancer enhancer = new CocoaUIEnhancer(APPLICATION_NAME);
+            enhancer.hookApplicationMenu(display, quitListener, aboutListener, preferencesListener);
+
+            setupHelpMenuBar(menuBarMenu);
+        } else {
+            // Add the normal Preferences, About and Quit menus.
+            MenuItem fileMenuItem = new MenuItem(menuBarMenu, SWT.CASCADE);
+            fileMenuItem.setText("File");
+
+            Menu fileMenu = new Menu(shell, SWT.DROP_DOWN);
+            fileMenuItem.setMenu(fileMenu);
+
+            makeMenuItem(fileMenu, PREFERENCES_LABEL, preferencesListener, 'P');
+            makeMenuItem(fileMenu, EXIT_LABEL, quitListener, 'Q');
+
+            helpMenu = setupHelpMenuBar(menuBarMenu);
+
+            // The About item is added to the OSX bar, so we need to add it manually here
+            MenuItem helpAboutItem = new MenuItem(helpMenu, SWT.PUSH);
+            helpAboutItem.setText("About");
+            helpAboutItem.addListener(SWT.Selection, aboutListener);
+        }
+
+        shell.setMenuBar(menuBarMenu);
     }
 
     ResultsTable(final UIStarter ui) {
