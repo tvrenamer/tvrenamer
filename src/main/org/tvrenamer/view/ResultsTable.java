@@ -140,7 +140,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
 
     private void deleteTableItem(final TableItem item) {
         deleteItemCombo(item);
-        episodeMap.remove(getCellText(item, CURRENT_FILE_COLUMN));
+        episodeMap.remove(getCellText(item, CURRENT_FILE_FIELD));
         item.dispose();
     }
 
@@ -376,8 +376,8 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         swtTable.setLayoutData(gridData);
 
         Columns.createColumns(this, swtTable);
-        setColumnDestText(swtTable.getColumn(NEW_FILENAME_COLUMN));
-        swtTable.setSortColumn(swtTable.getColumn(CURRENT_FILE_COLUMN));
+        setColumnDestText(swtTable.getColumn(NEW_FILENAME_FIELD));
+        swtTable.setSortColumn(swtTable.getColumn(CURRENT_FILE_FIELD));
         swtTable.setSortDirection(SWT.UP);
 
         // Allow deleting of elements
@@ -483,7 +483,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         final List<String> options = ep.getReplacementOptions();
         final int chosen = ep.getChosenEpisode();
         final String defaultOption = options.get(chosen);
-        setCellText(item, NEW_FILENAME_COLUMN, defaultOption);
+        setCellText(item, NEW_FILENAME_FIELD, defaultOption);
 
         final Combo combo = new Combo(swtTable, SWT.DROP_DOWN | SWT.READ_ONLY);
         options.forEach(combo::add);
@@ -493,7 +493,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
 
         final TableEditor editor = new TableEditor(swtTable);
         editor.grabHorizontal = true;
-        setEditor(item, NEW_FILENAME_COLUMN, editor, combo);
+        setEditor(item, NEW_FILENAME_FIELD, editor, combo);
     }
 
     /**
@@ -514,24 +514,24 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         if (nOptions > 1) {
             setComboBoxProposedDest(item, ep);
         } else if (nOptions == 1) {
-            setCellText(item, NEW_FILENAME_COLUMN, ep.getReplacementText());
+            setCellText(item, NEW_FILENAME_FIELD, ep.getReplacementText());
         } else {
-            setCellText(item, NEW_FILENAME_COLUMN, ep.getReplacementText());
+            setCellText(item, NEW_FILENAME_FIELD, ep.getReplacementText());
             item.setChecked(false);
         }
     }
 
     private void failTableItem(final TableItem item) {
-        setCellImage(item, STATUS_COLUMN, FAIL);
+        setCellImage(item, STATUS_FIELD, FAIL);
         item.setChecked(false);
     }
 
     private void setTableItemStatus(final TableItem item, final int epsFound) {
         if (epsFound > 1) {
-            setCellImage(item, STATUS_COLUMN, OPTIONS);
+            setCellImage(item, STATUS_FIELD, OPTIONS);
             item.setChecked(true);
         } else if (epsFound == 1) {
-            setCellImage(item, STATUS_COLUMN, SUCCESS);
+            setCellImage(item, STATUS_FIELD, SUCCESS);
             item.setChecked(true);
         } else {
             failTableItem(item);
@@ -621,7 +621,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                         display.asyncExec(() -> {
                             if (tableContainsTableItem(item)) {
                                 setProposedDestColumn(item, episode);
-                                setCellImage(item, STATUS_COLUMN, ADDED);
+                                setCellImage(item, STATUS_FIELD, ADDED);
                             }
                         });
                         if (show.isValidSeries()) {
@@ -653,7 +653,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         Label progressLabel = new Label(swtTable, SWT.SHADOW_NONE | SWT.CENTER);
         TableEditor editor = new TableEditor(swtTable);
         editor.grabHorizontal = true;
-        setEditor(item, STATUS_COLUMN, editor, progressLabel);
+        setEditor(item, STATUS_FIELD, editor, progressLabel);
 
         return progressLabel;
     }
@@ -667,7 +667,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         final List<FileMover> pendingMoves = new LinkedList<>();
         for (final TableItem item : swtTable.getItems()) {
             if (item.getChecked()) {
-                String fileName = getCellText(item, CURRENT_FILE_COLUMN);
+                String fileName = getCellText(item, CURRENT_FILE_FIELD);
                 final FileEpisode episode = episodeMap.get(fileName);
                 // Skip files not successfully downloaded and ready to be moved
                 if (episode.optionCount() == 0) {
@@ -695,9 +695,9 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         // information about the episode to determine how to rename it, the check box will
         // automatically be activated.
         item.setChecked(false);
-        setCellText(item, CURRENT_FILE_COLUMN, fileName);
+        setCellText(item, CURRENT_FILE_FIELD, fileName);
         setProposedDestColumn(item, episode);
-        setCellImage(item, STATUS_COLUMN, DOWNLOADING);
+        setCellImage(item, STATUS_FIELD, DOWNLOADING);
         return item;
     }
 
@@ -705,7 +705,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         synchronized (item) {
             final Object data = item.getData();
             if (data == null) {
-                return getCellText(item, NEW_FILENAME_COLUMN);
+                return getCellText(item, NEW_FILENAME_FIELD);
             }
             final Combo combo = (Combo) data;
             final int selected = combo.getSelectionIndex();
@@ -716,11 +716,11 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
 
     private static String getItemTextValue(final TableItem item, final int column) {
         switch (column) {
-            case CHECKBOX_COLUMN:
+            case CHECKBOX_FIELD:
                 return (item.getChecked()) ? "0" : "1";
-            case STATUS_COLUMN:
+            case STATUS_FIELD:
                 return getCellStatusString(item, column);
-            case NEW_FILENAME_COLUMN:
+            case NEW_FILENAME_FIELD:
                 return itemDestDisplayedText(item);
             default:
                 return getCellText(item, column);
@@ -743,9 +743,9 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
 
         TableItem item = new TableItem(swtTable, oldStyle, positionToInsert);
         item.setChecked(wasChecked);
-        setCellText(item, CURRENT_FILE_COLUMN, getCellText(oldItem, CURRENT_FILE_COLUMN));
-        setCellText(item, NEW_FILENAME_COLUMN, getCellText(oldItem, NEW_FILENAME_COLUMN));
-        setCellImage(item, STATUS_COLUMN, getCellImage(oldItem, STATUS_COLUMN));
+        setCellText(item, CURRENT_FILE_FIELD, getCellText(oldItem, CURRENT_FILE_FIELD));
+        setCellText(item, NEW_FILENAME_FIELD, getCellText(oldItem, NEW_FILENAME_FIELD));
+        setCellImage(item, STATUS_FIELD, getCellImage(oldItem, STATUS_FIELD));
 
         final Object itemData = oldItem.getData();
 
@@ -755,7 +755,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         if (itemData != null) {
             final TableEditor newEditor = new TableEditor(swtTable);
             newEditor.grabHorizontal = true;
-            setEditor(item, NEW_FILENAME_COLUMN, newEditor, (Control) itemData);
+            setEditor(item, NEW_FILENAME_FIELD, newEditor, (Control) itemData);
             item.setData(itemData);
         }
     }
@@ -825,12 +825,12 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     public void refreshAll() {
         logger.info("Refreshing table");
         for (TableItem item : swtTable.getItems()) {
-            String fileName = getCellText(item, CURRENT_FILE_COLUMN);
+            String fileName = getCellText(item, CURRENT_FILE_FIELD);
             FileEpisode episode = episodeMap.remove(fileName);
             episode.refreshReplacement();
             String newFileName = episode.getFilepath();
             episodeMap.put(newFileName, episode);
-            setCellText(item, CURRENT_FILE_COLUMN, newFileName);
+            setCellText(item, CURRENT_FILE_FIELD, newFileName);
             setProposedDestColumn(item, episode);
             setTableItemStatus(item, episode.optionCount());
         }
@@ -902,7 +902,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
             case MOVE_SELECTED:
             case DEST_DIR:
                 checkDestinationDirectory();
-                setColumnDestText(swtTable.getColumn(NEW_FILENAME_COLUMN));
+                setColumnDestText(swtTable.getColumn(NEW_FILENAME_FIELD));
                 setActionButtonText(actionButton);
                 // Note: NO break!  We WANT to fall through.
             case REPLACEMENT_MASK:
