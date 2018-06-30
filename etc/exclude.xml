@@ -1,6 +1,11 @@
 
 <FindBugsFilter>
   <Match>
-    <Bug code="UwF" />
+    <Class name="org.tvrenamer.view.ResultsTable" />
+    <Method name="updateUserPreferences" />
+    <Or>
+      <Bug pattern="SF_SWITCH_FALLTHROUGH" />
+      <Bug pattern="SF_SWITCH_NO_DEFAULT" />
+    </Or>
   </Match>
 </FindBugsFilter>

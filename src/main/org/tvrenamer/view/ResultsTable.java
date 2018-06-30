@@ -909,6 +909,9 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
             case SEASON_PREFIX:
             case LEADING_ZERO:
                 refreshAll();
+            // Also note, no default case.  We know there are other types of
+            // UserPreference events that we might be notified of.  We're
+            // just not interested.
         }
     }
 
