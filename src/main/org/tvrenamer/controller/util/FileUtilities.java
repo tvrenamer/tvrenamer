@@ -142,6 +142,9 @@ public class FileUtilities {
      *   that exists
      */
     public static Path existingAncestor(final Path checkPath) {
+        if (checkPath == null) {
+            return null;
+        }
         Path root = checkPath.getRoot();
         Path existent = checkPath;
         while (Files.notExists(existent)) {
@@ -152,6 +155,9 @@ public class FileUtilities {
                 return null;
             }
             existent = existent.getParent();
+            if (existent == null) {
+                return null;
+            }
         }
 
         return existent;
