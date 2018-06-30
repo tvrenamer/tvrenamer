@@ -54,6 +54,14 @@ public class FileMoveIcon {
         return state.image;
     }
 
+    public static String getStatusPriority(final Status status) {
+        FileMoveIcon state = MAPPING.get(status);
+        if (state == null) {
+            return "";
+        }
+        return state.ordering;
+    }
+
     public static String getImagePriority(final Image img) {
         FileMoveIcon state = IMAGES.get(img);
         if (state == null) {
