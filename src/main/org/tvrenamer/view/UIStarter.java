@@ -140,6 +140,13 @@ public final class UIStarter {
         shell.setLocation(x, y);
     }
 
+    private int onException(Exception exception) {
+        logger.log(Level.SEVERE, UNKNOWN_EXCEPTION, exception);
+        showMessageBox(SWTMessageBoxType.DLG_ERR, ERROR_LABEL, UNKNOWN_EXCEPTION, exception);
+        shell.dispose();
+        return 1;
+    }
+
     public UIStarter() {
         // Setup display and shell
         Display.setAppName(APPLICATION_NAME);
@@ -177,10 +184,7 @@ public final class UIStarter {
             display.dispose();
             return 0;
         } catch (Exception exception) {
-            showMessageBox(SWTMessageBoxType.DLG_ERR, ERROR_LABEL, UNKNOWN_EXCEPTION, exception);
-            logger.log(Level.SEVERE, UNKNOWN_EXCEPTION, exception);
-            shell.dispose();
-            return 1;
+            return onException(exception);
         }
     }
 }
