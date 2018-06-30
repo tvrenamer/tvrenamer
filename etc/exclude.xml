@@ -9,6 +9,11 @@
     </Or>
   </Match>
   <Match>
+    <Class name="org.tvrenamer.controller.util.FileUtilsTest" />
+    <Method name="testExistingAncestor" />
+    <Bug pattern="DMI_HARDCODED_ABSOLUTE_FILENAME" />
+  </Match>
+  <Match>
     <Class name="org.tvrenamer.controller.util.StringUtilsTest" />
     <Method name="testUnmodifiableMap" />
     <Bug pattern="DE_MIGHT_IGNORE" />

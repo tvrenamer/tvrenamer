@@ -22,6 +22,8 @@ import java.util.Set;
 
 public class FileUtilsTest {
 
+    private static final String PRESUMED_NONEXISTENT_PATH = "/Usurs/me/Documents/oops";
+
     @Rule
     public final TemporaryFolder tempFolder = new TemporaryFolder();
 
@@ -47,7 +49,7 @@ public class FileUtilsTest {
         assertEquals("existingAncestor(String) failed to recognize path itself exists",
                      dirpath, existingAncestor(dirpathName));
 
-        Path uncreatable = Paths.get("/Usurs/me/Documents/oops");
+        Path uncreatable = Paths.get(PRESUMED_NONEXISTENT_PATH);
         assertEquals("existingAncestor(Path) failed to find root as answer for " + uncreatable,
                      uncreatable.getRoot(), existingAncestor(uncreatable));
     }
