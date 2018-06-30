@@ -13,13 +13,13 @@ import java.util.logging.Logger;
 public final class Columns {
     private static final Logger logger = Logger.getLogger(Columns.class.getName());
 
-    static final int CHECKBOX_COLUMN = 0;
-    static final int CURRENT_FILE_COLUMN = 1;
-    static final int NEW_FILENAME_COLUMN = 2;
-    static final int STATUS_COLUMN = 3;
+    static final int CHECKBOX_FIELD = 0;
+    static final int CURRENT_FILE_FIELD = 1;
+    static final int NEW_FILENAME_FIELD = 2;
+    static final int STATUS_FIELD = 3;
 
     public static synchronized void createColumns(ResultsTable resultsTable, Table swtTable) {
-        final TableColumn checkboxColumn = new TableColumn(swtTable, SWT.LEFT, CHECKBOX_COLUMN);
+        final TableColumn checkboxColumn = new TableColumn(swtTable, SWT.LEFT, CHECKBOX_FIELD);
         checkboxColumn.setText(CHECKBOX_HEADER);
         checkboxColumn.setWidth(60);
         checkboxColumn.addSelectionListener(new SelectionAdapter() {
@@ -29,7 +29,7 @@ public final class Columns {
             }
         });
 
-        final TableColumn sourceColumn = new TableColumn(swtTable, SWT.LEFT, CURRENT_FILE_COLUMN);
+        final TableColumn sourceColumn = new TableColumn(swtTable, SWT.LEFT, CURRENT_FILE_FIELD);
         sourceColumn.setText(SOURCE_HEADER);
         sourceColumn.setWidth(550);
         sourceColumn.addSelectionListener(new SelectionAdapter() {
@@ -39,7 +39,7 @@ public final class Columns {
             }
         });
 
-        final TableColumn destinationColumn = new TableColumn(swtTable, SWT.LEFT, NEW_FILENAME_COLUMN);
+        final TableColumn destinationColumn = new TableColumn(swtTable, SWT.LEFT, NEW_FILENAME_FIELD);
         destinationColumn.setWidth(550);
         destinationColumn.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -48,7 +48,7 @@ public final class Columns {
             }
         });
 
-        final TableColumn statusColumn = new TableColumn(swtTable, SWT.LEFT, STATUS_COLUMN);
+        final TableColumn statusColumn = new TableColumn(swtTable, SWT.LEFT, STATUS_FIELD);
         statusColumn.setText(STATUS_HEADER);
         statusColumn.setWidth(60);
         statusColumn.addSelectionListener(new SelectionAdapter() {
