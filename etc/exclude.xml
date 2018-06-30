@@ -8,4 +8,9 @@
       <Bug pattern="SF_SWITCH_NO_DEFAULT" />
     </Or>
   </Match>
+  <Match>
+    <Class name="org.tvrenamer.controller.util.StringUtilsTest" />
+    <Method name="testUnmodifiableMap" />
+    <Bug pattern="DE_MIGHT_IGNORE" />
+  </Match>
 </FindBugsFilter>
