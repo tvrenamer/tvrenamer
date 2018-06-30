@@ -55,7 +55,7 @@ public class UserPreferencesPersistence {
         if (Files.exists(path)) {
             try (InputStream in = Files.newInputStream(path)) {
                 return (UserPreferences) xstream.fromXML(in);
-            } catch (Exception e) {
+            } catch (IOException e) {
                 logger.log(Level.SEVERE, "Exception reading preferences file '"
                            + path.toAbsolutePath().toString(), e);
                 logger.info("assuming default preferences");
