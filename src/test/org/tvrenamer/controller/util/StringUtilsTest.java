@@ -1,6 +1,7 @@
 package org.tvrenamer.controller.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
@@ -120,6 +121,21 @@ public class StringUtilsTest {
         assertEquals("", StringUtils.unquoteString("\"\""));
         assertEquals("\"foo", StringUtils.unquoteString("\"\"foo"));
         assertEquals("foo\"", StringUtils.unquoteString("\"foo\"\""));
+    }
+
+    @Test
+    public void testAccessibleMap() {
+        assertEquals("-", StringUtils.SANITISE.get('/'));
+    }
+
+    @Test
+    public void testUnmodifiableMap() {
+        try {
+            StringUtils.SANITISE.put('/', "_");
+            fail("was able to modify map that is supposed to be unmodifiable");
+        } catch (Exception e) {
+            // expected result
+        }
     }
 
     @Test

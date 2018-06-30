@@ -3,8 +3,10 @@ package org.tvrenamer.controller.util;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -13,8 +15,8 @@ public class StringUtils {
 
     private static final Locale THIS_LOCALE = Locale.getDefault();
 
-    public static final HashMap<Character, String> SANITISE
-        = new HashMap<Character, String>()
+    public static final Map<Character, String> SANITISE
+        = Collections.unmodifiableMap(new HashMap<Character, String>()
         {
             // provide a replacement for anything that's not valid in Windows
             // this list is: \ / : * ? " < > |
@@ -32,7 +34,7 @@ public class StringUtils {
                 put('"', "'");  // replace double quote with apostrophe
                 put('`', "'");  // replace backquote with apostrophe
             }
-        };
+        });
     public static final Set<Character> ILLEGAL_CHARACTERS = SANITISE.keySet();
 
     private static final ThreadLocal<DecimalFormat> DIGITS =
