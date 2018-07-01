@@ -84,8 +84,8 @@ public final class UIStarter {
     public void showMessageBox(final SWTMessageBoxType type, final String title,
                                final String message, final Exception exception)
     {
-        if (shell == null) {
-            // Shell not established yet, try using JOptionPane instead
+        if ((shell == null) || shell.isDisposed()) {
+            // Shell not established, try using JOptionPane instead
             try {
                 JOptionPane.showMessageDialog(null, message);
                 return;

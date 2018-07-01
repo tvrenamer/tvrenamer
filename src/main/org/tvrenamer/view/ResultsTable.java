@@ -142,6 +142,9 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                                      final int columnId,
                                      final Image newImage)
     {
+        if (item.isDisposed()) {
+            return;
+        }
         item.setImage(columnId, newImage);
     }
 
@@ -149,7 +152,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                                      final int columnId,
                                      final FileMoveIcon.Status newStatus)
     {
-        item.setImage(columnId, FileMoveIcon.getIcon(newStatus));
+        setCellImage(item, columnId, FileMoveIcon.getIcon(newStatus));
     }
 
     private static String getCellText(final TableItem item, final int columnId) {
@@ -160,6 +163,9 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                                     final int columnId,
                                     final String newText)
     {
+        if (item.isDisposed()) {
+            return;
+        }
         item.setText(columnId, newText);
     }
 
@@ -172,6 +178,9 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     }
 
     private void setComboBoxProposedDest(final TableItem item, final FileEpisode ep) {
+        if (swtTable.isDisposed() || item.isDisposed()) {
+            return;
+        }
         final List<String> options = ep.getReplacementOptions();
         final int chosen = ep.getChosenEpisode();
         final String defaultOption = options.get(chosen);
@@ -210,6 +219,9 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
      *    the FileEpisode to use to obtain the text
      */
     private void setProposedDestColumn(final TableItem item, final FileEpisode ep) {
+        if (swtTable.isDisposed() || item.isDisposed()) {
+            return;
+        }
         deleteItemCombo(item);
 
         int nOptions = ep.optionCount();
