@@ -85,20 +85,24 @@ public class FileUtilities {
     }
 
     /**
-     * Return true if the given arguments refer to the same actual file on the
-     * file system.  On file systems that support symbolic links, two Paths could
+     * Return true if the given arguments refer to the same actual, existing file on
+     * the file system.  On file systems that support symbolic links, two Paths could
      * be the same file even if their locations appear completely different.
      *
      * @param path1
-     *    first Path to compare
+     *    first Path to compare; it is expected that this Path exists
      * @param path2
-     *    second Path to compare
+     *    second Path to compare; this may or may not exist
      * @return
-     *    true if the paths refer to the same file, false if they don't
+     *    true if the paths refer to the same file, false if they don't;
+     *    logs an exception if one occurs while trying to check, including
+     *    if path1 does not exist; but does not log one if path2 doesn't
      */
-    @SuppressWarnings("SameParameterValue")
     public static boolean isSameFile(final Path path1, final Path path2) {
         try {
+            if (Files.notExists(path2)) {
+                return false;
+            }
             return Files.isSameFile(path1, path2);
         } catch (IOException ioe) {
             logger.log(Level.WARNING, "exception checking files "
