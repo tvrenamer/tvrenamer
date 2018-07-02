@@ -118,8 +118,8 @@ public class FileMover implements Callable<Boolean> {
                 fos.write(buffer, 0, n);
                 copied += n;
                 if (observer != null) {
-                    observer.setStatus(StringUtils.formatFileSize(copied));
-                    observer.setValue(copied);
+                    observer.setProgressStatus(StringUtils.formatFileSize(copied));
+                    observer.setProgressValue(copied);
                 }
                 if (Thread.interrupted()) {
                     break;
@@ -179,7 +179,7 @@ public class FileMover implements Callable<Boolean> {
         } else {
             logger.info("different disks: " + srcPath + " and " + destPath);
             if (observer != null) {
-                observer.initialize(episode.getFileSize());
+                observer.initializeProgress(episode.getFileSize());
             }
             boolean success = copyAndDelete(srcPath, destPath);
             if (observer != null) {

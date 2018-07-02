@@ -1,7 +1,7 @@
 /*
  * ProgressObserver.java - Progression monitor
  *
- * Based on org.gjt.sp.util.ProgressObserver, though we add a cleanUp method
+ * Based on org.gjt.sp.util.ProgressObserver, though we add a finish method
  */
 
 package org.tvrenamer.model;
@@ -11,7 +11,7 @@ package org.tvrenamer.model;
  *
  * It should not be assumed that a ProgressObserver is ready to go upon construction,
  * or that it will clean up after itself once you stop using it.  It is required to
- * call initialize() before anything else, and cleanUp() when you're done.
+ * call initializeProgress() before anything else, and finishProgress() when you're done.
  */
 public interface ProgressObserver {
     /**
@@ -20,21 +20,21 @@ public interface ProgressObserver {
      * @param max
      *    the new maximum value
      */
-    void initialize(long max);
+    void initializeProgress(long max);
 
     /**
      * Update the progress value.
      *
      * @param value the new value
      */
-    void setValue(long value);
+    void setProgressValue(long value);
 
     /**
      * Update the status label.
      *
      * @param status the new status label
      */
-    void setStatus(String status);
+    void setProgressStatus(String status);
 
     /**
      * Finish the activity
