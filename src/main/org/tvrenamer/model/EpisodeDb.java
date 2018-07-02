@@ -1,6 +1,7 @@
 package org.tvrenamer.model;
 
 import org.tvrenamer.controller.AddEpisodeListener;
+import org.tvrenamer.controller.util.FileUtilities;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -93,6 +94,66 @@ public class EpisodeDb implements Observer {
             logger.finer("could not access file; treating as hidden: " + path);
         }
         return isVisible;
+    }
+
+    /**
+     * Get the current location -- and, therefore, the database key -- for the
+     * file that has been referred to by the given key.
+     *
+     * That is, we know where the file USED TO be.  It may still be there; it may
+     * have moved.  Tell the caller where it is now, which is also how to retrieve
+     * its FileEpisode object.
+     *
+     * @param key
+     *     a String, representing a path to the last known location of the file,
+     *     to look up and check
+     * @return the current location, if the file still exists; null if the file
+     *     is no longer valid
+     *
+     * The method might change the internal database, if it detects the file has
+     * been moved.  That means, the key given will no longer be valid when the
+     * method returns.  The return value does not explicitly give an indication
+     * of whether or not that's true.  Callers must simply use the returned value
+     * as the key after this function returns, or must do a comparison with the
+     * previous key to see if it's still valid.
+     *
+     */
+    public String currentLocationOf(final String key) {
+        if (key == null) {
+            return null;
+        }
+        FileEpisode ep = episodes.get(key);
+        if (ep == null) {
+            return null;
+        }
+        Path currentLocation = ep.getPath();
+        if (fileIsVisible(currentLocation) && Files.isRegularFile(currentLocation)) {
+            // OK, the file is good!  But that could be true even if
+            // it were moved.  Now try to see if it's been moved, or if
+            // it's still where we think it is.
+            String direct = currentLocation.toString();
+            if (key.equals(direct)) {
+                return key;
+            }
+            // Even if the strings don't match directly, we're not going
+            // to change anything if they both refer to the same file.
+            // Though, maybe we should?  TODO
+            Path keyPath = Paths.get(key);
+            if (FileUtilities.isSameFile(currentLocation, keyPath)) {
+                return key;
+            }
+            // The file has been moved.  We update our database, and inform the
+            // caller of the new key.
+            episodes.remove(key);
+            episodes.put(direct, ep);
+            return direct;
+        } else {
+            // The file has disappeared out from under us (or, bizarrely, been replaced
+            // by a directory?  Anything is possible...).  Remove it from the db and let
+            // the caller know by returning null.
+            episodes.remove(key);
+            return null;
+        }
     }
 
     private void addFileToQueue(final Queue<FileEpisode> contents,
