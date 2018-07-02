@@ -660,15 +660,63 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
 
     void finishAllMoves() {
         ui.setAppIcon();
-        refreshAll();
+    }
+
+    /*
+     * The table displays various data; a lot of it changes during the course of the
+     * program.  As we get information from the provider, we automatically update the
+     * status, the proposed destination, even whether the row is checked or not.
+     *
+     * The one thing we don't automatically update is the location.  That's something
+     * that doesn't change, no matter how much information comes flowing in.  EXCEPT...
+     * that's kind of the whole point of the program, to move files.  So when we actually
+     * do move a file, we need to update things in some way.
+     *
+     * The program now has the "deleteRowAfterMove" option, which I recommend.  But if
+     * we do not delete the row, then we need to update it.
+     *
+     * We also need to update the internal model we have of which files we're working with.
+     *
+     * So, here's what we do:
+     *  1) find the text that is CURRENTLY being displayed as the file's location
+     *  2) ask EpisodeDb to look up that file, figure out where it now resides, update its
+     *     own internal model, and then return to us the current location
+     *  3) assuming the file was found, check to see if it was really moved
+     *  4) if it actually was moved, update the row with the most current information
+     *
+     * We do all this only after checking the row is still valid, and then we do it
+     * with the item locked, so it can't change out from under us.
+     *
+     */
+    private void updateTableItemAfterMove(final TableItem item) {
+        synchronized (item) {
+            if (item.isDisposed()) {
+                return;
+            }
+            String fileName = getCellText(item, CURRENT_FILE_FIELD);
+            String newLocation = episodeMap.currentLocationOf(fileName);
+            if (newLocation == null) {
+                // Not expected, but could happen, primarily if some other,
+                // unrelated program moves the file out from under us.
+                deleteTableItem(item);
+                return;
+            }
+            if (!fileName.equals(newLocation)) {
+                setCellText(item, CURRENT_FILE_FIELD, newLocation);
+            }
+        }
     }
 
     public void finishMove(final TableItem item, final boolean success) {
         if (success) {
             if (prefs.isDeleteRowAfterMove()) {
                 deleteTableItem(item);
+            } else {
+                updateTableItemAfterMove(item);
             }
         } else {
+            // Should we do anything else, visible to the user?  Uncheck the row?
+            // We don't really have a good option, right now.  TODO.
             logger.info("failed to move item: " + item);
         }
     }
