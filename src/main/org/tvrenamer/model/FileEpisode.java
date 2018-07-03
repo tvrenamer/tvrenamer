@@ -517,10 +517,30 @@ public class FileEpisode {
         return dateFormat.format(date);
     }
 
-    private static String plugInInformation(final String replacementTemplate, final String showName,
-                                            final EpisodePlacement placement, final Episode actualEpisode,
-                                            final String resolution)
+    /**
+     * Replace the control strings in the replacement template, with the episode information.
+     *
+     * This method is static to make it obvious that it doesn't rely on any instance variables;
+     * since it also does not modify any class variables, it is a pure function, and safe to
+     * call from any context.
+     *
+     * @param replacementTemplate
+     *     the template provided by the user via the preferences dialog
+     * @param actualShow 
+     *     the TV show that we have determined matches this FileEpisode
+     * @param actualEpisode
+     *     the episode that we, possibly with help from the user, have determined matches
+     * @param placement
+     *     the season number and episode number information we obtained from the filename
+     * @param resolution
+     *     the screen resolution (e.g., "720p", etc.) we obtained from the filename
+     * @return the template string with the episode information replacing the control strings
+     */
+    static String plugInInformation(final String replacementTemplate,
+                                    final Show actualShow, final Episode actualEpisode,
+                                    final EpisodePlacement placement, final String resolution)
     {
+        final String showName = actualShow.getName();
         String episodeTitle = actualEpisode.getTitle();
         int len = episodeTitle.length();
         if (len > MAX_TITLE_LENGTH) {
@@ -550,7 +570,33 @@ public class FileEpisode {
         if (airDate == null) {
             logger.log(Level.WARNING, "Episode air date not found for " + showName
                        + ", " + placement + ", \"" + episodeTitle + "\"");
-            newFilename = newFilename
+        }
+        // If the airDate is null, we warn (above) but we go ahead and do the substitution anyway;
+        // if the date is null, we need to replace the control strings with the empty string.
+        newFilename = plugInAirDate(airDate, newFilename);
+
+        return StringUtils.sanitiseTitle(newFilename);
+    }
+
+    /**
+     * Replace the date control strings in the template, with the episode air date information.
+     * May be called with null if the episode in question doesn't have air date information.
+     *
+     * This method is static to make it obvious that it doesn't rely on any instance variables;
+     * since it also does not modify any class variables, it is a pure function, and safe to
+     * call from any context.
+     *
+     * @param airDate
+     *     the date information we obtained from the episode; may be null
+     * @param template
+     *     the replacement template provided by the user via the preferences dialog; may be
+     *     partially filled in already, of course.
+     * @return the template string with the air date information replacing the control strings
+     */
+    static String plugInAirDate(final LocalDate airDate, final String template) {
+        // Date and times
+        if (airDate == null) {
+            return template
                 .replaceAll(ReplacementToken.DATE_DAY_NUM.getToken(), "")
                 .replaceAll(ReplacementToken.DATE_DAY_NUMLZ.getToken(), "")
                 .replaceAll(ReplacementToken.DATE_MONTH_NUM.getToken(), "")
@@ -558,7 +604,7 @@ public class FileEpisode {
                 .replaceAll(ReplacementToken.DATE_YEAR_FULL.getToken(), "")
                 .replaceAll(ReplacementToken.DATE_YEAR_MIN.getToken(), "");
         } else {
-            newFilename = newFilename
+            return template
                 .replaceAll(ReplacementToken.DATE_DAY_NUM.getToken(),
                             formatDate(airDate, "d"))
                 .replaceAll(ReplacementToken.DATE_DAY_NUMLZ.getToken(),
@@ -572,14 +618,25 @@ public class FileEpisode {
                 .replaceAll(ReplacementToken.DATE_YEAR_MIN.getToken(),
                             formatDate(airDate, "yy"));
         }
-
-        return StringUtils.sanitiseTitle(newFilename);
     }
 
     /**
+     * Ultimately, the destination for where we move a file to has four parts:
+     *  (1) the destination directory -- specified by the user in the preferences
+     *  (2) an optional subdirectory -- templates specified by the user in the
+     *        preferences, and filled in by getMoveToDirectory()
+     *  (3) the basename of the file, which is what this method constructs
+     *  (4) the file suffix, which is determined by the original filename, and
+     *        not changeable
+     *
+     * To get the basename, we use the template provided by the user in the
+     * preferences, and plug in the information we found about the actual show
+     * and the actual episode.  We may have found more than one matching episode;
+     * the argument to this method tells us which option to use.
      *
      * @param n
      *    the episode option to get the basename of
+     * @return the basename to use for the replacement file
      */
     String getRenamedBasename(final int n) {
         if (!userPrefs.isRenameSelected()) {
@@ -599,8 +656,9 @@ public class FileEpisode {
             return originalBasename;
         }
 
-        return plugInInformation(userPrefs.getRenameReplacementString(), actualShow.getName(),
-                                 placement, actualEpisodes.get(n), filenameResolution);
+        return plugInInformation(userPrefs.getRenameReplacementString(),
+                                 actualShow, actualEpisodes.get(n),
+                                 placement, filenameResolution);
     }
 
     /**
