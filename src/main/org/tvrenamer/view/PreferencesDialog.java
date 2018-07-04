@@ -136,30 +136,13 @@ class PreferencesDialog extends Dialog {
     private Button recurseFoldersCheckbox;
     private Button rmdirEmptyCheckbox;
     private Button deleteRowsCheckbox;
+    private TabFolder tabFolder;
     private Shell preferencesShell;
 
     private final Shell parent;
     private final StatusLabel statusLabel;
 
     private String seasonPrefixString;
-
-    public void open() {
-        // Create the dialog window
-        preferencesShell = new Shell(parent, getStyle());
-        preferencesShell.setText(PREFERENCES_LABEL);
-
-        // Add the contents of the dialog window
-        createContents();
-
-        preferencesShell.pack();
-        preferencesShell.open();
-        Display display = parent.getDisplay();
-        while (!preferencesShell.isDisposed()) {
-            if (!display.readAndDispatch()) {
-                display.sleep();
-            }
-        }
-    }
 
     private void createContents() {
         GridLayout shellGridLayout = new GridLayout(4, false);
@@ -170,12 +153,12 @@ class PreferencesDialog extends Dialog {
         helpLabel.setLayoutData(new GridData(SWT.END, SWT.CENTER, true, true,
                                              shellGridLayout.numColumns, 1));
 
-        TabFolder tabFolder = new TabFolder(preferencesShell, getStyle());
+        tabFolder = new TabFolder(preferencesShell, getStyle());
         tabFolder.setLayoutData(new GridData(SWT.END, SWT.CENTER, true, true,
                                              shellGridLayout.numColumns, 1));
 
-        createGeneralTab(tabFolder);
-        createRenameTab(tabFolder);
+        createGeneralTab();
+        createRenameTab();
 
         statusLabel.open(preferencesShell, shellGridLayout.numColumns);
 
@@ -467,7 +450,7 @@ class PreferencesDialog extends Dialog {
         renameSelectedCheckbox.setSelection(renameIsSelected);
     }
 
-    private void createGeneralTab(final TabFolder tabFolder) {
+    private void createGeneralTab() {
         final TabItem item = new TabItem(tabFolder, SWT.NULL);
         item.setText(GENERAL_LABEL);
 
@@ -482,7 +465,7 @@ class PreferencesDialog extends Dialog {
         item.setControl(generalGroup);
     }
 
-    private void createRenameTab(TabFolder tabFolder) {
+    private void createRenameTab() {
         TabItem item = new TabItem(tabFolder, SWT.NULL);
         item.setText(RENAMING_LABEL);
 
@@ -597,6 +580,28 @@ class PreferencesDialog extends Dialog {
         prefs.setRenameSelected(renameSelectedCheckbox.getSelection());
 
         UserPreferences.store(prefs);
+    }
+
+    /**
+     * Creates and opens the preferences dialog, and runs the event loop.
+     *
+     */
+    public void open() {
+        // Create the dialog window
+        preferencesShell = new Shell(parent, getStyle());
+        preferencesShell.setText(PREFERENCES_LABEL);
+
+        // Add the contents of the dialog window
+        createContents();
+
+        preferencesShell.pack();
+        preferencesShell.open();
+        Display display = parent.getDisplay();
+        while (!preferencesShell.isDisposed()) {
+            if (!display.readAndDispatch()) {
+                display.sleep();
+            }
+        }
     }
 
     /**
