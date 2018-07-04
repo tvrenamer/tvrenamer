@@ -138,24 +138,14 @@ class PreferencesDialog extends Dialog {
     private Button deleteRowsCheckbox;
     private Shell preferencesShell;
 
+    private final Shell parent;
     private final StatusLabel statusLabel;
 
     private String seasonPrefixString;
 
-    /**
-     * PreferencesDialog constructor
-     *
-     * @param parent
-     *            the parent {@link Shell}
-     */
-    public PreferencesDialog(Shell parent) {
-        super(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
-        statusLabel = new StatusLabel();
-    }
-
     public void open() {
         // Create the dialog window
-        preferencesShell = new Shell(getParent(), getStyle());
+        preferencesShell = new Shell(parent, getStyle());
         preferencesShell.setText(PREFERENCES_LABEL);
 
         // Add the contents of the dialog window
@@ -163,7 +153,7 @@ class PreferencesDialog extends Dialog {
 
         preferencesShell.pack();
         preferencesShell.open();
-        Display display = getParent().getDisplay();
+        Display display = parent.getDisplay();
         while (!preferencesShell.isDisposed()) {
             if (!display.readAndDispatch()) {
                 display.sleep();
@@ -607,5 +597,17 @@ class PreferencesDialog extends Dialog {
         prefs.setRenameSelected(renameSelectedCheckbox.getSelection());
 
         UserPreferences.store(prefs);
+    }
+
+    /**
+     * PreferencesDialog constructor
+     *
+     * @param parent
+     *            the parent {@link Shell}
+     */
+    public PreferencesDialog(final Shell parent) {
+        super(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+        this.parent = parent;
+        statusLabel = new StatusLabel();
     }
 }
