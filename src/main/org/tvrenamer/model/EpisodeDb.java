@@ -300,7 +300,7 @@ public class EpisodeDb implements Observer {
                     ep.setIgnoreReason(ignorableReason(ep.getFilepath()));
                 }
                 for (AddEpisodeListener listener : listeners) {
-                    listener.refreshAll();
+                    listener.refreshDestinations();
                 }
             }
         }

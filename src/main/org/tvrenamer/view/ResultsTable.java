@@ -541,15 +541,19 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         sortTable(column, columnNum, sortDirection);
     }
 
-    public void refreshAll() {
-        logger.info("Refreshing table");
+    public void refreshDestinations() {
+        logger.info("Refreshing destinations");
         for (TableItem item : swtTable.getItems()) {
             String fileName = getCellText(item, CURRENT_FILE_FIELD);
-            FileEpisode episode = episodeMap.remove(fileName);
+            String newFileName = episodeMap.currentLocationOf(fileName);
+            if (newFileName == null) {
+                // Not expected, but could happen, primarily if some other,
+                // unrelated program moves the file out from under us.
+                deleteTableItem(item);
+                return;
+            }
+            FileEpisode episode = episodeMap.get(newFileName);
             episode.refreshReplacement();
-            String newFileName = episode.getFilepath();
-            episodeMap.put(newFileName, episode);
-            setCellText(item, CURRENT_FILE_FIELD, newFileName);
             setProposedDestColumn(item, episode);
             setTableItemStatus(item, episode.optionCount());
         }
@@ -640,7 +644,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
             case REPLACEMENT_MASK:
             case SEASON_PREFIX:
             case LEADING_ZERO:
-                refreshAll();
+                refreshDestinations();
             // Also note, no default case.  We know there are other types of
             // UserPreference events that we might be notified of.  We're
             // just not interested.

@@ -7,5 +7,5 @@ import java.util.Queue;
 public interface AddEpisodeListener {
     void addEpisodes(Queue<FileEpisode> episodes);
 
-    void refreshAll();
+    void refreshDestinations();
 }
