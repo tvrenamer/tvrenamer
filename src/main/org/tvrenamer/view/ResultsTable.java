@@ -123,6 +123,9 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     }
 
     Combo newComboBox() {
+        if (swtTable.isDisposed()) {
+            return null;
+        }
         return new Combo(swtTable, SWT.DROP_DOWN | SWT.READ_ONLY);
     }
 
@@ -148,9 +151,9 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         item.setImage(columnId, newImage);
     }
 
-    private static void setCellImage(final TableItem item,
-                                     final int columnId,
-                                     final FileMoveIcon.Status newStatus)
+    private static void setCellStatus(final TableItem item,
+                                      final int columnId,
+                                      final FileMoveIcon.Status newStatus)
     {
         setCellImage(item, columnId, FileMoveIcon.getIcon(newStatus));
     }
@@ -187,6 +190,9 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         setCellText(item, NEW_FILENAME_FIELD, defaultOption);
 
         final Combo combo = newComboBox();
+        if (combo == null) {
+            return;
+        }
         options.forEach(combo::add);
         combo.setText(defaultOption);
         combo.addModifyListener(e -> ep.setChosenEpisode(combo.getSelectionIndex()));
@@ -236,16 +242,16 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     }
 
     private void failTableItem(final TableItem item) {
-        setCellImage(item, STATUS_FIELD, FAIL);
+        setCellStatus(item, STATUS_FIELD, FAIL);
         item.setChecked(false);
     }
 
     private void setTableItemStatus(final TableItem item, final int epsFound) {
         if (epsFound > 1) {
-            setCellImage(item, STATUS_FIELD, OPTIONS);
+            setCellStatus(item, STATUS_FIELD, OPTIONS);
             item.setChecked(true);
         } else if (epsFound == 1) {
-            setCellImage(item, STATUS_FIELD, SUCCESS);
+            setCellStatus(item, STATUS_FIELD, SUCCESS);
             item.setChecked(true);
         } else {
             failTableItem(item);
@@ -329,7 +335,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         item.setChecked(false);
         setCellText(item, CURRENT_FILE_FIELD, episode.getFilepath());
         setProposedDestColumn(item, episode);
-        setCellImage(item, STATUS_FIELD, DOWNLOADING);
+        setCellStatus(item, STATUS_FIELD, DOWNLOADING);
         return item;
     }
 
@@ -360,7 +366,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                         display.asyncExec(() -> {
                             if (tableContainsTableItem(item)) {
                                 setProposedDestColumn(item, episode);
-                                setCellImage(item, STATUS_FIELD, ADDED);
+                                setCellStatus(item, STATUS_FIELD, ADDED);
                             }
                         });
                         if (show.isValidSeries()) {
@@ -384,6 +390,18 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         }
     }
 
+    /**
+     * Returns (and, really, creates) a progress label for the given item.
+     * This is used to display progress while the item's file is being copied.
+     * (We don't actually support "copying" the file, only moving it, but when
+     * the user chooses to "move" it across filesystems, that becomes a copy-
+     * and-delete operation.)
+     *
+     * @param item
+     *    the item to create a progress label for
+     * @return
+     *    a Label which is set as an editor for the status field of the given item
+     */
     public Label getProgressLabel(final TableItem item) {
         Label progressLabel = new Label(swtTable, SWT.SHADOW_NONE | SWT.CENTER);
         TableEditor editor = new TableEditor(swtTable);
@@ -541,6 +559,20 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         sortTable(column, columnNum, sortDirection);
     }
 
+    /**
+     * Refreshes the "destination" and "status" field of all items in the table.
+     *
+     * This is intended to be called after something happens which changes what the
+     * proposed destination would be.  The destination is determined partly by how
+     * we parse the filename, of course, but also based on numerous fields that the
+     * user sets in the Preferences Dialog.  When the user closes the dialog and
+     * saves the changes, we want to immediately update the table for the new choices
+     * specified.  This method iterates over each item, makes sure the model is
+     * updated ({@link FileEpisode}), and then updates the relevant fields.
+     *
+     * (Doesn't bother updating other fields, because we know nothing in the
+     * Preferences Dialog can cause them to need to be changed.)
+     */
     public void refreshDestinations() {
         logger.info("Refreshing destinations");
         for (TableItem item : swtTable.getItems()) {
@@ -602,7 +634,8 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         shell.layout(false, true);
     }
 
-    private void setColumnDestText(final TableColumn destinationColumn) {
+    private void setColumnDestText() {
+        final TableColumn destinationColumn = swtTable.getColumn(NEW_FILENAME_FIELD);
         if (prefs.isMoveSelected()) {
             destinationColumn.setText(MOVE_HEADER);
         } else {
@@ -628,9 +661,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         swtTable.deselectAll();
     }
 
-    private void updateUserPreferences(final UserPreferences observed,
-                                       final UserPreference userPref)
-    {
+    private void updateUserPreferences(final UserPreference userPref) {
         logger.info("Preference change event: " + userPref);
 
         switch (userPref) {
@@ -638,7 +669,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
             case MOVE_SELECTED:
             case DEST_DIR:
                 checkDestinationDirectory();
-                setColumnDestText(swtTable.getColumn(NEW_FILENAME_FIELD));
+                setColumnDestText();
                 setActionButtonText(actionButton);
                 // Note: NO break!  We WANT to fall through.
             case REPLACEMENT_MASK:
@@ -657,8 +688,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     @Override
     public void update(final Observable observable, final Object value) {
         if (observable instanceof UserPreferences && value instanceof UserPreference) {
-            updateUserPreferences((UserPreferences) observable,
-                                  (UserPreference) value);
+            updateUserPreferences((UserPreference) value);
         }
     }
 
@@ -711,6 +741,30 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         }
     }
 
+    /**
+     * A callback that indicates that the {@link FileMover} has finished trying
+     * to move a file, the one displayed in the given item.  We want to take
+     * an action when the move has been finished.
+     *
+     * The specific action depends on the user preference, "deleteRowAfterMove".
+     * As its name suggests, when it's true, and we successfully move the file,
+     * we delete the TableItem from the table.
+     *
+     * If "deleteRowAfterMove" is false, then the moved file remains in the
+     * table.  There's no reason why its proposed destination should change;
+     * nothing that is used to create the proposed destination has changed.
+     * But one thing that has changed is the file's current location.  We call
+     * helper method updateTableItemAfterMove to update the table.
+     *
+     * If the move actually did not succeed, we log a message in development,
+     * but currently don't do anything to make it obvious to the user that the
+     * move failed.  Perhaps we should do more...
+     *
+     * @param item
+     *   the item representing the file that we've just finished trying to move
+     * @param success
+     *   whether or not we actually succeeded in moving the file
+     */
     public void finishMove(final TableItem item, final boolean success) {
         if (success) {
             if (prefs.isDeleteRowAfterMove()) {
@@ -878,7 +932,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         swtTable.setLayoutData(gridData);
 
         Columns.createColumns(this, swtTable);
-        setColumnDestText(swtTable.getColumn(NEW_FILENAME_FIELD));
+        setColumnDestText();
         swtTable.setSortColumn(swtTable.getColumn(CURRENT_FILE_FIELD));
         swtTable.setSortDirection(SWT.UP);
 
