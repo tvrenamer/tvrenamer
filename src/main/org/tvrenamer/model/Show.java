@@ -340,14 +340,13 @@ public class Show extends ShowOption {
 
     /**
      * Find out whether or not there are episodes associated with this show.
-     * Generally this indicates that the show's listings have been downloaded
-     * and the show is ready to go.
+     * Generally, if there aren't, this indicates that the show's listings
+     * have not been downloaded and the show is not ready to go.
      *
-     * @return a count of how many episodes we have for this Show
+     * @return true if this show has no episodes, false if it has any
      */
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public boolean hasEpisodes() {
-        return (episodes.size() > 0);
+    public boolean noEpisodes() {
+        return (episodes.size() == 0);
     }
 
     /**

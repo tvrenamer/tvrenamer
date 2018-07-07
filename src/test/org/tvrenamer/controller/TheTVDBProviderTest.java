@@ -202,7 +202,7 @@ public class TheTVDBProviderTest {
         if (epdata.preferDvd != null) {
             series.setPreferDvd(epdata.preferDvd);
         }
-        if (!series.hasEpisodes()) {
+        if (series.noEpisodes()) {
             TheTVDBProvider.getSeriesListing(series);
         }
 
