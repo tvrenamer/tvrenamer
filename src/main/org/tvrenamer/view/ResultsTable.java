@@ -1,7 +1,6 @@
 package org.tvrenamer.view;
 
 import static org.tvrenamer.model.util.Constants.*;
-import static org.tvrenamer.view.Columns.*;
 import static org.tvrenamer.view.FileMoveIcon.Status.*;
 
 import org.eclipse.swt.SWT;
@@ -75,6 +74,16 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     private static final Collator COLLATOR = Collator.getInstance(Locale.getDefault());
 
     private static final int ITEM_NOT_IN_TABLE = -1;
+
+    private static final int CHECKBOX_FIELD = 0;
+    private static final int CURRENT_FILE_FIELD = 1;
+    private static final int NEW_FILENAME_FIELD = 2;
+    private static final int STATUS_FIELD = 3;
+
+    private static final int WIDTH_CHECKED = 10;
+    private static final int WIDTH_CURRENT_FILE = 550;
+    private static final int WIDTH_NEW_FILENAME = 550;
+    private static final int WIDTH_STATUS = 40;
 
     private final UIStarter ui;
     private final Shell shell;
@@ -296,16 +305,16 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                                    final FileEpisode episode)
     {
         series.addListingsListener(new ShowListingsListener() {
-                @Override
-                public void listingsDownloadComplete() {
-                    listingsDownloaded(item, episode);
-                }
+            @Override
+            public void listingsDownloadComplete() {
+                listingsDownloaded(item, episode);
+            }
 
-                @Override
-                public void listingsDownloadFailed(Exception err) {
-                    listingsFailed(item, episode, err);
-                }
-            });
+            @Override
+            public void listingsDownloadFailed(Exception err) {
+                listingsFailed(item, episode, err);
+            }
+        });
     }
 
     private void tableItemFailed(final TableItem item, final FileEpisode episode) {
@@ -547,7 +556,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
      * @param column
      *    the TableColumn to sort by
      */
-    void sortTable(final TableColumn column) {
+    private void sortTable(final TableColumn column) {
         final int columnNum = swtTable.indexOf(column);
         if (ITEM_NOT_IN_TABLE == columnNum) {
             logger.severe("unable to locate column in table: " + column);
@@ -925,6 +934,47 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         });
     }
 
+    private synchronized void createColumns() {
+        final TableColumn checkboxColumn = new TableColumn(swtTable, SWT.LEFT, CHECKBOX_FIELD);
+        checkboxColumn.setText(CHECKBOX_HEADER);
+        checkboxColumn.setWidth(WIDTH_CHECKED);
+        checkboxColumn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                sortTable(checkboxColumn);
+            }
+        });
+
+        final TableColumn sourceColumn = new TableColumn(swtTable, SWT.LEFT, CURRENT_FILE_FIELD);
+        sourceColumn.setText(SOURCE_HEADER);
+        sourceColumn.setWidth(WIDTH_CURRENT_FILE);
+        sourceColumn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                sortTable(sourceColumn);
+            }
+        });
+
+        final TableColumn destinationColumn = new TableColumn(swtTable, SWT.LEFT, NEW_FILENAME_FIELD);
+        destinationColumn.setWidth(WIDTH_NEW_FILENAME);
+        destinationColumn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                sortTable(destinationColumn);
+            }
+        });
+
+        final TableColumn statusColumn = new TableColumn(swtTable, SWT.LEFT, STATUS_FIELD);
+        statusColumn.setText(STATUS_HEADER);
+        statusColumn.setWidth(WIDTH_STATUS);
+        statusColumn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                sortTable(statusColumn);
+            }
+        });
+    }
+
     private void setupResultsTable() {
         swtTable.setHeaderVisible(true);
         swtTable.setLinesVisible(true);
@@ -934,7 +984,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         gridData.horizontalSpan = 3;
         swtTable.setLayoutData(gridData);
 
-        Columns.createColumns(this, swtTable);
+        createColumns();
         setColumnDestText();
         swtTable.setSortColumn(swtTable.getColumn(CURRENT_FILE_FIELD));
         swtTable.setSortDirection(SWT.UP);
