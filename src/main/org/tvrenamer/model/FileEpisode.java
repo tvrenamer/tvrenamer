@@ -412,7 +412,7 @@ public class FileEpisode {
             return 0;
         }
 
-        if (!actualShow.hasEpisodes()) {
+        if (actualShow.noEpisodes()) {
             seriesStatus = SeriesStatus.NO_LISTINGS;
             replacementText = getNoListingsPlaceholder();
             return 0;
