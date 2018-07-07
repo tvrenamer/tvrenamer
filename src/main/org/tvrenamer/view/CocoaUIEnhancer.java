@@ -8,6 +8,8 @@ import org.eclipse.swt.internal.Callback;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Listener;
 
+import org.tvrenamer.model.util.Constants;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -101,14 +103,9 @@ class CocoaUIEnhancer {
     /**
      * Construct a new CocoaUIEnhancer.
      *
-     * @param appName
-     *            The name of the application. It will be used to customize the
-     *            About and Quit menu items. If you do not wish to customize the
-     *            About and Quit menu items, just pass <tt>null</tt> here.
      */
-    @SuppressWarnings("SameParameterValue")
-    public CocoaUIEnhancer(String appName) {
-        this.appName = appName;
+    public CocoaUIEnhancer() {
+        appName = Constants.APPLICATION_NAME;
     }
 
     /**
@@ -205,17 +202,13 @@ class CocoaUIEnhancer {
         // Create the About <application-name> menu command
         Object aboutMenuItem =
             invoke(nsmenuCls, appMenu, "itemAtIndex", new Object[] { wrapPointer(kAboutMenuItem) });
-        if (appName != null) {
-            Object nsStr = invoke(nsstringCls, "stringWith", new Object[] { "About " + appName });
-            invoke(nsmenuitemCls, aboutMenuItem, "setTitle", new Object[] { nsStr });
-        }
+        Object nsStr = invoke(nsstringCls, "stringWith", new Object[] { "About " + appName });
+        invoke(nsmenuitemCls, aboutMenuItem, "setTitle", new Object[] { nsStr });
         // Rename the quit action.
-        if (appName != null) {
-            Object quitMenuItem =
-                invoke(nsmenuCls, appMenu, "itemAtIndex", new Object[] { wrapPointer(kQuitMenuItem) });
-            Object nsStr = invoke(nsstringCls, "stringWith", new Object[] { "Quit " + appName });
-            invoke(nsmenuitemCls, quitMenuItem, "setTitle", new Object[] { nsStr });
-        }
+        Object quitMenuItem =
+            invoke(nsmenuCls, appMenu, "itemAtIndex", new Object[] { wrapPointer(kQuitMenuItem) });
+        nsStr = invoke(nsstringCls, "stringWith", new Object[] { "Quit " + appName });
+        invoke(nsmenuitemCls, quitMenuItem, "setTitle", new Object[] { nsStr });
 
         // Enable the Preferences menuItem.
         Object prefMenuItem =

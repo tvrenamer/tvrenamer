@@ -433,7 +433,7 @@ class PreferencesDialog extends Dialog {
                                                  GridData.BEGINNING, 3);
     }
 
-    private void initializeGeneralControls(final Composite generalGroup) {
+    private void initializeGeneralControls() {
         final boolean moveIsSelected = prefs.isMoveSelected();
         moveSelectedCheckbox.setSelection(moveIsSelected);
         toggleEnableControls(moveIsSelected, destDirText, destDirButton,
@@ -460,7 +460,7 @@ class PreferencesDialog extends Dialog {
         generalGroup.setToolTipText(GENERAL_TOOLTIP);
 
         populateGeneralTab(generalGroup);
-        initializeGeneralControls(generalGroup);
+        initializeGeneralControls();
 
         item.setControl(generalGroup);
     }

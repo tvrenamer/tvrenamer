@@ -21,18 +21,17 @@ public class Environment {
         MAC
     }
 
-    @SuppressWarnings("SameParameterValue")
-    private static OSType chooseOSType(String jvmSays) {
-        if (jvmSays.contains("Mac")) {
+    private static OSType chooseOSType() {
+        if (OS_NAME.contains("Mac")) {
             return OSType.MAC;
         }
-        if (jvmSays.contains("Windows")) {
+        if (OS_NAME.contains("Windows")) {
             return OSType.WINDOWS;
         }
         return OSType.LINUX;
     }
 
-    private static final OSType JVM_OS_TYPE = chooseOSType(OS_NAME);
+    private static final OSType JVM_OS_TYPE = chooseOSType();
     public static final boolean IS_MAC_OSX = (JVM_OS_TYPE == OSType.MAC);
     public static final boolean IS_WINDOWS = (JVM_OS_TYPE == OSType.WINDOWS);
     @SuppressWarnings("unused")

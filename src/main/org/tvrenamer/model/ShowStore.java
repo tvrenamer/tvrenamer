@@ -170,6 +170,7 @@ public class ShowStore {
      * @param listener
      *            the listener to notify or register
      */
+    @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
     public static void getShow(String filenameShow, ShowInformationListener listener) {
         if (listener == null) {
             logger.warning("cannot look up show without a listener");

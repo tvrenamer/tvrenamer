@@ -64,12 +64,11 @@ public class Constants {
     public static final String XML_SUFFIX = ".xml";
     public static final String ICON_PARENT_DIRECTORY = "res";
     public static final String APPLICATION_ICON_PATH = "/icons/tvrenamer.png";
-    public static final String TVRENAMER_ICON_DIRECT_PATH =
-        ICON_PARENT_DIRECTORY + APPLICATION_ICON_PATH;
     public static final String SUBLINK_PATH = "/icons/SweetieLegacy/";
     public static final String LOGGING_PROPERTIES = "/logging.properties";
     public static final String DEVELOPER_DEFAULT_OVERRIDES_FILENAME = "etc/default-overrides.xml";
 
+    @SuppressWarnings("SameParameterValue")
     private static String charsToSpaceString(final Set<Character> chars) {
         StringBuilder str = new StringBuilder(2 * chars.size());
         for (Character c : chars) {
@@ -161,7 +160,7 @@ public class Constants {
         + "to take some action.";
     public static final String UNKNOWN_EXCEPTION = "An error occurred, please check "
         + "the console output to see any errors:";
-    public static final String ILLEGAL_CHARS_INTRO = "The following characters cannot be "
+    private static final String ILLEGAL_CHARS_INTRO = "The following characters cannot be "
         + "used in file paths:";
     public static final String ILLEGAL_CHARACTERS_WARNING = ILLEGAL_CHARS_INTRO
         + charsToSpaceString(StringUtils.ILLEGAL_CHARACTERS);

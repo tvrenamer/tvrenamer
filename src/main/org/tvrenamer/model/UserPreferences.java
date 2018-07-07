@@ -112,6 +112,7 @@ public class UserPreferences extends Observable {
      *
      * @param prefs the instance to export to XML
      */
+    @SuppressWarnings("SameParameterValue")
     public static void store(UserPreferences prefs) {
         UserPreferencesPersistence.persist(prefs, PREFERENCES_FILE);
         logger.fine("Successfully saved/updated preferences");
@@ -442,7 +443,6 @@ public class UserPreferences extends Observable {
      * the user preferences from XML.  When the keywords are modified by the user via the preferences
      * dialog, we maintain the actual string the user entered.
      *
-     * @return a string containing the list of ignored keywords, separated by commas
      */
     private void buildIgnoredKeywordsString() {
         StringBuilder ignoreWords = new StringBuilder();

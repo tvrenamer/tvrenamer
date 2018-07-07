@@ -162,8 +162,15 @@ public class FileEpisode {
     // rename it to destinationFolder + baseForRename + filenameSuffix.
     private String baseForRename = null;
 
-    // Initially we create the FileEpisode with nothing more than the path.
-    // Other information will flow in.
+    /**
+     * Standard constructor for a FileEpisode; takes a Path.<p>
+     *
+     * Initially we create the FileEpisode with nothing more than the path.
+     * Other information will flow in.
+     *
+     * @param p
+     *   the Path of the file this FileEpisode represents
+     */
     public FileEpisode(Path p) {
         if (p == null) {
             logger.severe(FILE_EPISODE_NEEDS_PATH);
@@ -182,7 +189,14 @@ public class FileEpisode {
         FilenameParser.parseFilename(this);
     }
 
-    // Create FileEpisode with String; only for testing
+    /**
+     * Test constructor to make a FileEpisode from a String.<p>
+     *
+     * This constructor is intended for use only by the test framework.
+     *
+     * @param filename
+     *    a String representing a path to a file (which doesn't need to exist).
+     */
     public FileEpisode(String filename) {
         if (filename == null) {
             logger.severe(FILE_EPISODE_NEEDS_PATH);
@@ -220,6 +234,24 @@ public class FileEpisode {
         return placement;
     }
 
+    /**
+     * Sets the {@link EpisodePlacement}.<p>
+     *
+     * A given episode occurs within a particular season.  To identify the episode,
+     * we need to find, from the filename, the season in which it aired, and where
+     * it aired within that season.  We combine these two pieces of information into
+     * an class we call the "EpisodePlacement".
+     *
+     * This method expects to receive the exact substrings we extracted from the
+     * filename, parses them, creates an EpisodePlacement, and stores it within
+     * this FileEpisode.
+     *
+     * @param filenameSeason
+     *   the substring of the filename that indicates the episode's season
+     * @param filenameEpisode
+     *   the substring of the filename that indicates the episode's ordering within
+     *   the season
+     */
     public void setEpisodePlacement(String filenameSeason, String filenameEpisode) {
         this.filenameSeason = filenameSeason;
         this.filenameEpisode = filenameEpisode;
@@ -238,10 +270,32 @@ public class FileEpisode {
         placement = new EpisodePlacement(seasonNum, episodeNum);
     }
 
+    /**
+     * Gets the screen resolution found in the filename.<p>
+     *
+     * The filename may indicate a screen resolution (i.e., number of pixels) of the
+     * video file.  This method has nothing to do with how the filename was "resolved";
+     * that's just an unfortunate ambiguity.  This is just about having found substrings
+     * like "720p" or "1080i".
+     *
+     * @return
+     *   the substring of the filename that indicated a screen resolution
+     */
     public String getFilenameResolution() {
         return filenameResolution;
     }
 
+    /**
+     * Sets the screen resolution found in the filename.<p>
+     *
+     * The filename may indicate a screen resolution (i.e., number of pixels) of the
+     * video file.  This method has nothing to do with "resolving" the filename;
+     * that's just an unfortunate ambiguity.  This is just about finding substrings
+     * like "720p" or "1080i".
+     *
+     * @param filenameResolution
+     *   the substring of the filename that indicates a screen resolution
+     */
     public void setFilenameResolution(String filenameResolution) {
         if (filenameResolution == null) {
             this.filenameResolution = "";
@@ -277,6 +331,27 @@ public class FileEpisode {
         }
     }
 
+    /**
+     * Sets the Path for the file that this FileEpisode refers to.<p>
+     *
+     * The path is originally set in the constructor.  A given FileEpisode is meant to
+     * refer to a given file; they should not be reused.  This method should not be
+     * called to try to get a FileEpisode to now refer to an unrelated file.<p>
+     *
+     * However, the point of this program is to move files, and, depending on the user
+     * preference settings, the item may remain in the table after it's been moved.
+     * We want to keep everything up to date, so when, at the user's request, we do
+     * move a file, we want to update the model so that it now knows where it is.<p>
+     *
+     * It is illegal to try to set the path to a filename that does not have the same
+     * file suffix as the original.  The idea is that the original file was moved/renamed,
+     * and that should never require changing the file suffix.  If you're trying to re-use
+     * a FileEpisode for a Path with a different file extension, you're likely doing the
+     * wrong thing.
+     *
+     * @param p
+     *    the new Path of the file that this FileEpisode was created to refer to
+     */
     public void setPath(Path p) {
         if (p == null) {
             logger.severe(FILE_EPISODE_NEEDS_PATH);
@@ -310,6 +385,26 @@ public class FileEpisode {
         return (parseStatus == ParseStatus.PARSED);
     }
 
+    /**
+     * Returns the number of options found for this FileEpisode.<p>
+     *
+     * This may be:<ul>
+     * <li>0, because<ul>
+     *    <li>we could not parse the filename</li>
+     *    <li>we have not (yet) obtained enough information from the provider</li>
+     *    <li>the "ignore files" setting says to ignore this item</li>
+     *    <li>the episode was simply not found within the listings we downloaded</li>
+     *    </ul>
+     * <li>1, meaning we found an exact episode that this maps to</li>
+     * <li>2, presumably meaning that the given placement (season X, episode Y)
+     *    maps to different episodes depending on whether you assume the over-the-air
+     *    ordering, or the DVD ordering</li>
+     * <li>(theoretically) more than 2, for some unforeseen reason that the listings
+     *    we downloaded contains multiple hits for the given placement</li>
+     * </ul>
+     *
+     * @return the number of options found for this FileEpisode
+     */
     public synchronized int optionCount() {
         if (seriesStatus != SeriesStatus.GOT_LISTINGS) {
             return 0;
@@ -461,7 +556,7 @@ public class FileEpisode {
     }
 
     /**
-     * Return the name of the directory to which the file should be moved.
+     * Returns the name of the directory to which the file should be moved.<p>
      *
      * We try to make sure that a term means the same thing throughout the program.
      * The "destination directory" is the *top-level* directory that the user has
@@ -536,6 +631,7 @@ public class FileEpisode {
      *     the screen resolution (e.g., "720p", etc.) we obtained from the filename
      * @return the template string with the episode information replacing the control strings
      */
+    @SuppressWarnings("WeakerAccess")
     static String plugInInformation(final String replacementTemplate,
                                     final Show actualShow, final Episode actualEpisode,
                                     final EpisodePlacement placement, final String resolution)
@@ -593,6 +689,7 @@ public class FileEpisode {
      *     partially filled in already, of course.
      * @return the template string with the air date information replacing the control strings
      */
+    @SuppressWarnings("WeakerAccess")
     static String plugInAirDate(final LocalDate airDate, final String template) {
         // Date and times
         if (airDate == null) {
@@ -621,13 +718,15 @@ public class FileEpisode {
     }
 
     /**
-     * Ultimately, the destination for where we move a file to has four parts:
-     *  (1) the destination directory -- specified by the user in the preferences
-     *  (2) an optional subdirectory -- templates specified by the user in the
-     *        preferences, and filled in by getMoveToDirectory()
-     *  (3) the basename of the file, which is what this method constructs
-     *  (4) the file suffix, which is determined by the original filename, and
-     *        not changeable
+     * Calculates the destination basename for this FileEpisode.<p>
+     *
+     * Ultimately, the destination for where we move a file to has four parts:<ol>
+     *  <li>the destination directory -- specified by the user in the preferences</li>
+     *  <li>an optional subdirectory -- templates specified by the user in the
+     *        preferences, and filled in by getMoveToDirectory()</li>
+     *  <li>the basename of the file, which is what this method constructs</li>
+     *  <li>the file suffix, which is determined by the original filename, and
+     *        not changeable</li></ol><p>
      *
      * To get the basename, we use the template provided by the user in the
      * preferences, and plug in the information we found about the actual show
@@ -690,6 +789,22 @@ public class FileEpisode {
         return chosenEpisode;
     }
 
+    /**
+     * Retrieves the "basename" for the proposed destination for this file.<p>
+     *
+     * The "basename" is what you get when you take a file path, remove the directory,
+     * and remove the file suffix.<p>
+     *
+     * The user has the option of "moving" the file to a different directory, but not
+     * renaming it.  When that option is selected, the destination basename is simply
+     * the original basename.<p>
+     *
+     * When rename is enabled, to get the destination basename, we use the template
+     * provided by the user in  the preferences, and plug in the information we found
+     * about the actual show and the actual episode.
+     *
+     * @return the "basename" of the proposed destination for this file
+     */
     public String getDestinationBasename() {
         if (userPrefs.isRenameSelected()) {
             if (baseForRename == null) {
