@@ -112,9 +112,11 @@ public class FileEpisodeTest {
         List<Path> deleteFailures = new ArrayList<>();
         for (Path path : testFiles) {
             Path parent = path.getParent();
-            boolean expected = FileUtilities.isSameFile(OUR_TEMP_DIR, parent);
-            if (!expected) {
-                outsideFailures.add(path);
+            if (parent != null) {
+                boolean expected = FileUtilities.isSameFile(OUR_TEMP_DIR, parent);
+                if (!expected) {
+                    outsideFailures.add(path);
+                }
             }
             logger.fine("Deleting " + path);
             boolean deleted = FileUtilities.deleteFile(path);
@@ -1113,7 +1115,7 @@ public class FileEpisodeTest {
      * Try to basically do an <code>/bin/rm -rf</code> on our temp directory.
      */
     @After
-    public void cleanUp() throws Exception {
+    public void cleanUp() {
         if (Files.exists(OUR_TEMP_DIR)) {
             logger.warning("trying to clean up " + OUR_TEMP_DIR);
             try {
