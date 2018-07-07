@@ -11,6 +11,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.logging.Logger;
 
+@SuppressWarnings("WeakerAccess")
 public class StatusLabel {
     private static final Logger logger = Logger.getLogger(StatusLabel.class.getName());
 
@@ -29,6 +30,16 @@ public class StatusLabel {
         parentShell.layout();
     }
 
+    /**
+     * Displays the given text, making it the top text on the stack.
+     *
+     * A particular text can only be in the stack once, so if the text was
+     * already in the stack, removes the existing one, and places it at
+     * the top of the stack.
+     *
+     * @param statusText
+     *   the text to display immediately and put on top of the stack
+     */
     public void add(final String statusText) {
         if (statusText == null) {
             logger.info("cannot set null status");
@@ -43,6 +54,22 @@ public class StatusLabel {
         refreshStatusLabel();
     }
 
+    /**
+     * Removes the given text from the stack of displayed messages.
+     *
+     * Also will remove all messages, if passed null.
+     *
+     * If the given message is not found on the stack, will log a low-priority
+     * message in development, but otherwise returns silently.
+     *
+     * If the given message was currently being displayed, the UI will be
+     * updated so that it no longer is.  (The display will revert to the next
+     * message in the stack, or be cleared entirely if the stack is now empty.)
+     *
+     * @param statusText
+     *    the text to remove from the stack and no to longer display;
+     *    or, null to remove all texts
+     */
     public void clear(final String statusText) {
         if (statusText == null) {
             // not used and not recommended; but provided, just in case

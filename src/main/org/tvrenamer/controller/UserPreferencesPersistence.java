@@ -2,6 +2,7 @@ package org.tvrenamer.controller;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider;
+
 import org.tvrenamer.model.UserPreferences;
 
 import java.io.BufferedWriter;

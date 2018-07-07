@@ -122,14 +122,14 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         return taskItem;
     }
 
-    Combo newComboBox() {
+    private Combo newComboBox() {
         if (swtTable.isDisposed()) {
             return null;
         }
         return new Combo(swtTable, SWT.DROP_DOWN | SWT.READ_ONLY);
     }
 
-    TableItem newTableItem() {
+    private TableItem newTableItem() {
         return new TableItem(swtTable, SWT.NONE);
     }
 
@@ -137,6 +137,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         return FileMoveIcon.getImagePriority(item.getImage(columnId));
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static Image getCellImage(final TableItem item, final int columnId) {
         return item.getImage(columnId);
     }
@@ -439,6 +440,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         swtTable.setFocus();
     }
 
+    @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
     private static String itemDestDisplayedText(final TableItem item) {
         synchronized (item) {
             final Object data = item.getData();
@@ -722,6 +724,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
      * with the item locked, so it can't change out from under us.
      *
      */
+    @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
     private void updateTableItemAfterMove(final TableItem item) {
         synchronized (item) {
             if (item.isDisposed()) {
@@ -1022,7 +1025,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
 
         if (Environment.IS_MAC_OSX) {
             // Add the special Mac OSX Preferences, About and Quit menus.
-            CocoaUIEnhancer enhancer = new CocoaUIEnhancer(APPLICATION_NAME);
+            CocoaUIEnhancer enhancer = new CocoaUIEnhancer();
             enhancer.hookApplicationMenu(display, quitListener, aboutListener, preferencesListener);
 
             setupHelpMenuBar(menuBarMenu);

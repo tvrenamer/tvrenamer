@@ -24,10 +24,10 @@ public final class UIStarter {
 
     final Shell shell;
     final Display display;
-    final Image appIcon;
-    final ResultsTable resultsTable;
+    private final Image appIcon;
+    private final ResultsTable resultsTable;
 
-    /**
+    /*
      * Read an image.
      *
      * @param resourcePath
@@ -36,9 +36,7 @@ public final class UIStarter {
      *     the path to try to locate the file directly in the file system
      * @return an Image read from the given path
      */
-    public static Image readImageFromPath(final String resourcePath,
-                                          final String filePath)
-    {
+    private static Image readImageFromPath(final String resourcePath, final String filePath) {
         Display display = Display.getCurrent();
         Image rval = null;
         try (InputStream in = UIStarter.class.getResourceAsStream(resourcePath)) {
@@ -81,11 +79,11 @@ public final class UIStarter {
         return defaultFont;
     }
 
-    public void showMessageBox(final SWTMessageBoxType type, final String title,
-                               final String message, final Exception exception)
+    private void showMessageBox(final SWTMessageBoxType type, final String title,
+                                final String message, final Exception exception)
     {
-        if ((shell == null) || shell.isDisposed()) {
-            // Shell not established, try using JOptionPane instead
+        if (shell.isDisposed()) {
+            // Shell is gone, try using JOptionPane instead
             try {
                 JOptionPane.showMessageDialog(null, message);
                 return;
@@ -122,6 +120,12 @@ public final class UIStarter {
         showMessageBox(type, title, message, null);
     }
 
+    /**
+     * Set the Shell's icon.<p>
+     *
+     * It seems that certain activities cause the icon to be "lost", and this method can
+     * be called to re-establish it.
+     */
     public void setAppIcon() {
         if (appIcon == null) {
             logger.warning("unable to get application icon");
@@ -140,6 +144,7 @@ public final class UIStarter {
         shell.setLocation(x, y);
     }
 
+    @SuppressWarnings("SameReturnValue")
     private int onException(Exception exception) {
         logger.log(Level.SEVERE, UNKNOWN_EXCEPTION, exception);
         showMessageBox(SWTMessageBoxType.DLG_ERR, ERROR_LABEL, UNKNOWN_EXCEPTION, exception);
@@ -147,6 +152,19 @@ public final class UIStarter {
         return 1;
     }
 
+    /**
+     * Start up the UI.
+     *
+     * The UIStarter class is the top level UI driver for the application.  Assuming we are
+     * running in UI mode (the only way currently supported), creating a UIStarter should be
+     * one of the very first things we do, should only be done once, and the instance should
+     * live until the program is being shut down.
+     *
+     * The UIStarter automatically creates a {@link ResultsTable}, which is the main class
+     * that drives all the application-specific action.  This class sets up generic stuff,
+     * like the Display, the Shell, the icon, etc.
+     *
+     */
     public UIStarter() {
         // Setup display and shell
         Display.setAppName(APPLICATION_NAME);
@@ -165,6 +183,11 @@ public final class UIStarter {
         resultsTable = new ResultsTable(this);
     }
 
+    /**
+     * Run the UI/event loop.
+     *
+     * @return 0 on normal exit, nonzero on error
+     */
     public int run() {
         try {
             shell.pack(true);

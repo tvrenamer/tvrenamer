@@ -100,6 +100,7 @@ public class FileUtilities {
      */
     public static boolean isSameFile(final Path path1, final Path path2) {
         try {
+            //noinspection SimplifiableIfStatement
             if (Files.notExists(path2)) {
                 return false;
             }

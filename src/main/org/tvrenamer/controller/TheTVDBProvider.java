@@ -79,9 +79,7 @@ public class TheTVDBProvider {
 
         logger.fine("About to download search results from " + searchURL);
 
-        //noinspection UnnecessaryLocalVariable
-        String searchXmlText = new HttpConnectionHandler().downloadUrl(searchURL);
-        return searchXmlText;
+        return new HttpConnectionHandler().downloadUrl(searchURL);
     }
 
     private static String getSeriesListingXml(final Series series)
@@ -96,9 +94,7 @@ public class TheTVDBProvider {
 
         logger.fine("Downloading episode listing from " + seriesURL);
 
-        //noinspection UnnecessaryLocalVariable
-        String listingXmlText = new HttpConnectionHandler().downloadUrl(seriesURL);
-        return listingXmlText;
+        return new HttpConnectionHandler().downloadUrl(seriesURL);
     }
 
     private static void collectShowOptions(final NodeList shows, final ShowName showName)
@@ -147,6 +143,16 @@ public class TheTVDBProvider {
         return false;
     }
 
+    /**
+     * Fetch the show options from the provider, for the given show name.
+     *
+     * @param showName
+     *   the show name to fetch the options for
+     * @throws DiscontinuedApiException if it appears that the API we are using
+     *   is no longer supported
+     * @throws TVRenamerIOException if anything else goes wrong; this could
+     *   include network difficulties or difficulty parsing the XML.
+     */
     public static void getShowOptions(final ShowName showName)
         throws TVRenamerIOException, DiscontinuedApiException
     {
@@ -224,6 +230,15 @@ public class TheTVDBProvider {
         return episodeList;
     }
 
+    /**
+     * Fetch the episode listings from the provider, for the given Series.
+     *
+     * @param series
+     *   the Series to fetch the episode listings for
+     * @throws TVRenamerIOException if anything goes wrong; this could include
+     *   network difficulties, difficulty parsing the XML, or problems parsing
+     *   data expected to be numeric.
+     */
     public static void getSeriesListing(final Series series)
         throws TVRenamerIOException
     {
