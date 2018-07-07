@@ -12,12 +12,9 @@ import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.DropTargetListener;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.VerifyEvent;
-import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -363,6 +360,27 @@ class PreferencesDialog extends Dialog {
     }
 
     /*
+     * Makes sure the text entered as season prefix is valid in a pathname.
+     */
+    private void ensureValidPrefixText() {
+        String prefixText = seasonPrefixText.getText();
+
+        // Remove the surrounding double quotes, if present;
+        // any other double quotes should not be removed.
+        String unquoted = StringUtils.unquoteString(prefixText);
+        // The verifier should have prevented any illegal characters from
+        // being entered.  This is just to check.
+        seasonPrefixString = StringUtils.replaceIllegalCharacters(unquoted);
+
+        if (!seasonPrefixString.equals(unquoted)) {
+            // Somehow, illegal characters got through.
+            logger.severe("Illegal characters recognized in season prefix");
+            logger.severe("Instead of \"" + unquoted + "\", will use \""
+                          + seasonPrefixString + "\"");
+        }
+    }
+
+    /*
      * Create the controls that regard the naming of the season prefix folder.
      * The text box gets both a verify listener and a modify listener.
      */
@@ -371,34 +389,12 @@ class PreferencesDialog extends Dialog {
         seasonPrefixString = prefs.getSeasonPrefix();
         seasonPrefixText = createText(StringUtils.makeQuotedString(seasonPrefixString),
                                       generalGroup, true);
-        seasonPrefixText.addVerifyListener(new VerifyListener() {
-            @Override
-            public void verifyText(VerifyEvent e) {
-                statusLabel.clear(NO_TEXT_BEFORE_OPENING_QUOTE);
-                statusLabel.clear(NO_TEXT_AFTER_CLOSING_QUOTE);
-                verifySeasonPrefixText(e);
-            }
+        seasonPrefixText.addVerifyListener(e -> {
+            statusLabel.clear(NO_TEXT_BEFORE_OPENING_QUOTE);
+            statusLabel.clear(NO_TEXT_AFTER_CLOSING_QUOTE);
+            verifySeasonPrefixText(e);
         });
-        seasonPrefixText.addModifyListener(new ModifyListener() {
-            @Override
-            public void modifyText(ModifyEvent e) {
-                String prefixText = seasonPrefixText.getText();
-
-                // Remove the surrounding double quotes, if present;
-                // any other double quotes should not be removed.
-                String unquoted = StringUtils.unquoteString(prefixText);
-                // The verifier should have prevented any illegal characters from
-                // being entered.  This is just to check.
-                seasonPrefixString = StringUtils.replaceIllegalCharacters(unquoted);
-
-                if (!seasonPrefixString.equals(unquoted)) {
-                    // Somehow, illegal characters got through.
-                    logger.severe("Illegal characters recognized in season prefix");
-                    logger.severe("Instead of \"" + unquoted + "\", will use \""
-                                 + seasonPrefixString + "\"");
-                }
-            }
-        });
+        seasonPrefixText.addModifyListener(e -> ensureValidPrefixText());
         seasonPrefixLeadingZeroCheckbox = createCheckbox(SEASON_PREFIX_ZERO_TEXT, SEASON_PREFIX_ZERO_TOOLTIP,
                                                          prefs.isSeasonPrefixLeadingZero(),
                                                          generalGroup, GridData.BEGINNING, 3);
