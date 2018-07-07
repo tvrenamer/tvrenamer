@@ -34,7 +34,6 @@ public class Environment {
 
     private static final OSType JVM_OS_TYPE = chooseOSType(OS_NAME);
     public static final boolean IS_MAC_OSX = (JVM_OS_TYPE == OSType.MAC);
-    @SuppressWarnings("unused")
     public static final boolean IS_WINDOWS = (JVM_OS_TYPE == OSType.WINDOWS);
     @SuppressWarnings("unused")
     public static final boolean IS_UN_X = (JVM_OS_TYPE == OSType.LINUX);
