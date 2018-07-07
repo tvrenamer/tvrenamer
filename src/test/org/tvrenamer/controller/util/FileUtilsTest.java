@@ -11,6 +11,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import org.tvrenamer.model.util.Environment;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -54,80 +56,83 @@ public class FileUtilsTest {
                      uncreatable.getRoot(), existingAncestor(uncreatable));
     }
 
+    @Test
     public void testExistingAncestorSymlinks() {
-        final String dirname = "folder";
+        if (!Environment.IS_WINDOWS) {
+            final String dirname = "folder";
 
-        final Path sandbox = tempFolder.getRoot().toPath();
+            final Path sandbox = tempFolder.getRoot().toPath();
 
-        final Path dirpath = sandbox.resolve(dirname);
-        assertTrue("cannot test existingAncestor because can't ensure writable directory"
-                    + dirpath, ensureWritableDirectory(dirpath));
+            final Path dirpath = sandbox.resolve(dirname);
+            assertTrue("cannot test existingAncestor because can't ensure writable directory"
+                       + dirpath, ensureWritableDirectory(dirpath));
 
-        // Create a "normal" symbolic link to dirpath
-        Path validLink = sandbox.resolve("slink");
-        String firstSubDir = "showname";
-        Path toBeUnderLink = validLink.resolve(firstSubDir).resolve("season").resolve("episode");
-        assertEquals("existingAncestor(Path) failed to find " + sandbox + " as answer for "
-                     + validLink, sandbox, existingAncestor(validLink));
-        assertEquals("existingAncestor(Path) failed to find " + sandbox + " as answer for "
-                     + toBeUnderLink, sandbox, existingAncestor(toBeUnderLink));
+            // Create a "normal" symbolic link to dirpath
+            Path validLink = sandbox.resolve("slink");
+            String firstSubDir = "showname";
+            Path toBeUnderLink = validLink.resolve(firstSubDir).resolve("season").resolve("episode");
+            assertEquals("existingAncestor(Path) failed to find " + sandbox + " as answer for "
+                         + validLink, sandbox, existingAncestor(validLink));
+            assertEquals("existingAncestor(Path) failed to find " + sandbox + " as answer for "
+                         + toBeUnderLink, sandbox, existingAncestor(toBeUnderLink));
 
-        try {
-            Files.createSymbolicLink(validLink, dirpath);
-        } catch (IOException x) {
-            fail("unable to create link from " + validLink + " to " + dirpath);
+            try {
+                Files.createSymbolicLink(validLink, dirpath);
+            } catch (IOException x) {
+                fail("unable to create link from " + validLink + " to " + dirpath);
+            }
+            assertTrue("did not detect " + validLink + " as a symbolic link",
+                       Files.isSymbolicLink(validLink));
+            assertFalse("after creating link, " + dirpath + " not exists",
+                        Files.notExists(dirpath));
+            assertFalse("after creating link, " + validLink + " not exists",
+                        Files.notExists(validLink));
+            assertEquals("after link, existingAncestor(Path) failed to find itself"
+                         + " as answer for " + dirpath,
+                         dirpath, existingAncestor(dirpath));
+            assertEquals("after link, existingAncestor(Path) failed to find itself"
+                         + " as answer for " + validLink,
+                         validLink, existingAncestor(validLink));
+            assertEquals("existingAncestor(Path) failed to find " + validLink + " as answer for "
+                         + toBeUnderLink, validLink, existingAncestor(toBeUnderLink));
+
+            final Path subdir = dirpath.resolve(firstSubDir);
+            assertFalse("cannot do ensureWritableDirectory because target already exists",
+                        Files.exists(subdir));
+            assertTrue("ensureWritableDirectory returned false",
+                       ensureWritableDirectory(subdir));
+            assertTrue("dir from ensureWritableDirectory not found",
+                       Files.exists(subdir));
+            assertTrue("dir from ensureWritableDirectory not a directory",
+                       Files.isDirectory(subdir));
+
+            ////////////////////////////////////////////////////////////////////////////////////////////
+            // We're going to do a very bad thing here.  We're going to create a recursive symbolic link.
+            // There's no useful purpose for such a thing, and it should never be done, except in this
+            // situation: when you want to make sure your code could handle such an erroneous situation,
+            // gracefully.  We're making:  <tmpdir>/a -> <tmpdir>/a/b/c/d
+            //
+            // The somewhat surprising result is, Files.notExists() returns false on the *target*.
+            // That is, it says "<tmpdir>/a/b/c/d" does NOT not exist.  (It also says it does not exist.
+            // That's the whole reason why there are two methods.  Certain paths may be in a state where
+            // they neither "exist" nor "not exist".  To "not exist" means to be completely absent.)
+            Path aSubDir = dirpath.resolve("a");
+            Path target = aSubDir.resolve("b").resolve("c").resolve("d");
+            assertEquals("existingAncestor(Path) failed to find " + dirpath + " as answer for "
+                         + target, dirpath, existingAncestor(target));
+
+            try {
+                Files.createSymbolicLink(aSubDir, target);
+            } catch (IOException x) {
+                fail("unable to create link from " + aSubDir + " to " + target);
+            }
+            assertTrue("did not detect " + aSubDir + " as a symbolic link",
+                       Files.isSymbolicLink(aSubDir));
+            assertFalse("after creating link, " + target + " not exists",
+                        Files.notExists(target));
+            assertEquals("existingAncestor(Path) failed to find itself as answer for " + target,
+                         target, existingAncestor(target));
         }
-        assertTrue("did not detect " + validLink + " as a symbolic link",
-                   Files.isSymbolicLink(validLink));
-        assertFalse("after creating link, " + dirpath + " not exists",
-                    Files.notExists(dirpath));
-        assertFalse("after creating link, " + validLink + " not exists",
-                    Files.notExists(validLink));
-        assertEquals("after link, existingAncestor(Path) failed to find itself"
-                     + " as answer for " + dirpath,
-                     dirpath, existingAncestor(dirpath));
-        assertEquals("after link, existingAncestor(Path) failed to find itself"
-                     + " as answer for " + validLink,
-                     validLink, existingAncestor(validLink));
-        assertEquals("existingAncestor(Path) failed to find " + validLink + " as answer for "
-                     + toBeUnderLink, validLink, existingAncestor(toBeUnderLink));
-
-        final Path subdir = dirpath.resolve(firstSubDir);
-        assertFalse("cannot do ensureWritableDirectory because target already exists",
-                    Files.exists(subdir));
-        assertTrue("ensureWritableDirectory returned false",
-                   ensureWritableDirectory(subdir));
-        assertTrue("dir from ensureWritableDirectory not found",
-                   Files.exists(subdir));
-        assertTrue("dir from ensureWritableDirectory not a directory",
-                   Files.isDirectory(subdir));
-
-        //////////////////////////////////////////////////////////////
-        // We're going to do a very bad thing here.  We're going to create a recursive symbolic link.
-        // There's no useful purpose for such a thing, and it should never be done, except in this
-        // situation: when you want to make sure your code could handle such a erroneous situation,
-        // gracefully.  We're making:  <tmpdir>/a -> <tmpdir>/a/b/c/d
-        //
-        // The somewhat surprising result is, Files.notExists() returns false on the *target*.
-        // That is, it says "<tmpdir>/a/b/c/d" does NOT not exist.  (It also says it does not exist.
-        // That's the whole reason why there are two methods.  Certain paths may be in a state where
-        // they neither "exist" nor "not exist".  To "not exist" means to be completely absent.)
-        Path aSubDir = dirpath.resolve("a");
-        Path target = aSubDir.resolve("b").resolve("c").resolve("d");
-        assertEquals("existingAncestor(Path) failed to find " + dirpath + " as answer for "
-                     + target, dirpath, existingAncestor(target));
-
-        try {
-            Files.createSymbolicLink(aSubDir, target);
-        } catch (IOException x) {
-            fail("unable to create link from " + aSubDir + " to " + target);
-        }
-        assertTrue("did not detect " + aSubDir + " as a symbolic link",
-                   Files.isSymbolicLink(aSubDir));
-        assertFalse("after creating link, " + target + " not exists",
-                    Files.notExists(target));
-        assertEquals("existingAncestor(Path) failed to find itself as answer for " + target,
-                     target, existingAncestor(target));
     }
 
     @Test
