@@ -89,7 +89,7 @@ public class Constants {
     public static final String RENAME_LABEL = "Rename Checked";
     public static final String JUST_MOVE_LABEL = "Move Checked";
     public static final String RENAME_AND_MOVE = "Rename && Move Checked";
-    public static final String CHECKBOX_HEADER = "Active";
+    public static final String CHECKBOX_HEADER = String.valueOf((char) 0x2705);
     public static final String SOURCE_HEADER = "Current File";
     public static final String MOVE_HEADER = "Proposed File Path";
     public static final String RENAME_HEADER = "Proposed File Name";
