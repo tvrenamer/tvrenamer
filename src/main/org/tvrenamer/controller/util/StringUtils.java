@@ -94,12 +94,46 @@ public class StringUtils {
         return rval;
     }
 
-    @SuppressWarnings("UnnecessaryLocalVariable")
-    public static String makeDotTitle(String titleString) {
-        String pass1 = titleString.replaceAll("(\\w)\\s+(\\w)", "$1.$2");
-        String pass2 = pass1.replaceAll("(\\w)\\s+(\\w)", "$1.$2");
-        String pass3 = pass2.replaceAll("\\s", "");
-        return pass3;
+    /**
+     * Returns a string that uses dots, not whitespace, to separate words.<p>
+     *
+     * The original version of this functionality was to simply replace the space
+     * character with the dot character.  That has the advantage of being very
+     * simple and clear.  But it gave less than optimal results.<p>
+     *
+     * The input String may contain punctuation, and that punctuation should be
+     * retained.  When whitespace is found around punctuation, it is better to just
+     * remove it, than replace it with a dot.  The punctuation (which may be a dot
+     * to begin with) serves as a separator.<p>
+     *
+     * For a real example, there was an episode of <i>Beavis and Butthead</i> called,
+     * "<code>B &amp; B's B'n B</code>".  We don't want to turn that into
+     * "<code>B.&amp;.B's.B'n.B</code>".  The dots around the ampersand don't help.
+     * There may not be a perfect answer that pleases everyone, but this method turns it
+     * into "<code>B&amp;B's.B'n.B</code>".<p>
+     *
+     * To sum it all up, we simply want to do this:<ul>
+     *  <li>replace whitespace between words with a single dot</li>
+     *  <li>remove any other whitespace (next to punctuation or at beginning/end)
+     *  </li></ul><p>
+     *
+     * The trick is to use the "word boundary" regular expression, \b.  We do
+     * two passes, essentially.  In the first pass, we replace any amount of
+     * whitespace between two "word boundaries" with a single dot, and then
+     * in the second pass, we simply replace any remaining whitespace with the
+     * empty string (i.e., remove it).<p>
+     *
+     * If this still isn't clear, perhaps looking at the tests in testDotTitle,
+     * in StringUtilsTest.java, will show what this is intended to do.
+     *
+     * @param titleString
+     *   the String which uses whitespace to separate words
+     * @return
+     *   a version of the titleString which uses punctuation to separate words,
+     *   inserting dots in cases where there previously was only whitespace
+     */
+    public static String makeDotTitle(final String titleString) {
+        return titleString.replaceAll("\\b\\s+\\b", ".").replaceAll("\\s", "");
     }
 
     public static String removeLast(String input, String match) {
