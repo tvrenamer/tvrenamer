@@ -1,7 +1,7 @@
 package org.tvrenamer.view;
 
 import static org.tvrenamer.model.util.Constants.*;
-import static org.tvrenamer.view.FileMoveIcon.Status.*;
+import static org.tvrenamer.view.ItemState.*;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
@@ -143,7 +143,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     }
 
     private static String getCellStatusString(final TableItem item, final int columnId) {
-        return FileMoveIcon.getImagePriority(item.getImage(columnId));
+        return ItemState.getImagePriority(item.getImage(columnId));
     }
 
     @SuppressWarnings("SameParameterValue")
@@ -163,9 +163,9 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
 
     private static void setCellStatus(final TableItem item,
                                       final int columnId,
-                                      final FileMoveIcon.Status newStatus)
+                                      final ItemState newStatus)
     {
-        setCellImage(item, columnId, FileMoveIcon.getIcon(newStatus));
+        setCellImage(item, columnId, newStatus.getIcon());
     }
 
     private static String getCellText(final TableItem item, final int columnId) {

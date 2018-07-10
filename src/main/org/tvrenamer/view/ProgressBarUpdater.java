@@ -15,6 +15,12 @@ public class ProgressBarUpdater implements ProgressUpdater {
     private final ProgressBar progressBar;
     private final int barSize;
 
+    /**
+     * Constructs a ProgressBarUpdater for the given ResultsTable.
+     *
+     * @param ui
+     *    the ResultsTable that will use this ProgressBarUpdater
+     */
     public ProgressBarUpdater(ResultsTable ui) {
         this.ui = ui;
         this.display = ui.getDisplay();
@@ -24,7 +30,7 @@ public class ProgressBarUpdater implements ProgressUpdater {
 
         if (taskItem != null) {
             taskItem.setProgressState(SWT.NORMAL);
-            taskItem.setOverlayImage(FileMoveIcon.getIcon(FileMoveIcon.Status.RENAMING));
+            taskItem.setOverlayImage(ItemState.RENAMING.getIcon());
         }
     }
 
