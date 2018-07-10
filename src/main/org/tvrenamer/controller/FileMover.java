@@ -29,6 +29,12 @@ public class FileMover implements Callable<Boolean> {
     private ProgressObserver observer = null;
     Integer destIndex = null;
 
+    /**
+     * Constructs a FileMover to move the given episode.
+     *
+     * @param episode
+     *    the FileEpisode we intend to move
+     */
     public FileMover(FileEpisode episode) {
         this.episode = episode;
 
