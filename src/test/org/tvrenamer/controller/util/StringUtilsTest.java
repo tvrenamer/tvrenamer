@@ -182,6 +182,9 @@ public class StringUtilsTest {
 
     @Test
     public void testDotTitle() {
+        // This is the simplest example of how a naive approach might fail
+        assertEquals("If.I.Do", StringUtils.makeDotTitle("If I Do "));
+        assertEquals("If.I.Do...I.Do", StringUtils.makeDotTitle("If I Do... I Do"));
         assertEquals("#HappyHolograms", StringUtils.makeDotTitle("#HappyHolograms"));
         assertEquals("'Twas.the.Nightmare.Before.Christmas",
                      StringUtils.makeDotTitle("'Twas the Nightmare Before Christmas"));
@@ -196,7 +199,7 @@ public class StringUtilsTest {
         assertEquals("The.Return.of.Dorothy's.Ex(a.k.a.Stan's.Return)",
                      StringUtils.makeDotTitle("The Return of Dorothy's Ex (a.k.a. Stan's Return)"));
         assertEquals("Girls.Just.Wanna.Have.Fun...Before.They.Die",
-                     StringUtils.makeDotTitle("Girls Just Wanna Have Fun...Before They Die"));
+                     StringUtils.makeDotTitle("Girls Just Wanna Have Fun... Before They Die"));
         assertEquals("Terrance&Phillip.in'Not.Without.My.Anus'",
                      StringUtils.makeDotTitle("Terrance & Phillip in 'Not Without My Anus'"));
         assertEquals("B&B's.B'n.B", StringUtils.makeDotTitle("B & B's B'n B"));
