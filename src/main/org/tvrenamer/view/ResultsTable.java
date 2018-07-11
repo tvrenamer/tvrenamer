@@ -858,20 +858,11 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
             @Override
             public void keyReleased(KeyEvent e) {
                 super.keyReleased(e);
-
-                switch (e.keyCode) {
-
-                    // backspace
-                    case '\u0008':
-                    // delete
-                    case '\u007F':
-                        deleteSelectedTableItems();
-                        break;
-
-                    // Code analysis says have a default clause...
-                    default:
+                if ((e.keyCode == '\u0008') // backspace
+                    || (e.keyCode == '\u007F')) // delete
+                {
+                    deleteSelectedTableItems();
                 }
-
             }
         });
 
