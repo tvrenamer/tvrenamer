@@ -11,6 +11,9 @@
             <property name="eachLine" value="true"/>
         </module>
 
+    <module name="SuppressionFilter">
+        <property name="file" value="etc/nochecks.xml"/>
+    </module>
     <module name="SuppressionCommentFilter">
         <property name="offCommentFormat" value="BEGIN IGNORE STYLE"/>
         <property name="onCommentFormat" value="END IGNORE STYLE"/>
@@ -20,6 +23,12 @@
         <property name="format" value="\s+$"/>
     </module>
     <module name="TreeWalker">
+        <module name="JavadocMethod">
+            <property name="scope" value="protected"/>
+            <property name="minLineCount" value="2"/>
+            <property name="allowMissingParamTags" value="false"/>
+            <property name="allowMissingReturnTag" value="false"/>
+        </module>
         <module name="SingleLineJavadoc">
             <property name="ignoreInlineTags" value="false"/>
         </module>
