@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE suppressions PUBLIC
+    "-//Puppy Crawl//DTD Suppressions 1.1//EN"
+    "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
+
+<suppressions>
+    <suppress files="src/test/org/tvrenamer/controller/FilenameParserTest.java" checks="JavadocMethod"/>
+    <suppress files="src/test/org/tvrenamer/controller/TheTVDBProviderTest.java" checks="JavadocMethod"/>
+    <suppress files="src/test/org/tvrenamer/model/EpisodeTestData.java" checks="JavadocMethod"/>
+    <suppress files="src/test/org/tvrenamer/model/FileEpisodeTest.java" checks="JavadocMethod"/>
+    <suppress files="src/test/org/tvrenamer/controller/util/StringUtilsTest.java" checks="JavadocMethod"/>
+    <suppress files="src/test/org/tvrenamer/controller/util/FileUtilsTest.java" checks="JavadocMethod"/>
+
+    <suppress files="src/main/org/tvrenamer/model/GlobalOverrides.java" checks="JavadocMethod"/>
+    <suppress files="src/main/org/tvrenamer/controller/util/XPathUtilities.java" checks="JavadocMethod"/>
+</suppressions>
