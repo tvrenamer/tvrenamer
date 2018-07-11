@@ -2,14 +2,21 @@ package org.tvrenamer.view;
 
 import static org.tvrenamer.model.util.Constants.*;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
+
+import org.tvrenamer.controller.UrlLauncher;
+import org.tvrenamer.model.util.Environment;
 
 import java.awt.HeadlessException;
 import java.io.IOException;
@@ -152,6 +159,78 @@ public final class UIStarter {
         return 1;
     }
 
+    void quit() {
+        shell.dispose();
+    }
+
+    private void makeMenuItem(final Menu parent, final String text,
+                              final Listener listener, final char shortcut)
+    {
+        MenuItem newItem = new MenuItem(parent, SWT.PUSH);
+        newItem.setText(text + "\tCtrl+" + shortcut);
+        newItem.addListener(SWT.Selection, listener);
+        newItem.setAccelerator(SWT.CONTROL | shortcut);
+    }
+
+    private Menu setupHelpMenuBar(final Menu menuBar) {
+        MenuItem helpMenuHeader = new MenuItem(menuBar, SWT.CASCADE);
+        helpMenuHeader.setText("Help");
+
+        Menu helpMenu = new Menu(shell, SWT.DROP_DOWN);
+        helpMenuHeader.setMenu(helpMenu);
+
+        MenuItem helpHelpItem = new MenuItem(helpMenu, SWT.PUSH);
+        helpHelpItem.setText("Help");
+
+        MenuItem helpVisitWebPageItem = new MenuItem(helpMenu, SWT.PUSH);
+        helpVisitWebPageItem.setText("Visit Web Page");
+        helpVisitWebPageItem.addSelectionListener(new UrlLauncher(TVRENAMER_PROJECT_URL));
+
+        return helpMenu;
+    }
+
+    private void setupMenuBar() {
+        Menu menuBarMenu = new Menu(shell, SWT.BAR);
+        Menu helpMenu;
+
+        Listener preferencesListener = e -> {
+            PreferencesDialog preferencesDialog = new PreferencesDialog(shell);
+            preferencesDialog.open();
+        };
+        Listener aboutListener = e -> {
+            AboutDialog aboutDialog = new AboutDialog(this);
+            aboutDialog.open();
+        };
+        Listener quitListener = e -> quit();
+
+        if (Environment.IS_MAC_OSX) {
+            // Add the special Mac OSX Preferences, About and Quit menus.
+            CocoaUIEnhancer enhancer = new CocoaUIEnhancer();
+            enhancer.hookApplicationMenu(display, quitListener, aboutListener, preferencesListener);
+
+            setupHelpMenuBar(menuBarMenu);
+        } else {
+            // Add the normal Preferences, About and Quit menus.
+            MenuItem fileMenuItem = new MenuItem(menuBarMenu, SWT.CASCADE);
+            fileMenuItem.setText("File");
+
+            Menu fileMenu = new Menu(shell, SWT.DROP_DOWN);
+            fileMenuItem.setMenu(fileMenu);
+
+            makeMenuItem(fileMenu, PREFERENCES_LABEL, preferencesListener, 'P');
+            makeMenuItem(fileMenu, EXIT_LABEL, quitListener, 'Q');
+
+            helpMenu = setupHelpMenuBar(menuBarMenu);
+
+            // The About item is added to the OSX bar, so we need to add it manually here
+            MenuItem helpAboutItem = new MenuItem(helpMenu, SWT.PUSH);
+            helpAboutItem.setText("About");
+            helpAboutItem.addListener(SWT.Selection, aboutListener);
+        }
+
+        shell.setMenuBar(menuBarMenu);
+    }
+
     /**
      * Start up the UI.
      *
@@ -181,6 +260,7 @@ public final class UIStarter {
 
         // Create the main window
         resultsTable = new ResultsTable(this);
+        setupMenuBar();
     }
 
     /**
