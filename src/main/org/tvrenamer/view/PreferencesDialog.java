@@ -1,5 +1,6 @@
 package org.tvrenamer.view;
 
+import static org.tvrenamer.model.ReplacementToken.*;
 import static org.tvrenamer.model.util.Constants.*;
 
 import org.eclipse.swt.SWT;
@@ -485,20 +486,11 @@ class PreferencesDialog extends Dialog {
         renameTokensList.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER,
                                                     true, true, 2, 1));
         addStringsToList(renameTokensList,
-                         ReplacementToken.SHOW_NAME,
-                         ReplacementToken.SEASON_NUM,
-                         ReplacementToken.SEASON_NUM_LEADING_ZERO,
-                         ReplacementToken.EPISODE_NUM,
-                         ReplacementToken.EPISODE_NUM_LEADING_ZERO,
-                         ReplacementToken.EPISODE_TITLE,
-                         ReplacementToken.EPISODE_TITLE_NO_SPACES,
-                         ReplacementToken.EPISODE_RESOLUTION,
-                         ReplacementToken.DATE_DAY_NUM,
-                         ReplacementToken.DATE_DAY_NUMLZ,
-                         ReplacementToken.DATE_MONTH_NUM,
-                         ReplacementToken.DATE_MONTH_NUMLZ,
-                         ReplacementToken.DATE_YEAR_MIN,
-                         ReplacementToken.DATE_YEAR_FULL);
+                         SHOW_NAME, SEASON_NUM, SEASON_NUM_LEADING_ZERO,
+                         EPISODE_NUM, EPISODE_NUM_LEADING_ZERO,
+                         EPISODE_TITLE, EPISODE_TITLE_NO_SPACES, EPISODE_RESOLUTION,
+                         DATE_DAY_NUM, DATE_DAY_NUMLZ, DATE_MONTH_NUM, DATE_MONTH_NUMLZ,
+                         DATE_YEAR_MIN, DATE_YEAR_FULL);
 
         Label episodeTitleLabel = new Label(replacementGroup, SWT.NONE);
         episodeTitleLabel.setText(RENAME_FORMAT_TEXT);
