@@ -29,9 +29,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
@@ -56,7 +53,6 @@ import org.tvrenamer.model.Show;
 import org.tvrenamer.model.ShowStore;
 import org.tvrenamer.model.UserPreference;
 import org.tvrenamer.model.UserPreferences;
-import org.tvrenamer.model.util.Environment;
 
 import java.text.Collator;
 import java.util.LinkedList;
@@ -688,10 +684,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         }
     }
 
-    private void quit() {
-        shell.dispose();
-    }
-
     private void setupUpdateStuff(final Composite parentComposite) {
         Link updatesAvailableLink = new Link(parentComposite, SWT.VERTICAL);
         // updatesAvailableLink.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, true));
@@ -768,7 +760,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         quitButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                quit();
+                ui.quit();
             }
         });
 
@@ -905,74 +897,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         }
     }
 
-    private void makeMenuItem(final Menu parent, final String text,
-                              final Listener listener, final char shortcut)
-    {
-        MenuItem newItem = new MenuItem(parent, SWT.PUSH);
-        newItem.setText(text + "\tCtrl+" + shortcut);
-        newItem.addListener(SWT.Selection, listener);
-        newItem.setAccelerator(SWT.CONTROL | shortcut);
-    }
-
-    private Menu setupHelpMenuBar(final Menu menuBar) {
-        MenuItem helpMenuHeader = new MenuItem(menuBar, SWT.CASCADE);
-        helpMenuHeader.setText("Help");
-
-        Menu helpMenu = new Menu(shell, SWT.DROP_DOWN);
-        helpMenuHeader.setMenu(helpMenu);
-
-        MenuItem helpHelpItem = new MenuItem(helpMenu, SWT.PUSH);
-        helpHelpItem.setText("Help");
-
-        MenuItem helpVisitWebPageItem = new MenuItem(helpMenu, SWT.PUSH);
-        helpVisitWebPageItem.setText("Visit Web Page");
-        helpVisitWebPageItem.addSelectionListener(new UrlLauncher(TVRENAMER_PROJECT_URL));
-
-        return helpMenu;
-    }
-
-    private void setupMenuBar() {
-        Menu menuBarMenu = new Menu(shell, SWT.BAR);
-        Menu helpMenu;
-
-        Listener preferencesListener = e -> {
-            PreferencesDialog preferencesDialog = new PreferencesDialog(shell);
-            preferencesDialog.open();
-        };
-        Listener aboutListener = e -> {
-            AboutDialog aboutDialog = new AboutDialog(ui);
-            aboutDialog.open();
-        };
-        Listener quitListener = e -> quit();
-
-        if (Environment.IS_MAC_OSX) {
-            // Add the special Mac OSX Preferences, About and Quit menus.
-            CocoaUIEnhancer enhancer = new CocoaUIEnhancer();
-            enhancer.hookApplicationMenu(display, quitListener, aboutListener, preferencesListener);
-
-            setupHelpMenuBar(menuBarMenu);
-        } else {
-            // Add the normal Preferences, About and Quit menus.
-            MenuItem fileMenuItem = new MenuItem(menuBarMenu, SWT.CASCADE);
-            fileMenuItem.setText("File");
-
-            Menu fileMenu = new Menu(shell, SWT.DROP_DOWN);
-            fileMenuItem.setMenu(fileMenu);
-
-            makeMenuItem(fileMenu, PREFERENCES_LABEL, preferencesListener, 'P');
-            makeMenuItem(fileMenu, EXIT_LABEL, quitListener, 'Q');
-
-            helpMenu = setupHelpMenuBar(menuBarMenu);
-
-            // The About item is added to the OSX bar, so we need to add it manually here
-            MenuItem helpAboutItem = new MenuItem(helpMenu, SWT.PUSH);
-            helpAboutItem.setText("About");
-            helpAboutItem.addListener(SWT.Selection, aboutListener);
-        }
-
-        shell.setMenuBar(menuBarMenu);
-    }
-
     ResultsTable(final UIStarter ui) {
         this.ui = ui;
         shell = ui.shell;
@@ -981,6 +905,5 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         setupTopButtons();
         swtTable = new Table(shell, SWT.CHECK | SWT.FULL_SELECTION | SWT.MULTI);
         setupMainWindow();
-        setupMenuBar();
     }
 }
