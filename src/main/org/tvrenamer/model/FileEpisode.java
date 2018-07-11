@@ -674,6 +674,15 @@ public class FileEpisode {
         return StringUtils.sanitiseTitle(newFilename);
     }
 
+    private static String removeTokens(final String orig, final ReplacementToken... tokens) {
+        String removed = orig;
+
+        for (ReplacementToken token : tokens) {
+            removed = removed.replaceAll(token.getToken(), "");
+        }
+        return removed;
+    }
+
     /**
      * Replace the date control strings in the template, with the episode air date information.
      * May be called with null if the episode in question doesn't have air date information.
@@ -693,13 +702,13 @@ public class FileEpisode {
     static String plugInAirDate(final LocalDate airDate, final String template) {
         // Date and times
         if (airDate == null) {
-            return template
-                .replaceAll(ReplacementToken.DATE_DAY_NUM.getToken(), "")
-                .replaceAll(ReplacementToken.DATE_DAY_NUMLZ.getToken(), "")
-                .replaceAll(ReplacementToken.DATE_MONTH_NUM.getToken(), "")
-                .replaceAll(ReplacementToken.DATE_MONTH_NUMLZ.getToken(), "")
-                .replaceAll(ReplacementToken.DATE_YEAR_FULL.getToken(), "")
-                .replaceAll(ReplacementToken.DATE_YEAR_MIN.getToken(), "");
+            return removeTokens(template,
+                                ReplacementToken.DATE_DAY_NUM,
+                                ReplacementToken.DATE_DAY_NUMLZ,
+                                ReplacementToken.DATE_MONTH_NUM,
+                                ReplacementToken.DATE_MONTH_NUMLZ,
+                                ReplacementToken.DATE_YEAR_FULL,
+                                ReplacementToken.DATE_YEAR_MIN);
         } else {
             return template
                 .replaceAll(ReplacementToken.DATE_DAY_NUM.getToken(),
