@@ -208,6 +208,7 @@
 
   <target name="javadoc">
     <javadoc destdir="docs/api"
+             noqualifier="all"
              author="true"
              version="true"
              use="true"
