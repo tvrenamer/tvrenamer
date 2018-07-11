@@ -461,6 +461,14 @@ class PreferencesDialog extends Dialog {
         item.setControl(generalGroup);
     }
 
+    private void addStringsToList(final List guiList,
+                                  final ReplacementToken... tokens)
+    {
+        for (ReplacementToken token : tokens) {
+            guiList.add(token.toString());
+        }
+    }
+
     private void createRenameTab() {
         TabItem item = new TabItem(tabFolder, SWT.NULL);
         item.setText(RENAMING_LABEL);
@@ -476,20 +484,21 @@ class PreferencesDialog extends Dialog {
         List renameTokensList = new List(replacementGroup, SWT.SINGLE);
         renameTokensList.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER,
                                                     true, true, 2, 1));
-        renameTokensList.add(ReplacementToken.SHOW_NAME.toString());
-        renameTokensList.add(ReplacementToken.SEASON_NUM.toString());
-        renameTokensList.add(ReplacementToken.SEASON_NUM_LEADING_ZERO.toString());
-        renameTokensList.add(ReplacementToken.EPISODE_NUM.toString());
-        renameTokensList.add(ReplacementToken.EPISODE_NUM_LEADING_ZERO.toString());
-        renameTokensList.add(ReplacementToken.EPISODE_TITLE.toString());
-        renameTokensList.add(ReplacementToken.EPISODE_TITLE_NO_SPACES.toString());
-        renameTokensList.add(ReplacementToken.EPISODE_RESOLUTION.toString());
-        renameTokensList.add(ReplacementToken.DATE_DAY_NUM.toString());
-        renameTokensList.add(ReplacementToken.DATE_DAY_NUMLZ.toString());
-        renameTokensList.add(ReplacementToken.DATE_MONTH_NUM.toString());
-        renameTokensList.add(ReplacementToken.DATE_MONTH_NUMLZ.toString());
-        renameTokensList.add(ReplacementToken.DATE_YEAR_MIN.toString());
-        renameTokensList.add(ReplacementToken.DATE_YEAR_FULL.toString());
+        addStringsToList(renameTokensList,
+                         ReplacementToken.SHOW_NAME,
+                         ReplacementToken.SEASON_NUM,
+                         ReplacementToken.SEASON_NUM_LEADING_ZERO,
+                         ReplacementToken.EPISODE_NUM,
+                         ReplacementToken.EPISODE_NUM_LEADING_ZERO,
+                         ReplacementToken.EPISODE_TITLE,
+                         ReplacementToken.EPISODE_TITLE_NO_SPACES,
+                         ReplacementToken.EPISODE_RESOLUTION,
+                         ReplacementToken.DATE_DAY_NUM,
+                         ReplacementToken.DATE_DAY_NUMLZ,
+                         ReplacementToken.DATE_MONTH_NUM,
+                         ReplacementToken.DATE_MONTH_NUMLZ,
+                         ReplacementToken.DATE_YEAR_MIN,
+                         ReplacementToken.DATE_YEAR_FULL);
 
         Label episodeTitleLabel = new Label(replacementGroup, SWT.NONE);
         episodeTitleLabel.setText(RENAME_FORMAT_TEXT);
