@@ -7,6 +7,7 @@
 
 package org.tvrenamer.model;
 
+import static org.tvrenamer.model.ReplacementToken.*;
 import static org.tvrenamer.model.util.Constants.*;
 
 import org.tvrenamer.controller.FilenameParser;
@@ -644,21 +645,21 @@ public class FileEpisode {
             episodeTitle = episodeTitle.substring(0, MAX_TITLE_LENGTH);
         }
         String newFilename = replacementTemplate
-            .replaceAll(ReplacementToken.SEASON_NUM.getToken(),
+            .replaceAll(SEASON_NUM.getToken(),
                         String.valueOf(placement.season))
-            .replaceAll(ReplacementToken.SEASON_NUM_LEADING_ZERO.getToken(),
+            .replaceAll(SEASON_NUM_LEADING_ZERO.getToken(),
                         StringUtils.zeroPadTwoDigits(placement.season))
-            .replaceAll(ReplacementToken.EPISODE_NUM.getToken(),
+            .replaceAll(EPISODE_NUM.getToken(),
                         StringUtils.formatDigits(placement.episode))
-            .replaceAll(ReplacementToken.EPISODE_NUM_LEADING_ZERO.getToken(),
+            .replaceAll(EPISODE_NUM_LEADING_ZERO.getToken(),
                         StringUtils.zeroPadThreeDigits(placement.episode))
-            .replaceAll(ReplacementToken.SHOW_NAME.getToken(),
+            .replaceAll(SHOW_NAME.getToken(),
                         Matcher.quoteReplacement(showName))
-            .replaceAll(ReplacementToken.EPISODE_TITLE.getToken(),
+            .replaceAll(EPISODE_TITLE.getToken(),
                         Matcher.quoteReplacement(episodeTitle))
-            .replaceAll(ReplacementToken.EPISODE_TITLE_NO_SPACES.getToken(),
+            .replaceAll(EPISODE_TITLE_NO_SPACES.getToken(),
                         Matcher.quoteReplacement(StringUtils.makeDotTitle(episodeTitle)))
-            .replaceAll(ReplacementToken.EPISODE_RESOLUTION.getToken(),
+            .replaceAll(EPISODE_RESOLUTION.getToken(),
                         resolution);
 
         // Date and times
@@ -703,25 +704,22 @@ public class FileEpisode {
         // Date and times
         if (airDate == null) {
             return removeTokens(template,
-                                ReplacementToken.DATE_DAY_NUM,
-                                ReplacementToken.DATE_DAY_NUMLZ,
-                                ReplacementToken.DATE_MONTH_NUM,
-                                ReplacementToken.DATE_MONTH_NUMLZ,
-                                ReplacementToken.DATE_YEAR_FULL,
-                                ReplacementToken.DATE_YEAR_MIN);
+                                DATE_DAY_NUM, DATE_DAY_NUMLZ,
+                                DATE_MONTH_NUM, DATE_MONTH_NUMLZ,
+                                DATE_YEAR_FULL, DATE_YEAR_MIN);
         } else {
             return template
-                .replaceAll(ReplacementToken.DATE_DAY_NUM.getToken(),
+                .replaceAll(DATE_DAY_NUM.getToken(),
                             formatDate(airDate, "d"))
-                .replaceAll(ReplacementToken.DATE_DAY_NUMLZ.getToken(),
+                .replaceAll(DATE_DAY_NUMLZ.getToken(),
                             formatDate(airDate, "dd"))
-                .replaceAll(ReplacementToken.DATE_MONTH_NUM.getToken(),
+                .replaceAll(DATE_MONTH_NUM.getToken(),
                             formatDate(airDate, "M"))
-                .replaceAll(ReplacementToken.DATE_MONTH_NUMLZ.getToken(),
+                .replaceAll(DATE_MONTH_NUMLZ.getToken(),
                             formatDate(airDate, "MM"))
-                .replaceAll(ReplacementToken.DATE_YEAR_FULL.getToken(),
+                .replaceAll(DATE_YEAR_FULL.getToken(),
                             formatDate(airDate, "yyyy"))
-                .replaceAll(ReplacementToken.DATE_YEAR_MIN.getToken(),
+                .replaceAll(DATE_YEAR_MIN.getToken(),
                             formatDate(airDate, "yy"));
         }
     }
