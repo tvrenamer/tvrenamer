@@ -4,6 +4,7 @@ import static org.tvrenamer.controller.util.XPathUtilities.nodeListValue;
 import static org.tvrenamer.controller.util.XPathUtilities.nodeTextValue;
 import static org.tvrenamer.model.util.Constants.*;
 
+import org.tvrenamer.controller.util.StringUtils;
 import org.tvrenamer.model.DiscontinuedApiException;
 import org.tvrenamer.model.EpisodeInfo;
 import org.tvrenamer.model.Series;
@@ -75,11 +76,14 @@ public class TheTVDBProvider {
             throw new DiscontinuedApiException();
         }
 
-        String searchURL = BASE_SEARCH_URL + showName.getQueryString();
+        String queryString = showName.getQueryString();
+        String searchURL = BASE_SEARCH_URL + StringUtils.encodeUrlCharacters(queryString);
 
         logger.fine("About to download search results from " + searchURL);
 
-        return new HttpConnectionHandler().downloadUrl(searchURL);
+        String content = new HttpConnectionHandler().downloadUrl(searchURL);
+
+        return StringUtils.encodeSpecialCharacters(content);
     }
 
     private static String getSeriesListingXml(final Series series)
@@ -94,7 +98,9 @@ public class TheTVDBProvider {
 
         logger.fine("Downloading episode listing from " + seriesURL);
 
-        return new HttpConnectionHandler().downloadUrl(seriesURL);
+        String content = new HttpConnectionHandler().downloadUrl(seriesURL);
+
+        return StringUtils.encodeSpecialCharacters(content);
     }
 
     private static void collectShowOptions(final NodeList shows, final ShowName showName)

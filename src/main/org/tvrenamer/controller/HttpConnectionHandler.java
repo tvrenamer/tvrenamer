@@ -1,6 +1,5 @@
 package org.tvrenamer.controller;
 
-import org.tvrenamer.controller.util.StringUtils;
 import org.tvrenamer.model.TVRenamerIOException;
 import org.tvrenamer.model.util.Constants;
 
@@ -49,7 +48,7 @@ class HttpConnectionHandler {
      */
     private String downloadUrl(URL url) throws TVRenamerIOException {
         InputStream inputStream = null;
-        StringBuilder contents = new StringBuilder();
+        String downloaded = Constants.EMPTY_STRING;
 
         try {
             if (url != null) {
@@ -75,22 +74,23 @@ class HttpConnectionHandler {
 
                 logger.finer("Before reading url stream");
 
-                String s;
                 // always specify encoding while reading streams
                 try (BufferedReader reader
                      = new BufferedReader(new InputStreamReader(inputStream, Constants.TVR_CHARSET)))
                 {
+                    StringBuilder contents = new StringBuilder();
+                    String s;
                     while ((s = reader.readLine()) != null) {
                         contents.append(s);
                     }
+                    downloaded = contents.toString();
                 } catch (IOException ioe) {
                     logger.log(Level.SEVERE, "error reading from stream: ", ioe);
                     throw(ioe);
                 }
 
                 if (logger.isLoggable(Level.FINEST)) {
-                    // no need to encode for logger output
-                    logger.log(Level.FINEST, "Url stream:\n{0}", contents.toString());
+                    logger.log(Level.FINEST, "Url stream:\n{0}", downloaded);
                 }
             }
         } catch (FileNotFoundException e) {
@@ -116,6 +116,6 @@ class HttpConnectionHandler {
             }
         }
 
-        return StringUtils.encodeSpecialCharacters(contents.toString());
+        return downloaded;
     }
 }
