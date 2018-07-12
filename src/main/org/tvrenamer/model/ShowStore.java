@@ -180,18 +180,19 @@ public class ShowStore {
         ShowOption showOption = showName.getMatchedShow();
 
         if (showOption == null) {
+            boolean needsDownload;
             // Since "show" is null, we know we haven't downloaded the options for
             // this filenameShow yet; that is, we know we haven't FINISHED doing so.
             // But we might have started.  If the showName already has one or more
             // listeners, that means the download is already underway.
             synchronized (showName) {
-                boolean needsDownload = showName.needsQuery();
+                needsDownload = showName.needsQuery();
                 // We add this listener whether or not the download has been started.
                 showName.addShowInformationListener(listener);
-                // Now we start a download only if we need to.
-                if (needsDownload) {
-                    downloadShow(showName);
-                }
+            }
+            // Now we start a download only if we need to.
+            if (needsDownload) {
+                downloadShow(showName);
             }
             // If we've already downloaded the show, we don't need to involve the
             // ShowName at all.  We invoke the listener's callback immediately and
