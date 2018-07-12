@@ -32,7 +32,9 @@ class HttpConnectionHandler {
      */
     public String downloadUrl(String urlString) throws TVRenamerIOException {
         try {
-            return downloadUrl(new URL(urlString));
+            URL url = new URL(urlString);
+            logger.fine("Downloading URL " + urlString);
+            return downloadUrl(url);
         } catch (MalformedURLException e) {
             logger.log(Level.SEVERE, urlString + " is not a valid URL ", e);
             return "";
@@ -52,8 +54,6 @@ class HttpConnectionHandler {
 
         try {
             if (url != null) {
-                logger.log(Level.FINE, "Downloading URL {0}", url.toString());
-
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
                 HttpURLConnection.setFollowRedirects(true);
