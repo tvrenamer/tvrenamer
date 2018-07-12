@@ -10,8 +10,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 /**
- * The ShowName class is an object that represents a string that is believed to represent
- * the name of a show.  Ultimately it will include a reference to the Show object.<p>
+ * The ShowName class is an object that represents a string that we want to send to
+ * the provider to find a show..  Ultimately it will include a reference to the
+ * Show object.<p>
  *
  * Some examples may be helpful.  Let's say we have the following files:<ul>
  *   <li>"The Office S01E02 Work Experience.mp4"</li>
@@ -19,14 +20,16 @@ import java.util.logging.Logger;
  *   <li>"the.office.s06e20.mkv"</li>
  *   <li>"the.office.us.s08e11.avi"</li></ul><p>
  *
- * These would produce "filenameShow" values of "The Office", "The Office", "the.office",
- * and "the.office.us", respectively.  The first two are identical, and therefore will map
- * to the same ShowName object.<p>
+ * The FilenameParser class breaks up filenames into "filenameShow", "filenameSeason", etc.
+ * It would produce filenameShow values of "The Office", "The Office", "the.office", and
+ * "the.office.us", respectively.  Note, the first two are identical, but the third is a
+ * different String value.<p>
  *
- * From the filenameShow, we create a query string, which normalizes the case and punctuation.
- * For the examples given, the query strings would be "the office", "the office", "the office",
- * and "the office us"; that is, the first *three* have the same value.  So even though there's
- * a separate ShowName object for the third file, it maps to the same QueryString.<p>
+ * The filenameShow is passed to a static method of this class.  In that method, we create a
+ * query string, which normalizes the case and punctuation.  For the examples given, the
+ * query strings would be "the office", "the office", "the office", and "the office us";
+ * that is, the first *three* have the same value.  So even though the third filenameShow
+ * differed, it maps to the same ShowName as the first two.<p>
  *
  * The QueryString will be sent to the provider, which will potentially give us options for
  * shows it knows about, that match the query string.  We map each query string to a Show.
@@ -47,110 +50,6 @@ public class ShowName {
     private static final Logger logger = Logger.getLogger(ShowName.class.getName());
 
     /**
-     * Inner class to hold a query string.  The query string is what we send to the provider
-     * to try to resolve a show name.  We may re-use a single query string for multiple
-     * show names.
-     */
-    private static class QueryString {
-        final String queryString;
-        private ShowOption matchedShow = null;
-        private final List<ShowInformationListener> listeners = new LinkedList<>();
-
-        private static final Map<String, QueryString> QUERY_STRINGS = new ConcurrentHashMap<>();
-
-        private QueryString(String queryString) {
-            this.queryString = queryString;
-        }
-
-        /**
-         * Set the mapping between this QueryString and a Show.  Checks to see if this has already
-         * been mapped to a show, but if it has, we still accept the new mapping; we just warn
-         * about it.
-         *
-         * @param showOption the ShowOption to map this QueryString to
-         */
-        synchronized void setShowOption(ShowOption showOption) {
-            if (matchedShow == null) {
-                matchedShow = showOption;
-                return;
-            }
-            if (matchedShow == showOption) {
-                // same object; not just equals() but ==
-                logger.info("re-setting show in QueryString " + queryString);
-                return;
-            }
-            logger.warning("changing show in QueryString " + queryString);
-            matchedShow = showOption;
-        }
-
-        // see ShowName.addListener for documentation
-        private void addListener(ShowInformationListener listener) {
-            synchronized (listeners) {
-                listeners.add(listener);
-            }
-        }
-
-        // see ShowName.hasListeners for documentation
-        private boolean hasListeners() {
-            synchronized (listeners) {
-                return (listeners.size() > 0);
-            }
-        }
-
-        // see ShowName.nameResolved for documentation
-        private void nameResolved(Show show) {
-            synchronized (listeners) {
-                for (ShowInformationListener informationListener : listeners) {
-                    informationListener.downloadSucceeded(show);
-                }
-            }
-        }
-
-        // see ShowName.nameNotFound for documentation
-        private void nameNotFound(FailedShow failedShow) {
-            synchronized (listeners) {
-                for (ShowInformationListener informationListener : listeners) {
-                    informationListener.downloadFailed(failedShow);
-                }
-            }
-        }
-
-        // see ShowName.apiDiscontinued for documentation
-        private void apiDiscontinued() {
-            synchronized (listeners) {
-                listeners.forEach(ShowInformationListener::apiHasBeenDeprecated);
-            }
-        }
-
-        /**
-         * Get the mapping between this QueryString and a ShowOption, if any has been established.
-         *
-         * @return show the ShowOption to map this QueryString to
-         */
-        synchronized ShowOption getMatchedShow() {
-            return matchedShow;
-        }
-
-        /**
-         * Factory-style method to obtain a QueryString.  If an object has already been created
-         * for the query string we need for the found name, re-use it.
-         *
-         * @param foundName
-         *    the portion of the filename that is believed to represent the show's name
-         * @return a QueryString object for looking up the foundName
-         */
-        static QueryString lookupQueryString(String foundName) {
-            String queryString = StringUtils.makeQueryString(foundName);
-            QueryString queryObj = QUERY_STRINGS.get(queryString);
-            if (queryObj == null) {
-                queryObj = new QueryString(queryString);
-                QUERY_STRINGS.put(queryString, queryObj);
-            }
-            return queryObj;
-        }
-    }
-
-    /**
      * A mapping from Strings to ShowName objects.  This is potentially a
      * many-to-one relationship.
      */
@@ -169,10 +68,11 @@ public class ShowName {
      * @return the ShowName object for that filenameShow
      */
     public static ShowName mapShowName(String filenameShow) {
-        ShowName showName = SHOW_NAMES.get(filenameShow);
+        final String queryString = StringUtils.makeQueryString(filenameShow);
+        ShowName showName = SHOW_NAMES.get(queryString);
         if (showName == null) {
-            showName = new ShowName(filenameShow);
-            SHOW_NAMES.put(filenameShow, showName);
+            showName = new ShowName(queryString, filenameShow);
+            SHOW_NAMES.put(queryString, showName);
         }
         return showName;
     }
@@ -191,12 +91,13 @@ public class ShowName {
      * @return the ShowName object for that filenameShow
      */
     public static ShowName lookupShowName(String filenameShow) {
-        ShowName showName = SHOW_NAMES.get(filenameShow);
+        String queryString = StringUtils.makeQueryString(filenameShow);
+        ShowName showName = SHOW_NAMES.get(queryString);
         if (showName == null) {
-            showName = new ShowName(filenameShow);
-            SHOW_NAMES.put(filenameShow, showName);
+            showName = new ShowName(queryString, filenameShow);
+            SHOW_NAMES.put(queryString, showName);
             logger.severe("could not get show name for " + filenameShow
-                          + ", so created one instead");
+                          + "(" + queryString + "), so created one instead");
         }
         return showName;
     }
@@ -204,16 +105,11 @@ public class ShowName {
     /*
      * Instance variables
      */
-    private final String foundName;
-    private final QueryString queryString;
-
+    private final String exampleFilename;
+    private final String queryString;
+    private final List<ShowInformationListener> listeners = new LinkedList<>();
     private final List<ShowOption> showOptions;
-
-    /*
-     * QueryString methods -- these four methods are the public interface to the
-     * functionality, but they are just pass-throughs to the real implementations
-     * kept inside the QueryString inner class.
-     */
+    private ShowOption matchedShow = null;
 
     /**
      * Add a listener for this ShowName's query string.
@@ -222,8 +118,8 @@ public class ShowName {
      *            the listener registering interest
      */
     void addShowInformationListener(final ShowInformationListener listener) {
-        synchronized (queryString) {
-            queryString.addListener(listener);
+        synchronized (listeners) {
+            listeners.add(listener);
         }
     }
 
@@ -239,8 +135,8 @@ public class ShowName {
      *     true if not
      */
     boolean needsQuery() {
-        synchronized (queryString) {
-            return !queryString.hasListeners();
+        synchronized (listeners) {
+            return (listeners.size() == 0);
         }
     }
 
@@ -252,8 +148,8 @@ public class ShowName {
      *    the Show object representing the TV show we've mapped the string to.
      */
     public void nameResolved(Show show) {
-        synchronized (queryString) {
-            queryString.nameResolved(show);
+        synchronized (listeners) {
+            listeners.forEach(l -> l.downloadSucceeded(show));
         }
     }
 
@@ -265,8 +161,8 @@ public class ShowName {
      *    the FailedShow object representing the string we searched for.
      */
     public void nameNotFound(FailedShow show) {
-        synchronized (queryString) {
-            queryString.nameNotFound(show);
+        synchronized (listeners) {
+            listeners.forEach(l -> l.downloadFailed(show));
         }
     }
 
@@ -276,23 +172,26 @@ public class ShowName {
      *
      */
     public void apiDiscontinued() {
-        synchronized (queryString) {
-            queryString.apiDiscontinued();
+        synchronized (listeners) {
+            listeners.forEach(ShowInformationListener::apiHasBeenDeprecated);
         }
     }
 
     /**
-     * Create a ShowName object for the given "foundName" String.  The "foundName"
-     * is expected to be the exact String that was extracted by the FilenameParser
-     * from the filename, that is believed to represent the show name.
+     * Create a ShowName object for the given query string and example filename.
+     * The example filename is expected to be an exact String that was extracted
+     * by the FilenameParser from the filename, that is believed to represent the
+     * show name.
      *
-     * @param foundName
-     *            the name of the show as it appears in the filename
+     * @param queryString
+     *            the string we want to use as the value to query for a show
+     *            that matches this ShowName
+     * @param exampleFilename
+     *            the name of the show as it appears in a filename
      */
-    private ShowName(String foundName) {
-        this.foundName = foundName;
-        queryString = QueryString.lookupQueryString(foundName);
-
+    private ShowName(final String queryString, final String exampleFilename) {
+        this.queryString = queryString;
+        this.exampleFilename = exampleFilename;
         showOptions = new LinkedList<>();
     }
 
@@ -319,6 +218,27 @@ public class ShowName {
     }
 
     /**
+     * Set the mapping between this ShowName and a Show.  Checks to see if this has already
+     * been mapped to a show, but if it has, we still accept the new mapping; we just warn
+     * about it.
+     *
+     * @param showOption the ShowOption to map this ShowName to
+     */
+    private synchronized void setShowOption(final ShowOption showOption) {
+        if (matchedShow == null) {
+            matchedShow = showOption;
+            return;
+        }
+        if (matchedShow == showOption) {
+            // same object; not just equals() but ==
+            logger.info("re-setting show in ShowName " + queryString);
+            return;
+        }
+        logger.warning("changing show in ShowName " + queryString);
+        matchedShow = showOption;
+    }
+
+    /**
      * Create a stand-in Show object in the case of failure from the provider.
      *
      * @param err any TVRenamerIOException that occurred trying to look up the show.
@@ -326,8 +246,8 @@ public class ShowName {
      * @return a Show representing this ShowName
      */
     public FailedShow getFailedShow(TVRenamerIOException err) {
-        FailedShow standIn = new FailedShow(foundName, err);
-        queryString.setShowOption(standIn);
+        FailedShow standIn = new FailedShow(exampleFilename, err);
+        setShowOption(standIn);
         return standIn;
     }
 
@@ -340,21 +260,21 @@ public class ShowName {
     public ShowOption selectShowOption() {
         int nOptions = showOptions.size();
         if (nOptions == 0) {
-            logger.info("did not find any options for " + foundName);
+            logger.info("did not find any options for " + exampleFilename);
             return getFailedShow(null);
         }
-        // logger.info("got " + nOptions + " options for " + foundName);
+        // logger.info("got " + nOptions + " options for " + exampleFilename);
         ShowOption selected = null;
         for (ShowOption s : showOptions) {
             String actualName = s.getName();
-            // Possibly instead of ignore case, we should make the foundName be
+            // Possibly instead of ignore case, we should make the exampleFilename be
             // properly capitalized, and then we can do an exact comparison.
-            if (foundName.equalsIgnoreCase(actualName)) {
+            if (exampleFilename.equalsIgnoreCase(actualName)) {
                 if (selected == null) {
                     selected = s;
                 } else {
                     // TODO: could check language?  other criteria?  Case sensitive?
-                    logger.warning("multiple exact hits for " + foundName
+                    logger.warning("multiple exact hits for " + exampleFilename
                                    + "; choosing first one");
                 }
             }
@@ -365,7 +285,7 @@ public class ShowName {
             selected = showOptions.get(0);
         }
 
-        queryString.setShowOption(selected);
+        setShowOption(selected);
         return selected;
     }
 
@@ -374,12 +294,17 @@ public class ShowName {
      *
      * The "example filename" is an exact substring of the filename that caused
      * this ShowName to be created; specifically, it's the part of the filename
-     * that we believe represents the show.
-     *
+     * that we believe represents the show.  This ShowName may be used for other,
+     * slightly different filenames, as well.  For example, the ShowName is
+     * independent of separators, so "The Office" and "The.Office" would share a
+     * ShowName.  The exampleFilename would be whichever one randomly was 
+     * processed first.  As long as it refers to an actual part of SOME filename,
+     * it's fine.
+     *            
      * @return the example filename
      */
     public String getExampleFilename() {
-        return foundName;
+        return exampleFilename;
     }
 
     /**
@@ -390,7 +315,7 @@ public class ShowName {
      *            that matches this ShowName
      */
     public String getQueryString() {
-        return queryString.queryString;
+        return queryString;
     }
 
     /**
@@ -399,7 +324,7 @@ public class ShowName {
      * @return a Show, if this ShowName is matched to one.  Null if not.
      */
     public synchronized ShowOption getMatchedShow() {
-        return queryString.getMatchedShow();
+        return matchedShow;
     }
 
     /**
@@ -409,6 +334,6 @@ public class ShowName {
      */
     @Override
     public String toString() {
-        return "ShowName [" + foundName + "]";
+        return "ShowName [" + queryString + "]";
     }
 }
