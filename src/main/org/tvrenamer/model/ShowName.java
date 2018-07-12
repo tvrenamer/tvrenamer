@@ -160,6 +160,32 @@ public class ShowName {
      * Get the ShowName object for the given String.  If one was already created,
      * it is returned, and if not, one will be created, stored, and returned.
      *
+     * Note, the functionality here is identical to {@link #lookupShowName}.  The only
+     * implementation difference is the error message.  But callers should know which
+     * one they want.
+     *
+     * @param filenameShow
+     *            the name of the show as it appears in the filename
+     * @return the ShowName object for that filenameShow
+     */
+    public static ShowName mapShowName(String filenameShow) {
+        ShowName showName = SHOW_NAMES.get(filenameShow);
+        if (showName == null) {
+            showName = new ShowName(filenameShow);
+            SHOW_NAMES.put(filenameShow, showName);
+        }
+        return showName;
+    }
+
+    /**
+     * Get the ShowName object for the given String, under the assumption that such
+     * a mapping already exists.  If no mapping is found, one will be created, stored,
+     * and returned, but an error message will also be generated.
+     *
+     * Note, the functionality here is identical to {@link #mapShowName}.  The only
+     * implementation difference is the error message.  But callers should know which
+     * one they want.
+     *
      * @param filenameShow
      *            the name of the show as it appears in the filename
      * @return the ShowName object for that filenameShow
@@ -169,6 +195,8 @@ public class ShowName {
         if (showName == null) {
             showName = new ShowName(filenameShow);
             SHOW_NAMES.put(filenameShow, showName);
+            logger.severe("could not get show name for " + filenameShow
+                          + ", so created one instead");
         }
         return showName;
     }
