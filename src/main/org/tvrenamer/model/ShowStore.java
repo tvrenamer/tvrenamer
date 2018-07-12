@@ -270,7 +270,7 @@ public class ShowStore {
      *            the {@link Show}
      */
     static Show getOrAddShow(String filenameShow, String actualName) {
-        ShowName showName = ShowName.lookupShowName(filenameShow);
+        ShowName showName = ShowName.mapShowName(filenameShow);
         ShowOption showOption = showName.getMatchedShow();
         if (showOption == null) {
             return new Show(filenameShow, actualName);

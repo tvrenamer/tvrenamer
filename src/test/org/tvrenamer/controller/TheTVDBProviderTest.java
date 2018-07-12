@@ -171,7 +171,7 @@ public class TheTVDBProviderTest {
         if (queryString == null) {
             queryString = actualName;
         }
-        final ShowName showName = ShowName.lookupShowName(queryString);
+        final ShowName showName = ShowName.mapShowName(queryString);
         ShowOption best = showName.getMatchedShow();
 
         if (best == null) {

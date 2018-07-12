@@ -105,7 +105,7 @@ public class FilenameParser {
             matcher = patt.matcher(strippedName);
             if (matcher.matches()) {
                 String foundName = matcher.group(1);
-                ShowName.lookupShowName(foundName);
+                ShowName.mapShowName(foundName);
 
                 String resolution = "";
                 if (matcher.groupCount() == 4) {
