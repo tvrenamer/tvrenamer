@@ -11,7 +11,6 @@ public class Environment {
     private static final Logger logger = Logger.getLogger(Environment.class.getName());
 
     public static final String USER_HOME = System.getProperty("user.home");
-    public static final String USER_DIR = System.getProperty("user.dir");
     public static final String TMP_DIR_NAME = System.getProperty("java.io.tmpdir");
     private static final String OS_NAME = System.getProperty("os.name");
 

@@ -210,7 +210,6 @@ public class Constants {
     private static final String PREFERENCES_FILENAME = "prefs.xml";
     private static final String OVERRIDES_FILENAME = "overrides.xml";
 
-    public static final Path WORKING_DIRECTORY = Paths.get(Environment.USER_DIR);
     public static final Path TMP_DIR = Paths.get(Environment.TMP_DIR_NAME);
 
     private static final Path USER_HOME_DIR = Paths.get(Environment.USER_HOME);
