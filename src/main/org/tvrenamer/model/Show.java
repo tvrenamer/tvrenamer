@@ -328,17 +328,6 @@ public class Show extends ShowOption {
     }
 
     /**
-     * Find out whether or not there are seasons associated with this show.
-     * Generally this indicates that the show's listings have been downloaded,
-     * the episodes have been organized into seasons, and the show is ready to go.
-     *
-     * @return a count of how many seasons we have for this Show
-     */
-    public boolean hasSeasons() {
-        return (seasons.size() > 0);
-    }
-
-    /**
      * Find out whether or not there are episodes associated with this show.
      * Generally, if there aren't, this indicates that the show's listings
      * have not been downloaded and the show is not ready to go.
@@ -347,15 +336,6 @@ public class Show extends ShowOption {
      */
     public boolean noEpisodes() {
         return (episodes.size() == 0);
-    }
-
-    /**
-     * Get a count of how many episodes we have for this Show.
-     *
-     * @return a count of how many episodes we have for this Show
-     */
-    public int getEpisodeCount() {
-        return episodes.size();
     }
 
     @Override
