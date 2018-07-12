@@ -453,9 +453,8 @@ public class FileEpisode {
 
     private String getNoShowPlaceholder() {
         ShowName showName = ShowName.lookupShowName(filenameShow);
-        String queryString = showName.getQueryString();
         return BROKEN_PLACEHOLDER_FILENAME + " for \""
-            + StringUtils.decodeSpecialCharacters(queryString)
+            + showName.getQueryString()
             + "\"";
     }
 

@@ -431,6 +431,7 @@ public class StringUtils {
      *            string to decode
      * @return human-friendly representation of input
      */
+    @SuppressWarnings("unused")
     public static String decodeUrlCharacters(String input) {
         if (input == null || input.length() == 0) {
             return "";
@@ -477,7 +478,7 @@ public class StringUtils {
      *         punctuation, etc.
      */
     public static String makeQueryString(String text) {
-        return toLower(encodeUrlCharacters(replacePunctuation(text)));
+        return toLower(replacePunctuation(text));
     }
 
     /**
@@ -586,6 +587,7 @@ public class StringUtils {
      *            string to decode
      * @return human-friendly representation of input
      */
+    @SuppressWarnings("unused")
     public static String decodeSpecialCharacters(String input) {
         if (input == null || input.length() == 0) {
             return "";
