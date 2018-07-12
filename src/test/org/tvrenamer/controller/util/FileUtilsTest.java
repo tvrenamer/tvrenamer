@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.tvrenamer.controller.util.FileUtilities.*;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,6 +33,11 @@ public class FileUtilsTest {
     @BeforeClass
     public static void setLogging() {
         FileUtilities.loggingOff();
+    }
+
+    @AfterClass
+    public static void restoreLogging() {
+        FileUtilities.loggingOn();
     }
 
     @Test
