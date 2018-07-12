@@ -2,28 +2,11 @@
 <project version="4">
   <component name="EntryPointsManager">
     <entry_points version="2.0">
-      <entry_point TYPE="method" FQNAME="org.tvrenamer.controller.util.StringUtils java.lang.String decodeUrlCharacters(java.lang.String input)" />
-      <entry_point TYPE="method" FQNAME="org.tvrenamer.controller.util.StringUtils java.lang.String encodeUrlCharacters(java.lang.String input)" />
-      <entry_point TYPE="method" FQNAME="org.tvrenamer.controller.util.StringUtils java.lang.String toUpper(java.lang.String orig)" />
-      <entry_point TYPE="method" FQNAME="org.tvrenamer.controller.util.FileUtilities void loggingOff()" />
-      <entry_point TYPE="method" FQNAME="org.tvrenamer.controller.util.FileUtilities void loggingOn()" />
-      <entry_point TYPE="method" FQNAME="org.tvrenamer.controller.util.FileUtilities boolean isDirEmpty(java.nio.file.Path dir)" />
-      <entry_point TYPE="method" FQNAME="org.tvrenamer.controller.util.FileUtilities boolean rmdir(java.nio.file.Path dir)" />
-      <entry_point TYPE="method" FQNAME="org.tvrenamer.model.Show void indexEpisodesBySeason()" />
-      <entry_point TYPE="method" FQNAME="org.tvrenamer.model.ShowStore org.tvrenamer.model.Show getOrAddShow(java.lang.String filenameShow, java.lang.String actualName)" />
-      <entry_point TYPE="method" FQNAME="org.tvrenamer.model.ShowName boolean hasShowOptions()" />
-      <entry_point TYPE="method" FQNAME="org.tvrenamer.model.FileEpisode java.lang.String getFilenameSeason()" />
-      <entry_point TYPE="method" FQNAME="org.tvrenamer.model.FileEpisode java.lang.String getFilenameEpisode()" />
-      <entry_point TYPE="method" FQNAME="org.tvrenamer.model.FileEpisode java.lang.String getFilenameResolution()" />
-      <entry_point TYPE="field" FQNAME="org.tvrenamer.model.util.Constants WORKING_DIRECTORY" />
-      <entry_point TYPE="field" FQNAME="org.tvrenamer.model.util.Constants TMP_DIR" />
-      <entry_point TYPE="method" FQNAME="org.tvrenamer.model.UserPreferences void setRemoveEmptiedDirectories(boolean removeEmptiedDirectories)" />
+      <entry_point TYPE="field" FQNAME="org.tvrenamer.model.util.Environment IS_UN_X" />
+      <entry_point TYPE="field" FQNAME="org.tvrenamer.model.util.Environment IS_WINDOWS" />
+      <entry_point TYPE="method" FQNAME="org.tvrenamer.controller.util.FileUtilities boolean isWritableDirectory(java.nio.file.Path path)" />
       <entry_point TYPE="method" FQNAME="org.tvrenamer.view.CocoaUIEnhancer.MenuHookObject int actionProc(int id, int sel, int arg0)" />
-      <entry_point TYPE="method" FQNAME="org.tvrenamer.controller.TheTVDBProviderTest void testGetEpisodeTitle()" />
-      <entry_point TYPE="method" FQNAME="org.tvrenamer.model.Show int getEpisodeCount()" />
-      <entry_point TYPE="method" FQNAME="org.tvrenamer.model.Show boolean hasEpisodes()" />
-      <entry_point TYPE="method" FQNAME="org.tvrenamer.model.Show boolean hasSeasons()" />
-      <entry_point TYPE="method" FQNAME="org.tvrenamer.model.FileEpisode java.lang.String getBasename()" />
+      <entry_point TYPE="class" FQNAME="org.tvrenamer.view.Fields" />
       <entry_point TYPE="class" FQNAME="org.tvrenamer.model.util.StdOutConsoleHandler" />
       <entry_point TYPE="class" FQNAME="org.tvrenamer.model.util.StdOutConsoleFormatter" />
     </entry_points>
