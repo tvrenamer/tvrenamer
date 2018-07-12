@@ -107,8 +107,6 @@ public class FileEpisode {
     // of the show, and which we use to query the provider.  Note that the actual show name
     // that we get back from the provider will likely differ from what we have here.
     private String filenameShow = "";
-    private String filenameSeason = "";
-    private String filenameEpisode = "";
     private String filenameResolution = "";
 
     // These integers are meant to represent the indices into the Show's catalog that "we"
@@ -223,14 +221,6 @@ public class FileEpisode {
         this.filenameShow = filenameShow;
     }
 
-    public String getFilenameSeason() {
-        return filenameSeason;
-    }
-
-    public String getFilenameEpisode() {
-        return filenameEpisode;
-    }
-
     public EpisodePlacement getEpisodePlacement() {
         return placement;
     }
@@ -254,8 +244,6 @@ public class FileEpisode {
      *   the season
      */
     public void setEpisodePlacement(String filenameSeason, String filenameEpisode) {
-        this.filenameSeason = filenameSeason;
-        this.filenameEpisode = filenameEpisode;
         int seasonNum = Show.NO_SEASON;
         int episodeNum = Show.NO_EPISODE;
         try {
