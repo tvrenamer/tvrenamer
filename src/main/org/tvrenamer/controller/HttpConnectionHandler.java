@@ -1,27 +1,57 @@
 package org.tvrenamer.controller;
 
-import org.tvrenamer.model.TVRenamerIOException;
-import org.tvrenamer.model.util.Constants;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 
-import java.io.BufferedReader;
+import org.tvrenamer.model.TVRenamerIOException;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.Inflater;
-import java.util.zip.InflaterInputStream;
 
 class HttpConnectionHandler {
-
     private static final Logger logger = Logger.getLogger(HttpConnectionHandler.class.getName());
+
     private static final int CONNECT_TIMEOUT_MS = 30000;
     private static final int READ_TIMEOUT_MS = 60000;
+
+    private static final OkHttpClient CLIENT = new OkHttpClient.Builder()
+        .connectTimeout(CONNECT_TIMEOUT_MS, TimeUnit.MILLISECONDS)
+        .readTimeout(READ_TIMEOUT_MS, TimeUnit.MILLISECONDS)
+        .build();
+
+    /**
+     * Try to keep {@link #downloadUrl} as clean as possible by not doing error handling
+     * there.  On any kind of failure, we'll get here.  We may need to re-discover something
+     * that was already known, but it's really not an issue, especially since this only
+     * happens in the error case.
+     *
+     * @param response
+     *   the Response object that we got back after trying to download the URL
+     * @param url
+     *   the URL we tried to download, as a String
+     * @param ioe
+     *   an I/O exception that may give some indication of what went wrong (and, at least,
+     *   gives us a stack trace...)
+     */
+    private String downloadUrlFailed(final Response response, final String url,
+                                     final IOException ioe)
+        throws TVRenamerIOException
+    {
+        String msg;
+        if (ioe == null) {
+            msg = "attempt to download " + url + " failed with response code "
+                + response.code();
+        } else {
+            msg = "exception downloading " + url;
+        }
+        logger.log(Level.WARNING, msg, ioe);
+        throw new TVRenamerIOException(msg, ioe);
+    }
 
     /**
      * Download the URL and return as a String
@@ -31,91 +61,30 @@ class HttpConnectionHandler {
      * @throws TVRenamerIOException when there is an error connecting or reading the URL
      */
     public String downloadUrl(String urlString) throws TVRenamerIOException {
+        logger.fine("Downloading URL " + urlString);
+
+        Request request;
+        Response response = null;
         try {
-            URL url = new URL(urlString);
-            logger.fine("Downloading URL " + urlString);
-            return downloadUrl(url);
-        } catch (MalformedURLException e) {
-            logger.log(Level.SEVERE, urlString + " is not a valid URL ", e);
-            return "";
-        }
-    }
-
-    /**
-     * Return the proper type of InputStream given the HttpURLConnection and its encoding.
-     *
-     * @param conn
-     *    an HttpURLConnection that we're going to read from
-     * @return an InputStream suitable for the HttpURLConnection
-     */
-    private InputStream getInputStream(final HttpURLConnection conn) throws IOException {
-        final InputStream in = conn.getInputStream();
-        final String encoding = conn.getContentEncoding();
-        if (encoding != null) {
-            if (encoding.equalsIgnoreCase("gzip")) {
-                return new GZIPInputStream(in);
-            }
-            if (encoding.equalsIgnoreCase("deflate")) {
-                return new InflaterInputStream(in, new Inflater(true));
-            }
-        }
-        return in;
-    }
-
-    /**
-     * Download the URL and return as a String. Gzip handling from http://goo.gl/J88WG
-     *
-     * @param url the URL to download
-     * @return String of the URL contents
-     * @throws TVRenamerIOException when there is an error connecting or reading the URL
-     */
-    private String downloadUrl(URL url) throws TVRenamerIOException {
-        String downloaded = Constants.EMPTY_STRING;
-        if (url != null) {
-            try {
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-                HttpURLConnection.setFollowRedirects(true);
-                // allow both GZip and Deflate (ZLib) encodings
-                conn.setRequestProperty("Accept-Encoding", "gzip, deflate");
-                conn.setConnectTimeout(CONNECT_TIMEOUT_MS);
-                conn.setReadTimeout(READ_TIMEOUT_MS);
-
-                // create the appropriate stream wrapper based on the encoding type
-                try (InputStream inputStream = getInputStream(conn)) {
-                    logger.finer("Before reading url stream");
-
-                    // always specify encoding while reading streams
-                    try (BufferedReader reader
-                         = new BufferedReader(new InputStreamReader(inputStream, Constants.TVR_CHARSET)))
-                    {
-                        StringBuilder contents = new StringBuilder();
-                        String s;
-                        while ((s = reader.readLine()) != null) {
-                            contents.append(s);
-                        }
-                        downloaded = contents.toString();
+            request = new Request.Builder().url(urlString).build();
+            response = CLIENT.newCall(request).execute();
+            if (response != null) {
+                if (response.isSuccessful()) {
+                    ResponseBody body = response.body();
+                    if (body != null) {
+                        String downloaded = body.string();
                         if (logger.isLoggable(Level.FINEST)) {
                             logger.log(Level.FINEST, "Url stream:\n{0}", downloaded);
                         }
+                        return downloaded;
                     }
+                } else if (response.code() == 404) {
+                    throw new FileNotFoundException(urlString);
                 }
-            } catch (FileNotFoundException e) {
-                String message = "FileNotFoundException when attempting to download"
-                    + " and parse URL " + url;
-                // We don't necessarily consider FileNotFoundException to be "severe".
-                // That's why it's handled first, as a special case.  We create and
-                // throw the TVRenamerIOException in the same way as any other exception;
-                // we just don't log it at the same level.
-                logger.fine(message);
-                throw new TVRenamerIOException(message, e);
-            } catch (IOException e) {
-                String message = "I/O Exception when attempting to download and parse URL " + url;
-                logger.log(Level.SEVERE, message, e);
-                throw new TVRenamerIOException(message, e);
             }
+            throw new TVRenamerIOException(urlString);
+        } catch (IOException ioe) {
+            return downloadUrlFailed(response, urlString, ioe);
         }
-
-        return downloaded;
     }
 }
