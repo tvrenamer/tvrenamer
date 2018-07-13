@@ -243,6 +243,18 @@ public class StringUtils {
         return !ILLEGAL_CHARACTERS.contains(ch);
     }
 
+    /**
+     * Trim a string, presumably a "foundShow" from a filename, of extraneous characters.
+     *
+     * @param extracted
+     *    the String to trim
+     * @return a version of the given string with all leading and trailing separator
+     *    characters (space, underscore, dot, hyphen) removed.
+     */
+    public static String trimFoundShow(final String extracted) {
+        return extracted.replaceFirst("^[ _.-]+", "").replaceFirst("[ _.-]+$", "");
+    }
+
     /*
      * See javadoc for public, 1-arg-version, below.
      *

@@ -19,8 +19,8 @@ import java.util.logging.Logger;
  *   <li>"the.office.s06e20.mkv"</li>
  *   <li>"the.office.us.s08e11.avi"</li></ul><p>
  *
- * These would produce "filenameShow" values of "The Office ", "The Office ", "the.office.",
- * and "the.office.us", respectively.  The first two are the same, and therefore will map
+ * These would produce "filenameShow" values of "The Office", "The Office", "the.office",
+ * and "the.office.us", respectively.  The first two are identical, and therefore will map
  * to the same ShowName object.<p>
  *
  * From the filenameShow, we create a query string, which normalizes the case and punctuation.

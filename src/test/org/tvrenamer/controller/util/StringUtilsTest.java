@@ -315,4 +315,82 @@ public class StringUtilsTest {
         assertEquals("New Girl", replacePunctuation("New}Girl"));
         assertEquals("New Girl", replacePunctuation("New~Girl"));
     }
+
+    /**
+     * Test trimFoundShow.  It should trim separator characters (space, hyphen,
+     * dot, underscore) from the beginning and end of the string, but not change
+     * the middle, substantive part at all.
+     *
+     */
+    @Test
+    public void testTrimFoundShow() {
+        assertEquals("Dr. Foo's Man-Pig", trimFoundShow("Dr. Foo's Man-Pig"));
+        assertEquals("Dr. Foo's Man-Pig", trimFoundShow("Dr. Foo's Man-Pig "));
+        assertEquals("Dr. Foo's_Man-Pig", trimFoundShow("Dr. Foo's_Man-Pig_"));
+        assertEquals("Dr. Foo's_Man-Pig", trimFoundShow("  Dr. Foo's_Man-Pig_"));
+    }
+
+    /**
+     * Helper method.  We used to take the substring produced by the parser (the
+     * "filename show" or "found show") and pass it to makeQueryString to get the
+     * string to send to the provider.  Now, we're inserting another step in there:
+     * trimFoundShow.  But this is not intended to change the strings we send to
+     * the provider, in anyway.  So this method validates that.  The result of
+     * calling makeQueryString on the trimmed string, should be identical to calling
+     * makeQueryString on the original string.
+     *
+     * @param input
+     *   any String, but intended to be the part of a filename that we think
+     *   represents the name of the show
+     *
+     */
+    private void assertTrimSafe(String input) {
+        assertEquals(makeQueryString(input),
+                     makeQueryString(trimFoundShow(input)));
+    }
+
+    /**
+     * Now that we have a method to verify that trimFoundShow is not changing the
+     * results of makeQueryString, run it through all the sample data we used in
+     * {@link #testReplacePunctuation} and {@link #testTrimFoundShow}.
+     *
+     */
+    @Test
+    public void testTrimForQueryString() {
+        assertTrimSafe("Marvel's.Agents.of.S.H.I.E.L.D.");
+        assertTrimSafe("Marvel's Agents of S.H.I.E.L.D.");
+        assertTrimSafe("Marvel's Agents of SHIELD");
+        assertTrimSafe("Star Trek: The Next Generation");
+        assertTrimSafe("Monty Python's Flying Circus");
+        assertTrimSafe("Married... with Children");
+        assertTrimSafe("God, The Devil and Bob");
+        assertTrimSafe("What's Happening!!");
+        assertTrimSafe("Brooklyn Nine-Nine");
+        assertTrimSafe("Murder, She Wrote");
+        assertTrimSafe("Murder-She-Wrote");
+        assertTrimSafe("Andy Barker, P.I.");
+        assertTrimSafe("Laverne & Shirley");
+        assertTrimSafe("Sit Down, Shut Up");
+        assertTrimSafe("The Real O'Neals");
+        assertTrimSafe("The Office (US)");
+        assertTrimSafe("That '70s Show");
+        assertTrimSafe("Eerie, Indiana");
+        assertTrimSafe("American Dad!");
+        assertTrimSafe("Bob's Burgers");
+        assertTrimSafe("Man vs. Wild");
+        assertTrimSafe("The X-Files");
+        assertTrimSafe("MythBusters");
+        assertTrimSafe("Black-ish");
+        assertTrimSafe("30Rock");
+        assertTrimSafe("Mr. Robot");
+        assertTrimSafe("Star-ving");
+        assertTrimSafe("big-bang-theory");
+        assertTrimSafe("american-dad");
+        assertTrimSafe("Cosmos.A.Space.Time.Odyssey.");
+        assertTrimSafe("How.I.Met.Your.Mother.");
+        assertTrimSafe("Dr. Foo's Man-Pig");
+        assertTrimSafe("Dr. Foo's Man-Pig ");
+        assertTrimSafe("Dr. Foo's_Man-Pig_");
+        assertTrimSafe("  Dr. Foo's_Man-Pig_");
+    }
 }
