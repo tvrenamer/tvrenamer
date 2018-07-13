@@ -104,7 +104,7 @@ public class FilenameParser {
         for (Pattern patt : COMPILED_REGEX) {
             matcher = patt.matcher(strippedName);
             if (matcher.matches()) {
-                String foundName = matcher.group(1);
+                String foundName = StringUtils.trimFoundShow(matcher.group(1));
                 ShowName.mapShowName(foundName);
 
                 String resolution = "";
