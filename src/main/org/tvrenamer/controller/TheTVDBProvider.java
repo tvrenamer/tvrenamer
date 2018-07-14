@@ -69,14 +69,13 @@ public class TheTVDBProvider {
     private static final String XPATH_DVD_EPISODE_NUM = "DVD_episodenumber";
     // private static final String XPATH_EPISODE_NUM_ABS = "absolute_number";
 
-    private static String getShowSearchXml(final ShowName showName)
+    private static String getShowSearchXml(final String queryString)
         throws TVRenamerIOException, DiscontinuedApiException
     {
         if (apiIsDeprecated) {
             throw new DiscontinuedApiException();
         }
 
-        String queryString = showName.getQueryString();
         String searchURL = BASE_SEARCH_URL + StringUtils.encodeUrlCharacters(queryString);
 
         logger.fine("About to download search results from " + searchURL);
@@ -113,7 +112,7 @@ public class TheTVDBProvider {
 
             if (SERIES_NOT_PERMITTED.equals(seriesName)) {
                 logger.warning("ignoring unpermitted option for "
-                               + showName.getFoundName());
+                               + showName.getExampleFilename());
             } else {
                 showName.addShowOption(tvdbId, seriesName);
             }
@@ -172,12 +171,12 @@ public class TheTVDBProvider {
 
         String searchXml = "";
         try {
-            searchXml = getShowSearchXml(showName);
+            searchXml = getShowSearchXml(showName.getQueryString());
             InputSource source = new InputSource(new StringReader(searchXml));
             readShowsFromInputSource(bld, source, showName);
         } catch (TVRenamerIOException tve) {
             String msg  = "error parsing XML from " + searchXml + " for series "
-                + showName.getFoundName();
+                + showName.getExampleFilename();
             if (isApiDiscontinuedError(tve)) {
                 throw new DiscontinuedApiException();
             } else {

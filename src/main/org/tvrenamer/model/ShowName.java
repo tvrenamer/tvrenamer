@@ -193,21 +193,26 @@ public class ShowName {
      * @param listener
      *            the listener registering interest
      */
-    public void addListener(ShowInformationListener listener) {
+    void addShowInformationListener(final ShowInformationListener listener) {
         synchronized (queryString) {
             queryString.addListener(listener);
         }
     }
 
     /**
-     * Determine if this ShowName's query string has any listeners yet
+     * Determine if this ShowName needs to be queried.
      *
-     * @return true if this ShowName's query string already has a listener;
-     *     false if not
+     * If the answer is "yes", we add a listener and query immediately,
+     * in a synchronized block.  Therefore, that becomes how we determine
+     * the answer: if this ShowName already has a listener, that means
+     * its download is already underway.
+     *
+     * @return false if this ShowName's query string already has a listener;
+     *     true if not
      */
-    public boolean hasListeners() {
+    boolean needsQuery() {
         synchronized (queryString) {
-            return queryString.hasListeners();
+            return !queryString.hasListeners();
         }
     }
 
@@ -337,12 +342,15 @@ public class ShowName {
     }
 
     /**
-     * Get this ShowName's "foundName" attribute.
+     * Get this ShowName's "example filename".<p>
      *
-     * @return foundName
-     *            the name of the show as it appears in the filename
+     * The "example filename" is an exact substring of the filename that caused
+     * this ShowName to be created; specifically, it's the part of the filename
+     * that we believe represents the show.
+     *
+     * @return the example filename
      */
-    public String getFoundName() {
+    public String getExampleFilename() {
         return foundName;
     }
 

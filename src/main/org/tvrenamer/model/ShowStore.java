@@ -185,9 +185,9 @@ public class ShowStore {
             // But we might have started.  If the showName already has one or more
             // listeners, that means the download is already underway.
             synchronized (showName) {
-                boolean needsDownload = !showName.hasListeners();
+                boolean needsDownload = showName.needsQuery();
                 // We add this listener whether or not the download has been started.
-                showName.addListener(listener);
+                showName.addShowInformationListener(listener);
                 // Now we start a download only if we need to.
                 if (needsDownload) {
                     downloadShow(showName);

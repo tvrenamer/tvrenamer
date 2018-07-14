@@ -182,18 +182,18 @@ public class TheTVDBProviderTest {
             } catch (Exception e) {
                 fail("exception getting show options for " + queryString);
             }
-            assertTrue("got no options on showName <[" + showName.getFoundName()
+            assertTrue("got no options on showName <[" + showName.getExampleFilename()
                        + "]> (from input <[" + queryString + "]>)",
                        showName.hasShowOptions());
 
             best = showName.selectShowOption();
         }
-        assertEquals("resolved show name <[" + showName.getFoundName() + "]> to wrong series;",
+        assertEquals("resolved show name <[" + showName.getExampleFilename() + "]> to wrong series;",
                      actualName, best.getName());
 
         Show show = best.getShowInstance();
         assertTrue("expected valid Series (<[" + epdata.properShowName + "]>) for \""
-                   + showName.getFoundName() + "\" but got <[" + show + "]>",
+                   + showName.getExampleFilename() + "\" but got <[" + show + "]>",
                    show.isValidSeries());
         Series series = show.asSeries();
         assertEquals("got wrong series ID for <[" + actualName + "]>;",
