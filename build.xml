@@ -251,7 +251,7 @@
     </checkstyle>
   </target>
 
-  <target name="findbugs" depends="compile" description="Run findbugs on the code">
+  <target name="findbugs" depends="compile.test, checkstyle" description="Run findbugs on the code">
     <ivy:cachepath pathid="findbugs.classpath" conf="findbugs"/>
     <taskdef name="findbugs"
              classname="edu.umd.cs.findbugs.anttask.FindBugsTask"
