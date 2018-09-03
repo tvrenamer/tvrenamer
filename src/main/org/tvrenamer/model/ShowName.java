@@ -297,10 +297,10 @@ public class ShowName {
      * that we believe represents the show.  This ShowName may be used for other,
      * slightly different filenames, as well.  For example, the ShowName is
      * independent of separators, so "The Office" and "The.Office" would share a
-     * ShowName.  The exampleFilename would be whichever one randomly was 
+     * ShowName.  The exampleFilename would be whichever one randomly was
      * processed first.  As long as it refers to an actual part of SOME filename,
      * it's fine.
-     *            
+     *
      * @return the example filename
      */
     public String getExampleFilename() {
