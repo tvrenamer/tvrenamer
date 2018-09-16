@@ -1169,6 +1169,43 @@ public class TheTVDBProviderTest {
         }
     }
 
+    private static String timeoutExceptionMessage(final EpisodeTestData testInput,
+                                                  final TimeoutException e)
+    {
+        final String queryString = testInput.queryString;
+        final int seasonNum = testInput.seasonNum;
+        final int episodeNum = testInput.episodeNum;
+
+        String failMsg = "timeout trying to query for " + queryString
+            + ", season " + seasonNum + ", episode " + episodeNum;
+        String exceptionMessage = e.getMessage();
+        if (exceptionMessage != null) {
+            failMsg += exceptionMessage;
+        } else {
+            failMsg += "(no message)";
+        }
+        return failMsg;
+    }
+
+    private static String genericExceptionMessage(final EpisodeTestData testInput,
+                                                  final Exception e)
+    {
+        final String queryString = testInput.queryString;
+        final int seasonNum = testInput.seasonNum;
+        final int episodeNum = testInput.episodeNum;
+
+        String failMsg = "failure trying to query for " + queryString
+            + ", season " + seasonNum + ", episode " + episodeNum
+            + e.getClass().getName() + " ";
+        String exceptionMessage = e.getMessage();
+        if (exceptionMessage != null) {
+            failMsg += exceptionMessage;
+        } else {
+            failMsg += "(possibly timeout?)";
+        }
+        return failMsg;
+    }
+
     /**
      * Run testQueryShow to validate we get the expected show from the given
      * queryString, and then look up the listings to verify we get the expected
@@ -1181,9 +1218,8 @@ public class TheTVDBProviderTest {
      */
     private static void testGetEpisodeDataTitle(final EpisodeTestData testInput) {
         final String queryString = testInput.queryString;
-        final int seasonNum = testInput.seasonNum;
-        final int episodeNum = testInput.episodeNum;
-        final EpisodePlacement placement = new EpisodePlacement(seasonNum, episodeNum);
+        final EpisodePlacement placement = new EpisodePlacement(testInput.seasonNum,
+                                                                testInput.episodeNum);
         try {
             final Show show = testQueryShow(queryString, testInput.properShowName);
             assertNotNull("got null value from testQueryShow on <["
@@ -1202,26 +1238,9 @@ public class TheTVDBProviderTest {
             String got = future.get(30, TimeUnit.SECONDS);
             assertEpisodeTitle(testInput, got);
         } catch (TimeoutException e) {
-            String failMsg = "timeout trying to query for " + queryString
-                + ", season " + seasonNum + ", episode " + episodeNum;
-            String exceptionMessage = e.getMessage();
-            if (exceptionMessage != null) {
-                failMsg += exceptionMessage;
-            } else {
-                failMsg += "(no message)";
-            }
-            fail(failMsg);
+            fail(timeoutExceptionMessage(testInput, e));
         } catch (Exception e) {
-            String failMsg = "failure trying to query for " + queryString
-                + ", season " + seasonNum + ", episode " + episodeNum
-                + e.getClass().getName() + " ";
-            String exceptionMessage = e.getMessage();
-            if (exceptionMessage != null) {
-                failMsg += exceptionMessage;
-            } else {
-                failMsg += "(possibly timeout?)";
-            }
-            fail(failMsg);
+            fail(genericExceptionMessage(testInput, e));
         }
     }
 
