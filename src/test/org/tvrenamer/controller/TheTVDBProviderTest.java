@@ -141,7 +141,9 @@ public class TheTVDBProviderTest {
      *               what we expect to get back about it
      * @param foundTitle the value that was found for the episode title
      */
-    private void assertEpisodeTitle(final EpisodeTestData epdata, final String foundTitle) {
+    private static void assertEpisodeTitle(final EpisodeTestData epdata,
+                                           final String foundTitle)
+    {
         final String expectedTitle = epdata.episodeTitle;
         if (!expectedTitle.equals(foundTitle)) {
             fail("expected title of season " + epdata.seasonNum + ", episode " + epdata.episodeNum
@@ -163,7 +165,7 @@ public class TheTVDBProviderTest {
      * @return the title of the given episode of the show returned by the provider, or null
      *         if we didn't get an episode title
      */
-    private String testSeriesNameAndEpisode(final EpisodeTestData epdata, boolean doCheck)
+    private static String testSeriesNameAndEpisode(final EpisodeTestData epdata, boolean doCheck)
         throws Exception
     {
         final String actualName = epdata.properShowName;
@@ -231,7 +233,9 @@ public class TheTVDBProviderTest {
      * @param epdata contains all the relevant information about the episode to look up, and
      *               what we expect to get back about it
      */
-    private void testSeriesNameAndEpisodeTitle(final EpisodeTestData epdata) throws Exception {
+    private static void testSeriesNameAndEpisodeTitle(final EpisodeTestData epdata)
+        throws Exception
+    {
         testSeriesNameAndEpisode(epdata, true);
     }
 
@@ -1130,7 +1134,9 @@ public class TheTVDBProviderTest {
      *    the exact title of the series we expect to get back; used for error-checking
      * @return a Show based on the queryString, or null
      */
-    private Show testQueryShow(final String queryString, final String properShowName) {
+    private static Show testQueryShow(final String queryString,
+                                      final String properShowName)
+    {
         try {
             final CompletableFuture<ShowOption> futureShow = new CompletableFuture<>();
             ShowStore.mapStringToShow(queryString, new ShowDownloader(futureShow));
@@ -1173,7 +1179,7 @@ public class TheTVDBProviderTest {
      *    an EpisodeTestData containing all the values we need to look up
      *    an episode
      */
-    private void testGetEpisodeDataTitle(final EpisodeTestData testInput) {
+    private static void testGetEpisodeDataTitle(final EpisodeTestData testInput) {
         final String queryString = testInput.queryString;
         final int seasonNum = testInput.seasonNum;
         final int episodeNum = testInput.episodeNum;
