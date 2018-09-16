@@ -1163,53 +1163,67 @@ public class TheTVDBProviderTest {
         }
     }
 
+    /**
+     * Run testQueryShow to validate we get the expected show from the given
+     * queryString, and then look up the listings to verify we get the expected
+     * episode.  Does not return a value or throw an exception.  Just fails the
+     * calling test if anything is not as expected.
+     *
+     * @param testInput
+     *    an EpisodeTestData containing all the values we need to look up
+     *    an episode
+     */
+    private void testGetEpisodeDataTitle(final EpisodeTestData testInput) {
+        final String queryString = testInput.queryString;
+        final int seasonNum = testInput.seasonNum;
+        final int episodeNum = testInput.episodeNum;
+        final EpisodePlacement placement = new EpisodePlacement(seasonNum, episodeNum);
+        try {
+            final Show show = testQueryShow(queryString, testInput.properShowName);
+            assertNotNull("got null value from testQueryShow on <["
+                          + queryString + "]>",
+                          show);
+            assertTrue("expected valid Series (<[" + testInput.properShowName
+                       + "]>) for \"" + queryString + "\" but got <[" + show + "]>",
+                       show.isValidSeries());
+            if (testInput.preferDvd != null) {
+                show.setPreferDvd(testInput.preferDvd);
+            }
+
+            final CompletableFuture<String> future = new CompletableFuture<>();
+            Series series = show.asSeries();
+            series.addListingsListener(new ListingsDownloader(series, placement, future));
+            String got = future.get(30, TimeUnit.SECONDS);
+            assertEpisodeTitle(testInput, got);
+        } catch (TimeoutException e) {
+            String failMsg = "timeout trying to query for " + queryString
+                + ", season " + seasonNum + ", episode " + episodeNum;
+            String exceptionMessage = e.getMessage();
+            if (exceptionMessage != null) {
+                failMsg += exceptionMessage;
+            } else {
+                failMsg += "(no message)";
+            }
+            fail(failMsg);
+        } catch (Exception e) {
+            String failMsg = "failure trying to query for " + queryString
+                + ", season " + seasonNum + ", episode " + episodeNum
+                + e.getClass().getName() + " ";
+            String exceptionMessage = e.getMessage();
+            if (exceptionMessage != null) {
+                failMsg += exceptionMessage;
+            } else {
+                failMsg += "(possibly timeout?)";
+            }
+            fail(failMsg);
+        }
+    }
+
     @Test
     public void testGetEpisodeTitle() {
         for (EpisodeTestData testInput : values) {
             if (testInput.episodeTitle != null) {
-                final String queryString = testInput.queryString;
-                final int seasonNum = testInput.seasonNum;
-                final int episodeNum = testInput.episodeNum;
-                final EpisodePlacement placement = new EpisodePlacement(seasonNum, episodeNum);
-                try {
-                    final Show show = testQueryShow(queryString, testInput.properShowName);
-                    assertNotNull("got null value from testQueryShow on <["
-                                  + queryString + "]>",
-                                  show);
-                    assertTrue("expected valid Series (<[" + testInput.properShowName
-                               + "]>) for \"" + queryString + "\" but got <[" + show + "]>",
-                               show.isValidSeries());
-                    if (testInput.preferDvd != null) {
-                        show.setPreferDvd(testInput.preferDvd);
-                    }
-
-                    final CompletableFuture<String> future = new CompletableFuture<>();
-                    Series series = show.asSeries();
-                    series.addListingsListener(new ListingsDownloader(series, placement, future));
-                    String got = future.get(30, TimeUnit.SECONDS);
-                    assertEpisodeTitle(testInput, got);
-                } catch (TimeoutException e) {
-                    String failMsg = "timeout trying to query for " + queryString
-                        + ", season " + seasonNum + ", episode " + episodeNum;
-                    String exceptionMessage = e.getMessage();
-                    if (exceptionMessage != null) {
-                        failMsg += exceptionMessage;
-                    } else {
-                        failMsg += "(no message)";
-                    }
-                    fail(failMsg);
-                } catch (Exception e) {
-                    String failMsg = "failure trying to query for " + queryString
-                        + ", season " + seasonNum + ", episode " + episodeNum
-                        + e.getClass().getName() + " ";
-                    String exceptionMessage = e.getMessage();
-                    if (exceptionMessage != null) {
-                        failMsg += exceptionMessage;
-                    } else {
-                        failMsg += "(possibly timeout?)";
-                    }
-                    fail(failMsg);
-                }
+                testGetEpisodeDataTitle(testInput);
             }
         }
     }
