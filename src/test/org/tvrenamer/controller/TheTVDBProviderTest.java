@@ -1223,6 +1223,17 @@ public class TheTVDBProviderTest {
                    show.isValidSeries());
     }
 
+    private static CompletableFuture<String> createListingsFuture(final Series series,
+                                                                  final EpisodeTestData testInput)
+    {
+        final EpisodePlacement placement = new EpisodePlacement(testInput.seasonNum,
+                                                                testInput.episodeNum);
+        final CompletableFuture<String> future = new CompletableFuture<>();
+        series.addListingsListener(new ListingsDownloader(series, placement, future));
+
+        return future;
+    }
+
     /**
      * Run testQueryShow to validate we get the expected show from the given
      * queryString, and then look up the listings to verify we get the expected
@@ -1235,8 +1246,6 @@ public class TheTVDBProviderTest {
      */
     private static void testGetEpisodeDataTitle(final EpisodeTestData testInput) {
         final String queryString = testInput.queryString;
-        final EpisodePlacement placement = new EpisodePlacement(testInput.seasonNum,
-                                                                testInput.episodeNum);
         try {
             final Show show = testQueryShow(queryString, testInput.properShowName);
             assertGotShow(show, testInput);
@@ -1245,9 +1254,8 @@ public class TheTVDBProviderTest {
                 show.setPreferDvd(testInput.preferDvd);
             }
 
-            final CompletableFuture<String> future = new CompletableFuture<>();
-            Series series = show.asSeries();
-            series.addListingsListener(new ListingsDownloader(series, placement, future));
+            final CompletableFuture<String> future = createListingsFuture(show.asSeries(),
+                                                                          testInput);
             String got = future.get(30, TimeUnit.SECONDS);
             assertEpisodeTitle(testInput, got);
         } catch (TimeoutException e) {
