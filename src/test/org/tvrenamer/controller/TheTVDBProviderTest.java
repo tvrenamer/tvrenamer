@@ -1128,15 +1128,14 @@ public class TheTVDBProviderTest {
      * Look up the query string with the provider and return the Show based on the
      * information returned.
      *
-     * @param queryString
-     *    the text to send to the provider to get the Show
-     * @param properShowName
-     *    the exact title of the series we expect to get back; used for error-checking
-     * @return a Show based on the queryString, or null
+     * @param testInput
+     *    an EpisodeTestData containing all the values we need to look up
+     *    a Show (or an Episode)
+     * @return a Show based on the queryString of the testInput, or null
      */
-    private static Show testQueryShow(final String queryString,
-                                      final String properShowName)
-    {
+    private static Show testQueryShow(final EpisodeTestData testInput) {
+        final String queryString = testInput.queryString;
+        final String properShowName = testInput.properShowName;
         try {
             final CompletableFuture<ShowOption> futureShow = new CompletableFuture<>();
             ShowStore.mapStringToShow(queryString, new ShowDownloader(futureShow));
@@ -1245,9 +1244,8 @@ public class TheTVDBProviderTest {
      *    an episode
      */
     private static void testGetEpisodeDataTitle(final EpisodeTestData testInput) {
-        final String queryString = testInput.queryString;
         try {
-            final Show show = testQueryShow(queryString, testInput.properShowName);
+            final Show show = testQueryShow(testInput);
             assertGotShow(show, testInput);
             assertValidSeries(show, testInput);
             if (testInput.preferDvd != null) {
