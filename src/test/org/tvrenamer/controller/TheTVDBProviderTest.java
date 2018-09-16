@@ -1206,6 +1206,23 @@ public class TheTVDBProviderTest {
         return failMsg;
     }
 
+    private static void assertGotShow(final Show show,
+                                      final EpisodeTestData testInput)
+    {
+        assertNotNull("got null value from testQueryShow on <["
+                      + testInput.queryString + "]>",
+                      show);
+    }
+
+    private static void assertValidSeries(final Show show,
+                                          final EpisodeTestData testInput)
+    {
+        assertTrue("expected valid Series (<[" + testInput.properShowName
+                   + "]>) for \"" + testInput.queryString
+                   + "\" but got <[" + show + "]>",
+                   show.isValidSeries());
+    }
+
     /**
      * Run testQueryShow to validate we get the expected show from the given
      * queryString, and then look up the listings to verify we get the expected
@@ -1222,12 +1239,8 @@ public class TheTVDBProviderTest {
                                                                 testInput.episodeNum);
         try {
             final Show show = testQueryShow(queryString, testInput.properShowName);
-            assertNotNull("got null value from testQueryShow on <["
-                          + queryString + "]>",
-                          show);
-            assertTrue("expected valid Series (<[" + testInput.properShowName
-                       + "]>) for \"" + queryString + "\" but got <[" + show + "]>",
-                       show.isValidSeries());
+            assertGotShow(show, testInput);
+            assertValidSeries(show, testInput);
             if (testInput.preferDvd != null) {
                 show.setPreferDvd(testInput.preferDvd);
             }
