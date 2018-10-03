@@ -4,12 +4,12 @@
          xmlns:ivy="antlib:org.apache.ivy.ant">
 
   <property name="src.main" value="src/main" />
+  <property name="res" value="src/main/resources" />
   <property name="src.test" value="src/test" />
   <property name="build" value="out" />
   <property name="lib.dl" value="lib" />
   <property name="lib.main" value="jars/main" />
   <property name="lib.test" value="jars/test" />
-  <property name="res" value="res" />
   <property name="rel" value="release" />
 
   <property name="dist" value="dist" />
@@ -17,8 +17,8 @@
 
   <property file="build.properties" />
 
-  <property name="version.file" value="${src.main}/tvrenamer.version" />
-  <property name="logging.file" value="${etc}/logging.properties" />
+  <property name="version.file" value="${res}/tvrenamer.version" />
+  <property name="logging.file" value="${res}/logging.properties" />
   <loadfile property="version" srcFile="${version.file}">
     <filterchain>
       <striplinebreaks />

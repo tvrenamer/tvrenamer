@@ -47,7 +47,7 @@ public class Environment {
         InputStream versionStream = Environment.class.getResourceAsStream("/tvrenamer.version");
         // Dev env
         if (versionStream == null) {
-            versionStream = Environment.class.getResourceAsStream("/src/main/tvrenamer.version");
+            versionStream = Environment.class.getResourceAsStream("/src/main/resources/tvrenamer.version");
         }
 
         int bytesRead = -1;
