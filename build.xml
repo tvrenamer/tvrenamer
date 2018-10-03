@@ -69,7 +69,7 @@
   </target>
 
   <target name="compile" depends="init">
-    <javac srcdir="${src.main}" destdir="${build}" classpathref="classpath" debug="true" debuglevel="lines,vars,source" includeantruntime="false" target="1.8" source="1.8" />
+    <javac srcdir="${src.main}/java" destdir="${build}" classpathref="classpath" debug="true" debuglevel="lines,vars,source" includeantruntime="false" target="1.8" source="1.8" />
     <copy file="${version.file}" todir="${build}" />
     <copy file="${logging.file}" todir="${build}" />
   </target>
@@ -218,7 +218,7 @@
              classpathref="classpath"
              windowtitle="TVRenamer Documentation">
 
-      <packageset dir="${src.main}" defaultexcludes="yes">
+      <packageset dir="${src.main}/java" defaultexcludes="yes">
         <include name="org/tvrenamer/**"/>
       </packageset>
 
