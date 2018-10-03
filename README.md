@@ -39,7 +39,7 @@ It will take an ugly filename like **Lost.S06E05.DD51.720p.WEB-DL.AVC-FUSiON.mkv
     Type: Application
     Name: TVRenamer
     Command: <location of unzipped file from (1.)>/TVRenamer-&lt;version&gt;/run-linux.sh
-    Icon: Can be anything, perhaps [our icon](http://github.com/tvrenamer/tvrenamer/raw/master/res/icons/tvrenamer.png)
+    Icon: Can be anything, perhaps [our icon](http://github.com/tvrenamer/tvrenamer/raw/master/src/main/resources/icons/tvrenamer.png)
     *If the application doesn't start, or if you have problems switch the Type to be 'Application in Terminal'*
     1. If you don't add it to the Gnome bar, open an terminal and `cd` to where you unzipped the file to.  Then `cd` into the TVRenamer-&lt;version&gt; folder.  There should be run-linux.sh and tvrenamer.jar file there.
     1. Execute the run script via `./run-linux.sh`

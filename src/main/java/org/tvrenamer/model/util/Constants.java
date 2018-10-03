@@ -59,7 +59,7 @@ public class Constants {
     public static final String SOURCE_CODE_LINK = "Source Code";
 
     public static final String XML_SUFFIX = ".xml";
-    public static final String ICON_PARENT_DIRECTORY = "res";
+    public static final String ICON_PARENT_DIRECTORY = "src/main/resources";
     public static final String APPLICATION_ICON_PATH = "/icons/tvrenamer.png";
     public static final String SUBLINK_PATH = "/icons/SweetieLegacy/";
     public static final String LOGGING_PROPERTIES = "/logging.properties";
