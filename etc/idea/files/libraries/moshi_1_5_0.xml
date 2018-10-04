@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="moshi-1.5.0">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/jars/main/moshi-1.5.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
