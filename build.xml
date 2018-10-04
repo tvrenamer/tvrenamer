@@ -75,7 +75,7 @@
   </target>
 
   <target name="compile.test" depends="compile">
-    <javac srcdir="${src.test}" destdir="${build}" classpathref="classpath.test" debug="true" debuglevel="lines,vars,source" includeantruntime="false" />
+    <javac srcdir="${src.test}/java" destdir="${build}" classpathref="classpath.test" debug="true" debuglevel="lines,vars,source" includeantruntime="false" />
     <copy file="${version.file}" todir="${build}" />
   </target>
 
@@ -288,7 +288,7 @@
       <classpath refid="classpath.test" />
 
       <batchtest>
-        <fileset dir="${src.test}" includes="**/*Test.java" />
+        <fileset dir="${src.test}/java" includes="**/*Test.java" />
       </batchtest>
     </junit>
   </target>
