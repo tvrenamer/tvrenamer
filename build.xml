@@ -218,7 +218,7 @@
              classpathref="classpath"
              windowtitle="TVRenamer Documentation">
 
-      <packageset dir="src/main" defaultexcludes="yes">
+      <packageset dir="${src.main}" defaultexcludes="yes">
         <include name="org/tvrenamer/**"/>
       </packageset>
 

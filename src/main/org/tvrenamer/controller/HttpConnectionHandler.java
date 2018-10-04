@@ -37,6 +37,8 @@ class HttpConnectionHandler {
      * @param ioe
      *   an I/O exception that may give some indication of what went wrong (and, at least,
      *   gives us a stack trace...)
+     * @return 
+     *   does not actually return anything; always throws an exception
      */
     private String downloadUrlFailed(final Response response, final String url,
                                      final IOException ioe)
