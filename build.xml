@@ -11,8 +11,6 @@
   <property name="build.test" value="${build}/test" />
   <property name="build.jar" value="${build}/jar" />
   <property name="lib.dl" value="lib" />
-  <property name="lib.main" value="jars/main" />
-  <property name="lib.test" value="jars/test" />
   <property name="jdoc" value="docs" />
 
   <property name="dist" value="dist" />
@@ -41,11 +39,11 @@
   <taskdef name="bundleapp" classpath="appbundler-1.0ea.jar" classname="com.oracle.appbundler.AppBundlerTask" />
 
   <path id="classpath">
-    <fileset dir="${lib.main}">
+    <fileset dir="${lib.dl}">
       <!-- We can compile against any swt version-->
       <include name="org.eclipse.swt.cocoa.macosx-*.jar" />
     </fileset>
-    <fileset dir="${lib.main}" id="classpath.runtime">
+    <fileset dir="${lib.dl}" id="classpath.runtime">
       <include name="xstream-*.jar" />
       <include name="xmlpull-*.jar" />
       <include name="xpp3_min*.jar" />
@@ -57,8 +55,8 @@
 
   <path id="classpath.test">
     <path refid="classpath" />
-    <fileset dir="${lib.test}" />
-    <fileset dir="${lib.dl}">
+    <fileset dir="${lib.dl}" >
+      <include name="junit-*.jar" />
       <include name="hamcrest-core-*.jar" />
     </fileset>
 
@@ -67,6 +65,7 @@
   </path>
 
   <target name="resolve" description="retrieve dependencies with ivy">
+    <mkdir dir="${lib.dl}" />
     <ivy:retrieve/>
   </target>
 
@@ -75,6 +74,13 @@
   </target>
 
   <target name="compile">
+
+    <fail message="You need to run ivy (ant resolve) first.">
+      <condition><not>
+        <available file="${lib.dl}" />
+      </not></condition>
+    </fail>
+
     <mkdir dir="${build.main}" />
     <javac srcdir="${src.main}/java" destdir="${build.main}" classpathref="classpath"
            debug="true" debuglevel="lines,vars,source"
@@ -120,8 +126,8 @@
         </fileset>
 
         <zipgroupfileset refid="classpath.runtime" />
-        <zipgroupfileset dir="${lib.main}">
-          <include name="org.eclipse.swt.@{swtid}*.jar" />
+        <zipgroupfileset dir="${lib.dl}">
+          <include name="org.eclipse.swt.@{swtid}-*.jar" />
         </zipgroupfileset>
 
         <fileset file="${logging.file}" />
@@ -215,7 +221,7 @@
     <build.osx platform="osx64" swtid="cocoa.macosx.x86_64" />
   </target>
 
-  <target name="dist.all" depends="init, dist.win, dist.linux, dist.osx" />
+  <target name="dist.all" depends="init, resolve, dist.win, dist.linux, dist.osx" />
 
   <target name="javadoc">
     <javadoc destdir="${jdoc}/api"

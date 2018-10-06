@@ -17,7 +17,7 @@ then
 fi
 
 # libraries -- hard-coded.  The first one is platform-specific.
-loclibs="org.eclipse.swt.gtk.linux.x86_64-4.3.jar commons-codec-1.4.jar xstream-1.4.9.jar xmlpull-1.1.3.1.jar xpp3_min-1.1.4c.jar okhttp-3.8.0.jar okio-1.13.0.jar"
+libs="org.eclipse.swt.gtk.linux.x86_64-4.3.jar commons-codec-1.4.jar xstream-1.4.9.jar xmlpull-1.1.3.1.jar xpp3_min-1.1.4c.jar okhttp-3.8.0.jar okio-1.13.0.jar"
 
 usage ()
 {
@@ -90,13 +90,13 @@ fi
 # Could return to where we started, but then resources are not found
 # cd $startdir
 
-# Library files are checked in here
-loclibdir=${pdir}/jars/main
+# Library files are downloaded here
+ivydir=${pdir}/lib
 
 CLASSPATH=${pdir}/out/main
-for lib in ${loclibs}
+for lib in ${libs}
 do
-  CLASSPATH=${CLASSPATH}':'${loclibdir}/${lib}
+  CLASSPATH=${CLASSPATH}':'${ivydir}/${lib}
 done
 export CLASSPATH
 
