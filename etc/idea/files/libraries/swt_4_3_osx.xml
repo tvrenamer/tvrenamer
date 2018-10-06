@@ -1,7 +1,7 @@
 <component name="libraryTable">
   <library name="swt-4.3">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/jars/main/swt-osx64-4.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/org.eclipse.swt.cocoa.macosx.x86_64-4.3.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
