@@ -47,6 +47,20 @@ License: Apache Copyright © 2003 The Trustees of Indiana University. All rights
 License website: http://www.extreme.indiana.edu/dist/java-repository/xpp3/licenses/LICENSE.txt
 License conditions: This product includes software developed by the Indiana University Extreme! Lab.  For further information please visit http://www.extreme.indiana.edu/
 
+Okio
+=========================================
+Description: Okio is a library that complements java.io and java.nio to make it much easier to access, store, and process your data.
+Website: https://square.github.io/okio/2.x/okio/jvm/okio/index.html
+License: Apache License v2.0
+License website: http://www.apache.org/licenses/LICENSE-2.0
+
+OkHttp
+=========================================
+Description: An HTTP & HTTP/2 client for Android and Java applications.
+Website: http://square.github.io/okhttp/
+License: Apache License v2.0
+License website: http://www.apache.org/licenses/LICENSE-2.0
+
 jEdit
 =========================================
 Description: The Programmer's Text Editor
