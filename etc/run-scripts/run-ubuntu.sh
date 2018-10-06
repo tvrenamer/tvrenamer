@@ -87,6 +87,9 @@ then
   ant compile || exit 2
 fi
 
+# Could return to where we started, but then resources are not found
+# cd $startdir
+
 # Library files are checked in here
 loclibdir=${pdir}/jars/main
 
