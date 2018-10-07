@@ -281,6 +281,12 @@
     </delete>
   </target>
 
+  <target name="allclean" depends="clean">
+    <delete dir="${build}" />
+    <delete dir="${dist}" />
+    <delete dir="${lib.dl}" />
+  </target>
+
   <target name="usage">
     <echo message="Usage: ant dist.{win, linux, osx, all}" />
     <echo message="       tests" />
