@@ -10,7 +10,6 @@
   <property name="lib.dl" value="lib" />
   <property name="lib.main" value="jars/main" />
   <property name="lib.test" value="jars/test" />
-  <property name="rel" value="release" />
 
   <property name="dist" value="dist" />
   <property name="etc" value="etc" />
