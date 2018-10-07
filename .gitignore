@@ -5,7 +5,7 @@
 /build/
 /docs/
 
-build.properties
+launch4j.properties
 
 /tvrenamer.iml
 /.idea/
