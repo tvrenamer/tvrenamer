@@ -146,8 +146,6 @@
         <zipfileset dir="${build.jar}/@{platform}" filemode="755" />
       </zip>
       <copy file="${build.jar}/@{platform}/${rel.name}/${rel.name}-@{platform}.zip" todir="${dist}" />
-
-      <delete dir="${build.jar}/@{platform}/" failonerror="false" />
     </sequential>
   </macrodef>
 
@@ -176,8 +174,6 @@
         <zipfileset dir="${build.jar}/@{platform}" filemode="755" />
       </zip>
       <copy file="${build.jar}/@{platform}/${rel.name}-@{platform}.zip" todir="${dist}" />
-
-      <delete dir="${build.jar}/@{platform}/" failonerror="false" />
     </sequential>
   </macrodef>
 
@@ -201,11 +197,8 @@
           <jre minVersion="1.8.0" />
         </config>
       </launch4j>
-
-      <delete dir="${build.jar}/@{platform}/" failonerror="false" />
     </sequential>
   </macrodef>
-
 
   <target name="dist.win" depends="clean">
     <build.win platform="win32" swtid="win32.win32.x86" />
@@ -243,7 +236,6 @@
       <link href="http://docs.oracle.com/javase/8/docs/api/"/>
     </javadoc>
   </target>
-
 
   <target name="init-checkstyle">
     <path id="checkstyle.lib.path">
