@@ -69,13 +69,17 @@
   </target>
 
   <target name="compile" depends="init">
-    <javac srcdir="${src.main}/java" destdir="${build}" classpathref="classpath" debug="true" debuglevel="lines,vars,source" includeantruntime="false" target="1.8" source="1.8" />
+    <javac srcdir="${src.main}/java" destdir="${build}" classpathref="classpath"
+           debug="true" debuglevel="lines,vars,source"
+           includeantruntime="false" target="1.8" source="1.8" />
     <copy file="${version.file}" todir="${build}" />
     <copy file="${logging.file}" todir="${build}" />
   </target>
 
   <target name="compile.test" depends="compile">
-    <javac srcdir="${src.test}/java" destdir="${build}" classpathref="classpath.test" debug="true" debuglevel="lines,vars,source" includeantruntime="false" />
+    <javac srcdir="${src.test}/java" destdir="${build}" classpathref="classpath.test"
+           debug="true" debuglevel="lines,vars,source"
+           includeantruntime="false" />
     <copy file="${version.file}" todir="${build}" />
   </target>
 
@@ -171,7 +175,9 @@
   <macrodef name="build.win">
     <attribute name="platform" />
     <sequential>
-      <fail unless="launch4j.path" message="You must set the 'launch4j.path' property in build.properties. Copy, rename build.properties.template and enter the launch4j location" />
+      <!-- Copy, rename build.properties.template and enter the launch4j location. -->
+      <fail unless="launch4j.path"
+            message="You must set the 'launch4j.path' property in build.properties." />
 
       <build.jar platform="@{platform}" />
       <!-- Create the .exe with launch4j, but first you must uncomment the ant task import above -->
