@@ -93,7 +93,7 @@ fi
 # Library files are checked in here
 loclibdir=${pdir}/jars/main
 
-CLASSPATH=${pdir}/out
+CLASSPATH=${pdir}/out/main
 for lib in ${loclibs}
 do
   CLASSPATH=${CLASSPATH}':'${loclibdir}/${lib}
