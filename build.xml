@@ -9,6 +9,7 @@
   <property name="build" value="out" />
   <property name="build.main" value="${build}" />
   <property name="build.test" value="${build}" />
+  <property name="build.jar" value="${build}" />
   <property name="lib.dl" value="lib" />
   <property name="lib.main" value="jars/main" />
   <property name="lib.test" value="jars/test" />
@@ -93,12 +94,12 @@
     <attribute name="platform" />
     <attribute name="swtid" />
     <sequential>
-      <mkdir dir="${build}/@{platform}" />
+      <mkdir dir="${build.jar}/@{platform}" />
 
       <!-- Use antcall because macrodef's can't declare dependencies -->
       <antcall target="compile"/>
 
-      <jar destfile="${build}/@{platform}/tvrenamer.jar" filesetmanifest="mergewithoutmain">
+      <jar destfile="${build.jar}/@{platform}/tvrenamer.jar" filesetmanifest="mergewithoutmain">
         <manifest>
           <attribute name="Built-By" value="${jar.builtBy}" />
           <attribute name="Main-Class" value="${jar.mainClass}" />
@@ -134,19 +135,19 @@
     <sequential>
       <build.jar platform="@{platform}" swtid="@{swtid}" />
 
-      <mkdir dir="${build}/@{platform}/${rel.name}" />
+      <mkdir dir="${build.jar}/@{platform}/${rel.name}" />
 
-      <mkdir dir="${build}/@{platform}/${rel.name}" />
-      <move file="${build}/@{platform}/tvrenamer.jar" todir="${build}/@{platform}/${rel.name}" />
-      <copy file="${etc}/run-scripts/run-linux.sh" todir="${build}/@{platform}/${rel.name}" />
-      <copy file="LICENSE.txt" todir="${build}/@{platform}/${rel.name}" />
+      <mkdir dir="${build.jar}/@{platform}/${rel.name}" />
+      <move file="${build.jar}/@{platform}/tvrenamer.jar" todir="${build.jar}/@{platform}/${rel.name}" />
+      <copy file="${etc}/run-scripts/run-linux.sh" todir="${build.jar}/@{platform}/${rel.name}" />
+      <copy file="LICENSE.txt" todir="${build.jar}/@{platform}/${rel.name}" />
 
-      <zip destfile="${build}/@{platform}/${rel.name}/${rel.name}-@{platform}.zip">
-        <zipfileset dir="${build}/@{platform}" filemode="755" />
+      <zip destfile="${build.jar}/@{platform}/${rel.name}/${rel.name}-@{platform}.zip">
+        <zipfileset dir="${build.jar}/@{platform}" filemode="755" />
       </zip>
-      <copy file="${build}/@{platform}/${rel.name}/${rel.name}-@{platform}.zip" todir="${dist}" />
+      <copy file="${build.jar}/@{platform}/${rel.name}/${rel.name}-@{platform}.zip" todir="${dist}" />
 
-      <delete dir="${build}/@{platform}/" failonerror="false" />
+      <delete dir="${build.jar}/@{platform}/" failonerror="false" />
     </sequential>
   </macrodef>
 
@@ -159,24 +160,24 @@
       <bundleapp
         jvmrequired="1.8"
         jrepreferred="true"
-        outputdirectory="${build}/@{platform}"
+        outputdirectory="${build.jar}/@{platform}"
         name="${rel.name}"
         displayname="${rel.name}"
         identifier="org.tvrenamer"
         version="${version}"
         icon="${res}/icons/tvrenamer.icns"
         mainclassname="${jar.mainClass}">
-        <classpath file="${build}/@{platform}/tvrenamer.jar" />
+        <classpath file="${build.jar}/@{platform}/tvrenamer.jar" />
         <option value="-XstartOnFirstThread" />
       </bundleapp>
 
-      <delete file="${build}/@{platform}/tvrenamer.jar" />
-      <zip destfile="${build}/@{platform}/${rel.name}-@{platform}.zip">
-        <zipfileset dir="${build}/@{platform}" filemode="755" />
+      <delete file="${build.jar}/@{platform}/tvrenamer.jar" />
+      <zip destfile="${build.jar}/@{platform}/${rel.name}-@{platform}.zip">
+        <zipfileset dir="${build.jar}/@{platform}" filemode="755" />
       </zip>
-      <copy file="${build}/@{platform}/${rel.name}-@{platform}.zip" todir="${dist}" />
+      <copy file="${build.jar}/@{platform}/${rel.name}-@{platform}.zip" todir="${dist}" />
 
-      <delete dir="${build}/@{platform}/" failonerror="false" />
+      <delete dir="${build.jar}/@{platform}/" failonerror="false" />
     </sequential>
   </macrodef>
 
@@ -194,14 +195,14 @@
         <config headerType="gui"
                 outfile="${dist}/${rel.name}-@{platform}.exe"
                 dontWrapJar="false"
-                jar="${build}/@{platform}/tvrenamer.jar"
+                jar="${build.jar}/@{platform}/tvrenamer.jar"
                 icon="${res}\icons\oldschool-tv-icon.ico"
                 chdir=".">
           <jre minVersion="1.8.0" />
         </config>
       </launch4j>
 
-      <delete dir="${build}/@{platform}/" failonerror="false" />
+      <delete dir="${build.jar}/@{platform}/" failonerror="false" />
     </sequential>
   </macrodef>
 
