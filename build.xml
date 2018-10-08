@@ -116,7 +116,6 @@
           <include name="swt-@{platform}*.jar" />
         </zipgroupfileset>
 
-        <fileset file="${version.file}" />
         <fileset file="${logging.file}" />
       </jar>
     </sequential>
