@@ -7,6 +7,8 @@
   <property name="res" value="src/main/resources" />
   <property name="src.test" value="src/test" />
   <property name="build" value="out" />
+  <property name="build.main" value="${build}" />
+  <property name="build.test" value="${build}" />
   <property name="lib.dl" value="lib" />
   <property name="lib.main" value="jars/main" />
   <property name="lib.test" value="jars/test" />
@@ -55,8 +57,12 @@
   <path id="classpath.test">
     <path refid="classpath" />
     <fileset dir="${lib.test}" />
+    <fileset dir="${lib.dl}">
+      <include name="hamcrest-core-*.jar" />
+    </fileset>
 
-    <pathelement location="${build}" />
+    <pathelement location="${build.main}" />
+    <pathelement location="${build.test}" />
   </path>
 
   <target name="resolve" description="retrieve dependencies with ivy">
@@ -64,23 +70,23 @@
   </target>
 
   <target name="init">
-    <mkdir dir="${build}" />
     <mkdir dir="${dist}" />
   </target>
 
-  <target name="compile" depends="init">
-    <javac srcdir="${src.main}/java" destdir="${build}" classpathref="classpath"
+  <target name="compile">
+    <mkdir dir="${build.main}" />
+    <javac srcdir="${src.main}/java" destdir="${build.main}" classpathref="classpath"
            debug="true" debuglevel="lines,vars,source"
            includeantruntime="false" target="1.8" source="1.8" />
-    <copy file="${version.file}" todir="${build}" />
-    <copy file="${logging.file}" todir="${build}" />
+    <copy file="${version.file}" todir="${build.main}" />
+    <copy file="${logging.file}" todir="${build.main}" />
   </target>
 
-  <target name="compile.test" depends="compile">
-    <javac srcdir="${src.test}/java" destdir="${build}" classpathref="classpath.test"
+  <target name="compile.test" depends="compile, resolve">
+    <mkdir dir="${build.test}" />
+    <javac srcdir="${src.test}/java" destdir="${build.test}" classpathref="classpath.test"
            debug="true" debuglevel="lines,vars,source"
            includeantruntime="false" />
-    <copy file="${version.file}" todir="${build}" />
   </target>
 
   <macrodef name="build.jar" description="Compiles the source then creates an executable jar for the given platform">
@@ -98,7 +104,7 @@
           <attribute name="Main-Class" value="${jar.mainClass}" />
         </manifest>
 
-        <fileset dir="${build}" />
+        <fileset dir="${build.main}" />
 
         <fileset dir="${res}">
           <include name="icons/tvrenamer.icns" />
@@ -215,7 +221,7 @@
     <build.osx platform="osx64" swtid="cocoa.macosx.x86_64" />
   </target>
 
-  <target name="dist.all" depends="clean, dist.win, dist.linux, dist.osx" />
+  <target name="dist.all" depends="init, dist.win, dist.linux, dist.osx" />
 
   <target name="javadoc">
     <javadoc destdir="${jdoc}/api"
@@ -270,17 +276,18 @@
     <findbugs output="html"
               reportLevel="low"
               excludeFilter="${etc}/exclude.xml"
-              outputFile="${build}/fbugs.html" >
+              outputFile="${build.test}/fbugs.html" >
       <auxClasspath refid="classpath"/>
       <auxClasspath refid="classpath.test"/>
       <classpath refid="findbugs.classpath"/>
-      <class location="${build}"/>
+      <class location="${build.test}"/>
     </findbugs>
   </target>
 
   <target name="clean">
     <delete includeemptydirs="true" failonerror="false">
-      <fileset dir="${build}" includes="**/*" />
+      <fileset dir="${build.main}" includes="**/*" />
+      <fileset dir="${build.test}" includes="**/*" />
       <fileset dir="${dist}" includes="**/*" />
     </delete>
   </target>
