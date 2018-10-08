@@ -116,7 +116,7 @@ fi
 # Library files are checked in here
 loclibdir=${pdir}/jars/main
 
-CLASSPATH=`windowsize ${pdir}/out`
+CLASSPATH=`windowsize ${pdir}/out/main`
 for lib in ${loclibs}
 do
   CLASSPATH=${CLASSPATH}';'`windowsize ${loclibdir}/${lib}`

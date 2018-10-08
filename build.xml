@@ -7,9 +7,9 @@
   <property name="res" value="src/main/resources" />
   <property name="src.test" value="src/test" />
   <property name="build" value="out" />
-  <property name="build.main" value="${build}" />
-  <property name="build.test" value="${build}" />
-  <property name="build.jar" value="${build}" />
+  <property name="build.main" value="${build}/main" />
+  <property name="build.test" value="${build}/test" />
+  <property name="build.jar" value="${build}/jar" />
   <property name="lib.dl" value="lib" />
   <property name="lib.main" value="jars/main" />
   <property name="lib.test" value="jars/test" />
