@@ -40,7 +40,7 @@
   <path id="classpath">
     <fileset dir="${lib.main}">
       <!-- We can compile against any swt version-->
-      <include name="swt-win32*.jar" />
+      <include name="org.eclipse.swt.cocoa.macosx-*.jar" />
     </fileset>
     <fileset dir="${lib.main}" id="classpath.runtime">
       <include name="xstream-*.jar" />
@@ -85,6 +85,7 @@
 
   <macrodef name="build.jar" description="Compiles the source then creates an executable jar for the given platform">
     <attribute name="platform" />
+    <attribute name="swtid" />
     <sequential>
       <mkdir dir="${build}/@{platform}" />
 
@@ -113,7 +114,7 @@
 
         <zipgroupfileset refid="classpath.runtime" />
         <zipgroupfileset dir="${lib.main}">
-          <include name="swt-@{platform}*.jar" />
+          <include name="org.eclipse.swt.@{swtid}*.jar" />
         </zipgroupfileset>
 
         <fileset file="${logging.file}" />
@@ -123,8 +124,9 @@
 
   <macrodef name="build.linux">
     <attribute name="platform" />
+    <attribute name="swtid" />
     <sequential>
-      <build.jar platform="@{platform}" />
+      <build.jar platform="@{platform}" swtid="@{swtid}" />
 
       <mkdir dir="${build}/@{platform}/${rel.name}" />
 
@@ -144,8 +146,9 @@
 
   <macrodef name="build.osx">
     <attribute name="platform" />
+    <attribute name="swtid" />
     <sequential>
-      <build.jar platform="@{platform}" />
+      <build.jar platform="@{platform}" swtid="@{swtid}" />
 
       <bundleapp
         jvmrequired="1.8"
@@ -173,12 +176,13 @@
 
   <macrodef name="build.win">
     <attribute name="platform" />
+    <attribute name="swtid" />
     <sequential>
       <!-- Copy, rename launch4j.properties.template and enter the launch4j location. -->
       <fail unless="launch4j.path"
             message="You must set the 'launch4j.path' property in launch4j.properties." />
 
-      <build.jar platform="@{platform}" />
+      <build.jar platform="@{platform}" swtid="@{swtid}" />
       <!-- Create the .exe with launch4j, but first you must uncomment the ant task import above -->
       <launch4j>
         <config headerType="gui"
@@ -197,18 +201,18 @@
 
 
   <target name="dist.win" depends="clean">
-    <build.win platform="win32" />
-    <build.win platform="win64" />
+    <build.win platform="win32" swtid="win32.win32.x86" />
+    <build.win platform="win64" swtid="win32.win32.x86_64" />
   </target>
 
   <target name="dist.linux" depends="clean">
-    <build.linux platform="gtk32" />
-    <build.linux platform="gtk64" />
+    <build.linux platform="gtk32" swtid="gtk.linux.x86" />
+    <build.linux platform="gtk64" swtid="gtk.linux.x86_64" />
   </target>
 
   <target name="dist.osx" depends="clean">
-    <build.osx platform="osx32" />
-    <build.osx platform="osx64" />
+    <build.osx platform="osx32" swtid="cocoa.macosx" />
+    <build.osx platform="osx64" swtid="cocoa.macosx.x86_64" />
   </target>
 
   <target name="dist.all" depends="clean, dist.win, dist.linux, dist.osx" />
