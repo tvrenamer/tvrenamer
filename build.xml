@@ -10,6 +10,7 @@
   <property name="lib.dl" value="lib" />
   <property name="lib.main" value="jars/main" />
   <property name="lib.test" value="jars/test" />
+  <property name="jdoc" value="docs" />
 
   <property name="dist" value="dist" />
   <property name="etc" value="etc" />
@@ -214,7 +215,7 @@
   <target name="dist.all" depends="clean, dist.win, dist.linux, dist.osx" />
 
   <target name="javadoc">
-    <javadoc destdir="docs/api"
+    <javadoc destdir="${jdoc}/api"
              noqualifier="all"
              author="true"
              version="true"
@@ -284,6 +285,7 @@
   <target name="allclean" depends="clean">
     <delete dir="${build}" />
     <delete dir="${dist}" />
+    <delete dir="${jdoc}" />
     <delete dir="${lib.dl}" />
   </target>
 
