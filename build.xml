@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--suppress ALL -->
 <project name="TVRenamer build script" default="usage"
+         xmlns:fx="javafx:com.sun.javafx.tools.ant"
          xmlns:ivy="antlib:org.apache.ivy.ant">
 
   <property name="src.main" value="src/main" />
@@ -20,6 +21,9 @@
 
   <property name="version.file" value="${res}/tvrenamer.version" />
   <property name="logging.file" value="${res}/logging.properties" />
+
+  <property environment="env" />
+
   <loadfile property="version" srcFile="${version.file}">
     <filterchain>
       <striplinebreaks />
@@ -34,9 +38,6 @@
   <taskdef name="launch4j"
       classname="net.sf.launch4j.ant.Launch4jTask"
       classpath="${launch4j.path}/launch4j.jar:${launch4j.path}/lib/xstream.jar" onerror="report" />
-
-  <!-- for creating OS X app bundles -->
-  <taskdef name="bundleapp" classpath="appbundler-1.0ea.jar" classname="com.oracle.appbundler.AppBundlerTask" />
 
   <path id="classpath">
     <fileset dir="${lib.dl}">
@@ -155,31 +156,42 @@
     </sequential>
   </macrodef>
 
+  <!-- Your environment variable JAVA_HOME must point to Java 8 or 10 SDK -->
   <macrodef name="build.osx">
     <attribute name="platform" />
     <attribute name="swtid" />
     <sequential>
       <build.jar platform="@{platform}" swtid="@{swtid}" />
 
-      <bundleapp
-        jvmrequired="1.8"
-        jrepreferred="true"
-        outputdirectory="${build.jar}/@{platform}"
-        name="${rel.name}"
-        displayname="${rel.name}"
-        identifier="org.tvrenamer"
-        version="${version}"
-        icon="${res}/icons/tvrenamer.icns"
-        mainclassname="${jar.mainClass}">
-        <classpath file="${build.jar}/@{platform}/tvrenamer.jar" />
-        <option value="-XstartOnFirstThread" />
-      </bundleapp>
+      <taskdef
+        resource="com/sun/javafx/tools/ant/antlib.xml"
+        uri="javafx:com.sun.javafx.tools.ant"
+        classpath=".:${env.JAVA_HOME}/lib/ant-javafx.jar"/>
 
-      <delete file="${build.jar}/@{platform}/tvrenamer.jar" />
-      <zip destfile="${build.jar}/@{platform}/${rel.name}-@{platform}.zip">
-        <zipfileset dir="${build.jar}/@{platform}" filemode="755" />
-      </zip>
-      <copy file="${build.jar}/@{platform}/${rel.name}-@{platform}.zip" todir="${dist}" />
+      <fx:deploy
+        verbose="true"
+          embedjnlp="false"
+        outdir="${dist}"
+        outfile="TVRenamer"
+        nativeBundles="image">
+
+        <fx:info
+          title="TVRenamer"
+          vendor="TVRenamer"/>
+
+        <fx:application
+          name="${rel.name}"
+          mainClass="${jar.mainClass}" />
+
+        <fx:platform>
+          <fx:jvmarg value="-XstartOnFirstThread" />
+        </fx:platform>
+
+        <fx:resources>
+          <fx:fileset dir="${build.jar}/@{platform}" includes="tvrenamer.jar" />
+        </fx:resources>
+
+      </fx:deploy>
     </sequential>
   </macrodef>
 
