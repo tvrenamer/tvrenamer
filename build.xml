@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--suppress ALL -->
 <project name="TVRenamer build script" default="usage"
+         xmlns:fx="javafx:com.sun.javafx.tools.ant"
          xmlns:ivy="antlib:org.apache.ivy.ant">
 
   <property name="src.main" value="src/main" />
@@ -16,6 +17,8 @@
   <property name="etc" value="etc" />
 
   <property file="build.properties" />
+
+  <property environment="env" />
 
   <property name="version.file" value="${src.main}/tvrenamer.version" />
   <property name="logging.file" value="${etc}/logging.properties" />
@@ -168,6 +171,45 @@
     </sequential>
   </macrodef>
 
+  <!-- Your environment variable JAVA_HOME must point to Java 8, 10 SDK -->
+  <macrodef name="build.osx.javapackager" >
+    <attribute name="platform" />
+    <sequential>
+
+      <build.jar platform="@{platform}" />
+
+      <taskdef
+        resource="com/sun/javafx/tools/ant/antlib.xml"
+        uri="javafx:com.sun.javafx.tools.ant"
+        classpath=".:${env.JAVA_HOME}/lib/ant-javafx.jar"/>
+
+      <fx:deploy
+        verbose="true"
+          embedjnlp="false"
+        outdir="${dist}"
+        outfile="TVRenamer"
+        nativeBundles="image">
+
+        <fx:info
+          title="TVRenamer"
+          vendor="TVRenamer"/>
+
+        <fx:application
+          name="${rel.name}"
+          mainClass="${jar.mainClass}" />
+
+        <fx:platform>
+          <fx:jvmarg value="-XstartOnFirstThread" />
+        </fx:platform>
+
+        <fx:resources>
+          <fx:fileset dir="${build}/@{platform}" includes="tvrenamer.jar" />
+        </fx:resources>
+
+      </fx:deploy>
+    </sequential>
+  </macrodef>
+
   <macrodef name="build.win">
     <attribute name="platform" />
     <sequential>
@@ -190,6 +232,9 @@
     </sequential>
   </macrodef>
 
+  <target name="build.jar.osx" depends="clean">
+    <build.jar platform="osx64" />
+  </target>
 
   <target name="dist.win" depends="clean">
     <build.win platform="win32" />
@@ -204,6 +249,11 @@
   <target name="dist.osx" depends="clean">
     <build.osx platform="osx32" />
     <build.osx platform="osx64" />
+  </target>
+
+  <target name="dist.osx.javapackager" depends="clean">
+    <build.osx.javapackager platform="osx32" />
+    <build.osx.javapackager platform="osx64" />
   </target>
 
   <target name="dist.all" depends="clean, dist.win, dist.linux, dist.osx" />
