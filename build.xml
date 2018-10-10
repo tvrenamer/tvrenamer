@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--suppress ALL -->
-<project name="TVRenamer build script" default="usage"
+<project name="TVRenamer" default="usage"
          xmlns:fx="javafx:com.sun.javafx.tools.ant"
          xmlns:ivy="antlib:org.apache.ivy.ant">
 
   <property name="src.main" value="src/main" />
   <property name="res" value="src/main/resources" />
+  <property name="icons" value="${res}/icons" />
   <property name="src.test" value="src/test" />
   <property name="build" value="out" />
   <property name="build.main" value="${build}/main" />
   <property name="build.test" value="${build}/test" />
   <property name="build.jar" value="${build}/jar" />
+  <property name="build.bundle" value="${build}/bundle" />
   <property name="lib.dl" value="lib" />
   <property name="jdoc" value="docs" />
+  <property name="dropin" value="package/macosx" />
 
   <property name="dist" value="dist" />
   <property name="etc" value="etc" />
@@ -22,6 +25,8 @@
   <property name="version.file" value="${res}/tvrenamer.version" />
   <property name="logging.file" value="${res}/logging.properties" />
 
+  <property name="iconfile" value="${dropin}/${ant.project.name}.icns" />
+
   <property environment="env" />
 
   <loadfile property="version" srcFile="${version.file}">
@@ -30,7 +35,7 @@
     </filterchain>
   </loadfile>
 
-  <property name="rel.name" value="TVRenamer-${version}" />
+  <property name="rel.name" value="${ant.project.name}-${version}" />
   <property name="jar.builtBy" value="https://github.com/tvrenamer/tvrenamer" />
   <property name="jar.mainClass" value="org.tvrenamer.controller.Launcher" />
 
@@ -163,25 +168,21 @@
     <sequential>
       <build.jar platform="@{platform}" swtid="@{swtid}" />
 
-      <taskdef
-        resource="com/sun/javafx/tools/ant/antlib.xml"
-        uri="javafx:com.sun.javafx.tools.ant"
-        classpath=".:${env.JAVA_HOME}/lib/ant-javafx.jar"/>
+      <copy file="${res}/icons/tvrenamer.icns" tofile="${iconfile}" />
 
-      <fx:deploy
-        verbose="true"
-          embedjnlp="false"
-        outdir="${dist}"
-        outfile="TVRenamer"
-        nativeBundles="image">
+      <taskdef resource="com/sun/javafx/tools/ant/antlib.xml"
+               uri="javafx:com.sun.javafx.tools.ant"
+               classpath=".:${env.JAVA_HOME}/lib/ant-javafx.jar"/>
 
-        <fx:info
-          title="TVRenamer"
-          vendor="TVRenamer"/>
+      <fx:deploy verbose="true"
+                 embedjnlp="false"
+                 outdir="${build.bundle}/@{platform}"
+                 outfile="${ant.project.name}"
+                 nativeBundles="image">
 
-        <fx:application
-          name="${rel.name}"
-          mainClass="${jar.mainClass}" />
+        <fx:info title="${ant.project.name}" vendor="${ant.project.name}"/>
+
+        <fx:application name="${ant.project.name}" mainClass="${jar.mainClass}" />
 
         <fx:platform>
           <fx:jvmarg value="-XstartOnFirstThread" />
@@ -192,6 +193,9 @@
         </fx:resources>
 
       </fx:deploy>
+      <zip destfile="${dist}/${rel.name}-@{platform}.zip">
+        <zipfileset dir="${build.bundle}/@{platform}/bundles" filemode="755" />
+      </zip>
     </sequential>
   </macrodef>
 
@@ -308,6 +312,7 @@
     <delete dir="${dist}" />
     <delete dir="${jdoc}" />
     <delete dir="${lib.dl}" />
+    <delete file="${iconfile}" />
   </target>
 
   <target name="usage">
