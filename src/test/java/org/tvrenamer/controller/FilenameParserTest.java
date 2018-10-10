@@ -83,6 +83,38 @@ public class FilenameParserTest {
     }
 
     @BeforeClass
+    public static void setupValuesThreeDigitSeason() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("House Hunters International.S103E02.mkv")
+                   .filenameShow("House Hunters International")
+                   .seasonNumString("103")
+                   .episodeNumString("02")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValuesLongThreeDigitSeason() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("House Hunters International "
+                                  + "Season 103 Episode 2.mkv")
+                   .filenameShow("House Hunters International")
+                   .seasonNumString("103")
+                   .episodeNumString("02")
+                   .build());
+    }
+
+    @BeforeClass
+    public static void setupValuesDotThreeDigitSeason() {
+        values.add(new EpisodeTestData.Builder()
+                   .inputFilename("House.Hunters.International."
+                                  + "s103.e02.mkv")
+                   .filenameShow("House.Hunters.International")
+                   .seasonNumString("103")
+                   .episodeNumString("02")
+                   .build());
+    }
+
+    @BeforeClass
     public static void setupValues01() {
         values.add(new EpisodeTestData.Builder()
                    .inputFilename("game.of.thrones.5x01.mp4")
