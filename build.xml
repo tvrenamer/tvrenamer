@@ -195,6 +195,46 @@
     </sequential>
   </macrodef>
 
+  <!-- Your environment variable JAVA_HOME must point to Java 8 or 10 SDK -->
+  <macrodef name="build.osx.javapackager" >
+    <attribute name="platform" />
+    <attribute name="swtid" />
+    <sequential>
+
+      <build.jar platform="@{platform}" swtid="@{swtid}" />
+
+      <taskdef
+        resource="com/sun/javafx/tools/ant/antlib.xml"
+        uri="javafx:com.sun.javafx.tools.ant"
+        classpath=".:${env.JAVA_HOME}/lib/ant-javafx.jar"/>
+
+      <fx:deploy
+        verbose="true"
+          embedjnlp="false"
+        outdir="${dist}"
+        outfile="TVRenamer"
+        nativeBundles="image">
+
+        <fx:info
+          title="TVRenamer"
+          vendor="TVRenamer"/>
+
+        <fx:application
+          name="${rel.name}"
+          mainClass="${jar.mainClass}" />
+
+        <fx:platform>
+          <fx:jvmarg value="-XstartOnFirstThread" />
+        </fx:platform>
+
+        <fx:resources>
+          <fx:fileset dir="${build.jar}/@{platform}" includes="tvrenamer.jar" />
+        </fx:resources>
+
+      </fx:deploy>
+    </sequential>
+  </macrodef>
+
   <macrodef name="build.win">
     <attribute name="platform" />
     <attribute name="swtid" />
@@ -234,6 +274,11 @@
   </target>
 
   <target name="dist.all" depends="init, resolve, dist.win, dist.linux, dist.osx" />
+
+  <target name="dist.osx.javapackager" depends="clean">
+    <build.osx.javapackager platform="osx32" swtid="cocoa.macosx" />
+    <build.osx.javapackager platform="osx64" swtid="cocoa.macosx.x86_64" />
+  </target>
 
   <target name="javadoc">
     <javadoc destdir="${jdoc}/api"
