@@ -25,13 +25,13 @@ public class FilenameParser {
 
     private static final String[] REGEX = {
         // this one matches SXXEXX:
-        "(.+?[^a-zA-Z0-9]\\D*?)[sS](\\d\\d?)[eE](\\d\\d*).*",
+        "(.+?[^a-zA-Z0-9]\\D*?)[sS](\\d\\d*)[eE](\\d\\d*).*",
 
         // this one matches Season-XX-Episode-XX:
-        "(.+?[^a-zA-Z0-9]\\D*?)Season[- ](\\d\\d?)[- ]?Episode[- ](\\d\\d*).*",
+        "(.+?[^a-zA-Z0-9]\\D*?)Season[- ](\\d\\d*)[- ]?Episode[- ](\\d\\d*).*",
 
         // this one matches sXX.eXX:
-        "(.+[^a-zA-Z0-9]\\D*?)[sS](\\d\\d?)\\D*?[eE](\\d\\d).*",
+        "(.+[^a-zA-Z0-9]\\D*?)[sS](\\d\\d*)\\D*?[eE](\\d\\d*).*",
 
         // this one matches SSxEE, with an optional leading "S"
         "(.+[^a-zA-Z0-9]\\D*?)[Ss](\\d\\d?)x(\\d\\d\\d?).*",
