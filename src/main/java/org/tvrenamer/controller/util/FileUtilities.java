@@ -136,7 +136,6 @@ public class FileUtilities {
         return Files.exists(dir);
     }
 
-
     /**
      * Given a Path, if the Path exists, returns it.  If not, but its parent
      * exists, returns that, etc.  That is, returns the closest ancestor

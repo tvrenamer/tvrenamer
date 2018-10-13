@@ -119,7 +119,6 @@ public class ShowStore {
 
     private static final ExecutorService threadPool = Executors.newCachedThreadPool();
 
-
     /**
      * Submits the task to download the information about the ShowName.
      *
