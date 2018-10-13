@@ -1,4 +1,3 @@
-
 <FindBugsFilter>
   <Match>
     <Class name="org.tvrenamer.view.ResultsTable" />
