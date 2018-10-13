@@ -337,6 +337,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                     @Override
                     public void apiHasBeenDeprecated() {
                         noteApiFailure();
+                        episode.setApiDiscontinued();
                         tableItemFailed(item, episode);
                     }
                 });

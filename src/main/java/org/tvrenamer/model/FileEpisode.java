@@ -420,6 +420,12 @@ public class FileEpisode {
         replacementText = BAD_PARSE_MESSAGE;
     }
 
+    public void setApiDiscontinued() {
+        parseStatus = ParseStatus.PARSED;
+        seriesStatus = SeriesStatus.UNFOUND;
+        replacementText = DOWNLOADING_FAILED;
+    }
+
     public void setMoving() {
         fileStatus = FileStatus.MOVING;
     }
