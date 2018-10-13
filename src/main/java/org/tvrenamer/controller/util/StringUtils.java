@@ -108,7 +108,6 @@ public class StringUtils {
         return orig.toUpperCase(THIS_LOCALE);
     }
 
-
     /**
      * Creates an ASCII String from a byte array, without throwing an exception.<p>
      *

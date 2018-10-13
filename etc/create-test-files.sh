@@ -11,7 +11,7 @@ one.tree.hill.s07e14.hdtv.xvid-fqm.avi
 smallville.s09e14.hdtv.xvid-xii.avi
 smallville.s09e15.hdtv.xvid-2hd.avi
 the.big.bang.theory.s03e18.720p.hdtv.x264-ctu.mkv
-warehouse.13.s1e01.720p.hdtv.x264-dimension.mkv" | 
+warehouse.13.s1e01.720p.hdtv.x264-dimension.mkv" |
 while read line;
 	do touch $line;
 done
