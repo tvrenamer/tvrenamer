@@ -113,6 +113,9 @@ public class FileMover implements Callable<Boolean> {
      * Based on a version originally implemented in jEdit 4.3pre9
      */
     private boolean copyAndDelete(final Path source, final Path dest) {
+        if (observer != null) {
+            observer.initializeProgress(episode.getFileSize());
+        }
         boolean ok = false;
         try (OutputStream fos = Files.newOutputStream(dest);
              InputStream fis = Files.newInputStream(source))
@@ -147,6 +150,9 @@ public class FileMover implements Callable<Boolean> {
             ok = FileUtilities.deleteFile(source);
         } else {
             logger.warning("failed to move " + source);
+        }
+        if (observer != null) {
+            observer.finishProgress(ok);
         }
         return ok;
     }
@@ -184,13 +190,7 @@ public class FileMover implements Callable<Boolean> {
             }
         } else {
             logger.info("different disks: " + srcPath + " and " + destPath);
-            if (observer != null) {
-                observer.initializeProgress(episode.getFileSize());
-            }
             boolean success = copyAndDelete(srcPath, destPath);
-            if (observer != null) {
-                observer.finishProgress(success);
-            }
             // TODO: what about file attributes?  In the case of owner, it might be
             // desirable to change it, or not.  What about writability?  And the
             // newer, more system-specific attributes, like "this file was downloaded
