@@ -104,6 +104,17 @@ public class FileMover implements Callable<Boolean> {
      * <code>false</code>. Otherwise, the contents of the source are copied to the destination,
      * the source is deleted, and <code>true</code> is returned.
      *
+     * TODO: the newly created file will not necessarily have the same
+     * attributes as the original.  In some cases, like ownership, that might
+     * actually be desirable (have the copy be owned by the user running the
+     * program), and also might be impossible to change even if the user does
+     * prefer to maintain the original owner.  But there may be other attributes
+     * we should try to adopt.  What about writability?  And the other, somewhat
+     * newer system-specific attributes: the ones accessible via "chattr" on
+     * Linux, "chflags" on OS X?  What about NTFS file streams, and ACLs?
+     * A file copy created just copying the content into a brand new file can
+     * behave significantly differently from the original.
+     *
      * @param source
      *            The source file to move.
      * @param dest
@@ -143,10 +154,6 @@ public class FileMover implements Callable<Boolean> {
         }
 
         if (ok) {
-            // TODO: the newly created file will not necessarily have the same attributes as
-            // the original.  In some cases, like ownership, that might actually be desirable
-            // (have the copy be owned by the user running the program).  But there may be
-            // other attributes we should try to adopt.  In any case, requires investigation.
             ok = FileUtilities.deleteFile(source);
         } else {
             logger.warning("failed to move " + source);
@@ -191,10 +198,6 @@ public class FileMover implements Callable<Boolean> {
         } else {
             logger.info("different disks: " + srcPath + " and " + destPath);
             boolean success = copyAndDelete(srcPath, destPath);
-            // TODO: what about file attributes?  In the case of owner, it might be
-            // desirable to change it, or not.  What about writability?  And the
-            // newer, more system-specific attributes, like "this file was downloaded
-            // from the internet"?
             if (success) {
                 actualDest = destPath;
             } else {
