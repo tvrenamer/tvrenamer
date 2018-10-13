@@ -74,7 +74,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     private static final int WIDTH_CHECKED = 30;
     private static final int WIDTH_CURRENT_FILE = 550;
     private static final int WIDTH_NEW_FILENAME = 550;
-    private static final int WIDTH_STATUS = 40;
+    private static final int WIDTH_STATUS = 60;
 
     private final UIStarter ui;
     private final Shell shell;
