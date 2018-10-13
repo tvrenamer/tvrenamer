@@ -464,6 +464,13 @@ public class FileEpisode {
             + "\"";
     }
 
+    private String getTimeoutPlaceholder() {
+        ShowName showName = ShowName.lookupShowName(filenameShow);
+        return TIMEOUT_DOWNLOADING + " \""
+            + showName.getQueryString()
+            + "\"";
+    }
+
     /**
      * Set the actualShow of this object to be an instance of a Show.  From there, we
      * can get the actual episode.
@@ -484,6 +491,23 @@ public class FileEpisode {
             replacementText = getNoShowPlaceholder();
         } else {
             seriesStatus = SeriesStatus.GOT_SHOW;
+            replacementText = getShowNamePlaceholder();
+        }
+    }
+
+    /**
+     * Confirm the actualShow of this object to be null, and set the replacement text
+     * to inform the user of what appears to have gone wrong.
+     *
+     * @param failedShow
+     *    the FailedShow object that represents the failure
+     */
+    public void setFailedShow(FailedShow failedShow) {
+        actualShow = null;
+        seriesStatus = SeriesStatus.UNFOUND;
+        if (failedShow.isTimeout()) {
+            replacementText = getTimeoutPlaceholder();
+        } else {
             replacementText = getShowNamePlaceholder();
         }
     }

@@ -192,6 +192,7 @@ public class Constants {
     public static final String EPISODE_NOT_FOUND = "Could not get episode for show";
     public static final String BROKEN_PLACEHOLDER_FILENAME = "Unable to find show information";
     public static final String DOWNLOADING_FAILED = "Downloading show listings failed";
+    public static final String TIMEOUT_DOWNLOADING = "Timed out trying to look up";
     public static final String BAD_PARSE_MESSAGE = "Did not extract show name from filename";
     public static final String DOWNLOADING_FAILED_MESSAGE = DOWNLOADING_FAILED
         + ".  Check internet connection";

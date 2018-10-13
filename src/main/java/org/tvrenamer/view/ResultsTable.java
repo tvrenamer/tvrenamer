@@ -329,8 +329,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
 
                     @Override
                     public void downloadFailed(FailedShow failedShow) {
-                        // We don't send a FailedShow to the FileEpisode
-                        episode.setEpisodeShow(null);
+                        episode.setFailedShow(failedShow);
                         tableItemFailed(item, episode);
                     }
 
