@@ -410,34 +410,84 @@ public class FileEpisode {
         return replacementOptions.size();
     }
 
+    /**
+     * Update this object to know that its path has been parsed successfully.
+     *
+     * This causes it to update its replacementText to notify the user as such.
+     *
+     */
     public void setParsed() {
         parseStatus = ParseStatus.PARSED;
         replacementText = ADDED_PLACEHOLDER_FILENAME;
     }
 
+    /**
+     * Update this object to know that its path has failed to parse.
+     *
+     * This causes it to update its replacementText to notify the user as such.
+     *
+     */
     public void setFailToParse() {
         parseStatus = ParseStatus.BAD_PARSE;
         replacementText = BAD_PARSE_MESSAGE;
     }
 
+    /**
+     * Update this object to know that we are unable to look up its show,
+     * apparently because the provider we're using has changed its API.
+     *
+     * (More technically, this means we got a "not found" when we tried to
+     * make the REST call.)
+     *
+     * This causes it to update its replacementText to notify the user as such.
+     *
+     */
     public void setApiDiscontinued() {
         parseStatus = ParseStatus.PARSED;
         seriesStatus = SeriesStatus.UNFOUND;
         replacementText = DOWNLOADING_FAILED;
     }
 
+    /**
+     * Update this object to know that we have begun the process of moving
+     * its file.
+     *
+     * This information really is not currently used.
+     *
+     */
     public void setMoving() {
         fileStatus = FileStatus.MOVING;
     }
 
+    /**
+     * Update this object to know that we have finished the process of moving
+     * its file.
+     *
+     * This information really is not currently used.
+     *
+     */
     public void setRenamed() {
         fileStatus = FileStatus.RENAMED;
     }
 
+    /**
+     * Update this object to know that we have tried to move its file, but
+     * were unable to do so.
+     *
+     * This information really is not currently used.
+     *
+     */
     public void setFailToMove() {
         fileStatus = FileStatus.FAIL_TO_MOVE;
     }
 
+    /**
+     * Update this object to know that we tried to move its file, but the
+     * file apprently no longer exists in the original location.
+     *
+     * This information really is not currently used.
+     *
+     */
     public void setDoesNotExist() {
         fileStatus = FileStatus.NO_FILE;
     }
@@ -508,7 +558,7 @@ public class FileEpisode {
         if (failedShow.isTimeout()) {
             replacementText = getTimeoutPlaceholder();
         } else {
-            replacementText = getShowNamePlaceholder();
+            replacementText = getNoShowPlaceholder();
         }
     }
 
