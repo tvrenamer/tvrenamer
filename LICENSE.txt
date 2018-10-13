@@ -71,9 +71,6 @@ Note: A very small amount of code was taken from the jEdit source and repackaged
 
 == End of TVRenamer 3rd Party licenses section ==
 
-
-
-
             GNU GENERAL PUBLIC LICENSE
                Version 2, June 1991
 
