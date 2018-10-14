@@ -30,6 +30,7 @@ public class FailedShow extends ShowOption {
                 timeout = true;
                 break;
             }
+            exception = exception.getCause();
         }
         this.didTimeout = timeout;
     }
