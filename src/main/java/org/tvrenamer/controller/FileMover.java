@@ -162,9 +162,6 @@ public class FileMover implements Callable<Boolean> {
         } else {
             failToCopy(source, dest);
         }
-        if (observer != null) {
-            observer.finishProgress(ok);
-        }
         return ok;
     }
 
@@ -189,15 +186,9 @@ public class FileMover implements Callable<Boolean> {
         if (tryRename) {
             try {
                 actualDest = Files.move(srcPath, destPath);
-                if (observer != null) {
-                    observer.finishProgress(true);
-                }
             } catch (IOException ioe) {
                 logger.log(Level.SEVERE, "Unable to move " + srcPath, ioe);
                 failToCopy(srcPath, destPath);
-                if (observer != null) {
-                    observer.finishProgress(false);
-                }
                 return false;
             }
         } else {
@@ -253,6 +244,9 @@ public class FileMover implements Callable<Boolean> {
 
         episode.setMoving();
         boolean success = doActualMove(realSrc, destPath, tryRename);
+        if (observer != null) {
+            observer.finishProgress(success);
+        }
         if (!success) {
             logger.info("failed to move " + realSrc);
             return false;
