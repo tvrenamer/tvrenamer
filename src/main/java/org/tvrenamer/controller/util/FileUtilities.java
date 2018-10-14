@@ -1,6 +1,7 @@
 package org.tvrenamer.controller.util;
 
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileStore;
 import java.nio.file.Files;
@@ -45,6 +46,10 @@ public class FileUtilities {
         }
         try {
             Files.delete(file);
+        } catch (AccessDeniedException ade) {
+            logger.warning("Could not delete file \"" + file
+                           + "\"; access denied");
+            return false;
         } catch (IOException ioe) {
             logger.log(Level.WARNING, "Error deleting file " + file, ioe);
             return false;
