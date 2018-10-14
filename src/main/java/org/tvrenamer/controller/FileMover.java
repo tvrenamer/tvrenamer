@@ -95,6 +95,49 @@ public class FileMover implements Callable<Boolean> {
     }
 
     /**
+     * Try to clean up, and log errors, after a move attempt has failed.
+     * This is more likely to be useful in the case where the "move" was
+     * actually a copy-and-delete, but it's possible a straightforward
+     * move also could have partially completed before failing.
+     *
+     * @param source
+     *            The source file we had wanted to move.
+     * @param dest
+     *            The destination where we tried to move the file.
+     *
+     */
+    private void failToCopy(final Path source, final Path dest) {
+        if (Files.exists(dest)) {
+            // An incomplete copy was done.  Try to clean it up.
+            FileUtilities.deleteFile(dest);
+            if (Files.exists(dest)) {
+                logger.warning("made incomplete copy of \"" + source
+                               + "\" to \"" + dest
+                               + "\" and could not clean it up");
+                return;
+            }
+        }
+        logger.warning("failed to move " + source);
+        if (Files.notExists(dest)) {
+            Path outDir = userPrefs.getDestinationDirectory();
+            if (outDir != null) {
+                Path parent = dest.getParent();
+                while ((parent != null)
+                       && !FileUtilities.isSameFile(parent, outDir))
+                {
+                    boolean rmdired = FileUtilities.rmdir(parent);
+                    if (rmdired) {
+                        logger.info("removing empty directory " + parent);
+                    } else {
+                        break;
+                    }
+                    parent = parent.getParent();
+                }
+            }
+        }
+    }
+
+    /**
      * Copies the source file to the destination, and deletes the source.
      *
      * <p>If the destination cannot be created or is a read-only file, the
@@ -117,7 +160,7 @@ public class FileMover implements Callable<Boolean> {
         if (ok) {
             ok = FileUtilities.deleteFile(source);
         } else {
-            logger.warning("failed to move " + source);
+            failToCopy(source, dest);
         }
         if (observer != null) {
             observer.finishProgress(ok);
@@ -151,6 +194,7 @@ public class FileMover implements Callable<Boolean> {
                 }
             } catch (IOException ioe) {
                 logger.log(Level.SEVERE, "Unable to move " + srcPath, ioe);
+                failToCopy(srcPath, destPath);
                 if (observer != null) {
                     observer.finishProgress(false);
                 }
