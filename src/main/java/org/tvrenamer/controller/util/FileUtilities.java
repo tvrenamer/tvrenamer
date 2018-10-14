@@ -61,6 +61,156 @@ public class FileUtilities {
     }
 
     /**
+     * Try to figure out the state of the world after a call to Files.move
+     * did not succeed, nor did it completely fail.
+     *
+     * <p>Note, java.nio.file.Files.move() is defined to return the destination.
+     * Is it possible that the file could be moved, but to a different
+     * destination than was requested?  Nothing in the Javadoc suggests that it
+     * could.
+     *
+     * <p>As far as I can tell, the best reason for Files.move to return a Path,
+     * rather than a boolean "success" value, is to simplify the user's code
+     * when the destination is passed in as an expression, so that instead of:
+     * <pre>
+     * <code>
+     *    Path destFile = destDir.resolve(basename + suffix)
+     *    boolean success = Files.move(src, destFile);
+     *    if (success) {
+     *      // do something with destFile
+     * </code>
+     * </pre>
+     * ... you can do:
+     * <pre>
+     * <code>
+     *    Path destFile = Files.move(src, destDir.resolve(basename + suffix));
+     *    if (destFile != null) {
+     *      // do something with destFile
+     * </code>
+     * </pre>
+     *
+     * <p>Nevertheless, I don't know that for 100% certain.  The specification
+     * implies a hypothetical possibility that the file might be moved, but to a
+     * location different from target.  Particularly since the whole point of
+     * this program is to move files, I want to try to be as careful as we can
+     * possibly be to not lose (track of) any files.
+     *
+     * @param srcFile
+     *    the file we wanted to rename
+     * @param destFile
+     *    the destination we wanted file to be renamed to
+     * @param actualDest
+     *    the value that Files.move() returned to us
+     * @return
+     *    presumably null, but could return a Path if, somehow, the source file
+     *    appears to have been moved despite the apparent failure
+     */
+    private static Path unexpectedMoveResult(final Path srcFile, final Path destFile,
+                                             final Path actualDest)
+    {
+        if (Files.exists(srcFile)) {
+            // This implies that the original file was not touched.  Java may have
+            // done an incomplete copy.
+            if (Files.exists(destFile)) {
+                logger.warning("may have done an incomplete copy of " + srcFile
+                               + " to " + destFile);
+            }
+            if (Files.exists(actualDest)) {
+                logger.warning("may have done an incomplete copy of " + srcFile
+                               + " to " + actualDest);
+            }
+            return null;
+        }
+        // If we get here, the file is gone, but it was not moved to the
+        // location we asked for.  Hopefully, this is impossible, but I'm
+        // not 100% sure that it 100% is.
+        if (Files.exists(destFile)) {
+            // The destination didn't exist before, and now it does.
+            // Seems like success?
+            logger.warning(srcFile.toString() + " is gone and " + destFile
+                           + " exists, so rename seemed successful");
+            logger.warning("Nevertheless, something went wrong.");
+            return null;
+        }
+        if (actualDest == null) {
+            // Again, likely completely impossible.  No idea what it would mean.
+            logger.warning("Panic!  No idea what happened to " + srcFile);
+            return null;
+        }
+        if (Files.exists(actualDest)) {
+            // This indicates the srcFile was moved to a location that is not
+            // the same file as the requested destFile.
+            // Maybe this happens if destFile was actually a directory?
+            logger.warning("somehow moved file to different destination: " + actualDest);
+        }
+        logger.info("craziest possible outcome");
+        logger.info("src file gone, dest file not there, result of move call "
+                    + "not null, but also not there.  Fubar.");
+        return null;
+    }
+
+    /**
+     * Rename the given file to the given destination.  If the file is renamed,
+     * returns the new Path.  If the file could not be renamed, returns null.
+     *
+     * <p>The destination must be a non-existent path, intended to be the file
+     * that the srcFile is renamed to.  This method does not support the use
+     * case where you tell us what directory you want the file moved into; you
+     * are expected to provide the path, explicitly including the destination
+     * file name (even if it's identical to the source file name).
+     *
+     * <p>The purpose of this method, as opposed to just calling Files.move()
+     * directly, is to detect specific problems and communicate them via
+     * logging.  It is a wrapper around Files.move().
+     *
+     * <p>If an unexpected result occurs, calls {@link unexpectedMoveResult}.
+     *
+     * @param srcFile
+     *    the file to be renamed
+     * @param destFile
+     *    the destination for the file to be renamed to; should not exist
+     *    (either as a file or a directory)
+     * @return
+     *    the new destination if the file was renamed; null if it was not
+     */
+    public static Path renameFile(final Path srcFile, final Path destFile) {
+        if (Files.notExists(srcFile)) {
+            logger.warning("cannot rename file, does not exist: " + srcFile);
+            return null;
+        }
+        if (Files.exists(destFile)) {
+            if (Files.isDirectory(destFile)) {
+                logger.warning("renameFile does not take a directory; "
+                               + "supply the entire path");
+            } else {
+                logger.warning("will not overwrite existing file: " + destFile);
+            }
+            return null;
+        }
+        Path actualDest = null;
+        try {
+            actualDest = Files.move(srcFile, destFile);
+            if (Files.isSameFile(destFile, actualDest)) {
+                return destFile;
+            }
+        } catch (AccessDeniedException ade) {
+            logger.warning("Could not rename file \"" + srcFile
+                           + "\"; access denied");
+        } catch (IOException ioe) {
+            logger.log(Level.WARNING, "Error renaming file " + srcFile, ioe);
+        }
+        // If we got here, things did not go as expected.  Try to make sense
+        // of the state of the world.
+        if (Files.exists(srcFile) && Files.notExists(destFile)) {
+            // Looks like we did nothing.
+            return null;
+        }
+        // If we get here, something really weird happened.  Handle it in
+        // a separate method.
+        return unexpectedMoveResult(srcFile, destFile, actualDest);
+    }
+
+    /**
      * areSameDisk -- returns true if two Paths exist on the same FileStore.
      *
      * The intended usage is to find out if "moving" a file can be done with
