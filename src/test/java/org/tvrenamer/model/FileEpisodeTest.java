@@ -1019,6 +1019,22 @@ public class FileEpisodeTest {
                    .build());
     }
 
+    @BeforeClass
+    public static void setupValues20() {
+        values.add(new EpisodeTestData.Builder()
+                   .filenameShow("House Hunters International")
+                   .properShowName("House Hunters International")
+                   .seasonNumString("103")
+                   .episodeNumString("02")
+                   .filenameSuffix(".mkv")
+                   .episodeResolution("")
+                   .episodeTitle("Copenhagen Dreaming")
+                   .episodeId("5941334")
+                   .replacementMask("%S.S%0sE%0e.%t")
+                   .expectedReplacement("House Hunters International.S103E02.Copenhagen Dreaming")
+                   .build());
+    }
+
     /**
      * Here's where all that data in <code>values</code> is turned into something.  Note this
      * doesn't use a lot of what the real program does; it doesn't fetch anything from the
