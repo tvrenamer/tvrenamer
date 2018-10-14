@@ -182,7 +182,7 @@ public class FileMover implements Callable<Boolean> {
      */
     private boolean doActualMove(final Path srcPath, final Path destPath, final boolean tryRename) {
         logger.fine("Going to move\n  '" + srcPath + "'\n  '" + destPath + "'");
-        Path actualDest;
+        Path actualDest = destPath;
         if (tryRename) {
             try {
                 actualDest = Files.move(srcPath, destPath);
@@ -194,10 +194,8 @@ public class FileMover implements Callable<Boolean> {
         } else {
             logger.info("different disks: " + srcPath + " and " + destPath);
             boolean success = copyAndDelete(srcPath, destPath);
-            if (success) {
-                actualDest = destPath;
-            } else {
-                actualDest = null;
+            if (!success) {
+                return false;
             }
         }
         if (actualDest != null) {
