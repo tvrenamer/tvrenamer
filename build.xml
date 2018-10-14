@@ -339,8 +339,9 @@
     <echo message="  Run 'ant -p' to see other targets" />
   </target>
 
-  <target name="test" depends="clean, resolve, compile.test"
-          description="run and report on jUnit tests">
+  <!-- "jtest": could stand for "java test" or "just test" :-) -->
+  <!-- Run the tests without all the preparation; do not use directly unless you are sure. -->
+  <target name="jtest" depends="compile.test">
     <junit haltonerror="true" haltonfailure="true" printsummary="true" fork="no" forkmode="once">
       <formatter type="plain" usefile="false" />
 
@@ -351,5 +352,9 @@
       </batchtest>
     </junit>
   </target>
+
+  <!-- "test": run the tests with proper preparation. -->
+  <target name="test" depends="clean, resolve, jtest"
+          description="run and report on jUnit tests" />
 
 </project>
