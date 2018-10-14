@@ -58,7 +58,7 @@ public class MoveRunner implements Runnable {
                     logger.finer("future returned: " + success);
                 } catch (InterruptedException | ExecutionException | TimeoutException e) {
                     future.cancel(true);
-                    logger.log(Level.WARNING, "exception executing move", e);
+                    logger.warning("exception executing move: " + e.getClass().getName());
                 }
             } else {
                 if (updater != null) {
