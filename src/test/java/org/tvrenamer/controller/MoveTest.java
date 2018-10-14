@@ -13,8 +13,10 @@ import org.tvrenamer.model.EpisodeTestData;
 import org.tvrenamer.model.FileEpisode;
 import org.tvrenamer.model.ProgressObserver;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -117,6 +119,24 @@ public class MoveTest {
                    + expectedDest, Files.exists(expectedDest));
     }
 
+    private void assertTimestamp(long expected) {
+        long actualMillis = 0L;
+        try {
+            FileTime actualTimestamp = Files.getLastModifiedTime(expectedDest);
+            actualMillis = actualTimestamp.toMillis();
+        } catch (IOException ioe) {
+            fail("could not obtain timestamp of " + expectedDest);
+        }
+
+        // We always get the current time AFTER the move is done.  So we're not
+        // doing absolute value here.  We definitely expect the actual timestamp
+        // to be a little bit before what we got for "now".
+        long difference = expected - actualMillis;
+        assertTrue("the timestamp of " + expectedDest + " was off by "
+                   + difference + " milliseconds",
+                   difference < 1000);
+    }
+
     @Test
     public void testFileMover() {
         setValues(robotChicken0704);
@@ -124,8 +144,10 @@ public class MoveTest {
 
         FileMover mover = new FileMover(episode);
         mover.call();
+        long now = System.currentTimeMillis();
 
         assertMoved();
+        assertTimestamp(now);
     }
 
     private static class FutureCompleter implements ProgressObserver {
@@ -169,7 +191,9 @@ public class MoveTest {
         try {
             runner.runThread();
             boolean didMove = future.get(4, TimeUnit.SECONDS);
+            long now = System.currentTimeMillis();
             assertMoved();
+            assertTimestamp(now);
             assertTrue("got " + didMove
                        + " in finishProgress for successful move",
                        didMove);
