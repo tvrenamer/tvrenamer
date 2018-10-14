@@ -175,7 +175,7 @@ public class ShowStore {
             logger.warning("cannot look up show without a listener");
             return;
         }
-        ShowName showName = ShowName.lookupShowName(filenameShow);
+        ShowName showName = ShowName.mapShowName(filenameShow);
         ShowOption showOption = showName.getMatchedShow();
 
         if (showOption == null) {
