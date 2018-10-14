@@ -6,6 +6,7 @@
 
 <suppressions>
     <suppress files="src/test/java/org/tvrenamer/controller/FilenameParserTest.java" checks="JavadocMethod"/>
+    <suppress files="src/test/java/org/tvrenamer/controller/MoveTest.java" checks="JavadocMethod"/>
     <suppress files="src/test/java/org/tvrenamer/controller/TheTVDBProviderTest.java" checks="JavadocMethod"/>
     <suppress files="src/test/java/org/tvrenamer/model/EpisodeTestData.java" checks="JavadocMethod"/>
     <suppress files="src/test/java/org/tvrenamer/model/FileEpisodeTest.java" checks="JavadocMethod"/>
