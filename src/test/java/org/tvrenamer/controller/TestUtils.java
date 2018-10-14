@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -53,5 +56,62 @@ public class TestUtils extends FileUtilities {
             }
         }
         return Files.exists(file);
+    }
+
+    /**
+     * Change a file's permissions to be not writable, and not readable by others.
+     * Make the file readable and executable by the owner; this method can be used
+     * for both regular files and directories, and for a directory, to be able to
+     * access the contents, it needs to be executable.  For a regular file, there's
+     * no reason to make it executable, but it does no harm.
+     *
+     * @param path
+     *    the file to set as read-only
+     * @return
+     *    true if we were able to set the file to read-only; false if we cannot
+     */
+    public static boolean setReadOnly(final Path path) {
+        try {
+            Set<PosixFilePermission> perms = new HashSet<>();
+            perms.add(PosixFilePermission.OWNER_READ);
+            perms.add(PosixFilePermission.OWNER_EXECUTE);
+            Files.setPosixFilePermissions(path, perms);
+            return true;
+        } catch (UnsupportedOperationException ue) {
+            return false;
+        } catch (IOException ioe) {
+            return false;
+        }
+    }
+
+    /**
+     * Change a file's permissions to be writable, readable, and executable,
+     * by everyone.
+     *
+     * @param path
+     *    the file to set as writable
+     * @return
+     *    true if we were able to set the permissions on the file;
+     *    false if we cannot
+     */
+    public static boolean setWritable(final Path path) {
+        try {
+            Set<PosixFilePermission> perms = new HashSet<>();
+            perms.add(PosixFilePermission.OWNER_READ);
+            perms.add(PosixFilePermission.OWNER_WRITE);
+            perms.add(PosixFilePermission.OWNER_EXECUTE);
+            perms.add(PosixFilePermission.GROUP_READ);
+            perms.add(PosixFilePermission.GROUP_WRITE);
+            perms.add(PosixFilePermission.GROUP_EXECUTE);
+            perms.add(PosixFilePermission.OTHERS_READ);
+            perms.add(PosixFilePermission.OTHERS_WRITE);
+            perms.add(PosixFilePermission.OTHERS_EXECUTE);
+            Files.setPosixFilePermissions(path, perms);
+            return true;
+        } catch (UnsupportedOperationException ue) {
+            return false;
+        } catch (IOException ioe) {
+            return false;
+        }
     }
 }
