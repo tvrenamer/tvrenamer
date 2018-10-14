@@ -254,4 +254,49 @@ public class MoveTest {
                  + srcFile + ": " + e.getMessage());
         }
     }
+
+    @Test
+    public void testMoveRunnerCannotMove() {
+        final CompletableFuture<Boolean> future = new CompletableFuture<>();
+
+        setValues(robotChicken0704);
+        TestUtils.setReadOnly(srcFile);
+        TestUtils.setReadOnly(srcDir);
+        assertReady();
+
+        FileMover mover = new FileMover(episode);
+        mover.addObserver(new FutureCompleter(future));
+
+        List<FileMover> moveList = new ArrayList<>();
+        moveList.add(mover);
+
+        MoveRunner runner = new MoveRunner(moveList);
+        try {
+            runner.runThread();
+            boolean didMove = future.get(4, TimeUnit.SECONDS);
+
+            // We expect that the file will not be moved, and that the
+            // observer will be called with a negative status.
+            assertNotMoved();
+            assertFalse("expected to get false in finish progress, but got "
+                        + didMove, didMove);
+        } catch (TimeoutException e) {
+            String failMsg = "timeout trying to move " + srcFile;
+            String exceptionMessage = e.getMessage();
+            if (exceptionMessage != null) {
+                failMsg += exceptionMessage;
+            } else {
+                failMsg += "(no message)";
+            }
+            fail(failMsg);
+        } catch (Exception e) {
+            fail("failure (possibly interrupted?) trying to move "
+                 + srcFile + ": " + e.getMessage());
+        } finally {
+            // Allow the framework to clean up by making the
+            // files writable again.
+            TestUtils.setWritable(srcDir);
+            TestUtils.setWritable(srcFile);
+        }
+    }
 }
