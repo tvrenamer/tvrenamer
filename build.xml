@@ -38,6 +38,7 @@
   <property name="rel.name" value="${ant.project.name}-${version}" />
   <property name="jar.builtBy" value="https://github.com/tvrenamer/tvrenamer" />
   <property name="jar.mainClass" value="org.tvrenamer.controller.Launcher" />
+  <property name="vendor" value="TVRenamer.org" />
 
   <!-- To build, get launch4j, update the path in launch4j.properties -->
   <taskdef name="launch4j"
@@ -180,9 +181,14 @@
                  outfile="${ant.project.name}"
                  nativeBundles="image">
 
-        <fx:info title="${ant.project.name}" vendor="${ant.project.name}"/>
+        <fx:info title="${ant.project.name}"
+                 vendor="${vendor}"
+                 copyright="Copyright (c) 2018 ${vendor}"
+                 description="A GUI utility to rename TV episodes from TV listings"/>
 
-        <fx:application name="${ant.project.name}" mainClass="${jar.mainClass}" />
+        <fx:application name="${ant.project.name}"
+                        version="${version}"
+                        mainClass="${jar.mainClass}"/>
 
         <fx:platform>
           <fx:jvmarg value="-XstartOnFirstThread" />
@@ -254,7 +260,7 @@
       </packageset>
 
       <doctitle><![CDATA[<h1>TVRenamer</h1>]]></doctitle>
-      <bottom><![CDATA[<i>Copyright &#169; 2018 TVRenamer.org. All Rights Reserved.</i>]]></bottom>
+      <bottom><![CDATA[<i>Copyright &#169; 2018 ${vendor}. All Rights Reserved.</i>]]></bottom>
       <link href="http://docs.oracle.com/javase/8/docs/api/"/>
     </javadoc>
   </target>
