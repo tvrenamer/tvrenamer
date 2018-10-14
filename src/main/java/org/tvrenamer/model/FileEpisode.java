@@ -86,7 +86,6 @@ public class FileEpisode {
         FAIL_TO_MOVE
     }
 
-    private static final String FILE_SEPARATOR_STRING = java.io.File.separator;
     private static final long NO_FILE_SIZE = -1L;
 
     // Allow titles long enough to include this one:
@@ -624,55 +623,50 @@ public class FileEpisode {
     }
 
     /**
-     * Returns the name of the directory to which the file should be moved.<p>
+     * Returns the directory to which the file should be moved.<p>
      *
-     * We try to make sure that a term means the same thing throughout the program.
-     * The "destination directory" is the *top-level* directory that the user has
-     * specified we should move all the files into.  But the files don't necessarily
-     * go directly into the "destination directory".  They will go into a sub-directory
-     * naming the show and possibly the season.  That final directory is what we refer
-     * to as the "move-to directory".
-     *
-     * @return the name of the directory into which this file (the Path encapsulated
-     *         within this FileEpisode) should be moved
-     */
-    private String getMoveToDirectory() {
-        String destPath = userPrefs.getDestinationDirectoryName();
-        if (actualShow == null) {
-            logger.warning("error: should not get move-to directory, do not have show!");
-        } else {
-            String dirname = actualShow.getDirName();
-            destPath = destPath + FILE_SEPARATOR_STRING + dirname;
-
-            // Now we might append the "season" directory, if the user requested it in
-            // the preferences.  But, only if we actually *have* season information.
-            if (placement.season > Show.NO_SEASON) {
-                String seasonPrefix = userPrefs.getSeasonPrefix();
-                // Defect #50: Only add the 'season #' folder if set,
-                // otherwise put files in showname root
-                if (StringUtils.isNotBlank(seasonPrefix)) {
-                    String seasonString = userPrefs.isSeasonPrefixLeadingZero()
-                        ? StringUtils.zeroPadTwoDigits(placement.season)
-                        : String.valueOf(placement.season);
-                    destPath = destPath + FILE_SEPARATOR_STRING + seasonPrefix + seasonString;
-                }
-            } else {
-                logger.fine("maybe should not get move-to directory, do not have season");
-            }
-        }
-        return destPath;
-    }
-
-    /**
      * @return the new Path into which this file would be moved, based on the information
      *         we've gathered, and the user's preferences
      */
     public Path getMoveToPath() {
         if (userPrefs.isMoveSelected()) {
-            return Paths.get(getMoveToDirectory());
+            String destDirName = userPrefs.getDestinationDirectoryName();
+            Path destPath = Paths.get(destDirName);
+            if (actualShow == null) {
+                logger.warning("error: should not get move-to directory, do not have show!");
+            } else {
+                destPath = destPath.resolve(actualShow.getDirName());
+
+                // Now we might append the "season" directory, if the user requested it in
+                // the preferences.  But, only if we actually *have* season information.
+                if (placement.season > Show.NO_SEASON) {
+                    String seasonPrefix = userPrefs.getSeasonPrefix();
+                    // Defect #50: Only add the 'season #' folder if set,
+                    // otherwise put files in showname root
+                    if (StringUtils.isNotBlank(seasonPrefix)) {
+                        String seasonString = userPrefs.isSeasonPrefixLeadingZero()
+                            ? StringUtils.zeroPadTwoDigits(placement.season)
+                            : String.valueOf(placement.season);
+                        destPath = destPath.resolve(seasonPrefix + seasonString);
+                    }
+                } else {
+                    logger.fine("maybe should not get move-to directory, do not have season");
+                }
+            }
+            return destPath;
         } else {
             return pathObj.toAbsolutePath().getParent();
         }
+    }
+
+    /**
+     * Returns the name of the file to which the file should be moved.<p>
+     *
+     */
+    private String getMoveToFile(final String filename) {
+        Path destPath = getMoveToPath();
+        Path dest = destPath.resolve(filename);
+        return dest.toString();
     }
 
     private static String formatDate(final LocalDate date, final String format) {
@@ -797,7 +791,7 @@ public class FileEpisode {
      * Ultimately, the destination for where we move a file to has four parts:<ol>
      *  <li>the destination directory -- specified by the user in the preferences</li>
      *  <li>an optional subdirectory -- templates specified by the user in the
-     *        preferences, and filled in by getMoveToDirectory()</li>
+     *        preferences, and filled in by getMoveToFile()</li>
      *  <li>the basename of the file, which is what this method constructs</li>
      *  <li>the file suffix, which is determined by the original filename, and
      *        not changeable</li></ol><p>
@@ -909,14 +903,13 @@ public class FileEpisode {
                 }
 
                 if (userPrefs.isMoveSelected()) {
-                    replacementOptions.add(getMoveToDirectory() + FILE_SEPARATOR_STRING
-                                           + newBasename + filenameSuffix);
+                    replacementOptions.add(getMoveToFile(newBasename + filenameSuffix));
                 } else {
                     replacementOptions.add(newBasename + filenameSuffix);
                 }
             }
         } else if (userPrefs.isMoveSelected()) {
-            replacementOptions.add(getMoveToDirectory() + FILE_SEPARATOR_STRING + fileNameString);
+            replacementOptions.add(getMoveToFile(fileNameString));
         } else {
             // This setting doesn't make any sense, but we haven't bothered to
             // disallow it yet.
