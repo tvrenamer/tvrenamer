@@ -198,7 +198,11 @@ public class FileUtilities {
             }
         } catch (IOException ioe) {
             ok = false;
-            logger.log(Level.WARNING, "Error moving file " + source + ": " + ioe.getMessage(), ioe);
+            String errMsg = "Error moving file " + source;
+            if (ioe.getMessage() != null) {
+                errMsg += ": " + ioe.getMessage();
+            }
+            logger.log(Level.WARNING, errMsg, ioe);
         }
 
         if (!ok) {
