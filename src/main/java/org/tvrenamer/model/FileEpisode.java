@@ -483,7 +483,7 @@ public class FileEpisode {
 
     /**
      * Update this object to know that we tried to move its file, but the
-     * file apprently no longer exists in the original location.
+     * file apparently no longer exists in the original location.
      *
      * This information really is not currently used.
      *
