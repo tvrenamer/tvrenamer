@@ -3,14 +3,11 @@ package org.tvrenamer.controller;
 import static org.tvrenamer.model.util.Constants.*;
 
 import org.tvrenamer.controller.util.FileUtilities;
-import org.tvrenamer.controller.util.StringUtils;
 import org.tvrenamer.model.FileEpisode;
 import org.tvrenamer.model.ProgressObserver;
 import org.tvrenamer.model.UserPreferences;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
@@ -100,20 +97,10 @@ public class FileMover implements Callable<Boolean> {
     /**
      * Copies the source file to the destination, and deletes the source.
      *
-     * If the destination cannot be created or is a read-only file, the method returns
-     * <code>false</code>. Otherwise, the contents of the source are copied to the destination,
-     * the source is deleted, and <code>true</code> is returned.
-     *
-     * TODO: the newly created file will not necessarily have the same
-     * attributes as the original.  In some cases, like ownership, that might
-     * actually be desirable (have the copy be owned by the user running the
-     * program), and also might be impossible to change even if the user does
-     * prefer to maintain the original owner.  But there may be other attributes
-     * we should try to adopt.  What about writability?  And the other, somewhat
-     * newer system-specific attributes: the ones accessible via "chattr" on
-     * Linux, "chflags" on OS X?  What about NTFS file streams, and ACLs?
-     * A file copy created just copying the content into a brand new file can
-     * behave significantly differently from the original.
+     * <p>If the destination cannot be created or is a read-only file, the
+     * method returns <code>false</code>.  Otherwise, the contents of the
+     * source are copied to the destination, the source is deleted, and
+     * <code>true</code> is returned.
      *
      * @param source
      *            The source file to move.
@@ -121,38 +108,12 @@ public class FileMover implements Callable<Boolean> {
      *            The destination where to move the file.
      * @return true on success, false otherwise.
      *
-     * Based on a version originally implemented in jEdit 4.3pre9
      */
     private boolean copyAndDelete(final Path source, final Path dest) {
         if (observer != null) {
             observer.initializeProgress(episode.getFileSize());
         }
-        boolean ok = false;
-        try (OutputStream fos = Files.newOutputStream(dest);
-             InputStream fis = Files.newInputStream(source))
-        {
-            byte[] buffer = new byte[32768];
-            int n;
-            long copied = 0L;
-            while (-1 != (n = fis.read(buffer))) {
-                fos.write(buffer, 0, n);
-                copied += n;
-                if (observer != null) {
-                    observer.setProgressStatus(StringUtils.formatFileSize(copied));
-                    observer.setProgressValue(copied);
-                }
-                if (Thread.interrupted()) {
-                    break;
-                }
-            }
-            if (-1 == n) {
-                ok = true;
-            }
-        } catch (IOException ioe) {
-            ok = false;
-            logger.log(Level.WARNING, "Error moving file " + source + ": " + ioe.getMessage(), ioe);
-        }
-
+        boolean ok = FileUtilities.copyWithUpdates(source, dest, observer);
         if (ok) {
             ok = FileUtilities.deleteFile(source);
         } else {
