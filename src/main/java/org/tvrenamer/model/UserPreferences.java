@@ -21,6 +21,7 @@ public class UserPreferences extends Observable {
     private static final UserPreferences INSTANCE = load();
 
     private final String preloadFolder;
+    private transient Path destDirPath;
     private String destDir;
     private String seasonPrefix;
     private boolean seasonPrefixLeadingZero;
@@ -45,7 +46,8 @@ public class UserPreferences extends Observable {
         super();
 
         preloadFolder = null;
-        destDir = DEFAULT_DESTINATION_DIRECTORY.toString();
+        destDirPath = DEFAULT_DESTINATION_DIRECTORY;
+        destDir = destDirPath.toString();
         seasonPrefix = DEFAULT_SEASON_PREFIX;
         seasonPrefixLeadingZero = false;
         moveSelected = false;
@@ -182,6 +184,7 @@ public class UserPreferences extends Observable {
         UserPreferences prefs = UserPreferencesPersistence.retrieve(PREFERENCES_FILE);
 
         if (prefs != null) {
+            prefs.destDirPath = Paths.get(prefs.destDir);
             prefs.buildIgnoredKeywordsString();
             logger.finer("Successfully read preferences from: " + PREFERENCES_FILE.toAbsolutePath());
             logger.fine("Successfully read preferences: " + prefs.toString());
@@ -240,7 +243,7 @@ public class UserPreferences extends Observable {
             return true;
         }
 
-        boolean canCreate = FileUtilities.checkForCreatableDirectory(destDir);
+        boolean canCreate = FileUtilities.checkForCreatableDirectory(destDirPath);
         destDirProblem = !canCreate;
 
         if (destDirProblem) {
@@ -262,6 +265,7 @@ public class UserPreferences extends Observable {
         // then compare?  Also, what happens if ensureDestDir fails?
         if (valuesAreDifferent(destDir, dir)) {
             destDir = dir;
+            destDirPath = Paths.get(destDir);
 
             preferenceChanged(UserPreference.DEST_DIR);
         }
@@ -282,6 +286,20 @@ public class UserPreferences extends Observable {
         // show this text greyed out, but it still needs to know what it
         // is, in order to disable it.
         return destDir;
+    }
+
+    /**
+     * Gets the directory that files should be moved into; if "move" is
+     * disabled, returns null.
+     *
+     * @return the directory if move is enabled, null if not.
+     */
+    public Path getDestinationDirectory() {
+        if (moveSelected) {
+            return destDirPath;
+        } else {
+            return null;
+        }
     }
 
     /**

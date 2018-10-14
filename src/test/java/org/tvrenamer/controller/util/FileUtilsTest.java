@@ -53,10 +53,6 @@ public class FileUtilsTest {
         assertEquals("existingAncestor(Path) failed to recognize path itself exists",
                      dirpath, existingAncestor(dirpath));
 
-        final String dirpathName = dirpath.toString();
-        assertEquals("existingAncestor(String) failed to recognize path itself exists",
-                     dirpath, existingAncestor(dirpathName));
-
         Path uncreatable = Paths.get(PRESUMED_NONEXISTENT_PATH);
         assertEquals("existingAncestor(Path) failed to find root as answer for " + uncreatable,
                      uncreatable.getRoot(), existingAncestor(uncreatable));
