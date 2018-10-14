@@ -96,8 +96,15 @@
     <copy file="${logging.file}" todir="${build.main}" />
   </target>
 
-  <target name="compile.test" depends="compile, resolve"
+  <target name="compile.test" depends="compile"
           description="compile the test source code">
+
+    <fail message="You need to run ivy (ant resolve) first.">
+      <condition><not>
+        <available file="${lib.dl}" />
+      </not></condition>
+    </fail>
+
     <mkdir dir="${build.test}" />
     <javac srcdir="${src.test}/java" destdir="${build.test}" classpathref="classpath.test"
            debug="true" debuglevel="lines,vars,source"
@@ -332,7 +339,7 @@
     <echo message="  Run 'ant -p' to see other targets" />
   </target>
 
-  <target name="test" depends="clean, compile.test"
+  <target name="test" depends="clean, resolve, compile.test"
           description="run and report on jUnit tests">
     <junit haltonerror="true" haltonfailure="true" printsummary="true" fork="no" forkmode="once">
       <formatter type="plain" usefile="false" />
