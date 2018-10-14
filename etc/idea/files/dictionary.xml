@@ -29,6 +29,7 @@
       <w>dirpath</w>
       <w>distinguisher</w>
       <w>dramatico</w>
+      <w>dropin</w>
       <w>dvdrip</w>
       <w>ebbtide</w>
       <w>emassment</w>
@@ -47,6 +48,8 @@
       <w>hashmap</w>
       <w>hoberman</w>
       <w>hughley</w>
+      <w>iconfile</w>
+      <w>indir</w>
       <w>infos</w>
       <w>inhu</w>
       <w>javase</w>
@@ -57,6 +60,7 @@
       <w>levenshtein</w>
       <w>lgpl</w>
       <w>licensor's</w>
+      <w>macosx</w>
       <w>macrodef's</w>
       <w>mailto</w>
       <w>marvel's</w>
@@ -64,6 +68,7 @@
       <w>merchantibility</w>
       <w>mergewithoutmain</w>
       <w>metacharacters</w>
+      <w>movetest</w>
       <w>musso</w>
       <w>ncis</w>
       <w>ne'w</w>
@@ -74,6 +79,7 @@
       <w>nsmenu</w>
       <w>nsmenuitem</w>
       <w>nsstring</w>
+      <w>ntfs</w>
       <w>numlz</w>
       <w>oldschool</w>
       <w>oneals</w>
@@ -106,6 +112,7 @@
       <w>spacetime</w>
       <w>spacewalker</w>
       <w>sqlj</w>
+      <w>squareup</w>
       <w>starfighter</w>
       <w>subdirs</w>
       <w>subfolders</w>
@@ -113,6 +120,7 @@
       <w>sublink</w>
       <w>substrings</w>
       <w>sudo</w>
+      <w>swtid</w>
       <w>sxxexx</w>
       <w>sxxyy</w>
       <w>synching</w>
