@@ -680,7 +680,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         } else {
             // Should we do anything else, visible to the user?  Uncheck the row?
             // We don't really have a good option, right now.  TODO.
-            logger.info("failed to move item: " + item);
+            logger.info("failed to move item: " + CURRENT_FILE_FIELD.getCellText(item));
         }
     }
 
