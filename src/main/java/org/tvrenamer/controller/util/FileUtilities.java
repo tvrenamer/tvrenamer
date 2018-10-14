@@ -244,6 +244,26 @@ public class FileUtilities {
     }
 
     /**
+     * Takes a Path which is a directory that the user wants to write into.
+     *
+     * @param path
+     *    the path that the caller will want to write into
+     * @return true if the given Path is a writable directory, or if it
+     *    presumably could be created as such; false otherwise.
+     *
+     *    As an example, if the value is /Users/me/Files/Videos/TV, and no such
+     *    file exists, we just keep going up the tree until something exists.
+     *    If we find /Users/me/Files exists, and it's a writable directory, then
+     *    presumably we could create a "Videos" directory in it, and "TV" in that,
+     *    thereby creating the directory.  But if /Users/me/Files is not a directory,
+     *    or is not writable, then we know we cannot create the target, and so we
+     *    return false.
+     */
+    public static boolean checkForCreatableDirectory(final Path path) {
+        return isWritableDirectory(existingAncestor(path));
+    }
+
+    /**
      * Takes the name of a Path which is a directory that the user wants to write into.
      *
      * @param destDirName
