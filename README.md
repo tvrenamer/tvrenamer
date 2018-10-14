@@ -2,7 +2,7 @@
 [![Build Status](https://travis-ci.org/tvrenamer/tvrenamer.svg?branch=master)](https://travis-ci.org/tvrenamer/tvrenamer)
 ## About
 TVRenamer is a Java GUI utility to rename TV episodes from TV listings
-It will take an ugly filename like **Lost.S06E05.DD51.720p.WEB-DL.AVC-FUSiON.mkv** and rename it to **Lost [6x05] Lighthouse.mkv**
+It will take an ugly filename like **Lost.[6x05].DD51.720p.WEB-DL.AVC-FUSiON.mkv** and rename it to **Lost S06E05 Lighthouse.mkv**
 
 ## [Screenshot](https://github.com/tvrenamer/tvrenamer/wiki/Screenshots)
 ![Screenshot](https://raw.githubusercontent.com/wiki/tvrenamer/tvrenamer/tvrenamer-0.5b2.png)
@@ -46,7 +46,7 @@ It will take an ugly filename like **Lost.S06E05.DD51.720p.WEB-DL.AVC-FUSiON.mkv
 
 ## Common Problems
 ### Connectivity Issues
-If you are receiving errors about "unable to connect to internet" please [download version 0.7.2](https://github.com/tvrenamer/tvrenamer/releases/tag/0.7.2). Note that [Java 8](https://java.com/en/download) is required.
+If you are using a version that precedes [version 0.7.2](https://github.com/tvrenamer/tvrenamer/releases/tag/0.7.2), and you receive errors about "unable to connect to internet" please download a later version. Note that [Java 8](https://java.com/en/download) is required.
 
 ### Java version issues
 *Java version 8* is required.  Type `java -version` into your terminal and ensure that the output is similar to:
@@ -67,7 +67,7 @@ This is because we have not signed the application with Apple (and because we us
 ## Running in debug mode
 If the application crashes it helps us greatly if you can provide us a stacktrace of what went wrong.  In order to do this, you just need to run the application in the terminal, then copy the output into [a new bug report](https://github.com/tvrenamer/tvrenamer/issues/new).
 
-If the application doesn't start with a java error, [ensure that your JAVA_HOME environment variable is set correctly](http://www.oracle.com/technology/sample_code/tech/java/sqlj_jdbc/files/9i_jdbc/EnvSetup.html).
+If the application fails to start due to a java error, [ensure that your JAVA_HOME environment variable is set correctly](http://www.oracle.com/technology/sample_code/tech/java/sqlj_jdbc/files/9i_jdbc/EnvSetup.html).
 
   * On Windows:
     1. Open the Windows Command Prompt (Windows + r, then type `cmd` and push enter)
@@ -76,14 +76,24 @@ If the application doesn't start with a java error, [ensure that your JAVA_HOME 
   * On OSX:
     1. Open the Terminal application (at /Applications/Utilities/Terminal.app)
     1. Navigate to where the TVRenamer application is.
-    1. Execute it via `./TVRenamer-<version>.app/Contents/MacOS/JavaAppLauncher`
+    1. Execute it via `./TVRenamer-<version>.app/Contents/MacOS/TVRenamer`
+       * for older versions, you may need to run `./TVRenamer-<version>.app/Contents/MacOS/JavaAppLauncher`
   * On Linux:
     1. Open the Terminal application (from the Gnome Applications menu)
     1. Navigate to where the TVRenamer application is.
     1. Execute the run script via `./TVRenamer-<version>/run-linux.sh`
 
 ## Contributions
-The development team is just a couple of blokes, so anything from Java code patches to UI/UX recommendations would be gratefully received.
+
+If you'd like to run from source, please see the
+[Quick Start](https://github.com/tvrenamer/tvrenamer/wiki/Quick-Start)
+guide, and then look over
+[Development Setup](https://github.com/tvrenamer/tvrenamer/wiki/Development-Setup).
+
+Please see the
+[Development Process](https://github.com/tvrenamer/tvrenamer/wiki/Development-Setup#development-process)
+section if you'd like to contribute!  Anything from Java code patches to UI/UX
+recommendations would be gratefully received.
 
 To contribute to the code side of things you should know Java and it would be helpful if you know some SWT and git. The easiest way to submit changes is via a [github pull request](http://help.github.com/forking/) based off the [master branch](http://github.com/tvrenamer/tvrenamer/tree/master).
 
