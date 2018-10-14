@@ -1019,6 +1019,22 @@ public class FileEpisodeTest {
                    .build());
     }
 
+    @BeforeClass
+    public static void setupValues20() {
+        values.add(new EpisodeTestData.Builder()
+                   .filenameShow("House Hunters International")
+                   .properShowName("House Hunters International")
+                   .seasonNumString("103")
+                   .episodeNumString("02")
+                   .filenameSuffix(".mkv")
+                   .episodeResolution("")
+                   .episodeTitle("Copenhagen Dreaming")
+                   .episodeId("5941334")
+                   .replacementMask("%S.S%0sE%0e.%t")
+                   .expectedReplacement("House Hunters International.S103E02.Copenhagen Dreaming")
+                   .build());
+    }
+
     /**
      * This is, officially, the Test that checks all the EpisodeTestData, though really it's just
      * a driver method.  All the real work goes on in <code>getReplacementBasename</code>, above.
