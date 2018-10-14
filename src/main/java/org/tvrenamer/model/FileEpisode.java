@@ -77,15 +77,6 @@ public class FileEpisode {
         NOT_STARTED
     }
 
-    private enum FileStatus {
-        UNCHECKED,
-        NO_FILE,
-        ORIGINAL,
-        MOVING,
-        RENAMED,
-        FAIL_TO_MOVE
-    }
-
     private static final long NO_FILE_SIZE = -1L;
 
     // Allow titles long enough to include this one:
@@ -145,7 +136,7 @@ public class FileEpisode {
     private ParseStatus parseStatus = ParseStatus.UNPARSED;
     private SeriesStatus seriesStatus = SeriesStatus.NOT_STARTED;
     @SuppressWarnings("unused")
-    private FileStatus fileStatus = FileStatus.UNCHECKED;
+    private MoveStatus fileStatus = MoveStatus.UNCHECKED;
 
     private List<String> replacementOptions = null;
     private String replacementText = ADDED_PLACEHOLDER_FILENAME;
@@ -303,18 +294,18 @@ public class FileEpisode {
     private void checkFile(boolean mustExist) {
         if (Files.exists(pathObj)) {
             try {
-                fileStatus = FileStatus.ORIGINAL;
+                fileStatus = MoveStatus.ORIGINAL;
                 fileSize = Files.size(pathObj);
             } catch (IOException ioe) {
                 logger.log(Level.WARNING, "couldn't get size of " + pathObj, ioe);
-                fileStatus = FileStatus.NO_FILE;
+                fileStatus = MoveStatus.NO_FILE;
                 fileSize = NO_FILE_SIZE;
             }
         } else {
             if (mustExist) {
                 logger.warning("creating FileEpisode for nonexistent path, " + pathObj);
             }
-            fileStatus = FileStatus.NO_FILE;
+            fileStatus = MoveStatus.NO_FILE;
             fileSize = NO_FILE_SIZE;
         }
     }
@@ -455,7 +446,7 @@ public class FileEpisode {
      *
      */
     public void setMoving() {
-        fileStatus = FileStatus.MOVING;
+        fileStatus = MoveStatus.MOVING;
     }
 
     /**
@@ -466,7 +457,7 @@ public class FileEpisode {
      *
      */
     public void setRenamed() {
-        fileStatus = FileStatus.RENAMED;
+        fileStatus = MoveStatus.RENAMED;
     }
 
     /**
@@ -477,7 +468,7 @@ public class FileEpisode {
      *
      */
     public void setFailToMove() {
-        fileStatus = FileStatus.FAIL_TO_MOVE;
+        fileStatus = MoveStatus.FAIL_TO_MOVE;
     }
 
     /**
@@ -488,7 +479,7 @@ public class FileEpisode {
      *
      */
     public void setDoesNotExist() {
-        fileStatus = FileStatus.NO_FILE;
+        fileStatus = MoveStatus.NO_FILE;
     }
 
     private String getShowNamePlaceholder() {
