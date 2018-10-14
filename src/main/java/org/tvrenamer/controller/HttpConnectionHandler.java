@@ -39,6 +39,8 @@ class HttpConnectionHandler {
      *   gives us a stack trace...)
      * @return 
      *   does not actually return anything; always throws an exception
+     * @throws TVRenamerIOException in all cases; the fact of this method being called
+     *   means something went wrong; creates it from the given arguments
      */
     private String downloadUrlFailed(final Response response, final String url,
                                      final IOException ioe)
