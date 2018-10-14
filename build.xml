@@ -329,7 +329,7 @@
 
   <target name="usage">
     <echo message="Usage: ant dist.{win, linux, osx, all}" />
-    <echo message="       tests" />
+    <echo message="  Run 'ant -p' to see other targets" />
   </target>
 
   <target name="test" depends="clean, compile.test"
