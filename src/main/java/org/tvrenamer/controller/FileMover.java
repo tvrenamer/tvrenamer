@@ -165,6 +165,22 @@ public class FileMover implements Callable<Boolean> {
         return ok;
     }
 
+    private boolean finishMove(final Path actualDest) {
+        // TODO: why do we set the file modification time to "now"?  Would like to
+        // at least make this behavior configurable.
+        try {
+            FileTime now = FileTime.fromMillis(System.currentTimeMillis());
+            Files.setLastModifiedTime(actualDest, now);
+        } catch (IOException ioe) {
+            logger.log(Level.WARNING, "Unable to set modification time " + actualDest, ioe);
+            // Well, the file got moved to the right place already.  One could argue
+            // for returning true.  But, true is only if *everything* worked.
+            return false;
+        }
+
+        return true;
+    }
+
     /**
      * Execute the file move action.  This method assumes that all sanity checks have been
      * completed and that everything is ready to go: source file and destination directory
@@ -208,19 +224,7 @@ public class FileMover implements Callable<Boolean> {
             return false;
         }
 
-        // TODO: why do we set the file modification time to "now"?  Would like to
-        // at least make this behavior configurable.
-        try {
-            FileTime now = FileTime.fromMillis(System.currentTimeMillis());
-            Files.setLastModifiedTime(actualDest, now);
-        } catch (IOException ioe) {
-            logger.log(Level.WARNING, "Unable to set modification time " + srcPath, ioe);
-            // Well, the file got moved to the right place already.  One could argue
-            // for returning true.  But, true is only if *everything* worked.
-            return false;
-        }
-
-        return true;
+        return finishMove(actualDest);
     }
 
     /**
