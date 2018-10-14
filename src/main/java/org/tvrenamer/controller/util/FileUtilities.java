@@ -7,7 +7,6 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.FileStore;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -217,19 +216,6 @@ public class FileUtilities {
     }
 
     /**
-     * Given a String representing a path, if the path exists, returns it.
-     * If not, but its parent exists, returns that, etc.  That is, returns
-     * the closest ancestor (including itself) that exists.
-     *
-     * @param pathName the path to check for the closest existing ancestor
-     * @return the longest path, from the root dir towards the given path,
-     *   that exists
-     */
-    public static Path existingAncestor(final String pathName) {
-        return existingAncestor(Paths.get(pathName));
-    }
-
-    /**
      * Returns whether or not a Path is a writable directory.  The argument may be null.
      *
      * @param path
@@ -261,26 +247,6 @@ public class FileUtilities {
      */
     public static boolean checkForCreatableDirectory(final Path path) {
         return isWritableDirectory(existingAncestor(path));
-    }
-
-    /**
-     * Takes the name of a Path which is a directory that the user wants to write into.
-     *
-     * @param destDirName
-     *    the name (a String) of the Path that the caller will want to write into
-     * @return true if the given String names a writable directory, or if it
-     *    presumably could be created as such; false otherwise.
-     *
-     *    As an example, if the value is /Users/me/Files/Videos/TV, and no such
-     *    file exists, we just keep going up the tree until something exists.
-     *    If we find /Users/me/Files exists, and it's a writable directory, then
-     *    presumably we could create a "Videos" directory in it, and "TV" in that,
-     *    thereby creating the directory.  But if /Users/me/Files is not a directory,
-     *    or is not writable, then we know we cannot create the target, and so we
-     *    return false.
-     */
-    public static boolean checkForCreatableDirectory(final String destDirName) {
-        return isWritableDirectory(existingAncestor(destDirName));
     }
 
     /**

@@ -629,9 +629,10 @@ public class FileEpisode {
      *         we've gathered, and the user's preferences
      */
     public Path getMoveToPath() {
-        if (userPrefs.isMoveSelected()) {
-            String destDirName = userPrefs.getDestinationDirectoryName();
-            Path destPath = Paths.get(destDirName);
+        Path destPath = userPrefs.getDestinationDirectory();
+        if (destPath == null) {
+            return pathObj.toAbsolutePath().getParent();
+        } else {
             if (actualShow == null) {
                 logger.warning("error: should not get move-to directory, do not have show!");
             } else {
@@ -654,8 +655,6 @@ public class FileEpisode {
                 }
             }
             return destPath;
-        } else {
-            return pathObj.toAbsolutePath().getParent();
         }
     }
 
