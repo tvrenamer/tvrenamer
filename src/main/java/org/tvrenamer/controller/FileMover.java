@@ -96,6 +96,12 @@ public class FileMover implements Callable<Boolean> {
         return destRoot.toString();
     }
 
+    private boolean isSuccess() {
+        return (status == MoveStatus.RENAMED)
+            || (status == MoveStatus.COPIED)
+            || (status == MoveStatus.ALREADY_IN_PLACE);
+    }
+
     /**
      * Try to clean up, and log errors, after a move attempt has failed.
      * This is more likely to be useful in the case where the "move" was
@@ -152,10 +158,9 @@ public class FileMover implements Callable<Boolean> {
      *            The source file to move.
      * @param dest
      *            The destination where to move the file.
-     * @return true on success, false otherwise.
      *
      */
-    private boolean copyAndDelete(final Path source, final Path dest) {
+    private void copyAndDelete(final Path source, final Path dest) {
         if (observer != null) {
             observer.initializeProgress(episode.getFileSize());
         }
@@ -171,10 +176,9 @@ public class FileMover implements Callable<Boolean> {
         } else {
             failToCopy(source, dest);
         }
-        return ok;
     }
 
-    private boolean finishMove(final Path actualDest) {
+    private void finishMove(final Path actualDest) {
         // TODO: why do we set the file modification time to "now"?  Would like to
         // at least make this behavior configurable.
         try {
@@ -185,10 +189,7 @@ public class FileMover implements Callable<Boolean> {
             // Well, the file got moved to the right place already.  One could argue
             // for returning true.  But, true is only if *everything* worked.
             status = MoveStatus.FAIL_TO_MOVE;
-            return false;
         }
-
-        return true;
     }
 
     /**
@@ -197,6 +198,7 @@ public class FileMover implements Callable<Boolean> {
      * exist, destination file doesn't, etc.
      *
      * At the end, if the move was successful, it sets the file modification time.
+     * Does not return a value, but sets the status variable.
      *
      * @param srcPath
      *    the Path to the file to be moved
@@ -204,9 +206,8 @@ public class FileMover implements Callable<Boolean> {
      *    the Path to which the file should be moved
      * @param tryRename
      *    if false, do not try to simply rename the file; always do a "copy-and-delete"
-     * @return true on complete success, false otherwise.
      */
-    private boolean doActualMove(final Path srcPath, final Path destPath, final boolean tryRename) {
+    private void doActualMove(final Path srcPath, final Path destPath, final boolean tryRename) {
         logger.fine("Going to move\n  '" + srcPath + "'\n  '" + destPath + "'");
         status = MoveStatus.MOVING;
         if (tryRename) {
@@ -214,7 +215,7 @@ public class FileMover implements Callable<Boolean> {
             if (actualDest == null) {
                 logger.severe("Unable to move " + srcPath);
                 failToCopy(srcPath, destPath);
-                return false;
+                return;
             }
             if (destPath.equals(actualDest)) {
                 status = MoveStatus.RENAMED;
@@ -223,18 +224,18 @@ public class FileMover implements Callable<Boolean> {
                 logger.warning("actual destination did not match intended:\n  "
                                + actualDest + "\n  " + destPath);
                 status = MoveStatus.MISNAMED;
-                return false;
+                return;
             }
         } else {
             logger.info("different disks: " + srcPath + " and " + destPath);
-            boolean success = copyAndDelete(srcPath, destPath);
-            if (!success) {
-                return false;
+            copyAndDelete(srcPath, destPath);
+            if (!isSuccess()) {
+                return;
             }
         }
         episode.setPath(destPath);
 
-        return finishMove(destPath);
+        finishMove(destPath);
     }
 
     /**
@@ -248,27 +249,25 @@ public class FileMover implements Callable<Boolean> {
      *    non-existent directories, which will be created
      * @param destDir
      *    an existent ancestor of destPath
-     * @return true on success, false otherwise.
      */
-    private boolean tryToMoveRealPaths(Path realSrc, Path destPath, Path destDir) {
+    private void tryToMoveRealPaths(Path realSrc, Path destPath, Path destDir) {
         boolean tryRename = FileUtilities.areSameDisk(realSrc, destDir);
         Path srcDir = realSrc.getParent();
 
         episode.setMoving();
-        boolean success = doActualMove(realSrc, destPath, tryRename);
+        doActualMove(realSrc, destPath, tryRename);
         if (observer != null) {
-            observer.finishProgress(success);
+            observer.finishProgress(isSuccess());
         }
-        if (!success) {
+        if (!isSuccess()) {
             logger.info("failed to move " + realSrc);
-            return false;
+            return;
         }
 
         logger.info("successful:\n  " + realSrc + "\n  " + destPath);
         if (userPrefs.isRemoveEmptiedDirectories()) {
             FileUtilities.removeWhileEmpty(srcDir);
         }
-        return true;
     }
 
     /**
@@ -289,16 +288,14 @@ public class FileMover implements Callable<Boolean> {
      * destination directory doesn't exist, it will try to create it.  It also
      * gathers information, like whether the source and destination are on the
      * same file store.  And it does side-effects, like updating the FileEpisode.
-     *
-     * @return true on success, false otherwise.
      */
-    private boolean tryToMoveFile() {
+    private void tryToMoveFile() {
         Path srcPath = episode.getPath();
         if (Files.notExists(srcPath)) {
             logger.info("Path no longer exists: " + srcPath);
             episode.setDoesNotExist();
             status = MoveStatus.NO_FILE;
-            return false;
+            return;
         }
         Path realSrc;
         try {
@@ -306,7 +303,7 @@ public class FileMover implements Callable<Boolean> {
         } catch (IOException ioe) {
             logger.warning("could not get real path of " + srcPath);
             status = MoveStatus.FAIL_TO_MOVE;
-            return false;
+            return;
         }
         status = MoveStatus.UNMOVED;
         Path destDir = destRoot;
@@ -321,7 +318,7 @@ public class FileMover implements Callable<Boolean> {
         if (!FileUtilities.ensureWritableDirectory(destDir)) {
             logger.warning("not attempting to move " + srcPath);
             status = MoveStatus.FAIL_TO_MOVE;
-            return false;
+            return;
         }
 
         try {
@@ -329,7 +326,7 @@ public class FileMover implements Callable<Boolean> {
         } catch (IOException ioe) {
             logger.warning("could not get real path of " + destDir);
             status = MoveStatus.FAIL_TO_MOVE;
-            return false;
+            return;
         }
 
         Path destPath = destDir.resolve(filename);
@@ -337,14 +334,14 @@ public class FileMover implements Callable<Boolean> {
             if (destPath.equals(realSrc)) {
                 logger.info("nothing to be done to " + srcPath);
                 status = MoveStatus.ALREADY_IN_PLACE;
-                return true;
+                return;
             }
             logger.warning("cannot move; destination exists:\n  " + destPath);
             status = MoveStatus.FAIL_TO_MOVE;
-            return false;
+            return;
         }
 
-        return tryToMoveRealPaths(realSrc, destPath, destDir);
+        tryToMoveRealPaths(realSrc, destPath, destDir);
     }
 
     /**
@@ -363,11 +360,14 @@ public class FileMover implements Callable<Boolean> {
             // There are numerous reasons why the move would fail.  Instead of calling
             // setFailToMove on the episode in each individual case, make the functionality
             // into a subfunction, and set the episode here for any of the failure cases.
-            success = tryToMoveFile();
+            tryToMoveFile();
         } catch (Exception e) {
             logger.log(Level.WARNING, "exception caught doing file move", e);
         }
-        if (success) {
+        if (isSuccess()) {
+            // "Renamed" is misleading in the case where the file already had the
+            // exact path that we wanted to "rename" it to.  But it's definitely
+            // not "failure".  TODO: have more accurate method names?
             episode.setRenamed(status);
         } else {
             episode.setFailToMove();
