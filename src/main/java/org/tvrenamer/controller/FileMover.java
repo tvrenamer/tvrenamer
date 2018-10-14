@@ -19,8 +19,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class FileMover implements Callable<Boolean> {
-    private static final Logger logger = Logger.getLogger(FileMover.class.getName());
-    private static final UserPreferences userPrefs = UserPreferences.getInstance();
+    static final Logger logger = Logger.getLogger(FileMover.class.getName());
+    static final UserPreferences userPrefs = UserPreferences.getInstance();
 
     private final FileEpisode episode;
     private final Path destRoot;
