@@ -200,10 +200,9 @@ public class FileMover implements Callable<Boolean> {
         logger.fine("Going to move\n  '" + srcPath + "'\n  '" + destPath + "'");
         Path actualDest = destPath;
         if (tryRename) {
-            try {
-                actualDest = Files.move(srcPath, destPath);
-            } catch (IOException ioe) {
-                logger.log(Level.SEVERE, "Unable to move " + srcPath, ioe);
+            actualDest = FileUtilities.renameFile(srcPath, destPath);
+            if (actualDest == null) {
+                logger.severe("Unable to move " + srcPath);
                 failToCopy(srcPath, destPath);
                 return false;
             }
@@ -214,9 +213,7 @@ public class FileMover implements Callable<Boolean> {
                 return false;
             }
         }
-        if (actualDest != null) {
-            episode.setPath(actualDest);
-        }
+        episode.setPath(actualDest);
         boolean same = destPath.equals(actualDest);
         if (!same) {
             logger.warning("actual destination did not match intended:\n  "
