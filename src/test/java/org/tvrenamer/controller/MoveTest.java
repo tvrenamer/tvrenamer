@@ -79,17 +79,14 @@ public class MoveTest {
     @Rule
     public final TemporaryFolder tempFolder = new TemporaryFolder();
 
-    private Path tempPath = null;
-    private Path sandbox;
     private Path destDir;
     private FileEpisode episode;
     private Path srcFile;
-    private String seasonFolder;
     private Path expectedDest;
 
     private void setValues(final EpisodeTestData epdata) {
-        tempPath = tempFolder.getRoot().toPath();
-        sandbox = tempPath.resolve("input");
+        Path tempPath = tempFolder.getRoot().toPath();
+        Path sandbox = tempPath.resolve("input");
         destDir = tempPath.resolve("output");
 
         FileMover.userPrefs.setDestinationDirectory(destDir.toString());
@@ -98,7 +95,7 @@ public class MoveTest {
         episode = epdata.createFileEpisode(sandbox);
         srcFile = episode.getPath();
 
-        seasonFolder = FileMover.userPrefs.getSeasonPrefix() + epdata.seasonNum;
+        String seasonFolder = FileMover.userPrefs.getSeasonPrefix() + epdata.seasonNum;
         expectedDest = destDir
             .resolve(epdata.properShowName)
             .resolve(seasonFolder)
