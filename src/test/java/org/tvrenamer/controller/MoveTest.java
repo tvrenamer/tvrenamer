@@ -11,7 +11,7 @@ import org.junit.rules.TemporaryFolder;
 
 import org.tvrenamer.model.EpisodeTestData;
 import org.tvrenamer.model.FileEpisode;
-import org.tvrenamer.model.NoOpProgressUpdater;
+import org.tvrenamer.model.ProgressObserver;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -60,10 +60,10 @@ public class MoveTest {
         // We don't want to see "info" level messages, or even warnings,
         // as we run tests.  Setting the level to "SEVERE" means nothing
         // below that level will be printed.
-        // FileMover.logger.setLevel(Level.SEVERE);
+        FileMover.logger.setLevel(Level.SEVERE);
     }
 
-    private static EpisodeTestData robotChicken0704 = new EpisodeTestData.Builder()
+    private static final EpisodeTestData robotChicken0704 = new EpisodeTestData.Builder()
         .inputFilename("robot chicken/7x04.Rebel.Appliance.mp4")
         .filenameShow("robot chicken")
         .properShowName("Robot Chicken")
@@ -131,6 +131,30 @@ public class MoveTest {
         assertMoved();
     }
 
+    private static class FutureCompleter implements ProgressObserver {
+        private final CompletableFuture<Boolean> future;
+
+        FutureCompleter(final CompletableFuture<Boolean> future) {
+            this.future = future;
+        }
+
+        public void initializeProgress(long max) {
+            // no-op
+        }
+
+        public void setProgressValue(long value) {
+            // no-op
+        }
+
+        public void setProgressStatus(String status) {
+            // no-op
+        }
+
+        public void finishProgress(boolean succeeded) {
+            future.complete(succeeded);
+        }
+    }
+
     @Test
     public void testMoveRunner() {
         final CompletableFuture<Boolean> future = new CompletableFuture<>();
@@ -139,20 +163,19 @@ public class MoveTest {
         assertReady();
 
         FileMover mover = new FileMover(episode);
+        mover.addObserver(new FutureCompleter(future));
 
         List<FileMover> moveList = new ArrayList<>();
         moveList.add(mover);
 
         MoveRunner runner = new MoveRunner(moveList);
-        runner.setUpdater(new NoOpProgressUpdater() {
-                public void finish() {
-                    MoveTest.this.assertMoved();
-                    future.complete(true);
-                }
-            });
         try {
             runner.runThread();
-            future.get(4, TimeUnit.SECONDS);
+            boolean didMove = future.get(4, TimeUnit.SECONDS);
+            assertMoved();
+            assertTrue("got " + didMove
+                       + " in finishProgress for successful move",
+                       didMove);
         } catch (TimeoutException e) {
             String failMsg = "timeout trying to move " + srcFile;
             String exceptionMessage = e.getMessage();
