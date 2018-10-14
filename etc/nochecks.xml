@@ -12,6 +12,7 @@
     <suppress files="src/test/java/org/tvrenamer/model/FileEpisodeTest.java" checks="JavadocMethod"/>
     <suppress files="src/test/java/org/tvrenamer/controller/util/StringUtilsTest.java" checks="JavadocMethod"/>
     <suppress files="src/test/java/org/tvrenamer/controller/util/FileUtilsTest.java" checks="JavadocMethod"/>
+    <suppress files="src/test/java/org/tvrenamer/controller/TestMain.java" checks=".*"/>
 
     <suppress files="src/main/java/org/tvrenamer/model/GlobalOverrides.java" checks="JavadocMethod"/>
     <suppress files="src/main/java/org/tvrenamer/controller/util/XPathUtilities.java" checks="JavadocMethod"/>

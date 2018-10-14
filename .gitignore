@@ -11,5 +11,6 @@ launch4j.properties
 /tvrenamer.iml
 /.idea/
 
+/src/test/java/org/tvrenamer/controller/TestMain.java
 /commit.log
 /diff.diff

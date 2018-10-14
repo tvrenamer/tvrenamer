@@ -17,4 +17,7 @@
     <Method name="testUnmodifiableMap" />
     <Bug pattern="DE_MIGHT_IGNORE" />
   </Match>
+  <Match>
+    <Class name="org.tvrenamer.controller.TestMain" />
+  </Match>
 </FindBugsFilter>
