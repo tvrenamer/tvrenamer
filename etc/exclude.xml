@@ -1,13 +1,5 @@
 <FindBugsFilter>
   <Match>
-    <Class name="org.tvrenamer.view.ResultsTable" />
-    <Method name="updateUserPreferences" />
-    <Or>
-      <Bug pattern="SF_SWITCH_FALLTHROUGH" />
-      <Bug pattern="SF_SWITCH_NO_DEFAULT" />
-    </Or>
-  </Match>
-  <Match>
     <Class name="org.tvrenamer.controller.util.FileUtilsTest" />
     <Method name="testExistingAncestor" />
     <Bug pattern="DMI_HARDCODED_ABSOLUTE_FILENAME" />
