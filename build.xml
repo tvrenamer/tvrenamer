@@ -80,7 +80,7 @@
     <mkdir dir="${dist}" />
   </target>
 
-  <target name="compile">
+  <target name="compile" description="compile the main source code">
 
     <fail message="You need to run ivy (ant resolve) first.">
       <condition><not>
@@ -96,7 +96,8 @@
     <copy file="${logging.file}" todir="${build.main}" />
   </target>
 
-  <target name="compile.test" depends="compile, resolve">
+  <target name="compile.test" depends="compile, resolve"
+          description="compile the test source code">
     <mkdir dir="${build.test}" />
     <javac srcdir="${src.test}/java" destdir="${build.test}" classpathref="classpath.test"
            debug="true" debuglevel="lines,vars,source"
@@ -228,24 +229,28 @@
     </sequential>
   </macrodef>
 
-  <target name="dist.win" depends="clean">
+  <target name="dist.win" depends="clean"
+          description="build release for Windows">
     <build.win platform="win32" swtid="win32.win32.x86" />
     <build.win platform="win64" swtid="win32.win32.x86_64" />
   </target>
 
-  <target name="dist.linux" depends="clean">
+  <target name="dist.linux" depends="clean"
+          description="build release for Linux">
     <build.linux platform="gtk32" swtid="gtk.linux.x86" />
     <build.linux platform="gtk64" swtid="gtk.linux.x86_64" />
   </target>
 
-  <target name="dist.osx" depends="clean">
+  <target name="dist.osx" depends="clean"
+          description="build release for OS X">
     <build.osx platform="osx32" swtid="cocoa.macosx" />
     <build.osx platform="osx64" swtid="cocoa.macosx.x86_64" />
   </target>
 
-  <target name="dist.all" depends="init, resolve, dist.win, dist.linux, dist.osx" />
+  <target name="dist.all" depends="init, resolve, dist.win, dist.linux, dist.osx"
+          description="build release for all platforms" />
 
-  <target name="javadoc">
+  <target name="javadoc" description="generate Javadoc">
     <javadoc destdir="${jdoc}/api"
              noqualifier="all"
              author="true"
@@ -305,7 +310,7 @@
     </findbugs>
   </target>
 
-  <target name="clean">
+  <target name="clean" description="delete build artifacts">
     <delete includeemptydirs="true" failonerror="false">
       <fileset dir="${build.main}" includes="**/*" />
       <fileset dir="${build.test}" includes="**/*" />
@@ -313,7 +318,8 @@
     </delete>
   </target>
 
-  <target name="allclean" depends="clean">
+  <target name="allclean" depends="clean"
+           description="delete all generated or downloaded files">
     <delete dir="${build}" />
     <delete dir="${dist}" />
     <delete dir="${jdoc}" />
@@ -326,7 +332,8 @@
     <echo message="       tests" />
   </target>
 
-  <target name="test" depends="clean, compile.test">
+  <target name="test" depends="clean, compile.test"
+          description="run and report on jUnit tests">
     <junit haltonerror="true" haltonfailure="true" printsummary="true" fork="no" forkmode="once">
       <formatter type="plain" usefile="false" />
 
