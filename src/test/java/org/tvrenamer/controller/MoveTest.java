@@ -1,5 +1,6 @@
 package org.tvrenamer.controller;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -84,6 +85,7 @@ public class MoveTest {
     private Path destDir;
     private FileEpisode episode;
     private Path srcFile;
+    private Path srcDir;
     private Path expectedDest;
 
     private void setValues(final EpisodeTestData epdata) {
@@ -96,6 +98,12 @@ public class MoveTest {
 
         episode = epdata.createFileEpisode(sandbox);
         srcFile = episode.getPath();
+        srcDir = srcFile.getParent();
+        if (srcDir == null) {
+            // This really should not be the problem, but give it a shot.
+            srcDir = srcFile.toAbsolutePath().getParent();
+        }
+        assertNotNull(srcDir);
 
         String seasonFolder = FileMover.userPrefs.getSeasonPrefix() + epdata.seasonNum;
         expectedDest = destDir
@@ -117,6 +125,21 @@ public class MoveTest {
     private void assertMoved() {
         assertTrue("did not move " + srcFile + " to expected destination "
                    + expectedDest, Files.exists(expectedDest));
+    }
+
+    private void assertNotMoved() {
+        assertTrue("although set to read-only " + srcFile
+                   + " is no longer in place",
+                   Files.exists(srcFile));
+        assertTrue("although " + srcFile + " was read-only, destination "
+                   + expectedDest + " was created",
+                   Files.notExists(expectedDest));
+        // We expect to create the actual dest dir -- the top level.
+        // (Though, if not, that's ok, too.)
+        // Presumably, in trying to move the file, we created some subdirs.
+        // If so, they should be cleaned up by the time we get here.
+        assertTrue("extra files wer created even though couldn't move file",
+                   Files.notExists(destDir) || TestUtils.isDirEmpty(destDir));
     }
 
     private void assertTimestamp(long expected) {
@@ -148,6 +171,26 @@ public class MoveTest {
 
         assertMoved();
         assertTimestamp(now);
+    }
+
+    @Test
+    public void testFileMoverCannotMove() {
+        setValues(robotChicken0704);
+        TestUtils.setReadOnly(srcFile);
+        TestUtils.setReadOnly(srcDir);
+        assertReady();
+
+        FileMover mover = new FileMover(episode);
+        boolean didMove = mover.call();
+
+        // Allow the framework to clean up by making the
+        // files writable again.
+        TestUtils.setWritable(srcDir);
+        TestUtils.setWritable(srcFile);
+
+        assertNotMoved();
+        assertFalse("FileMover.call returned true on read-only file",
+                    didMove);
     }
 
     private static class FutureCompleter implements ProgressObserver {
