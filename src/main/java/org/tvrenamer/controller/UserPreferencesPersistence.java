@@ -63,8 +63,8 @@ public class UserPreferencesPersistence {
             }
         } else {
             // If file doesn't exist, assume defaults
-            logger.log(Level.FINE, "Preferences file '" + path.toAbsolutePath().toString()
-                       + "' does not exist - assuming defaults");
+            logger.fine("Preferences file '" + path.toAbsolutePath().toString()
+                        + "' does not exist - assuming defaults");
         }
 
         return null;
