@@ -453,11 +453,24 @@ public class FileEpisode {
      * Update this object to know that we have finished the process of moving
      * its file.
      *
+     * <p>Even though this is only called when a requested rename has been
+     * finished successfully, there are still numerous statuses it could be:
+     * <ul><li>RENAMED - this means the file now exists where we want it,
+     *                   and not where it used to</li>
+     *     <li>COPIED - this means the file was copied to the new location,
+     *                  but the original is still in place</li>
+     *     <li>ALREADY_IN_PLACE - this means the file is now where we want
+     *                            it -- but it was already there!</li>
+     *     <li>MISNAMED - although unlikely to happen, this indicates that
+     *                    the file has been moved to a different location
+     *                    than the one we wanted</li>
+     * </ul>
+     *
      * This information really is not currently used.
      *
      */
-    public void setRenamed() {
-        fileStatus = MoveStatus.RENAMED;
+    public void setRenamed(final MoveStatus result) {
+        fileStatus = result;
     }
 
     /**
