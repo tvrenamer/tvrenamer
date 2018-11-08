@@ -3,7 +3,7 @@ package org.tvrenamer.model;
 public enum MoveStatus {
     UNCHECKED,
     NO_FILE,
-    ORIGINAL,
+    UNMOVED,
     MOVING,
     RENAMED,
     FAIL_TO_MOVE

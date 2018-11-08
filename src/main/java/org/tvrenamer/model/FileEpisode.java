@@ -294,7 +294,7 @@ public class FileEpisode {
     private void checkFile(boolean mustExist) {
         if (Files.exists(pathObj)) {
             try {
-                fileStatus = MoveStatus.ORIGINAL;
+                fileStatus = MoveStatus.UNMOVED;
                 fileSize = Files.size(pathObj);
             } catch (IOException ioe) {
                 logger.log(Level.WARNING, "couldn't get size of " + pathObj, ioe);
