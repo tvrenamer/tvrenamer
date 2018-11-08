@@ -159,6 +159,9 @@ public class FileMover implements Callable<Boolean> {
         boolean ok = FileUtilities.copyWithUpdates(source, dest, observer);
         if (ok) {
             ok = FileUtilities.deleteFile(source);
+            if (!ok) {
+                logger.warning("failed to delete original " + source);
+            }
         } else {
             failToCopy(source, dest);
         }

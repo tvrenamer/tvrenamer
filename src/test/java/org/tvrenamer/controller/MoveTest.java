@@ -138,7 +138,7 @@ public class MoveTest {
         // (Though, if not, that's ok, too.)
         // Presumably, in trying to move the file, we created some subdirs.
         // If so, they should be cleaned up by the time we get here.
-        assertTrue("extra files wer created even though couldn't move file",
+        assertTrue("extra files were created even though couldn't move file",
                    Files.notExists(destDir) || TestUtils.isDirEmpty(destDir));
     }
 
