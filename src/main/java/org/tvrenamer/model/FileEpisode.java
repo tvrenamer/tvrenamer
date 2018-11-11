@@ -468,6 +468,8 @@ public class FileEpisode {
      *
      * This information really is not currently used.
      *
+     * @param result
+     *   the result of the attempted move
      */
     public void setRenamed(final MoveStatus result) {
         fileStatus = result;
@@ -663,7 +665,16 @@ public class FileEpisode {
     }
 
     /**
-     * Returns the name of the file to which the file should be moved.<p>
+     * Returns the pathname to which the file should be moved.
+     *
+     * <p>Takes the base part of the name as an argument, resolves it in the
+     * destination directory, and returns it as a String.
+     *
+     * @param filename
+     *   the filename to which we should move the file associated with this
+     *   FileEpisode
+     * @return
+     *   the pathname to which we should move the file, as a String
      *
      */
     private String getMoveToFile(final String filename) {
