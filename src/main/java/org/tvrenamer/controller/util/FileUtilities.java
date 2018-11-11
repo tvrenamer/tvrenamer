@@ -1,6 +1,6 @@
 package org.tvrenamer.controller.util;
 
-import org.tvrenamer.model.ProgressObserver;
+import org.tvrenamer.model.MoveObserver;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -323,7 +323,7 @@ public class FileUtilities {
      * Based on a version originally implemented in jEdit 4.3pre9
      */
     public static boolean copyWithUpdates(final Path source, final Path dest,
-                                          final ProgressObserver observer)
+                                          final MoveObserver observer)
     {
         boolean ok = false;
         try (OutputStream fos = Files.newOutputStream(dest);

@@ -12,7 +12,7 @@ import org.junit.rules.TemporaryFolder;
 
 import org.tvrenamer.model.EpisodeTestData;
 import org.tvrenamer.model.FileEpisode;
-import org.tvrenamer.model.ProgressObserver;
+import org.tvrenamer.model.MoveObserver;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -193,7 +193,7 @@ public class MoveTest {
                     didMove);
     }
 
-    private static class FutureCompleter implements ProgressObserver {
+    private static class FutureCompleter implements MoveObserver {
         private final CompletableFuture<Boolean> future;
 
         FutureCompleter(final CompletableFuture<Boolean> future) {
