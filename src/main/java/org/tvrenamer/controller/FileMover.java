@@ -4,8 +4,8 @@ import static org.tvrenamer.model.util.Constants.*;
 
 import org.tvrenamer.controller.util.FileUtilities;
 import org.tvrenamer.model.FileEpisode;
+import org.tvrenamer.model.MoveObserver;
 import org.tvrenamer.model.MoveStatus;
-import org.tvrenamer.model.ProgressObserver;
 import org.tvrenamer.model.UserPreferences;
 
 import java.io.IOException;
@@ -25,7 +25,7 @@ public class FileMover implements Callable<Boolean> {
     private final String destBasename;
     private final String destSuffix;
     private MoveStatus status = MoveStatus.UNCHECKED;
-    private ProgressObserver observer = null;
+    private MoveObserver observer = null;
     Integer destIndex = null;
 
     /**
@@ -48,7 +48,7 @@ public class FileMover implements Callable<Boolean> {
      * @param observer
      *   the observer to add
      */
-    public void addObserver(ProgressObserver observer) {
+    public void addObserver(MoveObserver observer) {
         this.observer = observer;
     }
 

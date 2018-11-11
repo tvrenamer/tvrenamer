@@ -4,11 +4,11 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TableItem;
 
-import org.tvrenamer.model.ProgressObserver;
+import org.tvrenamer.model.MoveObserver;
 
 import java.text.NumberFormat;
 
-public class FileCopyMonitor implements ProgressObserver {
+public class FileCopyMonitor implements MoveObserver {
     private final NumberFormat format = NumberFormat.getPercentInstance();
 
     private final ResultsTable ui;
