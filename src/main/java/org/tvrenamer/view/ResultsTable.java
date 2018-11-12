@@ -61,6 +61,7 @@ import java.util.Locale;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Logger;
 
 public final class ResultsTable implements Observer, AddEpisodeListener {
@@ -76,6 +77,8 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     private static final int WIDTH_NEW_FILENAME = 550;
     private static final int WIDTH_STATUS = 60;
 
+    private static final int DEFAULT_MAX_FAILURES_TO_LIST = 3;
+
     private final UIStarter ui;
     private final Shell shell;
     private final Display display;
@@ -85,6 +88,8 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     private Button actionButton;
     private ProgressBar totalProgressBar;
     private TaskItem taskItem = null;
+
+    private final Queue<FileEpisode> currentFailures = new ConcurrentLinkedQueue<>();
 
     private boolean apiDeprecated = false;
 
@@ -387,6 +392,8 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     }
 
     private void executeActionButton() {
+        currentFailures.clear();
+
         if (!prefs.isMoveEnabled() && !prefs.isRenameSelected()) {
             logger.info("move and rename both disabled, nothing to be done.");
             return;
@@ -601,8 +608,30 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         }
     }
 
+    private void informUserOfFailures() {
+        int nFailures = currentFailures.size();
+        int toInclude = nFailures;
+        StringBuilder failureMessage = new StringBuilder(MOVE_FAILURE_MSG_1);
+        if (nFailures > DEFAULT_MAX_FAILURES_TO_LIST) {
+            failureMessage.append(MOVE_FAILURE_PARTIAL_MSG);
+            toInclude = DEFAULT_MAX_FAILURES_TO_LIST;
+        }
+        failureMessage.append(':');
+        while (toInclude > 0) {
+            toInclude--;
+            failureMessage.append(NEWLINE_BULLET);
+            failureMessage.append(currentFailures.poll().getFileName());
+        }
+        ui.showMessageBox(SWTMessageBoxType.DLG_ERR, ERROR_LABEL,
+                          failureMessage.toString());
+    }
+
     void finishAllMoves() {
         ui.setAppIcon();
+        if (currentFailures.size() > 0) {
+            informUserOfFailures();
+        }
+        currentFailures.clear();
         actionButton.setEnabled(true);
     }
 
@@ -667,9 +696,11 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
      * But one thing that has changed is the file's current location.  We call
      * helper method updateTableItemAfterMove to update the table.
      *
-     * If the move actually did not succeed, we log a message in development,
-     * but currently don't do anything to make it obvious to the user that the
-     * move failed.  Perhaps we should do more...
+     * In a case where, for example, we can't create files in the destination
+     * directory, we may have a lot of failures.  We don't want to give
+     * multiple dialog boxes to the user.  So all we do here is add the failure
+     * to a queue of failures; when the entire move operation is finished, we'll
+     * inform the user of any failures that occurred.
      *
      * @param item
      *   the item representing the file that we've just finished trying to move
@@ -684,9 +715,9 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                 updateTableItemAfterMove(item);
             }
         } else {
-            // Should we do anything else, visible to the user?  Uncheck the row?
-            // We don't really have a good option, right now.  TODO.
-            logger.info("failed to move item: " + CURRENT_FILE_FIELD.getCellText(item));
+            final String unmovedFile = CURRENT_FILE_FIELD.getCellText(item);
+            currentFailures.add(episodeMap.get(unmovedFile));
+            logger.info("failed to move item: " + unmovedFile);
         }
     }
 
