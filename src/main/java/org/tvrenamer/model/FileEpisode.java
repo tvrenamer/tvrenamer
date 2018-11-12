@@ -291,6 +291,10 @@ public class FileEpisode {
         return pathObj;
     }
 
+    public String getFileName() {
+        return fileNameString;
+    }
+
     private void checkFile(boolean mustExist) {
         if (Files.exists(pathObj)) {
             try {
