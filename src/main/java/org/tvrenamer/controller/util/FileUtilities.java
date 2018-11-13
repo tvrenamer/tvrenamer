@@ -146,7 +146,7 @@ public class FileUtilities {
         logger.info("craziest possible outcome");
         logger.info("src file gone, dest file not there, result of move call "
                     + "not null, but also not there.  Fubar.");
-        return null;
+        return actualDest;
     }
 
     /**
@@ -163,7 +163,7 @@ public class FileUtilities {
      * directly, is to detect specific problems and communicate them via
      * logging.  It is a wrapper around Files.move().
      *
-     * <p>If an unexpected result occurs, calls {@link unexpectedMoveResult}.
+     * <p>If an unexpected result occurs, calls {@link #unexpectedMoveResult}.
      *
      * @param srcFile
      *    the file to be renamed
