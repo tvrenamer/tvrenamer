@@ -365,11 +365,6 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
     }
 
     private void renameFiles() {
-        if (!prefs.isMoveEnabled() && !prefs.isRenameSelected()) {
-            logger.info("move and rename both disabled, nothing to be done.");
-            return;
-        }
-
         final List<FileMover> pendingMoves = new LinkedList<>();
         for (final TableItem item : swtTable.getItems()) {
             if (item.getChecked()) {
@@ -389,6 +384,15 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         MoveRunner mover = new MoveRunner(pendingMoves);
         mover.setUpdater(new ProgressBarUpdater(this));
         mover.runThread();
+    }
+
+    private void executeActionButton() {
+        if (!prefs.isMoveEnabled() && !prefs.isRenameSelected()) {
+            logger.info("move and rename both disabled, nothing to be done.");
+            return;
+        }
+
+        renameFiles();
         swtTable.setFocus();
     }
 
@@ -774,7 +778,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
         actionButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                renameFiles();
+                executeActionButton();
             }
         });
     }
