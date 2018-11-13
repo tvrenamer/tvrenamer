@@ -39,10 +39,10 @@ public interface MoveObserver {
     void setProgressStatus(String status);
 
     /**
-     * Finish the activity
+     * Finish the file move
      *
-     * @param succeeded
-     *    whether the activity completed successfully
+     * @param episode
+     *    the FileEpisode that this observer was associated with
      */
-    void finishProgress(boolean succeeded);
+    void finishProgress(FileEpisode episode);
 }
