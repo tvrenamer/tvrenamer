@@ -392,6 +392,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
             return;
         }
 
+        actionButton.setEnabled(false);
         renameFiles();
         swtTable.setFocus();
     }
@@ -602,6 +603,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
 
     void finishAllMoves() {
         ui.setAppIcon();
+        actionButton.setEnabled(true);
     }
 
     /*
