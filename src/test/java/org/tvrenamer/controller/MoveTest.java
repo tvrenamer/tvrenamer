@@ -212,8 +212,8 @@ public class MoveTest {
             // no-op
         }
 
-        public void finishProgress(boolean succeeded) {
-            future.complete(succeeded);
+        public void finishProgress(FileEpisode episode) {
+            future.complete(episode.isSuccess());
         }
     }
 

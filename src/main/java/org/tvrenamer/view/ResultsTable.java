@@ -704,20 +704,19 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
      *
      * @param item
      *   the item representing the file that we've just finished trying to move
-     * @param success
-     *   whether or not we actually succeeded in moving the file
+     * @param episode
+     *    the related episode
      */
-    public void finishMove(final TableItem item, final boolean success) {
-        if (success) {
+    public void finishMove(final TableItem item, final FileEpisode episode) {
+        if (episode.isSuccess()) {
             if (prefs.isDeleteRowAfterMove()) {
                 deleteTableItem(item);
             } else {
                 updateTableItemAfterMove(item);
             }
         } else {
-            final String unmovedFile = CURRENT_FILE_FIELD.getCellText(item);
-            currentFailures.add(episodeMap.get(unmovedFile));
-            logger.info("failed to move item: " + unmovedFile);
+            currentFailures.add(episode);
+            logger.info("failed to move item: " + episode);
         }
     }
 

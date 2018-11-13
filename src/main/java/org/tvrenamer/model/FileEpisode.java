@@ -135,8 +135,19 @@ public class FileEpisode {
     // The state of this object, not the state of the actual TV episode.
     private ParseStatus parseStatus = ParseStatus.UNPARSED;
     private SeriesStatus seriesStatus = SeriesStatus.NOT_STARTED;
-    @SuppressWarnings("unused")
-    private MoveStatus fileStatus = MoveStatus.UNCHECKED;
+
+    public String fileStatus = "UNCHECKED";
+    private Boolean originalFileInPlace = null;
+    private boolean currentPathMatchesTemplate = false;
+    private boolean moveInProgress = false;
+    // These values are not necessarily eternal
+    private boolean moveHasBeenAttempted = false;
+    private boolean moveHadConflict = false;
+    private boolean moveHadError = false;
+
+    public enum FailureReason {
+        ORIGINAL_MISSING,
+    }
 
     private List<String> replacementOptions = null;
     private String replacementText = ADDED_PLACEHOLDER_FILENAME;
@@ -295,21 +306,41 @@ public class FileEpisode {
         return fileNameString;
     }
 
+    /**
+     * Updates the status to know that the source file is not found.
+     *
+     */
+    public void setNoFile() {
+        fileStatus = "NO_FILE";
+
+        originalFileInPlace = false;
+    }
+
+    /**
+     * Updates the status to know that the source file has been found.
+     *
+     */
+    public void setFileVerified() {
+        fileStatus = "UNMOVED";
+        originalFileInPlace = true;
+        moveInProgress = false;
+    }
+
     private void checkFile(boolean mustExist) {
         if (Files.exists(pathObj)) {
+            setFileVerified();
             try {
-                fileStatus = MoveStatus.UNMOVED;
                 fileSize = Files.size(pathObj);
             } catch (IOException ioe) {
                 logger.log(Level.WARNING, "couldn't get size of " + pathObj, ioe);
-                fileStatus = MoveStatus.NO_FILE;
+                setNoFile();
                 fileSize = NO_FILE_SIZE;
             }
         } else {
             if (mustExist) {
                 logger.warning("creating FileEpisode for nonexistent path, " + pathObj);
             }
-            fileStatus = MoveStatus.NO_FILE;
+            setNoFile();
             fileSize = NO_FILE_SIZE;
         }
     }
@@ -443,62 +474,117 @@ public class FileEpisode {
     }
 
     /**
-     * Update this object to know that we have begun the process of moving
-     * its file.
-     *
-     * This information really is not currently used.
+     * Updates the status to know that the process of moving the file to its
+     * desired name/location has begun, and is not known to have finished.
      *
      */
     public void setMoving() {
-        fileStatus = MoveStatus.MOVING;
+        fileStatus = "MOVING";
+        originalFileInPlace = true;
+        moveInProgress = true;
+        // Since we are starting a new move, we reset these values.
+        moveHasBeenAttempted = false;
+        moveHadConflict = false;
+        moveHadError = false;
     }
 
     /**
-     * Update this object to know that we have finished the process of moving
-     * its file.
+     * Updates the status to know that the source file is already in the
+     * directory that the user wants it in, and has the best name that it
+     * can be given.
      *
-     * <p>Even though this is only called when a requested rename has been
-     * finished successfully, there are still numerous statuses it could be:
-     * <ul><li>RENAMED - this means the file now exists where we want it,
-     *                   and not where it used to</li>
-     *     <li>COPIED - this means the file was copied to the new location,
-     *                  but the original is still in place</li>
-     *     <li>ALREADY_IN_PLACE - this means the file is now where we want
-     *                            it -- but it was already there!</li>
-     *     <li>MISNAMED - although unlikely to happen, this indicates that
-     *                    the file has been moved to a different location
-     *                    than the one we wanted</li>
-     * </ul>
-     *
-     * This information really is not currently used.
-     *
-     * @param result
-     *   the result of the attempted move
      */
-    public void setRenamed(final MoveStatus result) {
-        fileStatus = result;
+    public void setAlreadyInPlace() {
+        fileStatus = "ALREADY_IN_PLACE";
+        originalFileInPlace = true;
+        currentPathMatchesTemplate = true;
+        moveInProgress = false;
+        moveHadError = false;
     }
 
     /**
-     * Update this object to know that we have tried to move its file, but
-     * were unable to do so.
+     * Updates the status to know that there is already a file with the desired
+     * name/location where the user's template requests we move the source file.
      *
-     * This information really is not currently used.
+     */
+    public void setConflict() {
+        moveHadConflict = true;
+    }
+
+    /**
+     * Updates the status to know that we have successfully "moved" the file to
+     * the name/location where the user's template specified.  At the filesystem
+     * level, this could mean the file was renamed, or that it was copied and
+     * the original deleted.
+     *
+     */
+    public void setRenamed() {
+        fileStatus = "RENAMED";
+        originalFileInPlace = false;
+        currentPathMatchesTemplate = true;
+        moveInProgress = false;
+        moveHasBeenAttempted = true;
+        moveHadConflict = false;
+        moveHadError = false;
+    }
+
+    /**
+     * Updates the status to know that we successfully copied the file to the
+     * desired name/location, but we have not (yet?) deleted the original file.
+     * If the move is in this state at the completion of the process, it means
+     * we were not able to delete the original file.
+     *
+     */
+    public void setCopied() {
+        fileStatus = "COPIED";
+        originalFileInPlace = true;
+        currentPathMatchesTemplate = true;
+        moveInProgress = false;
+        moveHasBeenAttempted = true;
+        moveHadConflict = false;
+    }
+
+    /**
+     * Updates the status to know that we tried to move the file, but were not
+     * able to.  This could be for any number of reasons.  But whatever the
+     * reason, it indicates that the original file is still where it originally
+     * was, and that the destination file to which we tried to move the file,
+     * does not exist.
      *
      */
     public void setFailToMove() {
-        fileStatus = MoveStatus.FAIL_TO_MOVE;
+        fileStatus = "FAIL_TO_MOVE";
+        originalFileInPlace = true;
+        currentPathMatchesTemplate = false;
+        moveInProgress = false;
+        moveHasBeenAttempted = true;
+        moveHadConflict = false;
+        moveHadError = true;
     }
 
     /**
-     * Update this object to know that we tried to move its file, but the
-     * file apparently no longer exists in the original location.
-     *
-     * This information really is not currently used.
+     * Updates the status to know that the original file has been moved, but
+     * that it was not moved to where we expected.  Thankfully, this is is very
+     * likely impossible, but want to have infrastructure for it, just in case.
      *
      */
-    public void setDoesNotExist() {
-        fileStatus = MoveStatus.NO_FILE;
+    public void setMisnamed() {
+        fileStatus = "MISNAMED";
+        originalFileInPlace = false;
+        currentPathMatchesTemplate = false;
+        moveInProgress = false;
+        moveHasBeenAttempted = true;
+        moveHadError = true;
+    }
+
+    /**
+     * Evaluates the status as "successful" or not.
+     *
+     * @return
+     *   whether the status indicates "success" or not
+     */
+    public boolean isSuccess() {
+        return currentPathMatchesTemplate;
     }
 
     private String getShowNamePlaceholder() {

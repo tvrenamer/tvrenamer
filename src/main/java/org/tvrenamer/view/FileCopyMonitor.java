@@ -4,6 +4,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TableItem;
 
+import org.tvrenamer.model.FileEpisode;
 import org.tvrenamer.model.MoveObserver;
 
 import java.text.NumberFormat;
@@ -79,13 +80,13 @@ public class FileCopyMonitor implements MoveObserver {
      * Dispose of the label.  We need to do this whether the label was used or not.
      */
     @Override
-    public void finishProgress(final boolean succeeded) {
+    public void finishProgress(final FileEpisode episode) {
         if (!display.isDisposed()) {
             display.asyncExec(() -> {
                 if ((label != null) && (!label.isDisposed())) {
                     label.dispose();
                 }
-                ui.finishMove(item, succeeded);
+                ui.finishMove(item, episode);
             });
         }
     }
