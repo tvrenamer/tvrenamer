@@ -345,17 +345,16 @@ public class FileMover implements Callable<Boolean> {
     }
 
     /**
-     * Do the move.
+     * Attempt the move, and update the FileEpisode.
      *
-     * Using the attributes set in this instance, execute the move functionality.
-     * In reality, this method is little more than a wrapper for getting the return
-     * value right.
+     * Using the attributes set in this instance, execute the move
+     * functionality, and update the status of the FileEpisode with
+     * the result.
      *
      * @return true on success, false otherwise.
      */
     @Override
     public Boolean call() {
-        boolean success = false;
         try {
             // There are numerous reasons why the move would fail.  Instead of calling
             // setFailToMove on the episode in each individual case, make the functionality
@@ -363,15 +362,22 @@ public class FileMover implements Callable<Boolean> {
             tryToMoveFile();
         } catch (Exception e) {
             logger.log(Level.WARNING, "exception caught doing file move", e);
+            // It's very likely that we already set a failure status, but make sure.
+            if (isSuccess()) {
+                logger.warning("Move status was " + status + " despite exception; "
+                               + "changing it to failure");
+                status = MoveStatus.FAIL_TO_MOVE;
+            }
         }
         if (isSuccess()) {
             // "Renamed" is misleading in the case where the file already had the
             // exact path that we wanted to "rename" it to.  But it's definitely
             // not "failure".  TODO: have more accurate method names?
             episode.setRenamed(status);
+            return true;
         } else {
             episode.setFailToMove();
+            return false;
         }
-        return success;
     }
 }
