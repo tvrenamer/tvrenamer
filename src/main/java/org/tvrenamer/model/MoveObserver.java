@@ -10,10 +10,11 @@ package org.tvrenamer.model;
 /**
  * Interface used to monitor a file move.
  *
- * It should not be assumed that a MoveObserver is ready to go
- * upon  construction,  or that it will clean up after itself
- * once you stop using it.  It is required to call initializeProgress()
- * before anything else, and finishProgress() when you're done.
+ * If a class accepts a MoveObserver is required to call finishProgress() at
+ * the end of the attempted move, regardless of the type of move or its success
+ * or failure.  If the class intends to provide updates, it is necessary to call
+ * initializeProgress() before calling one of the "set progress" methods, but
+ * if updates will not be provided, then initializeProgress() may be skipped.
  */
 public interface MoveObserver {
     /**
