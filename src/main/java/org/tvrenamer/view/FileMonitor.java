@@ -9,14 +9,14 @@ import org.tvrenamer.model.MoveObserver;
 
 import java.text.NumberFormat;
 
-public class FileCopyMonitor implements MoveObserver {
+public class FileMonitor implements MoveObserver {
     private final NumberFormat format = NumberFormat.getPercentInstance();
 
     private final ResultsTable ui;
     private final TableItem item;
     private final Display display;
     private Label label = null;
-    private long maximum;
+    private long maximum = 0;
     private int loopCount = 0;
 
     /**
@@ -25,7 +25,7 @@ public class FileCopyMonitor implements MoveObserver {
      * @param ui - the ResultsTable instance
      * @param item - the TableItem to monitor
      */
-    public FileCopyMonitor(ResultsTable ui, TableItem item) {
+    public FileMonitor(ResultsTable ui, TableItem item) {
         this.ui = ui;
         this.item = item;
         display = ui.getDisplay();

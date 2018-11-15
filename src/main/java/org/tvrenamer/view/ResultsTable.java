@@ -381,7 +381,7 @@ public final class ResultsTable implements Observer, AddEpisodeListener {
                     continue;
                 }
                 FileMover pendingMove = new FileMover(episode);
-                pendingMove.addObserver(new FileCopyMonitor(this, item));
+                pendingMove.addObserver(new FileMonitor(this, item));
                 pendingMoves.add(pendingMove);
             }
         }
