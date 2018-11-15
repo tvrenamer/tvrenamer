@@ -247,9 +247,6 @@ public class FileMover implements Callable<Boolean> {
         Path srcDir = realSrc.getParent();
 
         doActualMove(realSrc, destPath, tryRename);
-        if (observer != null) {
-            observer.finishProgress(episode);
-        }
         if (!episode.isSuccess()) {
             logger.info("failed to move " + realSrc);
             return;
@@ -358,7 +355,12 @@ public class FileMover implements Callable<Boolean> {
                                + " despite exception; changing it to failure");
                 episode.setFailToMove();
             }
+        } finally {
+            if (observer != null) {
+                observer.finishProgress(episode);
+            }
         }
+
         return episode.isSuccess();
     }
 }
