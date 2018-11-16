@@ -205,9 +205,8 @@ public class MoveRunner implements Runnable {
         for (FileMover move : listOfMoves) {
             getListValue(desiredFilenames, move.getDesiredDestName()).add(move);
         }
-        for (Map.Entry<String, List<FileMover>> entry : desiredFilenames.entrySet()) {
-            String desiredFilename = entry.getKey();
-            List<FileMover> moves = entry.getValue();
+        for (String desiredFilename : desiredFilenames.keySet()) {
+            List<FileMover> moves = desiredFilenames.get(desiredFilename);
             Set<Path> existing = existingConflicts(destDir, desiredFilename, moves);
             int nFiles = existing.size() + moves.size();
             if (nFiles > 1) {
@@ -257,8 +256,8 @@ public class MoveRunner implements Runnable {
         progressThread.setDaemon(true);
 
         final Map<String, List<FileMover>> mappings = mapByDestDir(episodes);
-        for (Map.Entry<String, List<FileMover>> entry : mappings.entrySet()) {
-            resolveConflicts(entry.getValue(), entry.getKey());
+        for (String destDir : mappings.keySet()) {
+            resolveConflicts(mappings.get(destDir), destDir);
         }
 
         int count = 0;
