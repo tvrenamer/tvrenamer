@@ -4,8 +4,6 @@ import static org.tvrenamer.model.util.Constants.*;
 
 import org.tvrenamer.model.ProgressUpdater;
 
-import java.io.IOException;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -22,9 +20,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 public class MoveRunner implements Runnable {
     private static final Logger logger = Logger.getLogger(MoveRunner.class.getName());
@@ -111,9 +107,14 @@ public class MoveRunner implements Runnable {
      *
      * There are a lot of ways to approach the indexing, as discussed in the
      * doc of resolveConflicts, below; but as a first pass, we:
-     * - consider only the basename for a conflict
+     * - consider only the filename for a conflict
      * - leave existing files as they are
      * - add indexes to conflicting files in the files we're moving
+     *
+     * Since, at this point, we are only finding EXACT matches (the filename
+     * must be identical), <code>existing</code> will contain at most one
+     * element.  It's written this way because in the future, we will be able
+     * to find other potentially conflicting files.
      *
      * @param moves the files which we want to move to the destination
      * @param existing the files which are already at the destination, and
@@ -143,61 +144,33 @@ public class MoveRunner implements Runnable {
      *
      * @param destDirName
      *    the specific directory into which we'll be moving files
-     * @param basename
-     *     the base portion of a the source files; this means, the part
-     *     of their filepath without:<ul>
-     *     <li>the filename extension</li>
-     *     <li>the final dot (that precedes the filename extension</li>
-     *     <li>the directory</li></ul>
+     * @param desiredFilename
+     *     the filename to which we'd move the files; this means, the part
+     *     of their filepath without the directory
      * So, for example, for "/Users/me/TV/Lost.S06E05.Lighthouse.avi",
-     * the basename would be "Lost.S06E05.Lighthouse".
+     * the filename would be "Lost.S06E05.Lighthouse.avi".
      * @param moves
      *     a list of moves, all of which must have a destination directory
      *     equivalent to destDirName, and all of which must have a source
-     *     basename equal to the given basename; very often will be a list
+     *     desiredFilename equal to the given desiredFilename; very often will be a list
      *     with just a single element
      * @return a set of paths that have conflicts; may be empty, and
      *         in fact almost always would be.
      */
     private static Set<Path> existingConflicts(String destDirName,
-                                               String basename,
+                                               String desiredFilename,
                                                List<FileMover> moves)
     {
+        // Since, at this point, we are only finding EXACT matches (the
+        // filename must be identical), at most one element will be added
+        // to <code>hits</code>.  It's written this way because in the
+        // future, we will be able to find other potentially conflicting files.
         Set<Path> hits = new HashSet<>();
         Path destDir = Paths.get(destDirName);
         if (Files.exists(destDir) && Files.isDirectory(destDir)) {
-            // TODO: there are better ways of filtering files than globbing,
-            // especially when we're dealing with files that may have literal
-            // brackets in their names.
-            String glob = basename.replaceAll("\\[", "\\\\[") + "*";
-            try (DirectoryStream<Path> contents
-                 = Files.newDirectoryStream(destDir, glob))
-            {
-                for (Path content : contents) {
-                    hits.add(content);
-                }
-            } catch (IOException ioe) {
-                logger.log(Level.WARNING, "IO Exception descending " + destDir, ioe);
-            }
-        }
-        if (!hits.isEmpty()) {
-            Set<Path> toMove = moves.stream()
-                .map(FileMover::getCurrentPath)
-                .collect(Collectors.toSet());
-            try {
-                for (Path pathToMove : toMove) {
-                    Set<Path> newHits = new HashSet<>();
-                    for (Path hit : hits) {
-                        logger.info("comparing " + pathToMove + " and " + hit);
-                        if (!Files.isSameFile(pathToMove, hit)) {
-                            logger.fine("conflict: " + hit);
-                            newHits.add(hit);
-                        }
-                    }
-                    hits = newHits;
-                }
-            } catch (IOException ioe) {
-                logger.log(Level.WARNING, "IO Exception comparing files", ioe);
+            Path conflict = destDir.resolve(desiredFilename);
+            if (Files.exists(conflict)) {
+                hits.add(conflict);
             }
         }
         return hits;
@@ -228,14 +201,14 @@ public class MoveRunner implements Runnable {
      *   the name of the destination directory
      */
     private static void resolveConflicts(List<FileMover> listOfMoves, String destDir) {
-        Map<String, List<FileMover>> basenames = new HashMap<>();
+        Map<String, List<FileMover>> desiredFilenames = new HashMap<>();
         for (FileMover move : listOfMoves) {
-            getListValue(basenames, move.getDesiredDestName()).add(move);
+            getListValue(desiredFilenames, move.getDesiredDestName()).add(move);
         }
-        for (Map.Entry<String, List<FileMover>> entry : basenames.entrySet()) {
-            String basename = entry.getKey();
+        for (Map.Entry<String, List<FileMover>> entry : desiredFilenames.entrySet()) {
+            String desiredFilename = entry.getKey();
             List<FileMover> moves = entry.getValue();
-            Set<Path> existing = existingConflicts(destDir, basename, moves);
+            Set<Path> existing = existingConflicts(destDir, desiredFilename, moves);
             int nFiles = existing.size() + moves.size();
             if (nFiles > 1) {
                 addIndices(moves, existing);
