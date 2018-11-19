@@ -13,6 +13,7 @@ import org.junit.rules.TemporaryFolder;
 import org.tvrenamer.model.EpisodeTestData;
 import org.tvrenamer.model.FileEpisode;
 import org.tvrenamer.model.MoveObserver;
+import org.tvrenamer.model.util.Environment;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -180,17 +181,19 @@ public class MoveTest {
         TestUtils.setReadOnly(srcDir);
         assertReady();
 
-        FileMover mover = new FileMover(episode);
-        boolean didMove = mover.call();
+        if (!Environment.IS_WINDOWS) {
+            FileMover mover = new FileMover(episode);
+            boolean didMove = mover.call();
 
-        // Allow the framework to clean up by making the
-        // files writable again.
-        TestUtils.setWritable(srcDir);
-        TestUtils.setWritable(srcFile);
+            // Allow the framework to clean up by making the
+            // files writable again.
+            TestUtils.setWritable(srcDir);
+            TestUtils.setWritable(srcFile);
 
-        assertNotMoved();
-        assertFalse("FileMover.call returned true on read-only file",
-                    didMove);
+            assertNotMoved();
+            assertFalse("FileMover.call returned true on read-only file",
+                        didMove);
+        }
     }
 
     private static class FutureCompleter implements MoveObserver {
@@ -275,11 +278,13 @@ public class MoveTest {
             runner.runThread();
             boolean didMove = future.get(4, TimeUnit.SECONDS);
 
-            // We expect that the file will not be moved, and that the
-            // observer will be called with a negative status.
-            assertNotMoved();
-            assertFalse("expected to get false in finish progress, but got "
-                        + didMove, didMove);
+            if (!Environment.IS_WINDOWS) {
+                // We expect that the file will not be moved, and that the
+                // observer will be called with a negative status.
+                assertNotMoved();
+                assertFalse("expected to get false in finish progress, but got "
+                            + didMove, didMove);
+            }
         } catch (TimeoutException e) {
             String failMsg = "timeout trying to move " + srcFile;
             String exceptionMessage = e.getMessage();

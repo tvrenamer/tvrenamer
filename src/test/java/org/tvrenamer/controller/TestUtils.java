@@ -1,6 +1,7 @@
 package org.tvrenamer.controller;
 
 import org.tvrenamer.controller.util.FileUtilities;
+import org.tvrenamer.model.util.Environment;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -71,16 +72,25 @@ public class TestUtils extends FileUtilities {
      *    true if we were able to set the file to read-only; false if we cannot
      */
     public static boolean setReadOnly(final Path path) {
-        try {
-            Set<PosixFilePermission> perms = new HashSet<>();
-            perms.add(PosixFilePermission.OWNER_READ);
-            perms.add(PosixFilePermission.OWNER_EXECUTE);
-            Files.setPosixFilePermissions(path, perms);
-            return true;
-        } catch (UnsupportedOperationException ue) {
-            return false;
-        } catch (IOException ioe) {
-            return false;
+        if (Environment.IS_WINDOWS) {
+            // The POSIX permissions are hopeless, so try reverting to the old
+            // java.io functionality.  But this really doesn't work, either.
+            // TODO: find a library that we can use, just for testing, that
+            // will set ACLs on Windows file systems to actually make the
+            // directory not-modifiable.
+            return path.toFile().setReadOnly();
+        } else {
+            try {
+                Set<PosixFilePermission> perms = new HashSet<>();
+                perms.add(PosixFilePermission.OWNER_READ);
+                perms.add(PosixFilePermission.OWNER_EXECUTE);
+                Files.setPosixFilePermissions(path, perms);
+                return true;
+            } catch (UnsupportedOperationException ue) {
+                return false;
+            } catch (IOException ioe) {
+                return false;
+            }
         }
     }
 
@@ -95,23 +105,27 @@ public class TestUtils extends FileUtilities {
      *    false if we cannot
      */
     public static boolean setWritable(final Path path) {
-        try {
-            Set<PosixFilePermission> perms = new HashSet<>();
-            perms.add(PosixFilePermission.OWNER_READ);
-            perms.add(PosixFilePermission.OWNER_WRITE);
-            perms.add(PosixFilePermission.OWNER_EXECUTE);
-            perms.add(PosixFilePermission.GROUP_READ);
-            perms.add(PosixFilePermission.GROUP_WRITE);
-            perms.add(PosixFilePermission.GROUP_EXECUTE);
-            perms.add(PosixFilePermission.OTHERS_READ);
-            perms.add(PosixFilePermission.OTHERS_WRITE);
-            perms.add(PosixFilePermission.OTHERS_EXECUTE);
-            Files.setPosixFilePermissions(path, perms);
-            return true;
-        } catch (UnsupportedOperationException ue) {
-            return false;
-        } catch (IOException ioe) {
-            return false;
+        if (Environment.IS_WINDOWS) {
+            return path.toFile().setWritable(true, false);
+        } else {
+            try {
+                Set<PosixFilePermission> perms = new HashSet<>();
+                perms.add(PosixFilePermission.OWNER_READ);
+                perms.add(PosixFilePermission.OWNER_WRITE);
+                perms.add(PosixFilePermission.OWNER_EXECUTE);
+                perms.add(PosixFilePermission.GROUP_READ);
+                perms.add(PosixFilePermission.GROUP_WRITE);
+                perms.add(PosixFilePermission.GROUP_EXECUTE);
+                perms.add(PosixFilePermission.OTHERS_READ);
+                perms.add(PosixFilePermission.OTHERS_WRITE);
+                perms.add(PosixFilePermission.OTHERS_EXECUTE);
+                Files.setPosixFilePermissions(path, perms);
+                return true;
+            } catch (UnsupportedOperationException ue) {
+                return false;
+            } catch (IOException ioe) {
+                return false;
+            }
         }
     }
 }
