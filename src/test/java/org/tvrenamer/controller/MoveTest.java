@@ -124,8 +124,10 @@ public class MoveTest {
     }
 
     void assertMoved() {
-        assertTrue("did not move " + srcFile + " to expected destination "
-                   + expectedDest, Files.exists(expectedDest));
+        assertTrue("did not move\n" + srcFile + "\n to expected destination\n"
+                   + expectedDest + "\n (it appears to now be in\n"
+                   + episode.getPath() + ")",
+                   Files.exists(expectedDest));
     }
 
     private void assertNotMoved() {
