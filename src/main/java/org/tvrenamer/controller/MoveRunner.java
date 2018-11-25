@@ -227,8 +227,8 @@ public class MoveRunner implements Runnable {
         final Map<String, List<FileMover>> toMove = new HashMap<>();
 
         for (final FileMover pendingMove : episodes) {
-            String moveToDir = pendingMove.getMoveToDirectory();
-            List<FileMover> existingDirMoves = getListValue(toMove, moveToDir);
+            Path moveToDir = pendingMove.getMoveToDirectory();
+            List<FileMover> existingDirMoves = getListValue(toMove, moveToDir.toString());
             existingDirMoves.add(pendingMove);
         }
 
