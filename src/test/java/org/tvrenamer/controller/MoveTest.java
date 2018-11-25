@@ -83,13 +83,13 @@ public class MoveTest {
     @Rule
     public final TemporaryFolder tempFolder = new TemporaryFolder();
 
-    private Path destDir;
-    private FileEpisode episode;
-    private Path srcFile;
-    private Path srcDir;
-    private Path expectedDest;
+    Path destDir;
+    FileEpisode episode;
+    Path srcFile;
+    Path srcDir;
+    Path expectedDest;
 
-    private void setValues(final EpisodeTestData epdata) {
+    void setValues(final EpisodeTestData epdata) {
         Path tempPath = tempFolder.getRoot().toPath();
         Path sandbox = tempPath.resolve("input");
         destDir = tempPath.resolve("output");
@@ -113,7 +113,7 @@ public class MoveTest {
             .resolve(epdata.expectedReplacement + epdata.filenameSuffix);
     }
 
-    private void assertReady() {
+    void assertReady() {
         assertNotNull("failed to create FileEpisode", episode);
         assertNotNull("FileEpisode does not have path", srcFile);
 
@@ -123,7 +123,7 @@ public class MoveTest {
                    Files.notExists(destDir));
     }
 
-    private void assertMoved() {
+    void assertMoved() {
         assertTrue("did not move " + srcFile + " to expected destination "
                    + expectedDest, Files.exists(expectedDest));
     }
@@ -143,7 +143,7 @@ public class MoveTest {
                    Files.notExists(destDir) || TestUtils.isDirEmpty(destDir));
     }
 
-    private void assertTimestamp(long expected) {
+    void assertTimestamp(long expected) {
         long actualMillis = 0L;
         try {
             FileTime actualTimestamp = Files.getLastModifiedTime(expectedDest);
@@ -196,7 +196,7 @@ public class MoveTest {
         }
     }
 
-    private static class FutureCompleter implements MoveObserver {
+    static class FutureCompleter implements MoveObserver {
         private final CompletableFuture<Boolean> future;
 
         FutureCompleter(final CompletableFuture<Boolean> future) {
