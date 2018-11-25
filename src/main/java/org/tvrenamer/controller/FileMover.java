@@ -81,17 +81,17 @@ public class FileMover implements Callable<Boolean> {
     }
 
     /**
-     * Gets the name of the directory we should move the file to, as a string.
+     * Gets the name of the directory we should move the file to, as a Path.
      *
      * We call it the "moveToDirectory" because "destinationDirectory" is used more
      * to refer to the top-level directory: the one the user specified in the dialog
      * for user preferences.  This is the subdirectory of that folder that the file
      * should actually be placed in.
      *
-     * @return the name of the directory we should move the file to, as a string.
+     * @return the directory we should move the file to, as a Path.
      */
-    String getMoveToDirectory() {
-        return destRoot.toString();
+    Path getMoveToDirectory() {
+        return destRoot;
     }
 
     /**
