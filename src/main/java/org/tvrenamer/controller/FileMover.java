@@ -259,12 +259,15 @@ public class FileMover implements Callable<Boolean> {
     }
 
     /**
-     * Add a version string to the destination filename.
+     * Create the version string for the destination filename.
      *
      * @return destination filename with a version added
      */
-    private String addVersionString() {
-        return destBasename + " (" + destIndex + ")" + destSuffix;
+    String versionString() {
+        if (destIndex == null) {
+            return "";
+        }
+        return " (" + destIndex + ")";
     }
 
     /**
@@ -299,7 +302,7 @@ public class FileMover implements Callable<Boolean> {
             if (userPrefs.isMoveEnabled()) {
                 destDir = destRoot.resolve(DUPLICATES_DIRECTORY);
             }
-            filename = addVersionString();
+            filename =  destBasename + versionString() + destSuffix;
         }
 
         if (!FileUtilities.ensureWritableDirectory(destDir)) {
