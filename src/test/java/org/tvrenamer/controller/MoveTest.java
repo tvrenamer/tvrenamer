@@ -220,19 +220,9 @@ public class MoveTest {
         }
     }
 
-    @Test
-    public void testMoveRunner() {
-        final CompletableFuture<Boolean> future = new CompletableFuture<>();
-
-        setValues(robotChicken0704);
-        assertReady();
-
-        FileMover mover = new FileMover(episode);
-        mover.addObserver(new FutureCompleter(future));
-
-        List<FileMover> moveList = new ArrayList<>();
-        moveList.add(mover);
-
+    void executeMoveRunnerTest(List<FileMover> moveList,
+                               CompletableFuture<Boolean> future)
+    {
         MoveRunner runner = new MoveRunner(moveList);
         try {
             runner.runThread();
@@ -256,6 +246,22 @@ public class MoveTest {
             fail("failure (possibly interrupted?) trying to move "
                  + srcFile + ": " + e.getMessage());
         }
+    }
+
+    @Test
+    public void testMoveRunner() {
+        final CompletableFuture<Boolean> future = new CompletableFuture<>();
+
+        setValues(robotChicken0704);
+        assertReady();
+
+        FileMover mover = new FileMover(episode);
+        mover.addObserver(new FutureCompleter(future));
+
+        List<FileMover> moveList = new ArrayList<>();
+        moveList.add(mover);
+
+        executeMoveRunnerTest(moveList, future);
     }
 
     @Test
