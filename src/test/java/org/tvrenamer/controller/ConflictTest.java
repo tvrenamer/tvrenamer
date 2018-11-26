@@ -92,4 +92,41 @@ public class ConflictTest extends MoveTest {
 
         executeMoveRunnerTest(moveList, future);
     }
+
+    @Test
+    public void testMoveRunnerWithTwoConflicts() {
+        final CompletableFuture<Boolean> future = new CompletableFuture<>();
+
+        setValues(bigBang0322);
+        assertReady();
+
+        FileMover mover = new FileMover(episode);
+        makeConflict(bigBang0322, mover);
+        makeConflict(bigBang0322, mover);
+        mover.addObserver(new FutureCompleter(future));
+
+        List<FileMover> moveList = new ArrayList<>();
+        moveList.add(mover);
+
+        executeMoveRunnerTest(moveList, future);
+    }
+
+    @Test
+    public void testMoveRunnerWithThreeConflicts() {
+        final CompletableFuture<Boolean> future = new CompletableFuture<>();
+
+        setValues(bigBang0322);
+        assertReady();
+
+        FileMover mover = new FileMover(episode);
+        makeConflict(bigBang0322, mover);
+        makeConflict(bigBang0322, mover);
+        makeConflict(bigBang0322, mover);
+        mover.addObserver(new FutureCompleter(future));
+
+        List<FileMover> moveList = new ArrayList<>();
+        moveList.add(mover);
+
+        executeMoveRunnerTest(moveList, future);
+    }
 }
