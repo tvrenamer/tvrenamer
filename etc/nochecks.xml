@@ -5,15 +5,10 @@
     "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
 
 <suppressions>
-    <suppress files="src.test.java.org.tvrenamer.controller.FilenameParserTest.java" checks="JavadocMethod"/>
-    <suppress files="src.test.java.org.tvrenamer.controller.MoveTest.java" checks="JavadocMethod"/>
-    <suppress files="src.test.java.org.tvrenamer.controller.TheTVDBProviderTest.java" checks="JavadocMethod"/>
-    <suppress files="src.test.java.org.tvrenamer.model.EpisodeTestData.java" checks="JavadocMethod"/>
-    <suppress files="src.test.java.org.tvrenamer.model.FileEpisodeTest.java" checks="JavadocMethod"/>
-    <suppress files="src.test.java.org.tvrenamer.controller.util.StringUtilsTest.java" checks="JavadocMethod"/>
-    <suppress files="src.test.java.org.tvrenamer.controller.util.FileUtilsTest.java" checks="JavadocMethod"/>
-    <suppress files="src.test.java.org.tvrenamer.controller.TestMain.java" checks=".*"/>
+    <suppress files="src.test.*.java" checks="JavadocMethod"/>
 
-    <suppress files="src.main.java.org.tvrenamer.model.GlobalOverrides.java" checks="JavadocMethod"/>
-    <suppress files="src.main.java.org.tvrenamer.controller.util.XPathUtilities.java" checks="JavadocMethod"/>
+    <suppress files="TestMain.java" checks=".*"/>
+
+    <suppress files="GlobalOverrides.java" checks="JavadocMethod"/>
+    <suppress files="XPathUtilities.java" checks="JavadocMethod"/>
 </suppressions>
