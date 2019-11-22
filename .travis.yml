@@ -1,4 +1,8 @@
+dist: xenial
 language: java
-jdk:
-  - oraclejdk8
-sudo: false
+addons:
+  apt:
+    packages:
+      - ant
+install: ant resolve
+script: ant test
