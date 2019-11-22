@@ -191,14 +191,14 @@
 
         <fx:info title="${ant.project.name}"
                  vendor="${vendor}"
-                 copyright="Copyright (c) 2018 ${vendor}"
+                 copyright="Copyright (c) 2019 ${vendor}"
                  description="A GUI utility to rename TV episodes from TV listings"/>
 
         <fx:application name="${ant.project.name}"
                         version="${version}"
                         mainClass="${jar.mainClass}"/>
 
-        <fx:platform>
+        <fx:platform basedir="">
           <fx:jvmarg value="-XstartOnFirstThread" />
         </fx:platform>
 
