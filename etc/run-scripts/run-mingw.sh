@@ -35,8 +35,18 @@ unixize ()
   echo $1 | sed 's,^\([a-zA-Z]\):,/\1,' | tr '\\' '/'
 }
 
-# libraries -- hard-coded.  The first one is platform-specific.
-libs="org.eclipse.swt.win32.win32.x86_64-4.3.jar commons-codec-1.4.jar xstream-1.4.9.jar xmlpull-1.1.3.1.jar xpp3_min-1.1.4c.jar okhttp-3.8.0.jar okio-1.13.0.jar"
+# pure Java libraries -- hard-coded.
+
+pure_libs="commons-codec-1.4.jar xstream-1.4.9.jar xmlpull-1.1.3.1.jar xpp3_min-1.1.4c.jar okhttp-3.8.0.jar okio-1.13.0.jar"
+
+# core library -- platform-specific.
+# java -d64
+if java -version 2>&1 | grep 64
+then
+  libs="org.eclipse.swt.win32.win32.x86_64-4.3.jar ${pure_libs}"
+else
+  libs="org.eclipse.swt.win32.win32.x86-4.3.jar ${pure_libs}"
+fi
 
 usage ()
 {
