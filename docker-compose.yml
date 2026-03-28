@@ -1,0 +1,10 @@
+services:
+  build:
+    build: .
+    volumes:
+      - .:/workspace
+      - ivy-cache:/root/.ivy2
+    working_dir: /workspace
+
+volumes:
+  ivy-cache:
