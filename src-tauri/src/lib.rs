@@ -1,0 +1,26 @@
+mod config;
+mod errors;
+mod ipc;
+mod metadata;
+mod overrides;
+mod parser;
+mod renamer;
+mod state;
+
+use state::AppState;
+
+pub fn run() {
+    tracing_subscriber::fmt::init();
+
+    let state = AppState::new().expect("Failed to initialise AppState");
+
+    tauri::Builder::default()
+        .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_store::Builder::default().build())
+        .manage(state)
+        .invoke_handler(tauri::generate_handler![ipc::ping])
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
+}
