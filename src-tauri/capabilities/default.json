@@ -1,0 +1,16 @@
+{
+  "$schema": "https://schema.tauri.app/capability/2",
+  "identifier": "default",
+  "description": "Default capabilities for TVRenamer",
+  "windows": ["*"],
+  "permissions": [
+    "core:default",
+    "fs:allow-home-read",
+    "fs:allow-home-write",
+    "fs:allow-home-read-recursive",
+    "fs:allow-home-write-recursive",
+    "dialog:default",
+    "updater:default",
+    "store:default"
+  ]
+}
