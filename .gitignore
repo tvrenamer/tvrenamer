@@ -3,7 +3,16 @@
 /dist/
 /lib/
 /build/
-/docs/
+# Rust / Tauri
+src-tauri/target/
+src-tauri/WixTools/
+
+# Frontend
+ui/node_modules/
+ui/dist/
+
+# Root workspace
+node_modules/
 
 launch4j.properties
 /package/macosx/
