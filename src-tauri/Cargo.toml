@@ -1,0 +1,40 @@
+[package]
+name = "tvrenamer"
+version = "0.1.0"
+description = "TVRenamer — Tauri v2 port"
+authors = []
+license = "GPL-3.0"
+edition = "2021"
+rust-version = "1.77"
+
+[lib]
+name = "tvrenamer_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-fs = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-updater = "2"
+tauri-plugin-store = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+reqwest = { version = "0.13", features = ["json"] }
+tokio = { version = "1", features = ["full"] }
+regex = "1"
+thiserror = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+keyring = "3.6"
+tempfile = "3.10"
+directories = "6.0"
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true
