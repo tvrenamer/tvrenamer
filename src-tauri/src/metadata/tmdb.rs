@@ -457,6 +457,22 @@ mod tests {
         assert_eq!(episode.name, "...And the Bag's in the River");
     }
 
+    #[tokio::test]
+    async fn get_episode_429_all_retries_exhausted_returns_rate_limited() {
+        let mock_server = MockServer::start().await;
+        // All 4 requests (attempt 0..=3) return 429 — exhausts retries.
+        Mock::given(method("GET"))
+            .and(path("/3/tv/1396/season/1/episode/99"))
+            .respond_with(ResponseTemplate::new(429))
+            .mount(&mock_server)
+            .await;
+
+        let provider =
+            TmdbProvider::new_with_base_url(test_client(), "key", mock_server.uri());
+        let result = provider.get_episode(1396, 1, 99).await;
+        assert!(matches!(result, Err(AppError::RateLimited)));
+    }
+
     // --- validate_key tests ---
 
     #[tokio::test]
