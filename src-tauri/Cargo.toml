@@ -31,6 +31,7 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 keyring = { version = "3.6", features = ["apple-native"] }
 tempfile = "3.10"
 renamore = "0.2"
+libc = "0.2"
 directories = "6.0"
 
 [dev-dependencies]

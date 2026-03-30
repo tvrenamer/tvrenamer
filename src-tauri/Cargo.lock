@@ -3078,6 +3078,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dc897dd8d9e8bd1ed8cdad82b5966c3e0ecae09fb1907d58efaa013543185d0a"
 
 [[package]]
+name = "renamore"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "49b0446c996ef20bba2cadf655287aa2ef58e8cb6bccf35b7ca632619bed1c02"
+
+[[package]]
 name = "reqwest"
 version = "0.13.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4711,7 +4717,9 @@ version = "0.1.0"
 dependencies = [
  "directories",
  "keyring",
+ "libc",
  "regex",
+ "renamore",
  "reqwest",
  "serde",
  "serde_json",
