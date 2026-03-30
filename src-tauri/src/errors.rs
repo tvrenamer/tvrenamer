@@ -16,6 +16,14 @@ pub enum AppError {
     DestinationExists,
     #[error("Parse failed: no pattern matched")]
     ParseFailed,
+    #[error("Unable to find show information")]
+    SeriesNotFound,
+    #[error("Could not get episode for show")]
+    EpisodeNotFound,
+    #[error("Rate limit exceeded")]
+    RateLimited,
+    #[error("Downloading show listings failed. Check internet connection: {0}")]
+    NetworkError(String),
     #[error("Preferences corrupted")]
     PreferencesCorrupted,
 }
@@ -23,6 +31,19 @@ pub enum AppError {
 #[cfg(test)]
 mod tests {
     use super::AppError;
+
+    #[test]
+    fn new_error_variants_serialize() {
+        let variants: Vec<AppError> = vec![
+            AppError::SeriesNotFound,
+            AppError::EpisodeNotFound,
+            AppError::RateLimited,
+            AppError::NetworkError("general failure".into()),
+        ];
+        for v in &variants {
+            serde_json::to_string(v).expect("new AppError variants must serialize for IPC");
+        }
+    }
 
     #[test]
     fn all_error_variants_serialize() {
