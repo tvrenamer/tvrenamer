@@ -26,6 +26,7 @@ pub fn run() {
             ipc::lookup_episode,
             ipc::validate_tmdb_key,
             ipc::save_tmdb_key,
+            ipc::perform_renames,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
