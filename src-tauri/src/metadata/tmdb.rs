@@ -1,5 +1,3 @@
-use std::time::Duration;
-
 use crate::errors::AppError;
 use super::models::{Episode, Series};
 use super::provider::MetadataProvider;
