@@ -169,11 +169,62 @@ impl MetadataProvider for TmdbProvider {
 
     async fn get_episode(
         &self,
-        _series_id: u32,
-        _season: u32,
-        _episode: u32,
+        series_id: u32,
+        season: u32,
+        episode: u32,
     ) -> Result<Episode, AppError> {
-        unimplemented!("implement in Task 5")
+        let url = format!(
+            "{}/3/tv/{}/season/{}/episode/{}",
+            self.base_url, series_id, season, episode
+        );
+        let mut retry_delay = Duration::from_secs(1);
+
+        for attempt in 0..=3u32 {
+            let response = self
+                .client
+                .get(&url)
+                .bearer_auth(&self.api_key)
+                .send()
+                .await
+                .map_err(|e| {
+                    if e.is_timeout() {
+                        AppError::NetworkTimeout(e.to_string())
+                    } else {
+                        AppError::NetworkError(e.to_string())
+                    }
+                })?;
+
+            match response.status().as_u16() {
+                200 => {
+                    let body: TmdbEpisodeResponse = response
+                        .json()
+                        .await
+                        .map_err(|e| AppError::NetworkError(e.to_string()))?;
+                    return Ok(Episode {
+                        name: body.name,
+                        season_number: body.season_number,
+                        episode_number: body.episode_number,
+                        air_date: body.air_date,
+                        overview: body.overview,
+                    });
+                }
+                401 => return Err(AppError::ApiKeyMissing),
+                404 => return Err(AppError::EpisodeNotFound),
+                429 if attempt < 3 => {
+                    tokio::time::sleep(retry_delay).await;
+                    retry_delay *= 2;
+                    continue;
+                }
+                429 => return Err(AppError::RateLimited),
+                status => {
+                    return Err(AppError::NetworkError(format!(
+                        "Could not get episode for show (HTTP {})",
+                        status
+                    )))
+                }
+            }
+        }
+        unreachable!()
     }
 }
 
@@ -294,6 +345,116 @@ mod tests {
             TmdbProvider::new_with_base_url(test_client(), "key", mock_server.uri());
         let result = provider.search_series("anything").await;
         assert!(matches!(result, Err(AppError::RateLimited)));
+    }
+
+    // --- get_episode tests ---
+
+    #[tokio::test]
+    async fn get_episode_returns_episode() {
+        let mock_server = MockServer::start().await;
+        Mock::given(method("GET"))
+            .and(path("/3/tv/1396/season/1/episode/1"))
+            .and(header_exists("Authorization"))
+            .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
+                "name": "Pilot",
+                "air_date": "2008-01-20",
+                "episode_number": 1,
+                "season_number": 1,
+                "overview": "Walter White, a chemistry teacher diagnosed with cancer..."
+            })))
+            .mount(&mock_server)
+            .await;
+
+        let provider =
+            TmdbProvider::new_with_base_url(test_client(), "key", mock_server.uri());
+        let episode = provider.get_episode(1396, 1, 1).await.unwrap();
+
+        assert_eq!(episode.name, "Pilot");
+        assert_eq!(episode.season_number, 1);
+        assert_eq!(episode.episode_number, 1);
+        assert_eq!(episode.air_date.as_deref(), Some("2008-01-20"));
+        assert!(episode.overview.is_some());
+    }
+
+    #[tokio::test]
+    async fn get_episode_optional_fields_absent() {
+        let mock_server = MockServer::start().await;
+        Mock::given(method("GET"))
+            .and(path("/3/tv/1396/season/1/episode/2"))
+            .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
+                "name": "Cat's in the Bag",
+                "air_date": null,
+                "episode_number": 2,
+                "season_number": 1,
+                "overview": null
+            })))
+            .mount(&mock_server)
+            .await;
+
+        let provider =
+            TmdbProvider::new_with_base_url(test_client(), "key", mock_server.uri());
+        let episode = provider.get_episode(1396, 1, 2).await.unwrap();
+
+        assert_eq!(episode.name, "Cat's in the Bag");
+        assert_eq!(episode.air_date, None);
+        assert_eq!(episode.overview, None);
+    }
+
+    #[tokio::test]
+    async fn get_episode_404_returns_episode_not_found() {
+        let mock_server = MockServer::start().await;
+        Mock::given(method("GET"))
+            .and(path("/3/tv/9999/season/99/episode/99"))
+            .respond_with(ResponseTemplate::new(404))
+            .mount(&mock_server)
+            .await;
+
+        let provider =
+            TmdbProvider::new_with_base_url(test_client(), "key", mock_server.uri());
+        let result = provider.get_episode(9999, 99, 99).await;
+        assert!(matches!(result, Err(AppError::EpisodeNotFound)));
+    }
+
+    #[tokio::test]
+    async fn get_episode_401_returns_api_key_missing() {
+        let mock_server = MockServer::start().await;
+        Mock::given(method("GET"))
+            .and(path("/3/tv/1396/season/1/episode/1"))
+            .respond_with(ResponseTemplate::new(401))
+            .mount(&mock_server)
+            .await;
+
+        let provider =
+            TmdbProvider::new_with_base_url(test_client(), "bad-key", mock_server.uri());
+        let result = provider.get_episode(1396, 1, 1).await;
+        assert!(matches!(result, Err(AppError::ApiKeyMissing)));
+    }
+
+    #[tokio::test]
+    async fn get_episode_429_retries_and_succeeds() {
+        let mock_server = MockServer::start().await;
+        Mock::given(method("GET"))
+            .and(path("/3/tv/1396/season/1/episode/3"))
+            .respond_with(ResponseTemplate::new(429))
+            .up_to_n_times(1)
+            .mount(&mock_server)
+            .await;
+        Mock::given(method("GET"))
+            .and(path("/3/tv/1396/season/1/episode/3"))
+            .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
+                "name": "...And the Bag's in the River",
+                "air_date": "2008-02-10",
+                "episode_number": 3,
+                "season_number": 1,
+                "overview": null
+            })))
+            .mount(&mock_server)
+            .await;
+
+        let provider =
+            TmdbProvider::new_with_base_url(test_client(), "key", mock_server.uri());
+        let episode = provider.get_episode(1396, 1, 3).await.unwrap();
+        assert_eq!(episode.name, "...And the Bag's in the River");
     }
 
     // --- validate_key tests ---
