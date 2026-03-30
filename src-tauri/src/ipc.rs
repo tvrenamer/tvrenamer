@@ -5,7 +5,7 @@ use tauri::State;
 
 use crate::config::keychain;
 use crate::metadata::models::{Episode, Series};
-use crate::metadata::provider::MetadataProvider;
+use crate::metadata::provider::MetadataProvider as _;
 use crate::metadata::tmdb::TmdbProvider;
 use crate::state::AppState;
 
