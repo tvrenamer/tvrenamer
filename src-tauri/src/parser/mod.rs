@@ -146,6 +146,63 @@ fn strip_junk(input: &str) -> String {
     remove_last_ci(&s, "dvdrip")
 }
 
+/// Gets the last path component (directory name) of `path`, stripping any
+/// "Season NN" suffix via EXCESS_SEASON.
+/// Returns None if path has no file_name (e.g. filesystem root "/").
+/// Port of FilenameParser.extractParentName().
+fn extract_parent_name(path: &std::path::Path) -> Option<String> {
+    let name = path.file_name()?.to_str()?;
+    // e.g. "Quintuplets.Season01" → "Quintuplets"
+    let stripped = excess_season().replace(name, "");
+    Some(stripped.into_owned())
+}
+
+/// If the filename (last path component) starts with a season/episode pattern, prepends
+/// the nearest non-season ancestor directory name.  Otherwise returns just the filename.
+///
+/// Port of FilenameParser.insertShowNameIfNeeded().
+///
+/// Skip conditions for parent directories (checked in order):
+///   1. Name starts with "season" (case-insensitive)
+///   2. Name matches DIR_LOOKS_LIKE_SEASON (^[sS][0-3]\d$), e.g. "s01", "S23"
+///   3. Name equals DUPLICATES_DIRECTORY ("versions")
+fn insert_show_name_if_needed(input: &str) -> String {
+    let file_path = std::path::Path::new(input);
+
+    let just_name = match file_path.file_name().and_then(|n| n.to_str()) {
+        Some(n) => n,
+        None => return input.to_string(),
+    };
+
+    if !filename_begins_with_season().is_match(just_name) {
+        // Filename does not start with a season pattern; return it as-is (no path).
+        return just_name.to_string();
+    }
+
+    // Climb parent directories until we find one that isn't a season/duplicates dir.
+    let mut parent = file_path.parent();
+
+    loop {
+        let parent_name = match parent.and_then(|p| extract_parent_name(p)) {
+            Some(n) => n,
+            // Ran out of path components without finding a non-season dir.
+            None => return just_name.to_string(),
+        };
+
+        let lower = parent_name.to_lowercase();
+        let is_season_dir = lower.starts_with("season")
+            || dir_looks_like_season().is_match(&parent_name)
+            || parent_name == DUPLICATES_DIRECTORY;
+
+        if !is_season_dir {
+            return format!("{} {}", parent_name, just_name);
+        }
+
+        // This dir is a season/duplicates dir — move one level up.
+        parent = parent.and_then(|p| p.parent());
+    }
+}
+
 pub fn parse_filename(_input: &str) -> Option<ParseResult> {
     None // TODO: implement in Task 5
 }
@@ -204,6 +261,74 @@ mod tests {
     fn remove_last_ci_not_at_zero() {
         // idx == 0 case: Java does NOT remove if found at position 0
         assert_eq!(remove_last_ci("hdtv.Show.S01E01", "hdtv"), "hdtv.Show.S01E01");
+    }
+
+    #[test]
+    fn insert_show_name_flat_file() {
+        // No path separator — just the filename. Not a season pattern.
+        assert_eq!(
+            insert_show_name_if_needed("Futurama.S07E14.HDTV.x264"),
+            "Futurama.S07E14.HDTV.x264"
+        );
+    }
+
+    #[test]
+    fn insert_show_name_with_show_in_filename() {
+        // filename starts with show name, not season → returned as-is (filename only)
+        assert_eq!(
+            insert_show_name_if_needed("Neighbours/neighbours.s23e233.pdtv.xvid-ss.txt"),
+            "neighbours.s23e233.pdtv.xvid-ss.txt"
+        );
+    }
+
+    #[test]
+    fn insert_show_name_season_filename_one_deep() {
+        assert_eq!(
+            insert_show_name_if_needed("Quintuplets/S01E02.Quintagious.avi"),
+            "Quintuplets S01E02.Quintagious.avi"
+        );
+    }
+
+    #[test]
+    fn insert_show_name_skips_versions_dir() {
+        assert_eq!(
+            insert_show_name_if_needed("Quintuplets/versions/S01E02.Quintagious.avi"),
+            "Quintuplets S01E02.Quintagious.avi"
+        );
+    }
+
+    #[test]
+    fn insert_show_name_skips_season_dir() {
+        assert_eq!(
+            insert_show_name_if_needed("Quintuplets/Season01/S01E02.Quintagious.avi"),
+            "Quintuplets S01E02.Quintagious.avi"
+        );
+    }
+
+    #[test]
+    fn insert_show_name_excess_season_stripped() {
+        // "Quintuplets.Season01" → extract_parent_name strips ".Season01" → "Quintuplets"
+        assert_eq!(
+            insert_show_name_if_needed("Quintuplets.Season01/S01E02.Quintagious.avi"),
+            "Quintuplets S01E02.Quintagious.avi"
+        );
+    }
+
+    #[test]
+    fn insert_show_name_absolute_path() {
+        assert_eq!(
+            insert_show_name_if_needed("/TV/Dexter/S05E05 First Blood.mkv"),
+            "Dexter S05E05 First Blood.mkv"
+        );
+    }
+
+    #[test]
+    fn insert_show_name_numeric_only_season() {
+        // "407" matches the numeric fallback in FILENAME_BEGINS_WITH_SEASON
+        assert_eq!(
+            insert_show_name_if_needed("/TV/Dexter/407.Slack.Tide.hdtv.x264-sys.mkv"),
+            "Dexter 407.Slack.Tide.hdtv.x264-sys.mkv"
+        );
     }
 
     // --- Pattern 1: SxxExx ---
