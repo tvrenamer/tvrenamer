@@ -27,6 +27,9 @@ pub enum MoveStatus {
 /// - Returns `Err(DestinationExists)` if dest already exists at move time (race condition).
 /// - Falls back to copy+delete for cross-filesystem moves.
 /// - Creates dest parent directory if it does not exist.
+/// - In the copy-delete fallback path: if the destination is written successfully
+///   but the source cannot be deleted, returns `Ok(FailToMove)`. The destination
+///   file is preserved; the caller should handle the orphaned source.
 pub fn move_file(source: &Path, dest: &Path) -> Result<MoveStatus, AppError> {
     // 1. Source must exist
     if !source.exists() {
@@ -100,8 +103,12 @@ fn copy_and_delete(source: &Path, dest: &Path) -> Result<MoveStatus, AppError> {
         }
     })?;
 
-    std::fs::remove_file(source)
-        .map_err(|e| AppError::PermissionDenied(format!("Cannot delete source: {}", e)))?;
+    if let Err(e) = std::fs::remove_file(source) {
+        return Ok(MoveStatus::FailToMove(format!(
+            "Destination created but source not deleted: {}",
+            e
+        )));
+    }
 
     Ok(MoveStatus::Success)
 }
