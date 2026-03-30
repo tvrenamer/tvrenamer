@@ -26,6 +26,8 @@ pub enum AppError {
     NetworkError(String),
     #[error("Preferences corrupted")]
     PreferencesCorrupted,
+    #[error("Disk full: {0}")]
+    DiskFull(String),
 }
 
 #[cfg(test)]
@@ -56,6 +58,7 @@ mod tests {
             AppError::DestinationExists,
             AppError::ParseFailed,
             AppError::PreferencesCorrupted,
+            AppError::DiskFull("no space".into()),
         ];
         for v in &variants {
             serde_json::to_string(v).expect("AppError must be serializable to pass through IPC");
