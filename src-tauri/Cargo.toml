@@ -28,7 +28,7 @@ regex = "1"
 thiserror = "1"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
-keyring = "3.6"
+keyring = { version = "3.6", features = ["apple-native"] }
 tempfile = "3.10"
 directories = "6.0"
 
