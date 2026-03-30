@@ -10,7 +10,6 @@
     "fs:allow-home-read-recursive",
     "fs:allow-home-write-recursive",
     "dialog:default",
-    "updater:default",
     "store:default"
   ]
 }
