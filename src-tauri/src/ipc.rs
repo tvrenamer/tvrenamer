@@ -7,12 +7,14 @@ use tauri::Emitter;
 use tauri::State;
 
 use crate::config::keychain;
+use crate::config::prefs::UserPreferences;
 use crate::metadata::models::{Episode, Series};
 use crate::metadata::provider::MetadataProvider as _;
 use crate::metadata::tmdb::TmdbProvider;
+use crate::overrides;
 use crate::renamer::conflict::{resolve_conflicts, PendingMove};
 use crate::renamer::mover::{move_file, MoveStatus};
-use crate::state::AppState;
+use crate::state::{AppState, OverridesState, PrefsState};
 
 /// Smoke-test command — verifies the IPC bridge is operational.
 #[tauri::command]
@@ -21,17 +23,18 @@ pub async fn ping() -> Result<String, String> {
 }
 
 /// Search TMDB for TV series matching `query`.
+/// Applies show name overrides BEFORE the TMDB query (fixes orphaned GlobalOverrides bug).
 /// Reads the API key from the OS keychain on every call.
-/// Returns `Err("Unable to find show information")` if no results.
-/// Returns `Err("API key invalid or missing")` if no key saved yet.
 #[tauri::command]
 pub async fn search_shows(
     query: String,
     state: State<'_, AppState>,
+    overrides_state: State<'_, OverridesState>,
 ) -> Result<Vec<Series>, String> {
+    let effective_query = overrides::apply_override(&query, &overrides_state.overrides);
     let api_key = keychain::read_api_key().map_err(|e| e.to_string())?;
     TmdbProvider::new(state.http_client.clone(), api_key)
-        .search_series(&query)
+        .search_series(&effective_query)
         .await
         .map_err(|e| e.to_string())
 }
@@ -177,6 +180,30 @@ pub async fn perform_renames(
     Ok(outcomes)
 }
 
+/// Return the current user preferences.
+/// Called by the preferences dialog on open.
+#[tauri::command]
+pub async fn get_preferences(
+    prefs_state: State<'_, PrefsState>,
+) -> Result<UserPreferences, String> {
+    let prefs = prefs_state.prefs.lock().map_err(|e| e.to_string())?;
+    Ok(prefs.clone())
+}
+
+/// Persist updated preferences to disk and update in-memory state.
+/// Called by the preferences dialog on save.
+#[tauri::command]
+pub async fn save_preferences(
+    new_prefs: UserPreferences,
+    prefs_state: State<'_, PrefsState>,
+) -> Result<(), String> {
+    let config_dir = prefs_state.config_dir.clone();
+    crate::config::prefs::save(&new_prefs, &config_dir).map_err(|e| e.to_string())?;
+    let mut prefs = prefs_state.prefs.lock().map_err(|e| e.to_string())?;
+    *prefs = new_prefs;
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::{RenameOutcomeStatus, RenameRequest};
@@ -199,5 +226,38 @@ mod tests {
             serde_json::to_string(&RenameOutcomeStatus::AlreadyInPlace).unwrap(),
             r#""already_in_place""#
         );
+    }
+
+    #[test]
+    fn user_preferences_serializes_for_ipc() {
+        // IPC commands return UserPreferences as JSON — must serialize without error
+        let prefs = crate::config::prefs::UserPreferences::default();
+        let json = serde_json::to_string(&prefs).unwrap();
+        let back: crate::config::prefs::UserPreferences = serde_json::from_str(&json).unwrap();
+        assert_eq!(back.dest_dir, prefs.dest_dir);
+        assert_eq!(back.version, 1);
+    }
+
+    #[test]
+    fn user_preferences_deserializes_from_frontend_json() {
+        // The frontend sends UserPreferences as JSON to save_preferences
+        let json = r#"{
+            "version": 1,
+            "preload_folder": null,
+            "dest_dir": "~/TV",
+            "season_prefix": "Season ",
+            "season_prefix_leading_zero": false,
+            "move_selected": false,
+            "rename_selected": true,
+            "remove_emptied_directories": true,
+            "delete_row_after_move": false,
+            "rename_replacement_mask": "%S [%sx%0e] %t",
+            "check_for_updates": true,
+            "recursively_add_folders": true,
+            "ignore_keywords": ["sample"]
+        }"#;
+        let prefs: crate::config::prefs::UserPreferences = serde_json::from_str(json).unwrap();
+        assert_eq!(prefs.dest_dir, "~/TV");
+        assert_eq!(prefs.ignore_keywords, vec!["sample"]);
     }
 }
