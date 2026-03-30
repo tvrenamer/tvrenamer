@@ -16,16 +16,21 @@ export function useTauriDrop(onDrop: (paths: string[]) => void): void {
   onDropRef.current = onDrop;
 
   useEffect(() => {
+    // `cancelled` flag handles React StrictMode's double-invocation: if cleanup runs
+    // before the listen() promise resolves, the unlisten fn is called immediately on resolve.
+    let cancelled = false;
     let unlisten: (() => void) | null = null;
 
     listen<DragDropPayload>('tauri://drag-drop', (event) => {
       onDropRef.current(event.payload.paths);
     }).then((fn) => {
-      unlisten = fn;
+      if (cancelled) fn();
+      else unlisten = fn;
     });
 
     return () => {
-      if (unlisten) unlisten();
+      cancelled = true;
+      unlisten?.();
     };
   }, []); // effect runs once — listener is stable
 }

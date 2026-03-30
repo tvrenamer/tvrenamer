@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
+import { open as openFilePicker } from '@tauri-apps/plugin-dialog';
 import { useTauriDrop } from './hooks/useTauriDrop';
 import { useRenameProgress } from './hooks/useRenameProgress';
 import { FileTable } from './components/FileTable';
@@ -81,9 +82,11 @@ export default function App() {
             // Episode not found — still mark ready with no computed name
           }
 
-          const computedNewName = ep && prefs
+          const ext = row.sourcePath.split('.').pop();
+          const baseName = ep && prefs
             ? applyTemplate(prefs.rename_replacement_mask, selectedSeries.name, season, episode, ep.name)
             : null;
+          const computedNewName = baseName && ext ? `${baseName}.${ext}` : baseName;
 
           updateRow(row.id, {
             status: 'ready',
@@ -106,6 +109,13 @@ export default function App() {
   }, [prefs, updateRow]);
 
   useTauriDrop(handleDrop);
+
+  const handleAddFiles = useCallback(async () => {
+    const selected = await openFilePicker({ multiple: true, directory: false });
+    if (!selected) return;
+    const paths = Array.isArray(selected) ? selected : [selected];
+    if (paths.length > 0) handleDrop(paths);
+  }, [handleDrop]);
 
   // Called when rename-progress event fires for a file
   const handleRenameProgress = useCallback((outcome: RenameOutcome) => {
@@ -133,9 +143,11 @@ export default function App() {
 
     try {
       const ep = await invoke<Episode>('lookup_episode', { seriesId, season, episode });
-      const computedNewName = prefs
+      const ext = row.sourcePath.split('.').pop();
+      const baseName = prefs
         ? applyTemplate(prefs.rename_replacement_mask, selectedSeries.name, season, episode, ep.name)
         : null;
+      const computedNewName = baseName && ext ? `${baseName}.${ext}` : baseName;
       updateRow(rowId, { episode: ep, computedNewName });
     } catch {
       updateRow(rowId, { episode: null, computedNewName: null });
@@ -184,6 +196,7 @@ export default function App() {
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '8px 12px', borderBottom: '1px solid #ccc' }}>
         <h1 style={{ margin: 0, fontSize: '1.1em' }}>TVRenamer</h1>
         <button onClick={() => setShowPrefs(true)}>Preferences</button>
+        <button onClick={handleAddFiles}>Add Files…</button>
         <div style={{ flex: 1 }} />
         <button onClick={handleRename} disabled={selectedIds.size === 0}>
           Rename Selected
