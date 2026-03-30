@@ -1,4 +1,3 @@
-use std::path::Path;
 use std::sync::OnceLock;
 
 use regex::Regex;
@@ -203,8 +202,49 @@ fn insert_show_name_if_needed(input: &str) -> String {
     }
 }
 
-pub fn parse_filename(_input: &str) -> Option<ParseResult> {
-    None // TODO: implement in Task 5
+/// Parse a TV episode filename (or full path) and extract show name, season number,
+/// episode number, and optional resolution.
+///
+/// Returns `None` if no pattern matches.
+///
+/// Port of FilenameParser.parseFilename().
+pub fn parse_filename(input: &str) -> Option<ParseResult> {
+    // Step 1: if filename starts with a season pattern, prepend the parent dir name.
+    let with_show = insert_show_name_if_needed(input);
+
+    // Step 2: strip common noise tokens ("hdtv", "dvdrip") so they don't confuse
+    // the numeric-only fallback patterns (7 and 8).
+    let stripped = strip_junk(&with_show);
+
+    // Step 3: try each compiled pattern in order; first match wins.
+    for (i, pattern) in compiled_patterns().iter().enumerate() {
+        if let Some(caps) = pattern.captures(&stripped) {
+            // Group 1: raw show name (always present in all 8 patterns)
+            let show_name = trim_found_show(caps.get(1)?.as_str());
+
+            // Groups 2 & 3: season and episode as strings; parse to u32
+            // (leading zeros are dropped by parse(), matching Java's Integer.parseInt).
+            let season: u32 = caps.get(2)?.as_str().parse().ok()?;
+            let episode: u32 = caps.get(3)?.as_str().parse().ok()?;
+
+            // Group 4 only exists in patterns 0–7 (compiled with RESOLUTION_SUFFIX).
+            // Pattern index i < 8 means this is a "with resolution" pattern.
+            let resolution = if i < 8 {
+                caps.get(4).map(|m| m.as_str().to_string())
+            } else {
+                None
+            };
+
+            return Some(ParseResult {
+                show_name,
+                season,
+                episode,
+                resolution,
+            });
+        }
+    }
+
+    None
 }
 
 #[cfg(test)]
