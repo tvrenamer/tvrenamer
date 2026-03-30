@@ -10,6 +10,7 @@ src-tauri/WixTools/
 # Frontend
 ui/node_modules/
 ui/dist/
+ui/test-results/
 
 # Root workspace
 node_modules/
