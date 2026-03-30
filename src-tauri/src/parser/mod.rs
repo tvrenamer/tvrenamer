@@ -100,6 +100,36 @@ fn excess_season() -> &'static Regex {
     })
 }
 
+/// Strip leading and trailing separator characters (space, underscore, dot, hyphen)
+/// from an extracted show-name capture group.
+/// Port of StringUtils.trimFoundShow().
+fn trim_found_show(extracted: &str) -> String {
+    extracted
+        .trim_start_matches(|c: char| " _.-".contains(c))
+        .trim_end_matches(|c: char| " _.-".contains(c))
+        .to_string()
+}
+
+/// Case-insensitive version of Java's StringUtils.removeLast.
+/// Finds the last occurrence of `needle` (compared case-insensitively) in `haystack`
+/// and removes it. Only removes if idx > 0 (i.e. not at position 0), matching Java behaviour.
+fn remove_last_ci(haystack: &str, needle: &str) -> String {
+    let lower = haystack.to_lowercase();
+    if let Some(idx) = lower.rfind(needle) {
+        if idx > 0 {
+            return format!("{}{}", &haystack[..idx], &haystack[idx + needle.len()..]);
+        }
+    }
+    haystack.to_string()
+}
+
+/// Port of FilenameParser.stripJunk — removes "hdtv" and "dvdrip" junk tokens
+/// from the combined show-string before pattern matching.
+fn strip_junk(input: &str) -> String {
+    let s = remove_last_ci(input, "hdtv");
+    remove_last_ci(&s, "dvdrip")
+}
+
 pub fn parse_filename(_input: &str) -> Option<ParseResult> {
     None // TODO: implement in Task 5
 }
@@ -112,6 +142,52 @@ mod tests {
     fn patterns_compile() {
         // Panics with a clear message if any pattern is invalid Rust regex syntax.
         assert_eq!(compiled_patterns().len(), 16);
+    }
+
+    #[test]
+    fn trim_found_show_strips_separators() {
+        assert_eq!(trim_found_show("  .Futurama. "), "Futurama");
+        assert_eq!(trim_found_show("---Show---"), "Show");
+        assert_eq!(trim_found_show("Show.Name"), "Show.Name"); // dots in middle untouched
+        assert_eq!(trim_found_show("Offspring "), "Offspring"); // trailing space
+    }
+
+    #[test]
+    fn strip_junk_removes_hdtv() {
+        assert_eq!(
+            strip_junk("one.tree.hill.s07e14.hdtv.xvid-fqm.avi"),
+            "one.tree.hill.s07e14..xvid-fqm.avi"
+        );
+    }
+
+    #[test]
+    fn strip_junk_case_insensitive() {
+        assert_eq!(
+            strip_junk("Show.S01E01.HDTV.x264.mkv"),
+            "Show.S01E01..x264.mkv"
+        );
+    }
+
+    #[test]
+    fn strip_junk_removes_dvdrip() {
+        assert_eq!(
+            strip_junk("JAG.S10E01.DVDRip.XviD-P0W4DVD.avi"),
+            "JAG.S10E01..XviD-P0W4DVD.avi"
+        );
+    }
+
+    #[test]
+    fn strip_junk_no_match_unchanged() {
+        assert_eq!(
+            strip_junk("Fargo.S01E01.x264-2HD.mp4"),
+            "Fargo.S01E01.x264-2HD.mp4"
+        );
+    }
+
+    #[test]
+    fn remove_last_ci_not_at_zero() {
+        // idx == 0 case: Java does NOT remove if found at position 0
+        assert_eq!(remove_last_ci("hdtv.Show.S01E01", "hdtv"), "hdtv.Show.S01E01");
     }
 
     // --- Pattern 1: SxxExx ---
