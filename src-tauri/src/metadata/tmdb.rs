@@ -507,4 +507,15 @@ mod tests {
             TmdbProvider::validate_key(&test_client(), "bad-key", &mock_server.uri()).await;
         assert!(matches!(result, Err(AppError::ApiKeyMissing)));
     }
+
+    #[tokio::test]
+    #[ignore]
+    async fn live_search_breaking_bad() {
+        let key = std::env::var("TMDB_API_KEY").expect("set TMDB_API_KEY");
+        let client = reqwest::Client::new();
+        let provider = TmdbProvider::new(client, key);
+        let results = provider.search_series("Breaking Bad").await.unwrap();
+        assert!(!results.is_empty());
+        println!("{:?}", results[0].name);
+    }
 }

@@ -10,6 +10,7 @@
     "frontendDist": "../ui/dist"
   },
   "app": {
+    "withGlobalTauri": true,
     "windows": [
       {
         "title": "TVRenamer",
