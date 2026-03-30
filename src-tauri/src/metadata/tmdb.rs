@@ -280,6 +280,22 @@ mod tests {
         assert_eq!(results[0].name, "Firefly");
     }
 
+    #[tokio::test]
+    async fn search_series_429_all_retries_exhausted_returns_rate_limited() {
+        let mock_server = MockServer::start().await;
+        // All 4 requests (attempt 0..=3) return 429 — exhausts retries.
+        Mock::given(method("GET"))
+            .and(path("/3/search/tv"))
+            .respond_with(ResponseTemplate::new(429))
+            .mount(&mock_server)
+            .await;
+
+        let provider =
+            TmdbProvider::new_with_base_url(test_client(), "key", mock_server.uri());
+        let result = provider.search_series("anything").await;
+        assert!(matches!(result, Err(AppError::RateLimited)));
+    }
+
     // --- validate_key tests ---
 
     #[tokio::test]
