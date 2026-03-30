@@ -19,7 +19,7 @@ pub struct PendingMove {
 /// Mutates `dest` on conflicting entries to route them to
 /// `dest_dir/versions/stem (N).ext`. Largest-by-size file gets the lowest
 /// index (closest to the primary destination quality-wise).
-pub fn resolve_conflicts(pending_moves: &mut Vec<PendingMove>) {
+pub fn resolve_conflicts(pending_moves: &mut [PendingMove]) {
     // Step 1: Group pending move indices by (dest_dir, stem, ext)
     let mut groups: HashMap<(PathBuf, String, String), Vec<usize>> = HashMap::new();
     for (idx, pm) in pending_moves.iter().enumerate() {
