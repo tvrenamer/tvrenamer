@@ -115,9 +115,25 @@ fn trim_found_show(extracted: &str) -> String {
 /// and removes it. Only removes if idx > 0 (i.e. not at position 0), matching Java behaviour.
 fn remove_last_ci(haystack: &str, needle: &str) -> String {
     let lower = haystack.to_lowercase();
-    if let Some(idx) = lower.rfind(needle) {
-        if idx > 0 {
-            return format!("{}{}", &haystack[..idx], &haystack[idx + needle.len()..]);
+    let needle_lower = needle.to_lowercase();
+    if let Some(lower_byte_idx) = lower.rfind(&*needle_lower) {
+        if lower_byte_idx > 0 {
+            // Map byte-offset in `lower` to byte-offset in `haystack` via char count.
+            // to_lowercase() can change byte lengths for non-ASCII chars,
+            // so we cannot use the byte index directly on the original string.
+            let chars_before = lower[..lower_byte_idx].chars().count();
+            let needle_chars = needle_lower.chars().count();
+            let haystack_start = haystack
+                .char_indices()
+                .nth(chars_before)
+                .map(|(i, _)| i)
+                .unwrap_or(haystack.len());
+            let haystack_end = haystack
+                .char_indices()
+                .nth(chars_before + needle_chars)
+                .map(|(i, _)| i)
+                .unwrap_or(haystack.len());
+            return format!("{}{}", &haystack[..haystack_start], &haystack[haystack_end..]);
         }
     }
     haystack.to_string()
