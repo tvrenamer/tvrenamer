@@ -11,13 +11,108 @@ pub struct ParseResult {
     pub resolution: Option<String>,
 }
 
+// "versions" is the duplicates staging directory — skip when climbing the path tree.
+// Confirmed from Constants.java:207: DUPLICATES_DIRECTORY = "versions"
+const DUPLICATES_DIRECTORY: &str = "versions";
+
+// The 8 base patterns, verbatim from FilenameParser.java REGEX[] (translated from Java
+// string escapes to Rust raw strings).  No lookahead/lookbehind — regex crate is sufficient.
+// NOTE: ^ is NOT included here; it is prepended when building COMPILED_PATTERNS below.
+const BASE_PATTERNS: [&str; 8] = [
+    // Pattern 1: SxxExx — e.g. "Show.S01E05", "Show.S22E105"
+    r"(.+?[^a-zA-Z0-9]\D*?)[sS](\d\d*)[eE](\d\d*).*",
+
+    // Pattern 2: Season-XX-Episode-XX
+    r"(.+?[^a-zA-Z0-9]\D*?)Season[- ](\d\d*)[- ]?Episode[- ](\d\d*).*",
+
+    // Pattern 3: sXX.eXX — flexible separators between s/e and digits
+    r"(.+[^a-zA-Z0-9]\D*?)[sS](\d\d*)\D*?[eE](\d\d*).*",
+
+    // Pattern 4: SSxEE — with optional leading "S" (e.g. "5x01", "S5x01")
+    r"(.+[^a-zA-Z0-9]\D*?)[Ss](\d\d?)x(\d\d\d?).*",
+
+    // Pattern 5: titles with 4-digit year in show name (e.g. "castle.2009", "human.target.2010")
+    r"(.+?\d{4}[^a-zA-Z0-9]\D*?)[sS]?(\d\d?)\D*?(\d\d).*",
+
+    // Pattern 6: SXXYY — exactly 4 digits after S (e.g. "ncis.1304", "law.and.order.svu.1705")
+    r"(.+?[^a-zA-Z0-9]\D*?)[sS](\d\d)(\d\d)\D.*",
+
+    // Pattern 7: Fallback — show name + 1-2 digit season + non-digit separator + 2-digit episode
+    r"(.+[^a-zA-Z0-9]\D*?)(\d\d?)\D+(\d\d).*",
+
+    // Pattern 8: Last resort — minimal structure
+    r"(.+[^a-zA-Z0-9]+)(\d\d?)(\d\d).*",
+];
+
+// Appended to each base pattern for the "with resolution" variant.
+// \D ensures the resolution is preceded by a separator (e.g. ".720p", " 1080p").
+const RESOLUTION_SUFFIX: &str = r"\D(\d+[pk]).*";
+
+// 16 compiled patterns: [0..7] with resolution suffix, [8..15] without.
+// OnceLock gives us thread-safe lazy initialisation without a runtime cost on every call.
+static COMPILED_PATTERNS: OnceLock<Vec<Regex>> = OnceLock::new();
+
+// Helper regex patterns — also lazy-compiled via OnceLock.
+static FILENAME_BEGINS_WITH_SEASON: OnceLock<Regex> = OnceLock::new();
+static DIR_LOOKS_LIKE_SEASON: OnceLock<Regex> = OnceLock::new();
+static EXCESS_SEASON: OnceLock<Regex> = OnceLock::new();
+
+fn compiled_patterns() -> &'static [Regex] {
+    COMPILED_PATTERNS.get_or_init(|| {
+        let mut v = Vec::with_capacity(16);
+        // First 8: each base pattern + resolution suffix (tried first)
+        for base in BASE_PATTERNS {
+            let with_res = format!("^{}{}", base, RESOLUTION_SUFFIX);
+            v.push(Regex::new(&with_res).expect("invalid pattern with resolution"));
+        }
+        // Next 8: base patterns alone (tried if no resolution variant matched)
+        for base in BASE_PATTERNS {
+            let plain = format!("^{}", base);
+            v.push(Regex::new(&plain).expect("invalid base pattern"));
+        }
+        v
+    })
+}
+
+fn filename_begins_with_season() -> &'static Regex {
+    // Java: FILENAME_BEGINS_WITH_SEASON = "(([sS]\d\d?[eE]\d\d?)|([sS]?\d\d?[x.]?\d\d\d?)).*"
+    // Java's String.matches() checks the full string, so ^ is implicit. Since it ends with .*,
+    // only a ^ prefix is needed in Rust.
+    FILENAME_BEGINS_WITH_SEASON.get_or_init(|| {
+        Regex::new(r"^(([sS]\d\d?[eE]\d\d?)|([sS]?\d\d?[x.]?\d\d\d?)).*")
+            .expect("invalid FILENAME_BEGINS_WITH_SEASON")
+    })
+}
+
+fn dir_looks_like_season() -> &'static Regex {
+    // Java: DIR_LOOKS_LIKE_SEASON = "[sS][0-3]\d"
+    // Java's String.matches() = full string match → anchor both ends.
+    DIR_LOOKS_LIKE_SEASON.get_or_init(|| {
+        Regex::new(r"^[sS][0-3]\d$").expect("invalid DIR_LOOKS_LIKE_SEASON")
+    })
+}
+
+fn excess_season() -> &'static Regex {
+    // Java: EXCESS_SEASON = "[^A-Za-z]Season[ _-]?\d\d?"
+    // Strips ".Season01" from directory names like "Quintuplets.Season01".
+    EXCESS_SEASON.get_or_init(|| {
+        Regex::new(r"[^A-Za-z]Season[ _-]?\d\d?").expect("invalid EXCESS_SEASON")
+    })
+}
+
 pub fn parse_filename(_input: &str) -> Option<ParseResult> {
-    None // TODO: implement
+    None // TODO: implement in Task 5
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn patterns_compile() {
+        // Panics with a clear message if any pattern is invalid Rust regex syntax.
+        assert_eq!(compiled_patterns().len(), 16);
+    }
 
     // --- Pattern 1: SxxExx ---
 
