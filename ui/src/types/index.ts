@@ -88,8 +88,8 @@ export function applyTemplate(
   title: string,
 ): string {
   return mask
-    .replaceAll('%S', show)
-    .replaceAll('%s', String(season))
-    .replaceAll('%0e', String(episode).padStart(2, '0'))
-    .replaceAll('%t', title);
+    .replace(/%S/g, show)
+    .replace(/%s/g, String(season))
+    .replace(/%0e/g, String(episode).padStart(2, '0'))
+    .replace(/%t/g, title);
 }
