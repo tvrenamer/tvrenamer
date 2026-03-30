@@ -46,6 +46,7 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             ipc::ping,
+            ipc::parse_files,
             ipc::search_shows,
             ipc::lookup_episode,
             ipc::validate_tmdb_key,

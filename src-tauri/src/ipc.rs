@@ -22,6 +22,14 @@ pub async fn ping() -> Result<String, String> {
     Ok("pong".to_string())
 }
 
+/// Parse a batch of file paths using the Rust filename parser.
+/// Returns None for paths that no pattern could match.
+/// Call this after `tauri://drag-drop` to extract show/season/episode from filenames.
+#[tauri::command]
+pub async fn parse_files(paths: Vec<String>) -> Vec<Option<crate::parser::ParseResult>> {
+    paths.iter().map(|p| crate::parser::parse_filename(p)).collect()
+}
+
 /// Search TMDB for TV series matching `query`.
 /// Applies show name overrides BEFORE the TMDB query (fixes orphaned GlobalOverrides bug).
 /// Reads the API key from the OS keychain on every call.
@@ -236,6 +244,14 @@ mod tests {
         let back: crate::config::prefs::UserPreferences = serde_json::from_str(&json).unwrap();
         assert_eq!(back.dest_dir, prefs.dest_dir);
         assert_eq!(back.version, 1);
+    }
+
+    #[test]
+    fn parse_files_returns_serializable_result() {
+        // ParseResult must implement Serialize for IPC — verify via serde_json
+        let result = crate::parser::parse_filename("Fargo.S01E01.HDTV.x264-2HD.mp4");
+        let json = serde_json::to_string(&result).expect("ParseResult must be serializable");
+        assert!(json.contains("Fargo"), "show_name must be present: {json}");
     }
 
     #[test]
