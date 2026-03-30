@@ -27,9 +27,13 @@ pub fn save_api_key(key: &str) -> Result<(), AppError> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::sync::Mutex;
+
+    static KEYCHAIN_TEST_LOCK: Mutex<()> = Mutex::new(());
 
     #[test]
     fn save_then_read_roundtrip() {
+        let _guard = KEYCHAIN_TEST_LOCK.lock().unwrap();
         // Writes to the real OS keychain — requires macOS Keychain or Linux Secret Service.
         let test_key = "test-tmdb-key-tvrenamer-do-not-use";
         save_api_key(test_key).expect("save_api_key should succeed");
@@ -42,6 +46,7 @@ mod tests {
 
     #[test]
     fn read_missing_key_returns_api_key_missing() {
+        let _guard = KEYCHAIN_TEST_LOCK.lock().unwrap();
         // Ensure no key is present, then read.
         if let Ok(entry) = Entry::new(SERVICE_NAME, API_KEY_ACCOUNT) {
             let _ = entry.delete_credential();
