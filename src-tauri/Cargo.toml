@@ -32,6 +32,9 @@ keyring = "3.6"
 tempfile = "3.10"
 directories = "6.0"
 
+[dev-dependencies]
+wiremock = "0.6"
+
 [profile.release]
 codegen-units = 1
 lto = true
