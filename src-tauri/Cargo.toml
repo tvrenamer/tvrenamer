@@ -33,6 +33,7 @@ tempfile = "3.10"
 renamore = "0.2"
 libc = "0.2"
 directories = "6.0"
+quick-xml = "0.39"
 
 [dev-dependencies]
 wiremock = "0.6"
