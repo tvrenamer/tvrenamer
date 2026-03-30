@@ -182,7 +182,7 @@ fn insert_show_name_if_needed(input: &str) -> String {
     let mut parent = file_path.parent();
 
     loop {
-        let parent_name = match parent.and_then(|p| extract_parent_name(p)) {
+        let parent_name = match parent.and_then(extract_parent_name) {
             Some(n) => n,
             // Ran out of path components without finding a non-season dir.
             None => return just_name.to_string(),
