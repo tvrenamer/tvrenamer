@@ -20,7 +20,13 @@ pub fn run() {
         // updater plugin omitted until pubkey configured — run `npm run tauri signer generate` first
         .plugin(tauri_plugin_store::Builder::default().build())
         .manage(state)
-        .invoke_handler(tauri::generate_handler![ipc::ping])
+        .invoke_handler(tauri::generate_handler![
+            ipc::ping,
+            ipc::search_shows,
+            ipc::lookup_episode,
+            ipc::validate_tmdb_key,
+            ipc::save_tmdb_key,
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
