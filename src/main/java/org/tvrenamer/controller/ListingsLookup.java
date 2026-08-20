@@ -47,7 +47,7 @@ public class ListingsLookup {
         }
         Callable<Boolean> listingsFetcher = () -> {
             try {
-                TheTVDBProvider.getSeriesListing(series);
+                TVmazeProvider.getSeriesListing(series);
                 return true;
             } catch (TVRenamerIOException e) {
                 series.listingsFailed(e);
