@@ -1,0 +1,116 @@
+name: build
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  build:
+    name: build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      # Report every platform's result, rather than stopping at the first failure.
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      # SWT is a native library, so each platform resolves a different artifact.
+      # Building on all three is what proves that selection works.
+      # Note: some tests query tvmaze.com and need network access.
+      - name: Build and test
+        run: ./gradlew build
+
+      - name: Install distribution
+        run: ./gradlew installDist
+
+      # No test touches SWT, so the build above says nothing about whether the
+      # GUI can actually start. These steps launch it, check it is still running
+      # after a grace period, and photograph it. A missing native library shows
+      # up here and nowhere else. Linux runners are headless, so they need a
+      # virtual display.
+      - name: Launch GUI and screenshot (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          set -e
+          sudo apt-get update
+          sudo apt-get install -y xvfb libgtk-3-0 imagemagick
+          mkdir -p screenshots
+          Xvfb :99 -screen 0 1400x900x24 &
+          sleep 3
+          export DISPLAY=:99
+          ./build/install/tvrenamer/bin/tvrenamer &
+          pid=$!
+          sleep 30
+          if ! kill -0 "$pid" 2>/dev/null; then
+            echo "app exited on its own"
+            exit 1
+          fi
+          import -window root screenshots/ubuntu-latest.png
+          kill "$pid"
+          echo "app stayed running and was captured"
+
+      - name: Launch GUI and screenshot (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          set -e
+          mkdir -p screenshots
+          ./build/install/tvrenamer/bin/tvrenamer &
+          pid=$!
+          sleep 30
+          if ! kill -0 "$pid" 2>/dev/null; then
+            echo "app exited on its own"
+            exit 1
+          fi
+          screencapture -x screenshots/macos-latest.png
+          kill "$pid"
+          echo "app stayed running and was captured"
+
+      - name: Launch GUI and screenshot (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path screenshots | Out-Null
+          $app = Start-Process -PassThru -FilePath `
+            "build/install/tvrenamer/bin/tvrenamer.bat"
+          Start-Sleep -Seconds 30
+          if ($app.HasExited) {
+            Write-Error "app exited on its own with code $($app.ExitCode)"
+            exit 1
+          }
+          Add-Type -AssemblyName System.Windows.Forms, System.Drawing
+          $bounds = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+          $bitmap = New-Object System.Drawing.Bitmap $bounds.Width, $bounds.Height
+          $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
+          $graphics.CopyFromScreen($bounds.Location,
+                                   [System.Drawing.Point]::Empty,
+                                   $bounds.Size)
+          $bitmap.Save("$PWD/screenshots/windows-latest.png",
+                       [System.Drawing.Imaging.ImageFormat]::Png)
+          Stop-Process -Id $app.Id -Force
+          Write-Output "app stayed running and was captured"
+
+      - name: Upload screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshot-${{ matrix.os }}
+          path: screenshots/
+          if-no-files-found: warn
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.os }}
+          path: build/reports/tests/test
