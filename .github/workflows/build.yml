@@ -1,8 +1,10 @@
 name: build
 
 on:
+  # Only master on push. Any other branch with an open pull request is covered
+  # by the pull_request trigger, and matching both would run every job twice.
   push:
-    branches: ['**']
+    branches: [master]
   pull_request:
 
 jobs:
