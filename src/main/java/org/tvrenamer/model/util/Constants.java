@@ -189,6 +189,7 @@ public class Constants {
         + "check\n" + TVRENAMER_PROJECT_URL + "\nto see when one becomes available.";
 
     public static final String ERROR_PARSING_XML = "Error parsing XML";
+    public static final String ERROR_PARSING_JSON = "Error parsing JSON";
     public static final String ERROR_PARSING_NUMBERS = ERROR_PARSING_XML
         + ": a field expected to be a number was not";
     public static final String ADDED_PLACEHOLDER_FILENAME = "Downloading ...";
