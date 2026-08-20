@@ -1,5 +1,5 @@
 # TVRenamer
-[![Build Status](https://travis-ci.org/tvrenamer/tvrenamer.svg?branch=master)](https://travis-ci.org/tvrenamer/tvrenamer)
+[![Build Status](https://api.travis-ci.com/tvrenamer/tvrenamer.svg?branch=master)](https://app.travis-ci.com/tvrenamer/tvrenamer)
 ## About
 TVRenamer is a Java GUI utility to rename TV episodes from TV listings
 It will take an ugly filename like **Lost.[6x05].DD51.720p.WEB-DL.AVC-FUSiON.mkv** and rename it to **Lost S06E05 Lighthouse.mkv**
@@ -8,7 +8,7 @@ It will take an ugly filename like **Lost.[6x05].DD51.720p.WEB-DL.AVC-FUSiON.mkv
 ![Screenshot](https://raw.githubusercontent.com/wiki/tvrenamer/tvrenamer/tvrenamer-0.5b2.png)
 
 ## Features
- * Rename many different shows at once from information from [TheTVDB](http://thetvdb.com/)
+ * Rename many different shows at once from information from [TVmaze](https://www.tvmaze.com/)
  * Customise the format and content of the resulting filename
  * Native look & feel for your operating system
  * Drag & Drop or standard 'add file' interface
@@ -49,12 +49,10 @@ It will take an ugly filename like **Lost.[6x05].DD51.720p.WEB-DL.AVC-FUSiON.mkv
 If you are using a version that precedes [version 0.7.2](https://github.com/tvrenamer/tvrenamer/releases/tag/0.7.2), and you receive errors about "unable to connect to internet" please download a later version. Note that [Java 8](https://java.com/en/download) is required.
 
 ### Java version issues
-*Java version 8* is required.  Type `java -version` into your terminal and ensure that the output is similar to:
+*Java version 21* or later is required.  Type `java -version` into your terminal and ensure the version is at least 21:
 
     $ java -version
-    java version "1.8.0_81"
-    Java(TM) SE Runtime Environment (build 1.8.0_81-b14)
-    Java HotSpot(TM) 64-Bit Server VM (build 24.81-b01, mixed mode)
+    openjdk version "21.0.11" 2026-04-21
 
 ### x86/ 64 bit architecture version
 Ensure that you are running the same architecture of TVRenamer as Java. `java -version` displays the version on the last line, as above. If you don't have it right, you get an unhelpful error message on startup (when running on the terminal), like below:
@@ -82,6 +80,18 @@ If the application fails to start due to a java error, [ensure that your JAVA_HO
     1. Open the Terminal application (from the Gnome Applications menu)
     1. Navigate to where the TVRenamer application is.
     1. Execute the run script via `./TVRenamer-<version>/run-linux.sh`
+
+## Building from source
+
+The build uses the Gradle wrapper, so you only need a JDK 21 or later:
+
+    ./gradlew build     # compile and run the tests
+    ./gradlew run       # build and start the application
+
+Gradle picks the SWT native library that matches the machine you build on, so
+the same build file works on macOS (Intel and Apple silicon), Windows and Linux.
+
+Some of the tests query TVmaze and need an internet connection.
 
 ## Contributions
 
