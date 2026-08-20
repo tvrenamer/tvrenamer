@@ -46,6 +46,13 @@ public class TVmazeProvider {
     private static final String BASE_SEARCH_URL = API_URL + "search/shows?q=";
 
     // The URL to get, to receive the episode listing for a specific series.
+    //
+    // This endpoint leaves out specials unless "specials=1" is added, but we do
+    // not ask for them. TVmaze has no season 0: it files a special under the
+    // season it aired in, with a null episode number. An episode with no number
+    // cannot be placed in the season index, so asking for specials would fetch
+    // entries that can never be matched to a file. Note this means S00Exx
+    // filenames cannot be resolved against this provider.
     private static final String BASE_LIST_URL = API_URL + "shows/";
     private static final String BASE_LIST_SUFFIX = "/episodes";
 
