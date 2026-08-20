@@ -142,12 +142,19 @@ public final class UIStarter {
     }
 
     private void positionWindow() {
-        // place the window near the lower right-hand corner
+        // Place the window near the lower right-hand corner.  Use the client
+        // area rather than the full bounds, so we stay clear of the taskbar,
+        // dock or menu bar.
         Monitor primary = display.getPrimaryMonitor();
-        Rectangle bounds = primary.getBounds();
+        Rectangle area = primary.getClientArea();
         Rectangle rect = shell.getBounds();
-        int x = bounds.x + (bounds.width - rect.width) - 5;
-        int y = bounds.y + (bounds.height - rect.height) - 35;
+
+        // On a display narrower or shorter than the window, the offset from the
+        // right or bottom edge goes negative and puts the top left of the window
+        // off screen, where the menu bar and buttons cannot be reached.  Keep
+        // the top left corner within the client area.
+        int x = Math.max(area.x, area.x + (area.width - rect.width) - 5);
+        int y = Math.max(area.y, area.y + (area.height - rect.height) - 35);
         shell.setLocation(x, y);
     }
 
