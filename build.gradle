@@ -21,11 +21,10 @@ def swtArtifact = {
 
 def isMacOs = System.getProperty('os.name').toLowerCase().contains('mac')
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
-}
+// Build with whatever JDK runs Gradle, targeting 21. A toolchain would pin the
+// build to an exactly-21 install, so a machine with only a newer JDK could not
+// build at all.
+def javaRelease = 21
 
 application {
     mainClass = 'org.tvrenamer.controller.Launcher'
@@ -52,6 +51,15 @@ dependencies {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+    options.release = javaRelease
+}
+
+gradle.taskGraph.whenReady {
+    def current = JavaVersion.current()
+    if (current < JavaVersion.toVersion(javaRelease)) {
+        throw new GradleException("TVRenamer needs JDK ${javaRelease} or later to build, "
+                                  + "but Gradle is running on ${current}.")
+    }
 }
 
 tasks.named('test') {
