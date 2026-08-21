@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.0b6
+
+Fixes two preferences faults in 1.0b5. **Upgrade if you are on 1.0b5**, and
+especially if you upgraded to it from 0.8 or 1.0b4.
+
+* If you already had a preferences file from an earlier release, 1.0b5 died
+  before drawing a window. XStream has refused to build any type not explicitly
+  allowed since 1.4.18, so reading the file threw from a static initialiser and
+  took the application with it. Nothing was wrong with your preferences file,
+  and this release reads it normally.
+* Saving preferences failed on every supported JDK. `java.base` does not open
+  `java.util` to code on the classpath, and XStream needs that to reach a field
+  on the deprecated `Observable` class that `UserPreferences` extends. Any
+  setting you changed in 1.0b5 was lost when you quit.
+
+Neither fault showed up in testing because no machine running the tests had ever
+saved a preferences file. The test task now runs with the same JVM arguments as
+the launcher, so a failure like this cannot pass again.
+
 ## 1.0b5
 
 TVRenamer works again. TheTVDB retired the version 1 API it depended on, and
