@@ -1,0 +1,134 @@
+name: release
+
+# Pushing a v* tag publishes the release. Each platform's zip has to be built
+# on that platform, because the SWT native library is chosen at build time.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: build (${{ matrix.label }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      # Half a set of downloads is worse than none, so stop on the first
+      # failure rather than publishing an incomplete release.
+      fail-fast: true
+      matrix:
+        include:
+          - os: ubuntu-latest
+            label: linux-x86_64
+          - os: ubuntu-24.04-arm
+            label: linux-aarch64
+          - os: windows-latest
+            label: windows-x86_64
+          - os: macos-latest
+            label: macos-aarch64
+          - os: macos-15-intel
+            label: macos-x86_64
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      # The version the application reports on its About dialog comes from a
+      # resource file, not from the tag. If the two disagree, the download would
+      # lie about which version it is, and the update check would compare the
+      # wrong number.
+      - name: Check tag matches version file
+        shell: bash
+        run: |
+          set -eu
+          tag="${GITHUB_REF_NAME#v}"
+          declared=$(tr -d '[:space:]' < src/main/resources/tvrenamer.version)
+          if [ "$tag" != "$declared" ]; then
+            echo "tag ${GITHUB_REF_NAME} does not match tvrenamer.version (${declared})"
+            exit 1
+          fi
+
+      # Note: some tests query tvmaze.com and need network access.
+      - name: Build and test
+        run: ./gradlew build distZip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ matrix.label }}
+          path: build/distributions/*.zip
+          if-no-files-found: error
+
+  release:
+    name: publish
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      # The commit list in the notes is derived from the range between this tag
+      # and the one before it, so the full history has to be present.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: dist-*
+          merge-multiple: true
+          path: dist
+
+      - name: Assemble release notes
+        run: |
+          set -eu
+          version="${GITHUB_REF_NAME#v}"
+
+          # The hand-written summary for this version, taken from the changelog
+          # so it is reviewed in a pull request rather than typed at release
+          # time.
+          awk -v heading="## ${version}" '
+            $0 == heading { found = 1; next }
+            found && /^## / { exit }
+            found { print }
+          ' CHANGELOG.md > notes.md
+
+          if [ ! -s notes.md ]; then
+            echo "CHANGELOG.md has no '## ${version}' section"
+            exit 1
+          fi
+
+          previous=$(git describe --tags --abbrev=0 "${GITHUB_REF_NAME}^" 2>/dev/null || true)
+          if [ -n "$previous" ]; then
+            printf '\n### All changes since %s\n\n' "$previous" >> notes.md
+            # Version bumps are bookkeeping, not something a user cares about.
+            git log --no-merges --reverse --pretty='* %s (%h)' \
+              "${previous}..${GITHUB_REF_NAME}" \
+              | grep -v '^\* Bump version to ' >> notes.md || true
+          fi
+
+          cat notes.md
+
+          # Beta tags look like v1.0b5. Anything without a 'b' is a final
+          # release and should not be marked as a pre-release.
+          case "$version" in
+            *b*) echo 'flags=--prerelease' >> "$GITHUB_ENV" ;;
+            *)   echo 'flags=--latest' >> "$GITHUB_ENV" ;;
+          esac
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --verify-tag \
+            $flags \
+            --title "$GITHUB_REF_NAME" \
+            --notes-file notes.md \
+            dist/*.zip
