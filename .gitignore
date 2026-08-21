@@ -20,3 +20,5 @@ node_modules/
 /src-tauri/target/
 /ui/dist/
 /ui/test-results/
+
+/.build/
