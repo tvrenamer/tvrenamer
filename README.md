@@ -17,7 +17,7 @@ It will take an ugly filename like **Lost.[6x05].DD51.720p.WEB-DL.AVC-FUSiON.mkv
 ## Usage & Download
 
 > ## Please Note
-> Your virus software may display a false positive on the Windows executable. This is reported in the issue:
+> Your virus software may display a false positive on TVRenamer. This is reported in the issue:
 >  [#238](https://github.com/tvrenamer/tvrenamer/issues/238)
 > This software is open source and contains no viruses. You can inspect the source and build it yourself if you're interested. We do not know why the virus detection software thinks there's a virus; possibly it's simply because the program will rename your files, which some programs may be overly protective about.
 >
@@ -25,28 +25,41 @@ It will take an ugly filename like **Lost.[6x05].DD51.720p.WEB-DL.AVC-FUSiON.mkv
 >
 > Again, we assure you the program contains no viruses.
 
-[Download](http://tvrenamer.github.com) the correct version for your operating system (OSX, Windows, Linux) and architecture (32 or 64 bit)
+Install [Java 21 or later](https://adoptium.net/), then
+[download](https://github.com/tvrenamer/tvrenamer/releases) the zip matching
+your operating system and processor:
 
-  * On Windows:
-    1. Unzip the downloaded file somewhere, possibly your Desktop or C:\Program Files
-    1. Double click the .exe file
-  * On OSX:
-    1. Unzip the downloaded file somewhere, possibly your Desktop or /Applications
-    1. Double click the .app file
-  * On Linux:
-    1. Unzip the downloaded file somewhere, possibly your Desktop
-    1. It is easiest to add TVRenamer to the top Gnome bar (no need for the terminal).  Add a ['Custom Application Launcher'](http://library.gnome.org/users/user-guide/2.32/gospanel-34.html.en) with the below settings:
+| Download | For |
+| --- | --- |
+| `linux-x86_64` | Linux on Intel or AMD |
+| `linux-aarch64` | Linux on ARM |
+| `macos-aarch64` | Macs with Apple silicon (M1 and later) |
+| `macos-x86_64` | Intel Macs |
+| `windows-x86_64` | Windows on Intel or AMD |
+
+Unzip it wherever you like, then start it from the `bin` directory inside:
+
+  * On Windows: double click `bin\tvrenamer.bat`
+  * On macOS and Linux: run `bin/tvrenamer` from a terminal
+
+On Linux you can add TVRenamer to your desktop's application menu with a
+['Custom Application Launcher'](http://library.gnome.org/users/user-guide/2.32/gospanel-34.html.en):
+
     Type: Application
     Name: TVRenamer
-    Command: <location of unzipped file from (1.)>/TVRenamer-&lt;version&gt;/run-linux.sh
+    Command: <where you unzipped it>/bin/tvrenamer
     Icon: Can be anything, perhaps [our icon](http://github.com/tvrenamer/tvrenamer/raw/master/src/main/resources/icons/tvrenamer.png)
-    *If the application doesn't start, or if you have problems switch the Type to be 'Application in Terminal'*
-    1. If you don't add it to the Gnome bar, open an terminal and `cd` to where you unzipped the file to.  Then `cd` into the TVRenamer-&lt;version&gt; folder.  There should be run-linux.sh and tvrenamer.jar file there.
-    1. Execute the run script via `./run-linux.sh`
+
+*If the application doesn't start, switch the Type to 'Application in Terminal'
+so you can read the error.*
 
 ## Common Problems
 ### Connectivity Issues
-If you are using a version that precedes [version 0.7.2](https://github.com/tvrenamer/tvrenamer/releases/tag/0.7.2), and you receive errors about "unable to connect to internet" please download a later version. Note that [Java 8](https://java.com/en/download) is required.
+Releases before 1.0b5 looked up episodes on TheTVDB, whose version 1 API is now
+retired. Those versions cannot find any show, so upgrade if you are still on
+one. If you see errors about "unable to connect to internet" on a version older
+than [0.7.2](https://github.com/tvrenamer/tvrenamer/releases/tag/0.7.2), upgrade
+for the same reason.
 
 ### Java version issues
 *Java version 21* or later is required.  Type `java -version` into your terminal and ensure the version is at least 21:
@@ -54,13 +67,23 @@ If you are using a version that precedes [version 0.7.2](https://github.com/tvre
     $ java -version
     openjdk version "21.0.11" 2026-04-21
 
-### x86/ 64 bit architecture version
-Ensure that you are running the same architecture of TVRenamer as Java. `java -version` displays the version on the last line, as above. If you don't have it right, you get an unhelpful error message on startup (when running on the terminal), like below:
-    Exception in thread "main" java.lang.UnsatisfiedLinkError: Cannot load 32-bit SWT libraries on 64-bit JVM
+### Processor architecture
+The download carries a native GUI library for one processor architecture, so it
+has to match the Java you run it with. `java -version` prints the architecture on
+its last line. Mixing them gives an `UnsatisfiedLinkError` on startup, visible
+only when you run from a terminal:
 
-### "TVRenamer can't be opened because it's from an unidentified developer" error message on OSX Mountain Lion or above.
-This is because we have not signed the application with Apple (and because we use Java, they won't allow us to). To get around this, just right-click the app in Finder and select Open. You only need to do this once.
-[More information from iMore](http://www.imore.com/how-open-apps-unidentified-developer-os-x-mountain-lion)
+    Exception in thread "main" java.lang.UnsatisfiedLinkError: Can't load library: .../libswt-pi3-gtk.so
+
+32-bit builds are no longer available. Eclipse stopped shipping 32-bit SWT
+libraries after 2018, so the last 32-bit release is
+[v1.0b4](https://github.com/tvrenamer/tvrenamer/releases/tag/v1.0b4).
+
+### macOS blocks the download
+We do not sign TVRenamer with Apple, so macOS marks everything in the zip as
+quarantined. If it refuses to start, clear that mark on the unpacked directory:
+
+    xattr -d -r com.apple.quarantine TVRenamer-<version>-macos-<arch>
 
 ## Running in debug mode
 If the application crashes it helps us greatly if you can provide us a stacktrace of what went wrong.  In order to do this, you just need to run the application in the terminal, then copy the output into [a new bug report](https://github.com/tvrenamer/tvrenamer/issues/new).
@@ -69,17 +92,12 @@ If the application fails to start due to a java error, [ensure that your JAVA_HO
 
   * On Windows:
     1. Open the Windows Command Prompt (Windows + r, then type `cmd` and push enter)
-    1. Navigate to where the TVRenamer application is.
-    1. Execute `java -jar TVRenamer-<version>.exe`
-  * On OSX:
-    1. Open the Terminal application (at /Applications/Utilities/Terminal.app)
-    1. Navigate to where the TVRenamer application is.
-    1. Execute it via `./TVRenamer-<version>.app/Contents/MacOS/TVRenamer`
-       * for older versions, you may need to run `./TVRenamer-<version>.app/Contents/MacOS/JavaAppLauncher`
-  * On Linux:
-    1. Open the Terminal application (from the Gnome Applications menu)
-    1. Navigate to where the TVRenamer application is.
-    1. Execute the run script via `./TVRenamer-<version>/run-linux.sh`
+    1. Navigate to the unzipped TVRenamer directory.
+    1. Execute `bin\tvrenamer.bat`
+  * On macOS and Linux:
+    1. Open a terminal.
+    1. Navigate to the unzipped TVRenamer directory.
+    1. Execute `bin/tvrenamer`
 
 ## Building from source
 
