@@ -4,6 +4,7 @@ import static org.tvrenamer.model.util.Constants.*;
 
 import org.tvrenamer.model.TVRenamerIOException;
 import org.tvrenamer.model.UserPreferences;
+import org.tvrenamer.model.util.VersionNumber;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,7 +25,7 @@ public class UpdateChecker {
         boolean available = false;
         try {
             latestVersion = new HttpConnectionHandler().downloadUrl(TVRENAMER_VERSION_URL);
-            available = latestVersion.compareToIgnoreCase(VERSION_NUMBER) > 0;
+            available = VersionNumber.isNewer(latestVersion, VERSION_NUMBER);
         } catch (TVRenamerIOException e) {
             // Do nothing when an exception is thrown, just don't update display
             logger.log(Level.SEVERE, "Exception when downloading version file " + TVRENAMER_VERSION_URL,

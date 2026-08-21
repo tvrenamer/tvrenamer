@@ -29,6 +29,10 @@ JDKs, on Apple silicon, and on all three platforms in CI.
 ### Fixed
 
 * Episode lookups resolve again, against TVmaze.
+* The update check compared version numbers as text, so it ranked `1.0b5` above
+  `1.0` and `0.10` below `0.9`. Every 1.0 beta would have refused to see the 1.0
+  release. Versions are now compared as numbers, with a beta sorting before the
+  release it leads up to.
 * On a display smaller than the window, the top left corner no longer lands off
   screen with the menu bar and buttons out of reach. The window is also placed
   in the monitor's client area, so it no longer opens under the taskbar, dock or
