@@ -13,6 +13,64 @@ not download 44MB.
 
 Targeted at 1.0 final, not another beta.
 
+## Where this got to
+
+Implementation is done on the `native-bundles` branch. Everything left needs an
+Apple Developer ID certificate, which only the maintainer can create.
+
+| Step | State |
+| --- | --- |
+| 1. `build.gradle` | Done. Builds, installs and runs an unsigned dmg. |
+| 2. `release.yml` | Written, actionlint clean. Never executed. |
+| 3. entitlements, CHANGELOG, README | Done. |
+| 4. Certificate and notarisation keys | Not started. |
+
+Verification steps 1 and 2 pass. Step 4 can run now without any Apple setup and
+is the cheapest thing left, because it builds the Windows exe for the first
+time. Steps 3, 5 and 7 need the certificate. Step 6 needs a Windows machine or
+that CI run.
+
+Risks 2, 3, 5, 6 and 8 are closed. Risk 1, the unsigned SWT natives inside the
+jar, is only settled by a real notary submission. Risks 4 and 7 are written but
+unexercised.
+
+### Corrected by building it
+
+* The dmg is 40MB, not 44MB, on a 50MB jlink runtime.
+* The suite is 64 tests, not 45. `TVmazeProviderTest` and `EndToEndRenameTest`
+  hold 4 between them, so whatever produced 45 was not those two classes.
+  Removing `jdk.crypto.ec` does fail all 3 TVmaze tests, as claimed.
+* Temurin 21's default entitlements carry no `get-task-allow`, which closes
+  risk 5. They also grant three things we do not want, not two:
+  `allow-dyld-environment-variables` alongside `cs.debugger` and
+  `device.audio-input`.
+* **"No application code changes needed" was wrong.** Two XStream bugs made
+  1.0b5 unusable, neither of them anything to do with packaging. Saving
+  preferences failed on Java 17 and later, because java.base does not open
+  java.util and XStream makes every field accessible before it consults
+  `omitField`. Reading either the preferences or the overrides file threw
+  `ForbiddenClassException`, because XStream has denied all types by default
+  since 1.4.18, and that one killed the application on startup before it could
+  show a window. So saving preferences once bricked the app. Both are fixed.
+  Only double-clicking the built app found them.
+* The test task now takes the same JVM arguments as the start scripts. The
+  suite was green only because no machine that ran it had ever saved
+  preferences.
+
+### Added beyond this plan
+
+* `-PappVersion` overrides the version file, which verification step 4 needs,
+  since the file holds a beta number that jpackage refuses.
+* Signing and notarisation fail closed on a tag push when the secrets are
+  absent, rather than quietly publishing an unsigned dmg that Gatekeeper will
+  refuse. A manual run still builds unsigned, so the workflow is testable now.
+* The WiX preflight looks under Program Files and appends what it finds to
+  PATH, rather than only checking PATH.
+* `.claude/research/jre-less-native-bundles.md` records why bundles carry a
+  runtime rather than relying on an installed JRE. Briefly: jpackage cannot
+  build a runtime-less image at all, and a Temurin JRE download is larger than
+  the whole bundle.
+
 ## Measured, not assumed
 
 | | Size |
@@ -20,7 +78,7 @@ Targeted at 1.0 final, not another beta.
 | Existing zip | 7MB |
 | Full-JDK app-image | 170MB |
 | Trimmed app-image | 67MB |
-| Trimmed `.dmg` | 44MB |
+| Trimmed `.dmg` | 44MB, measured again at 40MB once built |
 
 The trimmed runtime needs six modules:
 
