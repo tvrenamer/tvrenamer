@@ -3,23 +3,28 @@ plugins {
     id 'application'
 }
 
+def osName = System.getProperty('os.name').toLowerCase()
+def osArch = (System.getProperty('os.arch').toLowerCase() in ['aarch64', 'arm64'])
+    ? 'aarch64' : 'x86_64'
+
+def isMacOs = osName.contains('mac')
+def isWindows = osName.contains('windows')
+
 // SWT ships a separate native artifact per OS/architecture, so pick the one
 // matching the machine we are building on.
 def swtVersion = '3.130.0'
-def swtArtifact = {
-    def os = System.getProperty('os.name').toLowerCase()
-    def arch = System.getProperty('os.arch').toLowerCase()
-    def swtArch = (arch in ['aarch64', 'arm64']) ? 'aarch64' : 'x86_64'
-    if (os.contains('mac')) {
-        return "org.eclipse.swt.cocoa.macosx.${swtArch}"
-    }
-    if (os.contains('windows')) {
-        return "org.eclipse.swt.win32.win32.${swtArch}"
-    }
-    return "org.eclipse.swt.gtk.linux.${swtArch}"
-}()
+def swtArtifact = isMacOs ? "org.eclipse.swt.cocoa.macosx.${osArch}"
+    : isWindows ? "org.eclipse.swt.win32.win32.${osArch}"
+    : "org.eclipse.swt.gtk.linux.${osArch}"
 
-def isMacOs = System.getProperty('os.name').toLowerCase().contains('mac')
+// A build only ever contains one platform's native library, so the archive has
+// to say which one. Without this every runner would upload the same file name.
+def platformLabel = "${isMacOs ? 'macos' : isWindows ? 'windows' : 'linux'}-${osArch}"
+
+// The running application reads its version back out of a resource file to
+// check for updates, so that file is the single source of truth. Reuse it here
+// so the archives carry the same number.
+version = file('src/main/resources/tvrenamer.version').text.trim()
 
 // Build with whatever JDK runs Gradle, targeting 21. A toolchain would pin the
 // build to an exactly-21 install, so a machine with only a newer JDK could not
@@ -72,4 +77,8 @@ jar {
     manifest {
         attributes 'Main-Class': application.mainClass
     }
+}
+
+tasks.named('distZip') {
+    archiveFileName = "TVRenamer-${project.version}-${platformLabel}.zip"
 }
