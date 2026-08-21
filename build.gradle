@@ -23,8 +23,10 @@ def platformLabel = "${isMacOs ? 'macos' : isWindows ? 'windows' : 'linux'}-${os
 
 // The running application reads its version back out of a resource file to
 // check for updates, so that file is the single source of truth. Reuse it here
-// so the archives carry the same number.
-version = file('src/main/resources/tvrenamer.version').text.trim()
+// so the archives carry the same number. -PappVersion overrides it, which
+// exists only so the release workflow can exercise the bundle and signing path
+// on demand, without cutting a tag. Never pass it for a real release.
+version = findProperty('appVersion') ?: file('src/main/resources/tvrenamer.version').text.trim()
 
 // Build with whatever JDK runs Gradle, targeting 21. A toolchain would pin the
 // build to an exactly-21 install, so a machine with only a newer JDK could not
@@ -39,6 +41,8 @@ application {
     // not open. XStream makes every field accessible before it consults the
     // omitField calls in UserPreferencesPersistence, so without this, saving
     // preferences fails with "No converter available" on any JDK 17 or later.
+    // Written as one token because jpackage passes each --java-options value
+    // through as a single argument.
     applicationDefaultJvmArgs = ['--add-opens=java.base/java.util=ALL-UNNAMED']
 
     // SWT on macOS must run its event loop on the first thread.
@@ -78,9 +82,9 @@ gradle.taskGraph.whenReady {
 }
 
 tasks.named('test') {
-    // The same arguments the start scripts use. The tests read the real
-    // preferences file, so they need the java.util opens just as much as the
-    // application does.
+    // The same arguments the start scripts and the native bundle use. The
+    // tests read the real preferences file, so they need the java.util opens
+    // just as much as the application does.
     jvmArgs application.applicationDefaultJvmArgs
 }
 
@@ -92,4 +96,130 @@ jar {
 
 tasks.named('distZip') {
     archiveFileName = "TVRenamer-${project.version}-${platformLabel}.zip"
+}
+
+// --- Native bundles --------------------------------------------------------
+//
+// jpackage always copies a runtime into the bundle, so these tasks build a
+// trimmed one with jlink rather than shipping a whole JDK. Only final releases
+// get bundles: jpackage rejects any version that is not purely numeric, and the
+// zip keeps shipping on every platform either way.
+
+// jdeps reports only java.base, java.desktop, java.sql and jdk.unsupported.
+// java.logging and jdk.crypto.ec load reflectively and are invisible to it.
+// Without jdk.crypto.ec the HTTPS handshake to tvmaze.com fails, so the app
+// starts but cannot look up a single episode. Do not tidy these away. Check
+// jdk.crypto.ec still exists whenever the toolchain moves past 21.
+def runtimeModules = ['java.base',
+                      'java.desktop',
+                      'java.logging',
+                      'java.sql',
+                      'jdk.unsupported',
+                      'jdk.crypto.ec']
+
+// Generated once. Changing it makes Windows install the new version alongside
+// the old one instead of upgrading it.
+def winUpgradeUuid = 'f4b7f32a-b131-482e-bec6-ef0f1e30881e'
+
+def jdkHome = System.getProperty('java.home')
+def runtimeImageDir = layout.buildDirectory.dir('jpackage-runtime')
+def bundleDir = layout.buildDirectory.dir('jpackage')
+
+tasks.register('trimmedRuntime', Exec) {
+    group = 'distribution'
+    description = 'Builds the minimal Java runtime that the native bundles carry.'
+
+    outputs.dir(runtimeImageDir)
+
+    // jlink refuses to write into a directory that already exists.
+    doFirst {
+        delete runtimeImageDir
+    }
+
+    commandLine "${jdkHome}/bin/jlink",
+                '--add-modules', runtimeModules.join(','),
+                '--strip-debug',
+                '--no-header-files',
+                '--no-man-pages',
+                '--compress=zip-9',
+                '--output', runtimeImageDir.get().asFile.absolutePath
+}
+
+tasks.register('jpackageBundle', Exec) {
+    group = 'distribution'
+    description = 'Builds a double-clickable installer carrying a trimmed Java runtime.'
+
+    dependsOn 'installDist', 'trimmedRuntime'
+    onlyIf { isMacOs || isWindows }
+
+    def bundleType = isMacOs ? 'dmg' : 'exe'
+    def iconFile = file(isMacOs ? 'src/main/resources/icons/tvrenamer.icns'
+                                : 'src/main/resources/icons/oldschool-tv-icon.ico')
+    def signIdentity = findProperty('macSignIdentity') ?: System.getenv('MAC_SIGN_IDENTITY')
+
+    // Built here rather than at configuration time so that a beta build, which
+    // skips this task, does not fail the whole build on the version check.
+    doFirst {
+        // '1.0b5' and '1.0rc1' both have to be caught here. The release
+        // workflow gates on 'b' alone, which would let a release candidate
+        // through to jpackage and a much less obvious error.
+        if (!(project.version.toString() ==~ /\d+(\.\d+){0,2}/)) {
+            throw new GradleException(
+                "jpackage only accepts a numeric version, but this build is "
+                + "${project.version}. Native bundles are for final releases only.")
+        }
+
+        delete bundleDir
+
+        def command = ["${jdkHome}/bin/jpackage",
+                       '--name', 'TVRenamer',
+                       '--app-version', project.version.toString(),
+                       '--input', layout.buildDirectory.dir('install/tvrenamer/lib')
+                                        .get().asFile.absolutePath,
+                       '--main-jar', tasks.jar.archiveFileName.get(),
+                       '--main-class', application.mainClass.get(),
+                       '--runtime-image', runtimeImageDir.get().asFile.absolutePath,
+                       '--icon', iconFile.absolutePath,
+                       '--type', bundleType,
+                       '--dest', bundleDir.get().asFile.absolutePath]
+
+        // Reuse the arguments the start scripts get, so -XstartOnFirstThread
+        // stays declared once and cannot drift between the two.
+        application.applicationDefaultJvmArgs.each { command += ['--java-options', it] }
+
+        if (isMacOs) {
+            command += ['--mac-package-identifier', 'org.tvrenamer.TVRenamer']
+            // Absent a signing identity the bundle is unsigned, so a local
+            // build needs no Apple setup and takes the same code path as CI.
+            if (signIdentity) {
+                command += ['--mac-sign',
+                            '--mac-signing-key-user-name', signIdentity,
+                            '--mac-entitlements', file('etc/entitlements.plist').absolutePath]
+            }
+        } else {
+            command += ['--win-shortcut', '--win-menu', '--win-dir-chooser',
+                        '--win-upgrade-uuid', winUpgradeUuid]
+        }
+
+        commandLine command
+    }
+
+    doLast {
+        def built = bundleDir.get().file("TVRenamer-${project.version}.${bundleType}").asFile
+        if (!built.exists()) {
+            throw new GradleException("jpackage reported success but ${built} is missing.")
+        }
+        // jpackage names the file from --name and --app-version, so both macOS
+        // runners produce the same one. The release job merges every artifact
+        // into a single directory, where one architecture would silently
+        // overwrite the other. Rename the file only, never --name, which sets
+        // the .app bundle name and the menu bar title.
+        def renamed = bundleDir.get()
+                               .file("TVRenamer-${project.version}-${platformLabel}.${bundleType}")
+                               .asFile
+        delete renamed
+        if (!built.renameTo(renamed)) {
+            throw new GradleException("Could not rename ${built} to ${renamed}.")
+        }
+    }
 }
