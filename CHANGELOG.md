@@ -1,5 +1,29 @@
 # Changelog
 
+## 1.0
+
+Double-click installation is back on macOS and Windows. The `.dmg` and the
+`.exe` carry their own Java runtime, so there is nothing to install first.
+
+### You need to know
+
+* **The bundles include Java.** That is why they are around 40MB against the
+  zip's 7MB. You do not need your own Java to run them.
+* **The zip still ships for every platform.** If you already have Java 21 it is
+  the smaller download, and nothing about it has changed.
+* **The macOS bundle is signed and notarised**, so it opens without the warning
+  the zip gives.
+* **Windows will warn you.** The `.exe` is not signed yet, so SmartScreen shows
+  a warning. Choose 'More info', then 'Run anyway'.
+* **Linux stays zip-only.**
+
+### Fixed
+
+* Saving preferences failed with "No converter available" on Java 17 and later,
+  and once a preferences file existed the application died on startup before it
+  could show a window. Both came from XStream reflecting over classes that the
+  module system and XStream's own defaults refuse to open.
+
 ## 1.0b6
 
 Fixes two preferences faults in 1.0b5. **Upgrade if you are on 1.0b5**, and

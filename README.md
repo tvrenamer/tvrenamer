@@ -25,9 +25,26 @@ It will take an ugly filename like **Lost.[6x05].DD51.720p.WEB-DL.AVC-FUSiON.mkv
 >
 > Again, we assure you the program contains no viruses.
 
-Install [Java 21 or later](https://adoptium.net/), then
-[download](https://github.com/tvrenamer/tvrenamer/releases) the zip matching
-your operating system and processor:
+[Download](https://github.com/tvrenamer/tvrenamer/releases) the installer for
+your operating system and processor. It carries its own Java runtime, so there
+is nothing to install first:
+
+| Download | For |
+| --- | --- |
+| `macos-aarch64.dmg` | Macs with Apple silicon (M1 and later) |
+| `macos-x86_64.dmg` | Intel Macs |
+| `windows-x86_64.exe` | Windows on Intel or AMD |
+
+On macOS, open the `.dmg` and drag TVRenamer to your Applications folder. On
+Windows, run the `.exe`. It is not signed yet, so SmartScreen will warn you:
+choose 'More info', then 'Run anyway'.
+
+### The zip
+
+Every platform also has a zip. It is much smaller, around 7MB against 40MB,
+because it has no Java in it. Linux has only this. Install
+[Java 21 or later](https://adoptium.net/), then download the zip matching your
+operating system and processor:
 
 | Download | For |
 | --- | --- |
@@ -80,8 +97,9 @@ libraries after 2018, so the last 32-bit release is
 [v1.0b4](https://github.com/tvrenamer/tvrenamer/releases/tag/v1.0b4).
 
 ### macOS blocks the download
-We do not sign TVRenamer with Apple, so macOS marks everything in the zip as
-quarantined. If it refuses to start, clear that mark on the unpacked directory:
+The `.dmg` is signed and notarised, so it opens without complaint. The zip is
+not, so macOS marks everything in it as quarantined. If the unzipped copy
+refuses to start, clear that mark on the unpacked directory:
 
     xattr -d -r com.apple.quarantine TVRenamer-<version>-macos-<arch>
 
@@ -98,6 +116,11 @@ If the application fails to start due to a java error, [ensure that your JAVA_HO
     1. Open a terminal.
     1. Navigate to the unzipped TVRenamer directory.
     1. Execute `bin/tvrenamer`
+
+If you installed the macOS `.dmg` rather than the zip, run the executable inside
+the bundle instead. It prints to the terminal the same way:
+
+    /Applications/TVRenamer.app/Contents/MacOS/TVRenamer
 
 ## Building from source
 
