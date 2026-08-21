@@ -14,3 +14,8 @@ launch4j.properties
 /src/test/java/org/tvrenamer/controller/TestMain.java
 /commit.log
 /diff.diff
+
+node_modules/
+/src-tauri/target/
+/ui/dist/
+/ui/test-results/
