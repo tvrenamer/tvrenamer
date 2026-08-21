@@ -33,8 +33,18 @@ def javaRelease = 21
 
 application {
     mainClass = 'org.tvrenamer.controller.Launcher'
+
+    // XStream reflects over UserPreferences, and its deprecated
+    // java.util.Observable superclass has private fields that java.base does
+    // not open. XStream makes every field accessible before it consults the
+    // omitField calls in UserPreferencesPersistence, so without this, saving
+    // preferences fails with "No converter available" on any JDK 17 or later.
+    applicationDefaultJvmArgs = ['--add-opens=java.base/java.util=ALL-UNNAMED']
+
     // SWT on macOS must run its event loop on the first thread.
-    applicationDefaultJvmArgs = isMacOs ? ['-XstartOnFirstThread'] : []
+    if (isMacOs) {
+        applicationDefaultJvmArgs += '-XstartOnFirstThread'
+    }
 }
 
 repositories {
@@ -68,9 +78,10 @@ gradle.taskGraph.whenReady {
 }
 
 tasks.named('test') {
-    if (isMacOs) {
-        jvmArgs '-XstartOnFirstThread'
-    }
+    // The same arguments the start scripts use. The tests read the real
+    // preferences file, so they need the java.util opens just as much as the
+    // application does.
+    jvmArgs application.applicationDefaultJvmArgs
 }
 
 jar {

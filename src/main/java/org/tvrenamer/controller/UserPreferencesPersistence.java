@@ -22,6 +22,12 @@ public class UserPreferencesPersistence {
     private static final XStream xstream = new XStream(new PureJavaReflectionProvider());
 
     static {
+        // XStream refuses to instantiate any type that has not been allowed.
+        // Without this, reading the preferences file throws
+        // ForbiddenClassException from UserPreferences' static initialiser,
+        // which kills the application before it can show a window.
+        xstream.allowTypes(new Class[] {UserPreferences.class});
+
         xstream.alias("preferences", UserPreferences.class);
         xstream.aliasField("moveEnabled", UserPreferences.class, "moveSelected");
         xstream.aliasField("renameEnabled", UserPreferences.class, "renameSelected");

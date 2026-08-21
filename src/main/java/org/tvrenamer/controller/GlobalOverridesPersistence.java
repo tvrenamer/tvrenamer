@@ -19,6 +19,12 @@ public class GlobalOverridesPersistence {
     private static final XStream xstream = new XStream(new PureJavaReflectionProvider());
 
     static {
+        // XStream refuses to instantiate any type that has not been allowed.
+        // Without this, reading the overrides file throws
+        // ForbiddenClassException from GlobalOverrides' static initialiser,
+        // which kills the application before it can show a window.
+        xstream.allowTypes(new Class[] {GlobalOverrides.class});
+
         xstream.alias("overrides", GlobalOverrides.class);
     }
 
