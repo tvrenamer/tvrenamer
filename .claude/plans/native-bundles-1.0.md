@@ -96,8 +96,8 @@ downloads exactly once, so losing it means revoking and reissuing.
 * Signing and notarisation fail closed on a tag push when the secrets are
   absent, rather than quietly publishing an unsigned dmg that Gatekeeper will
   refuse. A manual run still builds unsigned, so the workflow is testable now.
-* The WiX preflight looks under Program Files and appends what it finds to
-  PATH, rather than only checking PATH.
+* The WiX preflight looked under Program Files and appended what it found to
+  PATH, rather than only checking PATH. Removed with the installer.
 * `.claude/research/jre-less-native-bundles.md` records why bundles carry a
   runtime rather than relying on an installed JRE. Briefly: jpackage cannot
   build a runtime-less image at all, and a Temurin JRE download is larger than
@@ -148,7 +148,12 @@ measurable.
    containing `b` ships zips only. No version mapping.
 2. The zip keeps shipping on every platform alongside any bundle.
 3. macOS `.dmg` signed with a Developer ID Application certificate, and notarized.
-4. Windows `.exe` unsigned for now.
+4. Windows ships a portable zip, not an installer, and nothing on Windows is
+   signed. Chosen after building the exe and testing it: an installer buys a
+   Start menu entry and an uninstaller, and costs the WiX dependency, an
+   upgrade UUID and an upgrade test. Unzip and run needs no admin rights and
+   writes nothing to the registry. SmartScreen warns either way, since the
+   warning follows the missing signature, not the packaging.
 5. Linux stays zip-only.
 
 ## Settled by inspecting a bundle built during planning
@@ -226,9 +231,11 @@ when a `macSignIdentity` property or env var is present, `--mac-sign`,
 `--mac-signing-key-user-name` and `--mac-entitlements`. Absent it, the build is
 unsigned, so local builds need no Apple setup and take the same code path.
 
-Windows adds `--type exe`, `--win-shortcut`, `--win-menu`, `--win-dir-chooser`
-and a fixed `--win-upgrade-uuid`, generated once and never changed, so upgrades
-replace the install instead of landing side by side.
+Windows uses `--type app-image`, which leaves a directory rather than a file,
+so there is nothing to rename. A `portableZip` task packs it as
+`TVRenamer-<version>-<platform>-portable.zip`, nested under one folder so
+extracting does not spray a runtime across the user's downloads. No WiX, no
+installer options, no upgrade UUID.
 
 Validate the version shape with a regex before invoking jpackage and fail with a
 clear message. The `b` gate treats `1.0rc1` as final, and it should not reach
@@ -251,8 +258,8 @@ the prerelease flag cannot disagree.
 
 In the existing matrix, gated on `is_final == 'true'`: on macOS import the
 certificate, run `jpackageBundle`, then notarize and staple. On Windows just run
-`jpackageBundle`, with a preflight that WiX is on `PATH` so a future runner image
-change gives a one-line error rather than a cryptic jpackage failure.
+`jpackageBundle`. No WiX preflight, since `--type app-image` does not shell out
+to WiX at all.
 
 Keychain import, into a temporary keychain so exactly one identity is present and
 nothing can trigger an unanswerable GUI prompt:
@@ -289,8 +296,9 @@ Both Mac runners produce a dmg, so that is two signings and two notarizations pe
 release. Notarization is minutes each, roughly tripling release time.
 
 **Fail closed on artifact counts** in `publish`, before creating the release:
-assert 5 zips always, plus 2 dmgs and 1 exe when `is_final`, and 0 of each when
-not. This is the real defence against the gate silently skipping, since a
+assert 5 plain zips always, plus 2 dmgs and 1 portable zip when `is_final`, and
+0 of each when not. The portable zip matches `dist/*.zip` too, so subtract it
+from the plain count or one Windows download stands in for a missing platform. This is the real defence against the gate silently skipping, since a
 mistyped job output evaluates to empty and therefore falsey. It also catches
 bundles leaking into a beta.
 
@@ -366,9 +374,13 @@ Ordered so the cheap checks settle the uncertain things first.
    Afterwards `~/.swt/lib/macosx/aarch64/` held `libswt-cocoa` and
    `libswt-pi-cocoa`. `libswt-awt-cocoa` stays in the jar unless something asks
    for the AWT bridge, so two files rather than three is correct.
-6. **Windows.** Install the `.exe`, expect a SmartScreen warning, launch from the
-   Start menu, rename a file, uninstall. Then reinstall a bumped version to
-   confirm `--win-upgrade-uuid` upgrades rather than installing side by side.
+6. **Windows.** Done for the `.exe` installer on 22 August 2026, which then
+   got replaced by the portable zip, so it needs redoing. Extract the zip with
+   Explorer, which propagates the mark of the web, confirm the Zone.Identifier
+   stream is present, then run `TVRenamer\TVRenamer.exe`. Expect the
+   SmartScreen warning, then a working search and rename. Delete the folder and
+   confirm nothing is left behind. No upgrade test any more, since there is no
+   installer to upgrade.
 7. **The gate, both directions.** A beta tag must produce 5 zips and no bundles;
    a final tag must produce both. A slip here fails silently by shipping zips
    only, which is the outcome most likely to go unnoticed.
@@ -393,11 +405,19 @@ Ordered so the cheap checks settle the uncertain things first.
    notarization. Verified absent in a local JBR build; check on CI.
 6. **`1.0rc1`-shaped versions** pass the `b` gate. Regex-validate in Gradle.
 7. **`notarytool` exiting 0 with status `Invalid`.** Parse the status.
-8. **WiX missing from `PATH`** on a future `windows-latest` image.
+8. ~~**WiX missing from `PATH`** on a future `windows-latest` image.~~ Gone
+   with the installer. The `cygpath` fix for it was never exercised, because
+   every run so far found WiX already on `PATH`.
 
 ## Not in scope
 
-* Windows code signing. Needs a purchased certificate.
+* Windows code signing. Needs a purchased certificate. Checked after building:
+  Azure Artifact Signing is the cheap route, but public trust certificates for
+  individual developers are limited to the United States and Canada, and the
+  organization track New Zealand qualifies for needs a registered legal entity.
+  A conventional OV certificate must also live on FIPS 140-2 hardware now, and
+  does not clear SmartScreen until reputation accrues. The warning stays for
+  1.0.
 * Linux `.deb` and `.rpm`.
 * The `ICON_PARENT_DIRECTORY` fallback and the dead `etc/default-overrides.xml`
   seed.

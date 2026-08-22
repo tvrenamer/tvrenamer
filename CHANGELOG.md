@@ -3,18 +3,23 @@
 ## 1.0
 
 Double-click installation is back on macOS and Windows. The `.dmg` and the
-`.exe` carry their own Java runtime, so there is nothing to install first.
+Windows portable zip carry their own Java runtime, so there is nothing to
+install first.
 
 ### You need to know
 
 * **The bundles include Java.** That is why they are around 50MB against the
   zip's 7MB. You do not need your own Java to run them.
-* **The zip still ships for every platform.** If you already have Java 21 it is
-  the smaller download, and nothing about it has changed.
+* **Windows has no installer.** Unzip `windows-x86_64-portable.zip` anywhere
+  and run `TVRenamer\TVRenamer.exe`. No admin rights, nothing written to the
+  registry, and you uninstall it by deleting the folder. Do not confuse it with
+  `windows-x86_64.zip`, which is the small one that needs your own Java.
+* **The plain zip still ships for every platform.** If you already have Java 21
+  it is the smaller download, and nothing about it has changed.
 * **The macOS bundle is signed and notarised**, so it opens without the warning
   the zip gives.
-* **Windows will warn you.** The `.exe` is not signed yet, so SmartScreen shows
-  a warning. Choose 'More info', then 'Run anyway'.
+* **Windows will warn you.** Nothing is signed on Windows yet, so SmartScreen
+  shows a warning the first time. Choose 'More info', then 'Run anyway'.
 * **Linux stays zip-only.**
 
 ### Fixed

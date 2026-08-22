@@ -127,26 +127,6 @@ jobs:
           path: build/distributions/*.zip
           if-no-files-found: error
 
-      # jpackage shells out to WiX and fails obscurely without it. Newer runner
-      # images have moved it more than once, so look for it and say so plainly.
-      - name: Find WiX
-        if: env.BUNDLE == 'true' && runner.os == 'Windows'
-        shell: bash
-        run: |
-          set -eu
-          if command -v candle.exe >/dev/null; then
-            exit 0
-          fi
-          found=$(find '/c/Program Files (x86)' -maxdepth 3 -name candle.exe 2>/dev/null | head -1)
-          if [ -z "$found" ]; then
-            echo "WiX is not installed on this runner image, so jpackage cannot build an exe"
-            exit 1
-          fi
-          # A native path, not the MSYS one find returns. GITHUB_PATH is
-          # prepended to PATH verbatim, and candle.exe is launched by jpackage,
-          # which cannot resolve '/c/Program Files (x86)/...'.
-          cygpath -w "$(dirname "$found")" >> "$GITHUB_PATH"
-
       # A temporary keychain, so the certificate never touches the login
       # keychain and nothing can raise a prompt that no one is there to answer.
       # It is prepended to the search list rather than replacing it, so
@@ -287,7 +267,7 @@ jobs:
           name: bundle-${{ matrix.label }}
           path: |
             build/jpackage/*.dmg
-            build/jpackage/*.exe
+            build/jpackage/*-portable.zip
           if-no-files-found: error
 
   release:
@@ -326,16 +306,20 @@ jobs:
         run: |
           set -eu
           shopt -s nullglob
-          zips=(dist/*.zip)
+          # The portable zip also matches dist/*.zip, so take it out of the
+          # plain count rather than letting one Windows download stand in for a
+          # missing platform.
+          all_zips=(dist/*.zip)
+          portable=(dist/*-portable.zip)
           dmgs=(dist/*.dmg)
-          exes=(dist/*.exe)
+          plain=$(( ${#all_zips[@]} - ${#portable[@]} ))
 
           if [ "${{ needs.meta.outputs.is_final }}" = true ]; then
             want_dmgs=2
-            want_exes=1
+            want_portable=1
           else
             want_dmgs=0
-            want_exes=0
+            want_portable=0
           fi
 
           fail=0
@@ -345,11 +329,11 @@ jobs:
               fail=1
             fi
           }
-          check zips "${#zips[@]}" 5
+          check zips "$plain" 5
           check dmgs "${#dmgs[@]}" "$want_dmgs"
-          check exes "${#exes[@]}" "$want_exes"
+          check "portable zips" "${#portable[@]}" "$want_portable"
 
-          printf '%s\n' "${zips[@]}" "${dmgs[@]}" "${exes[@]}"
+          printf '%s\n' "${all_zips[@]}" "${dmgs[@]}"
           exit $fail
 
       - name: Assemble release notes
@@ -391,7 +375,7 @@ jobs:
           # An unmatched glob is passed through literally, and gh then errors on
           # a file called 'dist/*.dmg'. An array built with nullglob cannot.
           shopt -s nullglob
-          assets=(dist/*.zip dist/*.dmg dist/*.exe)
+          assets=(dist/*.zip dist/*.dmg)
 
           gh release create "$GITHUB_REF_NAME" \
             --verify-tag \

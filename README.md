@@ -25,7 +25,7 @@ It will take an ugly filename like **Lost.[6x05].DD51.720p.WEB-DL.AVC-FUSiON.mkv
 >
 > Again, we assure you the program contains no viruses.
 
-[Download](https://github.com/tvrenamer/tvrenamer/releases) the installer for
+[Download](https://github.com/tvrenamer/tvrenamer/releases) the bundle for
 your operating system and processor. It carries its own Java runtime, so there
 is nothing to install first:
 
@@ -33,16 +33,20 @@ is nothing to install first:
 | --- | --- |
 | `macos-aarch64.dmg` | Macs with Apple silicon (M1 and later) |
 | `macos-x86_64.dmg` | Intel Macs |
-| `windows-x86_64.exe` | Windows on Intel or AMD |
+| `windows-x86_64-portable.zip` | Windows on Intel or AMD |
 
-On macOS, open the `.dmg` and drag TVRenamer to your Applications folder. On
-Windows, run the `.exe`. It is not signed yet, so SmartScreen will warn you:
-choose 'More info', then 'Run anyway'.
+On macOS, open the `.dmg` and drag TVRenamer to your Applications folder.
+
+On Windows, unzip it anywhere and run `TVRenamer\TVRenamer.exe` from inside.
+There is no installer, so it needs no admin rights and you remove it by
+deleting the folder. It is not signed yet, so SmartScreen will warn you the
+first time: choose 'More info', then 'Run anyway'.
 
 ### The zip
 
-Every platform also has a zip. It is much smaller, around 7MB against 50MB,
-because it has no Java in it. Linux has only this. Install
+Every platform also has a plain zip. It is much smaller, around 7MB against
+50MB, because it has no Java in it. Linux has only this. Note the Windows one
+is `windows-x86_64.zip`, not the `-portable` zip above. Install
 [Java 21 or later](https://adoptium.net/), then download the zip matching your
 operating system and processor:
 
