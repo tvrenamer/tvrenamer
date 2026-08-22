@@ -7,7 +7,7 @@ Double-click installation is back on macOS and Windows. The `.dmg` and the
 
 ### You need to know
 
-* **The bundles include Java.** That is why they are around 40MB against the
+* **The bundles include Java.** That is why they are around 50MB against the
   zip's 7MB. You do not need your own Java to run them.
 * **The zip still ships for every platform.** If you already have Java 21 it is
   the smaller download, and nothing about it has changed.

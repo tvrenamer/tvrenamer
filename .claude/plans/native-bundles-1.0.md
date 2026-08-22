@@ -9,7 +9,7 @@ longer runs on any current JDK, and it was lost in commit `fde37d5`.
 
 The goal is double-click installation on macOS and Windows with no separate Java
 install, keeping the small zip for people who already have Java and would rather
-not download 44MB.
+not download 50MB.
 
 Targeted at 1.0 final, not another beta.
 
@@ -53,7 +53,8 @@ downloads exactly once, so losing it means revoking and reissuing.
 
 ### Corrected by building it
 
-* The dmg is 40MB, not 44MB, on a 50MB jlink runtime.
+* The dmg is 40MB, not 44MB, on a 50MB jlink runtime. Both grew to 50MB and
+  61MB once the locale and charset modules went in, see below.
 * The suite is 64 tests, not 45. `TVmazeProviderTest` and `EndToEndRenameTest`
   hold 4 between them, so whatever produced 45 was not those two classes.
   Removing `jdk.crypto.ec` does fail all 3 TVmaze tests, as claimed.
@@ -109,19 +110,37 @@ downloads exactly once, so losing it means revoking and reissuing.
 | Existing zip | 7MB |
 | Full-JDK app-image | 170MB |
 | Trimmed app-image | 67MB |
-| Trimmed `.dmg` | 44MB, measured again at 40MB once built |
+| Trimmed `.dmg` | 44MB planned, 40MB once built, 50MB with locale data |
 
-The trimmed runtime needs six modules:
+The trimmed runtime needs eight modules:
 
-    java.base, java.desktop, java.logging, java.sql, jdk.unsupported, jdk.crypto.ec
+    java.base, java.desktop, java.logging, java.sql, jdk.unsupported,
+    jdk.crypto.ec, jdk.localedata, jdk.charsets
 
-`jdeps` reports only four. `java.logging` and `jdk.crypto.ec` load reflectively,
-and without `jdk.crypto.ec` the HTTPS handshake to tvmaze.com fails, so the app
-starts but cannot look up a single episode. Running the tests on the trimmed
-runtime is the only thing that catches this.
+`jdeps` reports only four. The other four are loaded reflectively or read as
+data, so it cannot see them. Without `jdk.crypto.ec` the HTTPS handshake to
+tvmaze.com fails, so the app starts but cannot look up a single episode.
+Running the tests on the trimmed runtime is the only thing that catches that.
 
-44MB is near the floor. `java.desktop` is the bulk and cannot go: SWT, XStream
-and TVRenamer all reference it. Dropping `java.sql` saves nothing measurable.
+`jdk.localedata` and `jdk.charsets` were missed until code review and are not
+optional. `java.base` carries CLDR root and `en` only. Measured on the
+six-module runtime, `Locale.getAvailableLocales()` returned 5 against 1069 on
+the full JDK, `DateTimeFormatter.ofPattern("MMMM", GERMANY)` gave `Mar` rather
+than `Marz`, and neither MS932 nor GBK was a supported charset. The first of
+those writes a wrong month into a renamed file, so a non-English user of the
+bundle got worse results than the same user running the zip.
+
+| Runtime | Size |
+| --- | --- |
+| Six modules | 49MB |
+| plus `jdk.localedata` | 60MB |
+| plus `jdk.charsets` | 51MB |
+| Both, as shipped | 61MB |
+
+50MB is now the floor for the dmg. `java.desktop` is the bulk and cannot go:
+SWT, XStream and TVRenamer all reference it. `jdk.localedata` is the next
+largest at 11MB and correctness needs it. Dropping `java.sql` saves nothing
+measurable.
 
 ## Decisions
 
@@ -186,7 +205,7 @@ Keychains and Apple credentials have no business in a build file.
 
 ### 1. `build.gradle`
 
-`trimmedRuntime` (Exec) runs `jlink` with the six modules plus `--strip-debug
+`trimmedRuntime` (Exec) runs `jlink` with the eight modules plus `--strip-debug
 --no-header-files --no-man-pages --compress=zip-9` into `build/jpackage-runtime`,
 deleting it first since jlink refuses an existing directory. Keep the module list
 in one named variable, commented that `java.logging` and `jdk.crypto.ec` are

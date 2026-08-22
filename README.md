@@ -41,7 +41,7 @@ choose 'More info', then 'Run anyway'.
 
 ### The zip
 
-Every platform also has a zip. It is much smaller, around 7MB against 40MB,
+Every platform also has a zip. It is much smaller, around 7MB against 50MB,
 because it has no Java in it. Linux has only this. Install
 [Java 21 or later](https://adoptium.net/), then download the zip matching your
 operating system and processor:

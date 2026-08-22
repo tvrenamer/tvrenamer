@@ -106,16 +106,31 @@ tasks.named('distZip') {
 // zip keeps shipping on every platform either way.
 
 // jdeps reports only java.base, java.desktop, java.sql and jdk.unsupported.
-// java.logging and jdk.crypto.ec load reflectively and are invisible to it.
-// Without jdk.crypto.ec the HTTPS handshake to tvmaze.com fails, so the app
-// starts but cannot look up a single episode. Do not tidy these away. Check
-// jdk.crypto.ec still exists whenever the toolchain moves past 21.
+// Everything below that is here because something loads it reflectively or
+// reads it as data, so jdeps cannot see it. Do not tidy any of these away.
+//
+//   jdk.crypto.ec    without it the HTTPS handshake to tvmaze.com fails, so
+//                    the app starts but cannot look up a single episode. Check
+//                    it still exists whenever the toolchain moves past 21.
+//   java.logging     loaded reflectively.
+//   jdk.localedata   java.base carries CLDR root and en only. Without this a
+//                    German user gets 'Mar' instead of 'Marz' from the
+//                    DateTimeFormatter in FileEpisode.formatDate, which writes
+//                    the wrong month into the renamed file. It also changes
+//                    Collator.getInstance in ResultsTable and the
+//                    NumberFormat.getPercentInstance in FileMonitor. Measured:
+//                    Locale.getAvailableLocales() drops from 1069 to 5.
+//   jdk.charsets     sun.jnu.encoding is MS932 on a Japanese Windows install
+//                    and GBK on a Chinese one. Neither is in java.base, and
+//                    filenames are decoded with it.
 def runtimeModules = ['java.base',
                       'java.desktop',
                       'java.logging',
                       'java.sql',
                       'jdk.unsupported',
-                      'jdk.crypto.ec']
+                      'jdk.crypto.ec',
+                      'jdk.localedata',
+                      'jdk.charsets']
 
 // Generated once. Changing it makes Windows install the new version alongside
 // the old one instead of upgrading it.
@@ -235,15 +250,22 @@ tasks.register('signDmg', Exec) {
     description = 'Signs the dmg wrapper, which jpackage leaves unsigned.'
 
     def signIdentity = findProperty('macSignIdentity') ?: System.getenv('MAC_SIGN_IDENTITY')
-    onlyIf { isMacOs && signIdentity }
+
+    // Gradle runs a finaliser even when the task it finalises fails, and a
+    // failed jpackageBundle leaves no dmg behind. Without the exists() check
+    // this task would then throw about a missing dmg, burying the jpackage
+    // error that actually caused it under one that points at signing instead.
+    // jpackageBundle's own doLast already fails if the dmg is missing after a
+    // successful run, so this can only skip a build that has already failed.
+    onlyIf {
+        isMacOs && signIdentity && bundleDir.get()
+                .file("TVRenamer-${project.version}-${platformLabel}.dmg").asFile.exists()
+    }
 
     doFirst {
         def dmg = bundleDir.get()
                            .file("TVRenamer-${project.version}-${platformLabel}.dmg")
                            .asFile
-        if (!dmg.exists()) {
-            throw new GradleException("Expected ${dmg} to sign, but it is missing.")
-        }
         // --force so a rebuild over an existing dmg replaces the signature
         // rather than failing. --timestamp because notarisation rejects a
         // signature without a secure timestamp.

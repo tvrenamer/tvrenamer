@@ -142,16 +142,25 @@ jobs:
             echo "WiX is not installed on this runner image, so jpackage cannot build an exe"
             exit 1
           fi
-          dirname "$found" >> "$GITHUB_PATH"
+          # A native path, not the MSYS one find returns. GITHUB_PATH is
+          # prepended to PATH verbatim, and candle.exe is launched by jpackage,
+          # which cannot resolve '/c/Program Files (x86)/...'.
+          cygpath -w "$(dirname "$found")" >> "$GITHUB_PATH"
 
-      # A temporary keychain, so exactly one identity is present and nothing can
-      # raise a prompt that no one is there to answer.
+      # A temporary keychain, so the certificate never touches the login
+      # keychain and nothing can raise a prompt that no one is there to answer.
+      # It is prepended to the search list rather than replacing it, so
+      # login.keychain-db is still reachable. That is fine on a runner image
+      # with no other Developer ID certificate, but codesign -s matches its
+      # argument as a substring of the common name and errors on an ambiguous
+      # match, so do not assume this keychain is the only one in play.
       - name: Import the signing certificate
         if: env.BUNDLE == 'true' && runner.os == 'macOS'
         shell: bash
         env:
           P12_BASE64: ${{ secrets.MACOS_CERTIFICATE_P12 }}
           P12_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+          SIGN_IDENTITY: ${{ secrets.MACOS_SIGN_IDENTITY }}
         run: |
           set -eu
           if [ -z "${P12_BASE64}" ]; then
@@ -164,6 +173,14 @@ jobs:
             fi
             echo "no signing certificate configured, the bundle will be unsigned"
             exit 0
+          fi
+
+          # Checked here rather than in the build step, where an empty identity
+          # would silently produce an unsigned bundle and only surface as
+          # 'Invalid' from notarytool ten minutes later.
+          if [ -z "${SIGN_IDENTITY}" ]; then
+            echo "a signing certificate is configured but MACOS_SIGN_IDENTITY is not"
+            exit 1
           fi
 
           keychain="$RUNNER_TEMP/signing.keychain-db"
@@ -198,11 +215,16 @@ jobs:
             exit 1
           fi
 
+          # The build step signs only if this is set. The two secrets are
+          # independent, so an identity without a certificate would otherwise
+          # add --mac-sign and fail in jpackage with no matching identity.
+          echo "MAC_SIGN_IDENTITY=${SIGN_IDENTITY}" >> "$GITHUB_ENV"
+
+      # MAC_SIGN_IDENTITY is exported by the import step, and only when a
+      # certificate for it is actually in the keychain.
       - name: Build the native bundle
         if: env.BUNDLE == 'true'
         shell: bash
-        env:
-          MAC_SIGN_IDENTITY: ${{ secrets.MACOS_SIGN_IDENTITY }}
         run: ./gradlew $VERSION_ARG jpackageBundle
 
       # Notarise the dmg rather than the app: a ticket stapled to the app is
