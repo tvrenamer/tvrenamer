@@ -26,14 +26,19 @@ master and is not yet pushed.
 | 3. entitlements, CHANGELOG, README | Done. |
 | 4. Certificate and notarisation keys | Done. All six secrets set, none exercised. |
 
-Verification steps 1, 2 and 3 pass, and so does step 5 for aarch64.
+Verification steps 1, 2, 3 and 6 pass, and so does step 5 for aarch64.
 Verification step 4, the `workflow_dispatch`
 run, is now the next thing to do and the first that exercises signing,
 notarisation and the Windows exe. It is blocked on one thing: GitHub only
 offers the Run workflow button for definitions present on the default branch,
 and `workflow_dispatch` lives on this branch, so `release.yml` has to reach
-master before a manual run can start. The x86_64 half of step 5 and all of
-step 6 need artifacts that only CI builds, so both wait on the same merge.
+master before a manual run can start. `workflow_dispatch` turned out to need
+the workflow on the default branch only by name, so a run can be pointed at any
+branch and pick up that branch's copy, which is how the portable zip was tested
+before merging.
+
+What is left: the x86_64 half of step 5, needing an Intel Mac, and step 7, which
+only a real tag exercises.
 
 Every risk except 4 and 7 is closed. Risk 1 was settled by two real notary
 submissions on 22 August 2026, both Accepted with no issues. Risks 4 and 7 are
@@ -374,13 +379,14 @@ Ordered so the cheap checks settle the uncertain things first.
    Afterwards `~/.swt/lib/macosx/aarch64/` held `libswt-cocoa` and
    `libswt-pi-cocoa`. `libswt-awt-cocoa` stays in the jar unless something asks
    for the AWT bridge, so two files rather than three is correct.
-6. **Windows.** Done for the `.exe` installer on 22 August 2026, which then
-   got replaced by the portable zip, so it needs redoing. Extract the zip with
-   Explorer, which propagates the mark of the web, confirm the Zone.Identifier
-   stream is present, then run `TVRenamer\TVRenamer.exe`. Expect the
-   SmartScreen warning, then a working search and rename. Delete the folder and
-   confirm nothing is left behind. No upgrade test any more, since there is no
-   installer to upgrade.
+6. **Windows.** Done twice on 22 August 2026: once for the `.exe` installer,
+   then again for the portable zip that replaced it. The mark of the web
+   survived both extraction steps, `TVRenamer\TVRenamer.exe` ran, and a rename
+   worked. No upgrade test any more, since there is no installer to upgrade.
+
+   An Actions artifact download wraps whatever it contains in a second zip, so
+   testing from a run page means extracting twice. Release assets are not
+   wrapped, so a user extracts once.
 7. **The gate, both directions.** A beta tag must produce 5 zips and no bundles;
    a final tag must produce both. A slip here fails silently by shipping zips
    only, which is the outcome most likely to go unnoticed.
