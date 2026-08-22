@@ -132,10 +132,6 @@ def runtimeModules = ['java.base',
                       'jdk.localedata',
                       'jdk.charsets']
 
-// Generated once. Changing it makes Windows install the new version alongside
-// the old one instead of upgrading it.
-def winUpgradeUuid = 'f4b7f32a-b131-482e-bec6-ef0f1e30881e'
-
 def jdkHome = System.getProperty('java.home')
 def runtimeImageDir = layout.buildDirectory.dir('jpackage-runtime')
 def bundleDir = layout.buildDirectory.dir('jpackage')
@@ -162,12 +158,15 @@ tasks.register('trimmedRuntime', Exec) {
 
 tasks.register('jpackageBundle', Exec) {
     group = 'distribution'
-    description = 'Builds a double-clickable installer carrying a trimmed Java runtime.'
+    description = 'Builds a double-clickable bundle carrying a trimmed Java runtime.'
 
     dependsOn 'installDist', 'trimmedRuntime'
     onlyIf { isMacOs || isWindows }
 
-    def bundleType = isMacOs ? 'dmg' : 'exe'
+    // Windows gets an app image rather than an installer. Extracting a zip
+    // and running TVRenamer.exe needs no admin rights, writes nothing to the
+    // registry, and drops the WiX dependency the exe build needed.
+    def bundleType = isMacOs ? 'dmg' : 'app-image'
     def iconFile = file(isMacOs ? 'src/main/resources/icons/tvrenamer.icns'
                                 : 'src/main/resources/icons/oldschool-tv-icon.ico')
     def signIdentity = findProperty('macSignIdentity') ?: System.getenv('MAC_SIGN_IDENTITY')
@@ -211,15 +210,22 @@ tasks.register('jpackageBundle', Exec) {
                             '--mac-signing-key-user-name', signIdentity,
                             '--mac-entitlements', file('etc/entitlements.plist').absolutePath]
             }
-        } else {
-            command += ['--win-shortcut', '--win-menu', '--win-dir-chooser',
-                        '--win-upgrade-uuid', winUpgradeUuid]
         }
 
         commandLine command
     }
 
     doLast {
+        if (!isMacOs) {
+            // An app image is a directory named from --name, which portableZip
+            // packs. Nothing to rename, so just check jpackage produced it.
+            def launcher = bundleDir.get().file('TVRenamer/TVRenamer.exe').asFile
+            if (!launcher.exists()) {
+                throw new GradleException("jpackage reported success but ${launcher} is missing.")
+            }
+            return
+        }
+
         def built = bundleDir.get().file("TVRenamer-${project.version}.${bundleType}").asFile
         if (!built.exists()) {
             throw new GradleException("jpackage reported success but ${built} is missing.")
@@ -274,6 +280,26 @@ tasks.register('signDmg', Exec) {
     }
 }
 
-// Attached as a finaliser rather than a separate call, so `gradlew
+// The Windows half of the bundle. jpackage leaves an app image directory
+// behind; this is what a user actually downloads. Named apart from the plain
+// distZip, which carries no runtime and needs Java 21 already installed.
+tasks.register('portableZip', Zip) {
+    group = 'distribution'
+    description = 'Packs the Windows app image into a zip that runs without installing.'
+
+    // Same reasoning as signDmg: a finaliser runs even when the task it
+    // finalises fails, and a Zip task over a missing directory would write an
+    // empty archive rather than failing.
+    onlyIf { isWindows && bundleDir.get().dir('TVRenamer').asFile.exists() }
+
+    from bundleDir.map { it.dir('TVRenamer') }
+    // Nested so extracting gives one folder rather than spraying the runtime
+    // across wherever the user unzipped it.
+    into 'TVRenamer'
+    destinationDirectory = bundleDir
+    archiveFileName = "TVRenamer-${project.version}-${platformLabel}-portable.zip"
+}
+
+// Attached as finalisers rather than separate calls, so `gradlew
 // jpackageBundle` in the release workflow keeps working unchanged.
-tasks.named('jpackageBundle') { finalizedBy 'signDmg' }
+tasks.named('jpackageBundle') { finalizedBy 'signDmg', 'portableZip' }
