@@ -39,11 +39,12 @@ before merging.
 
 What is left: step 7, which only a real tag exercises.
 
-The x86_64 half of step 5 is **skipped for 1.0, deliberately**. No Intel Mac is
-available. CI signed, notarised and stapled that dmg, so the signature and the
-notary ticket are proven; what stays untested is launching the x86_64 SWT
-natives on Intel hardware. Accepted risk, to be picked up from a user report if
-it turns out to be wrong.
+The x86_64 half of step 5 was covered under Rosetta 2 rather than on Intel
+hardware, which is not available. That still exercises the Intel build itself:
+the x86_64 runtime, the x86_64 SWT natives loading under the hardened runtime,
+Gatekeeper against a Safari download, and a live TVmaze lookup. What remains
+untested is Intel silicon specifically, which for a userspace Java and SWT
+application is a narrow risk. Accepted for 1.0.
 
 Every risk except 4 and 7 is closed. Risk 1 was settled by two real notary
 submissions on 22 August 2026, both Accepted with no issues. Risks 4 and 7 are
@@ -384,6 +385,13 @@ Ordered so the cheap checks settle the uncertain things first.
    Afterwards `~/.swt/lib/macosx/aarch64/` held `libswt-cocoa` and
    `libswt-pi-cocoa`. `libswt-awt-cocoa` stays in the jar unless something asks
    for the AWT bridge, so two files rather than three is correct.
+
+   The x86_64 dmg was then run under Rosetta 2 on the same Apple silicon Mac,
+   downloaded through Safari so it carried quarantine. It assessed as
+   `Notarized Developer ID`, extracted its own natives to
+   `~/.swt/lib/macosx/x86_64/` beside the aarch64 pair, and a TVmaze search
+   returned results. A separate architecture directory is the evidence it ran
+   the Intel binaries rather than falling back to the ARM ones.
 6. **Windows.** Done twice on 22 August 2026: once for the `.exe` installer,
    then again for the portable zip that replaced it. The mark of the web
    survived both extraction steps, SmartScreen warned as expected for an
