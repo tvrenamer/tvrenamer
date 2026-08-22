@@ -65,7 +65,7 @@ On Linux you can add TVRenamer to your desktop's application menu with a
     Type: Application
     Name: TVRenamer
     Command: <where you unzipped it>/bin/tvrenamer
-    Icon: Can be anything, perhaps [our icon](http://github.com/tvrenamer/tvrenamer/raw/master/src/main/resources/icons/tvrenamer.png)
+    Icon: Can be anything, perhaps [our icon](http://github.com/tvrenamer/tvrenamer/raw/main/src/main/resources/icons/tvrenamer.png)
 
 *If the application doesn't start, switch the Type to 'Application in Terminal'
 so you can read the error.*
@@ -146,6 +146,6 @@ Please see the
 section if you'd like to contribute!  Anything from Java code patches to UI/UX
 recommendations would be gratefully received.
 
-To contribute to the code side of things you should know Java and it would be helpful if you know some SWT and git. The easiest way to submit changes is via a [github pull request](http://help.github.com/forking/) based off the [master branch](http://github.com/tvrenamer/tvrenamer/tree/master).
+To contribute to the code side of things you should know Java and it would be helpful if you know some SWT and git. The easiest way to submit changes is via a [github pull request](http://help.github.com/forking/) based off the [main branch](http://github.com/tvrenamer/tvrenamer/tree/main).
 
 For anything else (feature requests, comments, fanmail!), [create a new issue](https://github.com/tvrenamer/tvrenamer/issues/new) and set the label to 'Type-Enhancement'.
