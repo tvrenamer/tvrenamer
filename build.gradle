@@ -223,3 +223,35 @@ tasks.register('jpackageBundle', Exec) {
         }
     }
 }
+
+// jpackage signs the .app inside the dmg but leaves the dmg itself unsigned,
+// and Gatekeeper assesses what the user actually downloads. Without this,
+// `spctl --assess` on the dmg reports 'no usable signature' even though the app
+// inside it comes back as Notarized Developer ID. Signing has to happen before
+// notarisation, because stapling the ticket afterwards would not survive a
+// later signature.
+tasks.register('signDmg', Exec) {
+    group = 'distribution'
+    description = 'Signs the dmg wrapper, which jpackage leaves unsigned.'
+
+    def signIdentity = findProperty('macSignIdentity') ?: System.getenv('MAC_SIGN_IDENTITY')
+    onlyIf { isMacOs && signIdentity }
+
+    doFirst {
+        def dmg = bundleDir.get()
+                           .file("TVRenamer-${project.version}-${platformLabel}.dmg")
+                           .asFile
+        if (!dmg.exists()) {
+            throw new GradleException("Expected ${dmg} to sign, but it is missing.")
+        }
+        // --force so a rebuild over an existing dmg replaces the signature
+        // rather than failing. --timestamp because notarisation rejects a
+        // signature without a secure timestamp.
+        commandLine 'codesign', '--sign', signIdentity, '--timestamp', '--force',
+                    dmg.absolutePath
+    }
+}
+
+// Attached as a finaliser rather than a separate call, so `gradlew
+// jpackageBundle` in the release workflow keeps working unchanged.
+tasks.named('jpackageBundle') { finalizedBy 'signDmg' }

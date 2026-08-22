@@ -15,24 +15,40 @@ Targeted at 1.0 final, not another beta.
 
 ## Where this got to
 
-Implementation is done on the `native-bundles` branch. Everything left needs an
-Apple Developer ID certificate, which only the maintainer can create.
+Implementation is done on the `native-bundles` branch, and the Apple
+credentials are in place as of 22 August 2026. The branch has been rebased onto
+master and is not yet pushed.
 
 | Step | State |
 | --- | --- |
 | 1. `build.gradle` | Done. Builds, installs and runs an unsigned dmg. |
 | 2. `release.yml` | Written, actionlint clean. Never executed. |
 | 3. entitlements, CHANGELOG, README | Done. |
-| 4. Certificate and notarisation keys | Not started. |
+| 4. Certificate and notarisation keys | Done. All six secrets set, none exercised. |
 
-Verification steps 1 and 2 pass. Step 4 can run now without any Apple setup and
-is the cheapest thing left, because it builds the Windows exe for the first
-time. Steps 3, 5 and 7 need the certificate. Step 6 needs a Windows machine or
-that CI run.
+Verification steps 1, 2 and 3 pass. Verification step 4, the `workflow_dispatch`
+run, is now the next thing to do and the first that exercises signing,
+notarisation and the Windows exe. It is blocked on one thing: GitHub only
+offers the Run workflow button for definitions present on the default branch,
+and `workflow_dispatch` lives on this branch, so `release.yml` has to reach
+master before a manual run can start. Verification step 5 needs a second
+machine. Step 6 needs Windows or that CI run.
 
-Risks 2, 3, 5, 6 and 8 are closed. Risk 1, the unsigned SWT natives inside the
-jar, is only settled by a real notary submission. Risks 4 and 7 are written but
-unexercised.
+Every risk except 4 and 7 is closed. Risk 1 was settled by two real notary
+submissions on 22 August 2026, both Accepted with no issues. Risks 4 and 7 are
+written but unexercised, and only the CI run touches them.
+
+### The certificate, for the record
+
+Developer ID Application: Vipul Delwadia (TLX7RVSV2G), G2 sub-CA, valid to
+22 August 2031. A Team key, not an Individual key, because `release.yml` passes
+`--issuer` unconditionally and `notarytool` rejects that for Individual keys.
+
+Two traps found doing this. Keychain Access writes `.p12` bags with RC2-40-CBC,
+which OpenSSL 3 refuses without `-legacy`, so the obvious private-key check
+reports zero keys on a perfectly good export. Use `security import` into a
+throwaway keychain instead, which is what CI does anyway. And the `.p8`
+downloads exactly once, so losing it means revoking and reissuing.
 
 ### Corrected by building it
 
@@ -56,6 +72,15 @@ unexercised.
 * The test task now takes the same JVM arguments as the start scripts. The
   suite was green only because no machine that ran it had ever saved
   preferences.
+* **jpackage leaves the dmg unsigned.** It signs the `.app` inside and stops
+  there. `spctl --assess` on the dmg reported `no usable signature` while the
+  app inside the same dmg came back `accepted, source=Notarized Developer ID`.
+  Gatekeeper assesses what the user downloads, so the wrapper matters. A
+  `signDmg` task, attached with `finalizedBy` so `gradlew jpackageBundle` in the
+  workflow needs no change, signs it with `--timestamp` between jpackage and
+  notarisation. The dmg now assesses as `Notarized Developer ID`.
+* Stapling an unsigned dmg succeeds and `stapler validate` passes, so stapling
+  alone proves nothing about Gatekeeper. Assess the dmg itself, not the app.
 
 ### Added beyond this plan
 
@@ -291,16 +316,13 @@ Ordered so the cheap checks settle the uncertain things first.
 
    `TVmazeProviderTest` makes real HTTPS calls, which is the check that matters.
    45 tests passed this way during investigation.
-3. **Locally, signed**, once the certificate exists. Verify
-   `flags=0x10000(runtime)`, a real `TeamIdentifier`, no `get-task-allow`, and
-   whether the dmg wrapper itself is signed:
-
-       codesign --verify --deep --strict --verbose=2 build/jpackage/TVRenamer.app
-       codesign -d --entitlements :- build/jpackage/TVRenamer.app
-       codesign -dv --verbose=4 build/jpackage/TVRenamer-*.dmg
-
-   If the dmg is unsigned, add an explicit `codesign` of the dmg before
-   notarizing.
+3. **Locally, signed.** Done, 22 August 2026. The app came back with
+   `flags=0x10000(runtime)`, the full chain to Apple Root CA,
+   `TeamIdentifier=TLX7RVSV2G`, a secure timestamp, exactly the three
+   entitlements and no `get-task-allow`. The dmg wrapper was unsigned, as this
+   step anticipated, so `signDmg` now signs it. Both notary submissions were
+   Accepted with `issues: null`. The dmg has to be signed before submission,
+   since a signature applied after stapling would discard the ticket.
 4. **CI signing path without burning a tag.** Add `workflow_dispatch` to
    `release.yml` with an app-version override input, force `is_final` for that
    event, and gate the `publish` job to `push` only. The override is needed
@@ -321,14 +343,16 @@ Ordered so the cheap checks settle the uncertain things first.
 
 ## Risks, ranked
 
-1. **Unsigned SWT dylibs inside the jar.** jpackage does not open jars, so the
-   Eclipse natives are unsigned by the project. Apple's notary service scans
-   inside archives and has historically warned rather than rejected, but has
-   tightened over time. Read the notary log every time, even on success. Escape
-   hatch if rejected: extract the natives into the app image so jpackage signs
-   them as loose Mach-O files, and pass `--java-options
-   -Dswt.library.path=$APPDIR`, which SWT checks before extracting to `~/.swt`.
-   Do not build that speculatively.
+1. **Unsigned SWT dylibs inside the jar. Closed, and the reasoning here was
+   wrong.** The premise was that jpackage does not open jars, leaving the
+   Eclipse natives unsigned, and that the notary might warn. The notary opened
+   the jar. All three `libswt-*.jnilib` files appear in `ticketContents` under
+   paths that run straight through the archive, for example
+   `TVRenamer.app/Contents/app/org.eclipse.swt.cocoa.macosx.aarch64-3.130.0.jar/libswt-cocoa-4969r18.jnilib`.
+   They were ticketed, not flagged, and `issues` was null. The escape hatch,
+   extracting the natives and passing `-Dswt.library.path=$APPDIR`, is not
+   needed. Keep reading the log on every release anyway, since Apple has
+   tightened this before.
 2. **Missing `set-key-partition-list`.** Hangs to job timeout with no useful
    message.
 3. **The dmg filename collision** silently ships one architecture twice.
