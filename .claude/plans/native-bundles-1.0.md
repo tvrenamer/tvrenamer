@@ -26,13 +26,14 @@ master and is not yet pushed.
 | 3. entitlements, CHANGELOG, README | Done. |
 | 4. Certificate and notarisation keys | Done. All six secrets set, none exercised. |
 
-Verification steps 1, 2 and 3 pass. Verification step 4, the `workflow_dispatch`
+Verification steps 1, 2 and 3 pass, and so does step 5 for aarch64.
+Verification step 4, the `workflow_dispatch`
 run, is now the next thing to do and the first that exercises signing,
 notarisation and the Windows exe. It is blocked on one thing: GitHub only
 offers the Run workflow button for definitions present on the default branch,
 and `workflow_dispatch` lives on this branch, so `release.yml` has to reach
-master before a manual run can start. Verification step 5 needs a second
-machine. Step 6 needs Windows or that CI run.
+master before a manual run can start. The x86_64 half of step 5 and all of
+step 6 need artifacts that only CI builds, so both wait on the same merge.
 
 Every risk except 4 and 7 is closed. Risk 1 was settled by two real notary
 submissions on 22 August 2026, both Accepted with no issues. Risks 4 and 7 are
@@ -81,6 +82,11 @@ downloads exactly once, so losing it means revoking and reissuing.
   notarisation. The dmg now assesses as `Notarized Developer ID`.
 * Stapling an unsigned dmg succeeds and `stapler validate` passes, so stapling
   alone proves nothing about Gatekeeper. Assess the dmg itself, not the app.
+* **The signing trap is real and the entitlement handles it.** On a Mac with no
+  `~/.swt`, the app extracted the Eclipse-signed dylibs and loaded them under
+  the hardened runtime without complaint. That is the failure the plan expected
+  to see only on a machine other than the build one, and
+  `com.apple.security.cs.disable-library-validation` is what prevents it.
 
 ### Added beyond this plan
 
@@ -329,11 +335,18 @@ Ordered so the cheap checks settle the uncertain things first.
    because the version file says `1.0b5`, which jpackage rejects; it exists only
    for `workflow_dispatch`, never for a tag. Watch for `find-identity` printing
    one identity, jpackage not hanging, and `Accepted` from notarytool.
-5. **Gatekeeper on a machine that never built it.** Download through a browser so
-   it carries the quarantine flag, then `xcrun stapler validate` and `spctl
-   --assess -vvv`. Expect `source=Notarized Developer ID`. Passing on the build
-   machine proves nothing, since it already trusts the local certificate. Test an
-   Intel Mac too; separate dmg, separate notarization.
+5. **Gatekeeper on a machine that never built it.** Done for aarch64 on
+   22 August 2026, still outstanding for x86_64, which needs the
+   `macos-15-intel` runner. AirDrop sets `com.apple.quarantine` just as a
+   browser download does, and the receiving Mac had no `~/.swt`. Both the dmg
+   and the installed app came back `accepted, source=Notarized Developer ID`,
+   `stapler validate` passed, the app opened from Finder, and a TVmaze search
+   and a rename both worked. Passing on the build machine proves nothing, since
+   it already trusts the local certificate and has a populated `~/.swt`.
+
+   Afterwards `~/.swt/lib/macosx/aarch64/` held `libswt-cocoa` and
+   `libswt-pi-cocoa`. `libswt-awt-cocoa` stays in the jar unless something asks
+   for the AWT bridge, so two files rather than three is correct.
 6. **Windows.** Install the `.exe`, expect a SmartScreen warning, launch from the
    Start menu, rename a file, uninstall. Then reinstall a bumped version to
    confirm `--win-upgrade-uuid` upgrades rather than installing side by side.
