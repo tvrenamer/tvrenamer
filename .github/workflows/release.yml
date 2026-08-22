@@ -30,7 +30,7 @@ jobs:
       is_final: ${{ steps.decide.outputs.is_final }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - id: decide
         shell: bash
@@ -107,7 +107,7 @@ jobs:
       BUNDLE: ${{ needs.meta.outputs.is_final == 'true' && matrix.bundle }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: actions/setup-java@v4
         with:
@@ -302,7 +302,7 @@ jobs:
     steps:
       # The commit list in the notes is derived from the range between this tag
       # and the one before it, so the full history has to be present.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
