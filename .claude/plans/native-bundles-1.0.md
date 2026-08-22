@@ -37,8 +37,13 @@ the workflow on the default branch only by name, so a run can be pointed at any
 branch and pick up that branch's copy, which is how the portable zip was tested
 before merging.
 
-What is left: the x86_64 half of step 5, needing an Intel Mac, and step 7, which
-only a real tag exercises.
+What is left: step 7, which only a real tag exercises.
+
+The x86_64 half of step 5 is **skipped for 1.0, deliberately**. No Intel Mac is
+available. CI signed, notarised and stapled that dmg, so the signature and the
+notary ticket are proven; what stays untested is launching the x86_64 SWT
+natives on Intel hardware. Accepted risk, to be picked up from a user report if
+it turns out to be wrong.
 
 Every risk except 4 and 7 is closed. Risk 1 was settled by two real notary
 submissions on 22 August 2026, both Accepted with no issues. Risks 4 and 7 are
@@ -381,8 +386,11 @@ Ordered so the cheap checks settle the uncertain things first.
    for the AWT bridge, so two files rather than three is correct.
 6. **Windows.** Done twice on 22 August 2026: once for the `.exe` installer,
    then again for the portable zip that replaced it. The mark of the web
-   survived both extraction steps, `TVRenamer\TVRenamer.exe` ran, and a rename
-   worked. No upgrade test any more, since there is no installer to upgrade.
+   survived both extraction steps, SmartScreen warned as expected for an
+   unsigned exe, `TVRenamer\TVRenamer.exe` ran, and a rename worked. Whether
+   deleting the folder leaves anything behind was not checked and was judged not
+   worth chasing. No upgrade test any more, since there is no installer to
+   upgrade.
 
    An Actions artifact download wraps whatever it contains in a second zip, so
    testing from a run page means extracting twice. Release assets are not
