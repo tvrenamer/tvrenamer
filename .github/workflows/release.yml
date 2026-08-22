@@ -2,16 +2,77 @@ name: release
 
 # Pushing a v* tag publishes the release. Each platform's zip has to be built
 # on that platform, because the SWT native library is chosen at build time.
+#
+# A manual run builds and signs everything but publishes nothing. It exists so
+# the signing and notarisation path can be exercised without burning a tag,
+# which matters because the version file usually holds a beta number that
+# jpackage will not accept.
 on:
   push:
     tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      app_version:
+        description: 'Version to build, for example 1.0. Must be numeric.'
+        required: true
 
 permissions:
   contents: read
 
 jobs:
+  # One job decides the version and whether this is a final release, so the
+  # bundle gate and the pre-release flag cannot disagree with each other.
+  meta:
+    name: version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.decide.outputs.version }}
+      is_final: ${{ steps.decide.outputs.is_final }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: decide
+        shell: bash
+        env:
+          # Through the environment rather than inline, so the input cannot end
+          # up being interpreted as shell.
+          INPUT_VERSION: ${{ inputs.app_version }}
+        run: |
+          set -eu
+          if [ "${GITHUB_EVENT_NAME}" = workflow_dispatch ]; then
+            version="${INPUT_VERSION}"
+            if ! printf '%s' "$version" | grep -Eq '^[0-9]+(\.[0-9]+){0,2}$'; then
+              echo "app_version must be numeric, got '${version}'"
+              exit 1
+            fi
+            is_final=true
+          else
+            # The version the application reports on its About dialog comes
+            # from a resource file, not from the tag. If the two disagree, the
+            # download would lie about which version it is, and the update
+            # check would compare the wrong number.
+            version="${GITHUB_REF_NAME#v}"
+            declared=$(tr -d '[:space:]' < src/main/resources/tvrenamer.version)
+            if [ "$version" != "$declared" ]; then
+              echo "tag ${GITHUB_REF_NAME} does not match tvrenamer.version (${declared})"
+              exit 1
+            fi
+            # Beta tags look like v1.0b5. jpackage only accepts a purely
+            # numeric version, so anything else ships zips alone.
+            if printf '%s' "$version" | grep -Eq '^[0-9]+(\.[0-9]+){0,2}$'; then
+              is_final=true
+            else
+              is_final=false
+            fi
+          fi
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "is_final=${is_final}" >> "$GITHUB_OUTPUT"
+          echo "building ${version}, final=${is_final}"
+
   build:
     name: build (${{ matrix.label }})
+    needs: meta
     runs-on: ${{ matrix.os }}
     strategy:
       # Half a set of downloads is worse than none, so stop on the first
@@ -21,14 +82,29 @@ jobs:
         include:
           - os: ubuntu-latest
             label: linux-x86_64
+            bundle: false
           - os: ubuntu-24.04-arm
             label: linux-aarch64
+            bundle: false
           - os: windows-latest
             label: windows-x86_64
+            bundle: true
           - os: macos-latest
             label: macos-aarch64
+            bundle: true
           - os: macos-15-intel
             label: macos-x86_64
+            bundle: true
+
+    env:
+      # Empty for a tag, where the version file is already correct.
+      VERSION_ARG: >-
+        ${{ github.event_name == 'workflow_dispatch'
+            && format('-PappVersion={0}', needs.meta.outputs.version)
+            || '' }}
+      # Which platforms get a bundle is a matrix fact, not a runner one: the
+      # runner context is not available to a job-level env.
+      BUNDLE: ${{ needs.meta.outputs.is_final == 'true' && matrix.bundle }}
 
     steps:
       - uses: actions/checkout@v4
@@ -40,24 +116,10 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
-      # The version the application reports on its About dialog comes from a
-      # resource file, not from the tag. If the two disagree, the download would
-      # lie about which version it is, and the update check would compare the
-      # wrong number.
-      - name: Check tag matches version file
-        shell: bash
-        run: |
-          set -eu
-          tag="${GITHUB_REF_NAME#v}"
-          declared=$(tr -d '[:space:]' < src/main/resources/tvrenamer.version)
-          if [ "$tag" != "$declared" ]; then
-            echo "tag ${GITHUB_REF_NAME} does not match tvrenamer.version (${declared})"
-            exit 1
-          fi
-
       # Note: some tests query tvmaze.com and need network access.
       - name: Build and test
-        run: ./gradlew build distZip
+        shell: bash
+        run: ./gradlew $VERSION_ARG build distZip
 
       - uses: actions/upload-artifact@v4
         with:
@@ -65,9 +127,174 @@ jobs:
           path: build/distributions/*.zip
           if-no-files-found: error
 
+      # jpackage shells out to WiX and fails obscurely without it. Newer runner
+      # images have moved it more than once, so look for it and say so plainly.
+      - name: Find WiX
+        if: env.BUNDLE == 'true' && runner.os == 'Windows'
+        shell: bash
+        run: |
+          set -eu
+          if command -v candle.exe >/dev/null; then
+            exit 0
+          fi
+          found=$(find '/c/Program Files (x86)' -maxdepth 3 -name candle.exe 2>/dev/null | head -1)
+          if [ -z "$found" ]; then
+            echo "WiX is not installed on this runner image, so jpackage cannot build an exe"
+            exit 1
+          fi
+          # A native path, not the MSYS one find returns. GITHUB_PATH is
+          # prepended to PATH verbatim, and candle.exe is launched by jpackage,
+          # which cannot resolve '/c/Program Files (x86)/...'.
+          cygpath -w "$(dirname "$found")" >> "$GITHUB_PATH"
+
+      # A temporary keychain, so the certificate never touches the login
+      # keychain and nothing can raise a prompt that no one is there to answer.
+      # It is prepended to the search list rather than replacing it, so
+      # login.keychain-db is still reachable. That is fine on a runner image
+      # with no other Developer ID certificate, but codesign -s matches its
+      # argument as a substring of the common name and errors on an ambiguous
+      # match, so do not assume this keychain is the only one in play.
+      - name: Import the signing certificate
+        if: env.BUNDLE == 'true' && runner.os == 'macOS'
+        shell: bash
+        env:
+          P12_BASE64: ${{ secrets.MACOS_CERTIFICATE_P12 }}
+          P12_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+          SIGN_IDENTITY: ${{ secrets.MACOS_SIGN_IDENTITY }}
+        run: |
+          set -eu
+          if [ -z "${P12_BASE64}" ]; then
+            # A manual run is for exercising the build, so an unsigned bundle is
+            # useful there. Shipping one to users is not: Gatekeeper refuses an
+            # unsigned app that arrived from a browser.
+            if [ "${GITHUB_EVENT_NAME}" = push ]; then
+              echo "no signing certificate configured, refusing to publish an unsigned bundle"
+              exit 1
+            fi
+            echo "no signing certificate configured, the bundle will be unsigned"
+            exit 0
+          fi
+
+          # Checked here rather than in the build step, where an empty identity
+          # would silently produce an unsigned bundle and only surface as
+          # 'Invalid' from notarytool ten minutes later.
+          if [ -z "${SIGN_IDENTITY}" ]; then
+            echo "a signing certificate is configured but MACOS_SIGN_IDENTITY is not"
+            exit 1
+          fi
+
+          keychain="$RUNNER_TEMP/signing.keychain-db"
+          # Generated per job rather than stored, since it protects nothing that
+          # outlives the job.
+          password=$(openssl rand -base64 24)
+          echo "SIGNING_KEYCHAIN=${keychain}" >> "$GITHUB_ENV"
+
+          printf '%s' "${P12_BASE64}" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+
+          security create-keychain -p "$password" "$keychain"
+          # Without this the keychain re-locks between import and signing.
+          security set-keychain-settings -lut 21600 "$keychain"
+          security unlock-keychain -p "$password" "$keychain"
+          security import "$RUNNER_TEMP/cert.p12" -k "$keychain" \
+            -P "${P12_PASSWORD}" -T /usr/bin/codesign
+          security list-keychains -d user -s "$keychain" \
+            $(security list-keychains -d user | tr -d '"')
+          # The line everyone omits. Without it codesign blocks on a prompt that
+          # nothing can answer, and the job hangs until it times out.
+          security set-key-partition-list -S apple-tool:,apple:,codesign: \
+            -s -k "$password" "$keychain"
+
+          rm -f "$RUNNER_TEMP/cert.p12"
+
+          # A .p12 exported without its private key imports without complaint
+          # and then fails much later, so check now.
+          security find-identity -v -p codesigning "$keychain"
+          if ! security find-identity -v -p codesigning "$keychain" \
+               | grep -q 'Developer ID Application'; then
+            echo "no Developer ID Application identity in the keychain"
+            exit 1
+          fi
+
+          # The build step signs only if this is set. The two secrets are
+          # independent, so an identity without a certificate would otherwise
+          # add --mac-sign and fail in jpackage with no matching identity.
+          echo "MAC_SIGN_IDENTITY=${SIGN_IDENTITY}" >> "$GITHUB_ENV"
+
+      # MAC_SIGN_IDENTITY is exported by the import step, and only when a
+      # certificate for it is actually in the keychain.
+      - name: Build the native bundle
+        if: env.BUNDLE == 'true'
+        shell: bash
+        run: ./gradlew $VERSION_ARG jpackageBundle
+
+      # Notarise the dmg rather than the app: a ticket stapled to the app is
+      # lost when the dmg is built around it.
+      - name: Notarise and staple
+        if: env.BUNDLE == 'true' && runner.os == 'macOS'
+        shell: bash
+        env:
+          NOTARY_KEY: ${{ secrets.NOTARY_KEY_P8 }}
+          NOTARY_KEY_ID: ${{ secrets.NOTARY_KEY_ID }}
+          NOTARY_ISSUER_ID: ${{ secrets.NOTARY_ISSUER_ID }}
+        run: |
+          set -eu
+          if [ -z "${NOTARY_KEY}" ]; then
+            if [ "${GITHUB_EVENT_NAME}" = push ]; then
+              echo "no notarisation key configured, refusing to publish an un-notarised bundle"
+              exit 1
+            fi
+            echo "no notarisation key configured, skipping"
+            exit 0
+          fi
+
+          dmg=$(ls build/jpackage/*.dmg)
+          key="$RUNNER_TEMP/notary.p8"
+          printf '%s' "${NOTARY_KEY}" | base64 --decode > "$key"
+
+          submission=$(xcrun notarytool submit "$dmg" \
+            --key "$key" --key-id "${NOTARY_KEY_ID}" --issuer "${NOTARY_ISSUER_ID}" \
+            --wait --output-format json)
+          echo "$submission"
+
+          id=$(printf '%s' "$submission" | python3 -c 'import json,sys; print(json.load(sys.stdin)["id"])')
+          status=$(printf '%s' "$submission" | python3 -c 'import json,sys; print(json.load(sys.stdin)["status"])')
+
+          # Read the log even on success. Apple warns about unsigned code found
+          # inside jars before it starts rejecting it, and the SWT natives in
+          # the jar are exactly that.
+          xcrun notarytool log "$id" \
+            --key "$key" --key-id "${NOTARY_KEY_ID}" --issuer "${NOTARY_ISSUER_ID}" || true
+
+          rm -f "$key"
+
+          # notarytool exits 0 for a submission it accepted and then rejected.
+          if [ "$status" != Accepted ]; then
+            echo "notarisation finished as ${status}"
+            exit 1
+          fi
+
+          xcrun stapler staple "$dmg"
+          xcrun stapler validate "$dmg"
+
+      - name: Remove the signing keychain
+        if: always() && env.SIGNING_KEYCHAIN != ''
+        shell: bash
+        run: security delete-keychain "$SIGNING_KEYCHAIN" || true
+
+      - uses: actions/upload-artifact@v4
+        if: env.BUNDLE == 'true'
+        with:
+          name: bundle-${{ matrix.label }}
+          path: |
+            build/jpackage/*.dmg
+            build/jpackage/*.exe
+          if-no-files-found: error
+
   release:
     name: publish
-    needs: build
+    needs: [meta, build]
+    # A manual run builds and signs, but only a tag publishes.
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -84,6 +311,46 @@ jobs:
           pattern: dist-*
           merge-multiple: true
           path: dist
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: bundle-*
+          merge-multiple: true
+          path: dist
+
+      # A mistyped job output reads as empty, which is falsey, so the gate would
+      # fail by quietly shipping zips alone. Counting is what catches that, and
+      # bundles leaking into a beta.
+      - name: Check the expected downloads are all present
+        shell: bash
+        run: |
+          set -eu
+          shopt -s nullglob
+          zips=(dist/*.zip)
+          dmgs=(dist/*.dmg)
+          exes=(dist/*.exe)
+
+          if [ "${{ needs.meta.outputs.is_final }}" = true ]; then
+            want_dmgs=2
+            want_exes=1
+          else
+            want_dmgs=0
+            want_exes=0
+          fi
+
+          fail=0
+          check() {
+            if [ "$2" -ne "$3" ]; then
+              echo "expected $3 $1, found $2"
+              fail=1
+            fi
+          }
+          check zips "${#zips[@]}" 5
+          check dmgs "${#dmgs[@]}" "$want_dmgs"
+          check exes "${#exes[@]}" "$want_exes"
+
+          printf '%s\n' "${zips[@]}" "${dmgs[@]}" "${exes[@]}"
+          exit $fail
 
       - name: Assemble release notes
         run: |
@@ -115,20 +382,20 @@ jobs:
 
           cat notes.md
 
-          # Beta tags look like v1.0b5. Anything without a 'b' is a final
-          # release and should not be marked as a pre-release.
-          case "$version" in
-            *b*) echo 'flags=--prerelease' >> "$GITHUB_ENV" ;;
-            *)   echo 'flags=--latest' >> "$GITHUB_ENV" ;;
-          esac
-
       - name: Create release
         env:
           GH_TOKEN: ${{ github.token }}
+          FLAGS: ${{ needs.meta.outputs.is_final == 'true' && '--latest' || '--prerelease' }}
         run: |
+          set -eu
+          # An unmatched glob is passed through literally, and gh then errors on
+          # a file called 'dist/*.dmg'. An array built with nullglob cannot.
+          shopt -s nullglob
+          assets=(dist/*.zip dist/*.dmg dist/*.exe)
+
           gh release create "$GITHUB_REF_NAME" \
             --verify-tag \
-            $flags \
+            $FLAGS \
             --title "$GITHUB_REF_NAME" \
             --notes-file notes.md \
-            dist/*.zip
+            "${assets[@]}"

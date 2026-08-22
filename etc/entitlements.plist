@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!-- The JVM compiles bytecode to executable memory at runtime. -->
+  <key>com.apple.security.cs.allow-jit</key>
+  <true/>
+  <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+  <true/>
+
+  <!-- SWT does not load its native libraries from the bundle. It extracts them
+       from its jar to ~/.swt/lib/macosx/<arch>/ on first run and loads them
+       from there, and those are signed by Eclipse Foundation, Inc., not by us.
+       The hardened runtime's library validation refuses code signed by another
+       team, so without this the app would launch and die on the SWT load, and
+       only on a machine that has never run it before. Do not remove this
+       whatever a linter says. -->
+  <key>com.apple.security.cs.disable-library-validation</key>
+  <true/>
+</dict>
+</plist>

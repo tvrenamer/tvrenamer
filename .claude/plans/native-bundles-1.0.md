@@ -9,9 +9,99 @@ longer runs on any current JDK, and it was lost in commit `fde37d5`.
 
 The goal is double-click installation on macOS and Windows with no separate Java
 install, keeping the small zip for people who already have Java and would rather
-not download 44MB.
+not download 50MB.
 
 Targeted at 1.0 final, not another beta.
+
+## Where this got to
+
+Implementation is done on the `native-bundles` branch, and the Apple
+credentials are in place as of 22 August 2026. The branch has been rebased onto
+master and is not yet pushed.
+
+| Step | State |
+| --- | --- |
+| 1. `build.gradle` | Done. Builds, installs and runs an unsigned dmg. |
+| 2. `release.yml` | Written, actionlint clean. Never executed. |
+| 3. entitlements, CHANGELOG, README | Done. |
+| 4. Certificate and notarisation keys | Done. All six secrets set, none exercised. |
+
+Verification steps 1, 2 and 3 pass, and so does step 5 for aarch64.
+Verification step 4, the `workflow_dispatch`
+run, is now the next thing to do and the first that exercises signing,
+notarisation and the Windows exe. It is blocked on one thing: GitHub only
+offers the Run workflow button for definitions present on the default branch,
+and `workflow_dispatch` lives on this branch, so `release.yml` has to reach
+master before a manual run can start. The x86_64 half of step 5 and all of
+step 6 need artifacts that only CI builds, so both wait on the same merge.
+
+Every risk except 4 and 7 is closed. Risk 1 was settled by two real notary
+submissions on 22 August 2026, both Accepted with no issues. Risks 4 and 7 are
+written but unexercised, and only the CI run touches them.
+
+### The certificate, for the record
+
+Developer ID Application: Vipul Delwadia (TLX7RVSV2G), G2 sub-CA, valid to
+22 August 2031. A Team key, not an Individual key, because `release.yml` passes
+`--issuer` unconditionally and `notarytool` rejects that for Individual keys.
+
+Two traps found doing this. Keychain Access writes `.p12` bags with RC2-40-CBC,
+which OpenSSL 3 refuses without `-legacy`, so the obvious private-key check
+reports zero keys on a perfectly good export. Use `security import` into a
+throwaway keychain instead, which is what CI does anyway. And the `.p8`
+downloads exactly once, so losing it means revoking and reissuing.
+
+### Corrected by building it
+
+* The dmg is 40MB, not 44MB, on a 50MB jlink runtime. Both grew to 50MB and
+  61MB once the locale and charset modules went in, see below.
+* The suite is 64 tests, not 45. `TVmazeProviderTest` and `EndToEndRenameTest`
+  hold 4 between them, so whatever produced 45 was not those two classes.
+  Removing `jdk.crypto.ec` does fail all 3 TVmaze tests, as claimed.
+* Temurin 21's default entitlements carry no `get-task-allow`, which closes
+  risk 5. They also grant three things we do not want, not two:
+  `allow-dyld-environment-variables` alongside `cs.debugger` and
+  `device.audio-input`.
+* **"No application code changes needed" was wrong.** Two XStream bugs made
+  1.0b5 unusable, neither of them anything to do with packaging. Saving
+  preferences failed on Java 17 and later, because java.base does not open
+  java.util and XStream makes every field accessible before it consults
+  `omitField`. Reading either the preferences or the overrides file threw
+  `ForbiddenClassException`, because XStream has denied all types by default
+  since 1.4.18, and that one killed the application on startup before it could
+  show a window. So saving preferences once bricked the app. Both are fixed.
+  Only double-clicking the built app found them.
+* The test task now takes the same JVM arguments as the start scripts. The
+  suite was green only because no machine that ran it had ever saved
+  preferences.
+* **jpackage leaves the dmg unsigned.** It signs the `.app` inside and stops
+  there. `spctl --assess` on the dmg reported `no usable signature` while the
+  app inside the same dmg came back `accepted, source=Notarized Developer ID`.
+  Gatekeeper assesses what the user downloads, so the wrapper matters. A
+  `signDmg` task, attached with `finalizedBy` so `gradlew jpackageBundle` in the
+  workflow needs no change, signs it with `--timestamp` between jpackage and
+  notarisation. The dmg now assesses as `Notarized Developer ID`.
+* Stapling an unsigned dmg succeeds and `stapler validate` passes, so stapling
+  alone proves nothing about Gatekeeper. Assess the dmg itself, not the app.
+* **The signing trap is real and the entitlement handles it.** On a Mac with no
+  `~/.swt`, the app extracted the Eclipse-signed dylibs and loaded them under
+  the hardened runtime without complaint. That is the failure the plan expected
+  to see only on a machine other than the build one, and
+  `com.apple.security.cs.disable-library-validation` is what prevents it.
+
+### Added beyond this plan
+
+* `-PappVersion` overrides the version file, which verification step 4 needs,
+  since the file holds a beta number that jpackage refuses.
+* Signing and notarisation fail closed on a tag push when the secrets are
+  absent, rather than quietly publishing an unsigned dmg that Gatekeeper will
+  refuse. A manual run still builds unsigned, so the workflow is testable now.
+* The WiX preflight looks under Program Files and appends what it finds to
+  PATH, rather than only checking PATH.
+* `.claude/research/jre-less-native-bundles.md` records why bundles carry a
+  runtime rather than relying on an installed JRE. Briefly: jpackage cannot
+  build a runtime-less image at all, and a Temurin JRE download is larger than
+  the whole bundle.
 
 ## Measured, not assumed
 
@@ -20,19 +110,37 @@ Targeted at 1.0 final, not another beta.
 | Existing zip | 7MB |
 | Full-JDK app-image | 170MB |
 | Trimmed app-image | 67MB |
-| Trimmed `.dmg` | 44MB |
+| Trimmed `.dmg` | 44MB planned, 40MB once built, 50MB with locale data |
 
-The trimmed runtime needs six modules:
+The trimmed runtime needs eight modules:
 
-    java.base, java.desktop, java.logging, java.sql, jdk.unsupported, jdk.crypto.ec
+    java.base, java.desktop, java.logging, java.sql, jdk.unsupported,
+    jdk.crypto.ec, jdk.localedata, jdk.charsets
 
-`jdeps` reports only four. `java.logging` and `jdk.crypto.ec` load reflectively,
-and without `jdk.crypto.ec` the HTTPS handshake to tvmaze.com fails, so the app
-starts but cannot look up a single episode. Running the tests on the trimmed
-runtime is the only thing that catches this.
+`jdeps` reports only four. The other four are loaded reflectively or read as
+data, so it cannot see them. Without `jdk.crypto.ec` the HTTPS handshake to
+tvmaze.com fails, so the app starts but cannot look up a single episode.
+Running the tests on the trimmed runtime is the only thing that catches that.
 
-44MB is near the floor. `java.desktop` is the bulk and cannot go: SWT, XStream
-and TVRenamer all reference it. Dropping `java.sql` saves nothing measurable.
+`jdk.localedata` and `jdk.charsets` were missed until code review and are not
+optional. `java.base` carries CLDR root and `en` only. Measured on the
+six-module runtime, `Locale.getAvailableLocales()` returned 5 against 1069 on
+the full JDK, `DateTimeFormatter.ofPattern("MMMM", GERMANY)` gave `Mar` rather
+than `Marz`, and neither MS932 nor GBK was a supported charset. The first of
+those writes a wrong month into a renamed file, so a non-English user of the
+bundle got worse results than the same user running the zip.
+
+| Runtime | Size |
+| --- | --- |
+| Six modules | 49MB |
+| plus `jdk.localedata` | 60MB |
+| plus `jdk.charsets` | 51MB |
+| Both, as shipped | 61MB |
+
+50MB is now the floor for the dmg. `java.desktop` is the bulk and cannot go:
+SWT, XStream and TVRenamer all reference it. `jdk.localedata` is the next
+largest at 11MB and correctness needs it. Dropping `java.sql` saves nothing
+measurable.
 
 ## Decisions
 
@@ -97,7 +205,7 @@ Keychains and Apple credentials have no business in a build file.
 
 ### 1. `build.gradle`
 
-`trimmedRuntime` (Exec) runs `jlink` with the six modules plus `--strip-debug
+`trimmedRuntime` (Exec) runs `jlink` with the eight modules plus `--strip-debug
 --no-header-files --no-man-pages --compress=zip-9` into `build/jpackage-runtime`,
 deleting it first since jlink refuses an existing directory. Keep the module list
 in one named variable, commented that `java.logging` and `jdk.crypto.ec` are
@@ -233,27 +341,31 @@ Ordered so the cheap checks settle the uncertain things first.
 
    `TVmazeProviderTest` makes real HTTPS calls, which is the check that matters.
    45 tests passed this way during investigation.
-3. **Locally, signed**, once the certificate exists. Verify
-   `flags=0x10000(runtime)`, a real `TeamIdentifier`, no `get-task-allow`, and
-   whether the dmg wrapper itself is signed:
-
-       codesign --verify --deep --strict --verbose=2 build/jpackage/TVRenamer.app
-       codesign -d --entitlements :- build/jpackage/TVRenamer.app
-       codesign -dv --verbose=4 build/jpackage/TVRenamer-*.dmg
-
-   If the dmg is unsigned, add an explicit `codesign` of the dmg before
-   notarizing.
+3. **Locally, signed.** Done, 22 August 2026. The app came back with
+   `flags=0x10000(runtime)`, the full chain to Apple Root CA,
+   `TeamIdentifier=TLX7RVSV2G`, a secure timestamp, exactly the three
+   entitlements and no `get-task-allow`. The dmg wrapper was unsigned, as this
+   step anticipated, so `signDmg` now signs it. Both notary submissions were
+   Accepted with `issues: null`. The dmg has to be signed before submission,
+   since a signature applied after stapling would discard the ticket.
 4. **CI signing path without burning a tag.** Add `workflow_dispatch` to
    `release.yml` with an app-version override input, force `is_final` for that
    event, and gate the `publish` job to `push` only. The override is needed
    because the version file says `1.0b5`, which jpackage rejects; it exists only
    for `workflow_dispatch`, never for a tag. Watch for `find-identity` printing
    one identity, jpackage not hanging, and `Accepted` from notarytool.
-5. **Gatekeeper on a machine that never built it.** Download through a browser so
-   it carries the quarantine flag, then `xcrun stapler validate` and `spctl
-   --assess -vvv`. Expect `source=Notarized Developer ID`. Passing on the build
-   machine proves nothing, since it already trusts the local certificate. Test an
-   Intel Mac too; separate dmg, separate notarization.
+5. **Gatekeeper on a machine that never built it.** Done for aarch64 on
+   22 August 2026, still outstanding for x86_64, which needs the
+   `macos-15-intel` runner. AirDrop sets `com.apple.quarantine` just as a
+   browser download does, and the receiving Mac had no `~/.swt`. Both the dmg
+   and the installed app came back `accepted, source=Notarized Developer ID`,
+   `stapler validate` passed, the app opened from Finder, and a TVmaze search
+   and a rename both worked. Passing on the build machine proves nothing, since
+   it already trusts the local certificate and has a populated `~/.swt`.
+
+   Afterwards `~/.swt/lib/macosx/aarch64/` held `libswt-cocoa` and
+   `libswt-pi-cocoa`. `libswt-awt-cocoa` stays in the jar unless something asks
+   for the AWT bridge, so two files rather than three is correct.
 6. **Windows.** Install the `.exe`, expect a SmartScreen warning, launch from the
    Start menu, rename a file, uninstall. Then reinstall a bumped version to
    confirm `--win-upgrade-uuid` upgrades rather than installing side by side.
@@ -263,14 +375,16 @@ Ordered so the cheap checks settle the uncertain things first.
 
 ## Risks, ranked
 
-1. **Unsigned SWT dylibs inside the jar.** jpackage does not open jars, so the
-   Eclipse natives are unsigned by the project. Apple's notary service scans
-   inside archives and has historically warned rather than rejected, but has
-   tightened over time. Read the notary log every time, even on success. Escape
-   hatch if rejected: extract the natives into the app image so jpackage signs
-   them as loose Mach-O files, and pass `--java-options
-   -Dswt.library.path=$APPDIR`, which SWT checks before extracting to `~/.swt`.
-   Do not build that speculatively.
+1. **Unsigned SWT dylibs inside the jar. Closed, and the reasoning here was
+   wrong.** The premise was that jpackage does not open jars, leaving the
+   Eclipse natives unsigned, and that the notary might warn. The notary opened
+   the jar. All three `libswt-*.jnilib` files appear in `ticketContents` under
+   paths that run straight through the archive, for example
+   `TVRenamer.app/Contents/app/org.eclipse.swt.cocoa.macosx.aarch64-3.130.0.jar/libswt-cocoa-4969r18.jnilib`.
+   They were ticketed, not flagged, and `issues` was null. The escape hatch,
+   extracting the natives and passing `-Dswt.library.path=$APPDIR`, is not
+   needed. Keep reading the log on every release anyway, since Apple has
+   tightened this before.
 2. **Missing `set-key-partition-list`.** Hangs to job timeout with no useful
    message.
 3. **The dmg filename collision** silently ships one architecture twice.
