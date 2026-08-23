@@ -17,8 +17,7 @@ It will take an ugly filename like **Lost.S06E05.Lighthouse.DD51.720p.WEB-DL.AVC
 ## Usage & Download
 
 > ## Please Note
-> Your virus software may display a false positive on TVRenamer. This is reported in the issue:
->  [#238](https://github.com/tvrenamer/tvrenamer/issues/238)
+> Your virus software may display a false positive on TVRenamer.
 > This software is open source and contains no viruses. You can inspect the source and build it yourself if you're interested. We do not know why the virus detection software thinks there's a virus; possibly it's simply because the program will rename your files, which some programs may be overly protective about.
 >
 > If you get a message from your virus software, we would ask that you report it to the makers of the virus software, as a bug in their product, reporting a false positive.
