@@ -2,10 +2,10 @@
 [![Build Status](https://github.com/tvrenamer/tvrenamer/actions/workflows/build.yml/badge.svg)](https://github.com/tvrenamer/tvrenamer/actions/workflows/build.yml)
 ## About
 TVRenamer is a Java GUI utility to rename TV episodes from TV listings
-It will take an ugly filename like **Lost.[6x05].DD51.720p.WEB-DL.AVC-FUSiON.mkv** and rename it to **Lost S06E05 Lighthouse.mkv**
+It will take an ugly filename like **Lost.S06E05.Lighthouse.DD51.720p.WEB-DL.AVC-FUSiON.mkv** and rename it to **Lost [6x05] Lighthouse.mkv**
 
 ## [Screenshot](https://github.com/tvrenamer/tvrenamer/wiki/Screenshots)
-![Screenshot](https://raw.githubusercontent.com/wiki/tvrenamer/tvrenamer/tvrenamer-0.5b2.png)
+![Screenshot](https://raw.githubusercontent.com/wiki/tvrenamer/tvrenamer/tvrenamer-1.0.png)
 
 ## Features
  * Rename many different shows at once from information from [TVmaze](https://www.tvmaze.com/)
