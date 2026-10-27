@@ -134,6 +134,12 @@ public final class UIStarter {
      * be called to re-establish it.
      */
     public void setAppIcon() {
+        // macOS windows have no title bar icon, and on Cocoa SWT copies the
+        // Shell's image into the Dock. That would swap the bundle's icon for
+        // this PNG, which macOS draws as is, outside the squircle.
+        if (Environment.IS_MAC_OSX) {
+            return;
+        }
         if (appIcon == null) {
             logger.warning("unable to get application icon");
         } else {
